@@ -957,14 +957,15 @@ const DASH_TRIMS = {
 };
 const SUNROOFS = {
   none:   { label: 'No moonroof', price: 0, desc: 'Solid roof.' },
-  closed: { label: 'Power moonroof (closed)', price: 950, desc: 'Tinted glass panel over the front seats (Limited option).' },
-  open:   { label: 'Power moonroof (open)', price: 950, desc: 'Same moonroof, glass slid back — open to the sky.' },
+  closed: { label: 'Power moonroof', price: 950, desc: 'Glass panel over the front seats (Limited option). Open / close it below or from the drive HUD (Windows); it takes the window tint.' },
+  open:   { label: 'Power moonroof (open)', price: 950, hidden: true, desc: 'Older saves: installed and open.' },
 };
 const SUN_HL = 0.27, SUN_HW = 0.47; // moonroof opening half-length (fore-aft) / half-width — wider than it is long
 const STAR_T = { value: 0 }; // shared clock for the starlight twinkle
 // Headliner (the fabric ceiling under the roof) — color / material. Factory follows the interior color.
 const HEADLINERS = {
-  oem:      { label: 'Factory cloth', price: 0, swatch: 'linear-gradient(135deg,#aaa397,#7d776d)', desc: 'Matches the interior color.' },
+  oem:      { label: 'Factory cloth', price: 0, hex: '#b3ada3', rough: 0.92, swatch: '#b3ada3', desc: 'The factory light-gray cloth.' },
+  match:    { label: 'Match seats', price: 0, match: true, swatch: 'linear-gradient(135deg,#aaa397,#141414)', desc: 'Same color as your seats & interior.' },
   black:    { label: 'Black suede', price: 650, hex: '#121214', rough: 0.97, swatch: '#121214', desc: 'Alcantara-style black suede — the starlight look.' },
   charcoal: { label: 'Charcoal', price: 350, hex: '#36383c', rough: 0.92, swatch: '#36383c', desc: 'Dark grey cloth.' },
   gray:     { label: 'Light gray', price: 350, hex: '#a3a29d', rough: 0.92, swatch: '#a3a29d', desc: 'Light grey cloth.' },
@@ -973,6 +974,17 @@ const HEADLINERS = {
   red:      { label: 'Red suede', price: 650, hex: '#6e1218', rough: 0.97, swatch: '#6e1218', desc: 'Deep red suede.' },
   blue:     { label: 'Navy suede', price: 650, hex: '#141c34', rough: 0.97, swatch: '#141c34', desc: 'Midnight-navy suede.' },
 };
+// The headliner's color — also the interior pillar trim (A / B / C pillars, roof rails). A starlight on the factory liner
+// goes black like every real install; "Match seats" follows the interior color.
+function headlinerHex(b) {
+  const HL = HEADLINERS[b.headliner] || HEADLINERS.oem, SL = STARLIGHTS[b.starlight] || STARLIGHTS.none, IC = INTERIOR_COLORS[b.intColor] || INTERIOR_COLORS.stock;
+  if (HL.match) return IC.hex;
+  if ((b.headliner || 'oem') === 'oem' && SL.n) return '#101012';
+  return HL.hex;
+}
+const TRIM_COL = { value: new THREE.Color('#b3ada3') }; // shared by every paint material: the inside face of the body shell
+// …only inside the cab (the bed walls' inner faces stay paint): world → truck rest space, and the cab box in rest space
+const TRIM_MAT = { value: new THREE.Matrix4() }, TRIM_MIN = { value: new THREE.Vector3(1e6, 1e6, 1e6) }, TRIM_MAX = { value: new THREE.Vector3(-1e6, -1e6, -1e6) };
 // Starlight headliner: fiber-optic "stars" through the headliner (they twinkle). cols = the mix of star colors.
 const STARLIGHTS = {
   none:  { label: 'No starlight', price: 0, desc: 'Plain headliner.' },
@@ -1101,7 +1113,7 @@ const ENGINE_ACCENTS = {
 };
 const DEFAULT_BUILD = {
   color: '#a3141b', finish: 'metallic', wrap: 'none', tint: 50, tintWs: 0, // Sunfire Red Pearl (3K4)
-  tire: 'stock', tireBrand: 'oem', wheelStyle: 'model', rimFinish: 'matte', offsetF: 'oe', offsetR: 'oe', spacerF: 0, spacerR: 0, exhaustColor: 'stock', intTrim: 'cloth', intColor: 'stock', brake3: 'oem', brake3On: true, audio: 'factory', subs: 'none', dashTrim: 'match', sunroof: 'none', headliner: 'oem', starlight: 'none', head: 'off', fogsOn: false, badges: {}, decal: null, frontSusp: 'ifs',
+  tire: 'stock', tireBrand: 'oem', wheelStyle: 'model', rimFinish: 'matte', offsetF: 'oe', offsetR: 'oe', spacerF: 0, spacerR: 0, exhaustColor: 'stock', intTrim: 'cloth', intColor: 'stock', brake3: 'oem', brake3On: true, audio: 'factory', subs: 'none', dashTrim: 'match', sunroof: 'none', sunroofOpen: false, headliner: 'oem', starlight: 'none', head: 'off', fogsOn: false, badges: {}, decal: null, frontSusp: 'ifs',
   lift: 0, liftR: null, shock: 'stock', uca: 'stock', lca: 'stock', rearSpring: 'stock', bypassF: 'none', bypassR: 'none', rearLink: 'leaf', exhaust: 'stock', steps: 'stock',
   windows: { fl: 0, fr: 0, rl: 0, rr: 0, rear: 0 }, cuts: [], grille: 'stock', fiberF: 'none', fiberR: 'none', antenna: 'stock', diff: 'open', damping: 0.5,
   bedCover: 'model', topper: 'none', bedRack: 'none', bedTent: 'none', roofRack: 'none', roofTent: 'none', tentOpen: false,
@@ -3275,6 +3287,7 @@ function installPaintShader(m) {
     uTarget: { value: new THREE.Color(1, 0, 0) }, uWrap: { value: null }, uWrapOn: { value: 0 }, uWrapScale: { value: 0.55 }, uWrapOrigin: { value: new THREE.Vector3() },
     uRough: { value: 0.3 }, uMetal: { value: 0 }, uCoat: { value: 1 }, uCoatRough: { value: 0.05 },
     uOrigCoat: { value: m.clearcoat || 0 }, uOrigCoatRough: { value: m.clearcoatRoughness || 0 },
+    uTrim: TRIM_COL, uTrimMat: TRIM_MAT, uTrimMin: TRIM_MIN, uTrimMax: TRIM_MAX,
   };
   m.clearcoat = Math.max(m.clearcoat || 0, 1e-3); // keep USE_CLEARCOAT compiled; the shader mixes the real value per pixel
   m.onBeforeCompile = (sh) => {
@@ -3285,7 +3298,7 @@ function installPaintShader(m) {
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
         uniform float uPaintOn, uKeyLum, uTol, uWrapOn, uWrapScale, uRough, uMetal, uCoat, uCoatRough, uOrigCoat, uOrigCoatRough;
-        uniform vec3 uKey, uTarget, uWrapOrigin; uniform sampler2D uWrap; varying vec3 vPW; varying vec3 vPN;
+        uniform vec3 uKey, uTarget, uWrapOrigin, uTrim, uTrimMin, uTrimMax; uniform mat4 uTrimMat; uniform sampler2D uWrap; varying vec3 vPW; varying vec3 vPN;
         vec2 apexChroma(vec3 c, float l) { return vec2(c.r - c.g, (c.r + c.g) * 0.5 - c.b) / max(l, 0.03); }
         vec3 apexTri() { vec3 n = pow(abs(normalize(vPN)), vec3(4.0)); n /= (n.x + n.y + n.z); vec3 p = (vPW - uWrapOrigin) * uWrapScale;
           return texture2D(uWrap, p.yz).rgb * n.x + texture2D(uWrap, p.xz).rgb * n.y + texture2D(uWrap, p.xy).rgb * n.z; }`)
@@ -3297,12 +3310,17 @@ function installPaintShader(m) {
           paintMask = 1.0 - smoothstep(uTol * 0.55, uTol, pd);
           vec3 pbase = uWrapOn > 0.5 ? apexTri() : uTarget;
           diffuseColor.rgb = mix(pc, pbase * clamp(pl / max(uKeyLum, 0.03), 0.0, 2.5), paintMask);
-        }`)
-      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, uRough, paintMask);')
-      .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(metalnessFactor, uMetal, paintMask);')
+        }
+        // the inside face of the body shell (seen from the cab): A / B / C pillars, roof rails, door frames — matte trim in
+        // the headliner color, not the back of the paint
+        vec3 tr = (uTrimMat * vec4(vPW, 1.0)).xyz;
+        float trimMask = (!gl_FrontFacing && all(greaterThan(tr, uTrimMin)) && all(lessThan(tr, uTrimMax))) ? 1.0 : 0.0;
+        diffuseColor.rgb = mix(diffuseColor.rgb, uTrim, trimMask);`)
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(mix(roughnessFactor, uRough, paintMask), 0.9, trimMask);')
+      .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(mix(metalnessFactor, uMetal, paintMask), 0.0, trimMask);')
       .replace('#include <lights_physical_fragment>', `#include <lights_physical_fragment>
         #ifdef USE_CLEARCOAT
-          material.clearcoat = mix(uOrigCoat, uCoat, paintMask);
+          material.clearcoat = mix(mix(uOrigCoat, uCoat, paintMask), 0.0, trimMask);
           material.clearcoatRoughness = clamp(mix(uOrigCoatRough, uCoatRough, paintMask), 0.0525, 1.0);
         #endif`);
   };
@@ -3818,6 +3836,13 @@ function buildExtras(M, P, b, info, gBox) {
     quad(stk, 0.29, 0.27, bezelMat, 0, 0, 0);
     const radio = extraTex('tundra-radio', 256, 100, (x, w, h) => { x.fillStyle = '#121315'; x.fillRect(0, 0, w, h); x.fillStyle = '#0a1a10'; x.fillRect(64, 14, 128, 34); x.fillStyle = '#5dff9a'; x.font = 'bold 20px monospace'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('FM1 101.1', 128, 31); x.fillStyle = '#3a3c40'; for (let i = 0; i < 6; i++) { x.fillRect(22 + i * 37, 62, 28, 14); } x.fillStyle = '#9aa0a6'; x.font = '10px Arial'; for (let i = 0; i < 6; i++) x.fillText(String(i + 1), 36 + i * 37, 69); x.fillStyle = '#2a2c30'; x.beginPath(); x.arc(28, 32, 15, 0, Math.PI * 2); x.arc(228, 32, 15, 0, Math.PI * 2); x.fill(); });
     quad(stk, 0.19, 0.075, new THREE.MeshStandardMaterial({ map: radio, emissive: 0xffffff, emissiveMap: radio, emissiveIntensity: 0.25, roughness: 0.35 }), 0, 0.055, 0.003);
+    // CarPlay: a floating 8" touchscreen on a short stalk just above the radio, showing what's playing (live texture)
+    { const blk = new THREE.MeshStandardMaterial({ color: 0x0b0c0e, roughness: 0.45, metalness: 0.2 });
+      const SY = 0.165, SZ = 0.115; // (screen centre: just over the radio, stood out toward the driver on its arm so the dash top's overhang doesn't swallow it)
+      const neck = mk(new THREE.BoxGeometry(0.045, 0.035, SZ - 0.01), blk); neck.position.set(0, 0.118, (SZ - 0.01) / 2); stk.add(neck);
+      const frame = mk(new THREE.BoxGeometry(0.19, 0.112, 0.012), blk); frame.position.set(0, SY, SZ - 0.007); stk.add(frame);
+      const scr = quad(stk, 0.178, 0.1, new THREE.MeshBasicMaterial({ map: CarPlay.tex, toneMapped: false }), 0, SY, SZ - 0.0005); scr.name = 'carplay';
+      const glare = quad(stk, 0.178, 0.1, new THREE.MeshPhysicalMaterial({ color: 0x000000, transparent: true, opacity: 0.08, roughness: 0.05, clearcoat: 1, depthWrite: false }), 0, SY, SZ + 0.0003); void glare; } // (a glossy glass sheen over it)
     const vent = extraTex('vent', 64, 64, (x, w, h) => { x.fillStyle = '#0b0b0c'; x.fillRect(0, 0, w, h); x.fillStyle = '#2b2d31'; for (let i = 4; i < h; i += 8) x.fillRect(4, i, w - 8, 3); });
     [-0.118, 0.118].forEach((vx) => quad(stk, 0.045, 0.07, new THREE.MeshStandardMaterial({ map: vent, roughness: 0.6 }), vx, 0.055, 0.003));
     quad(stk, 0.22, 0.065, new THREE.MeshStandardMaterial({ color: 0x141518, roughness: 0.55 }), 0, -0.04, 0.003);
@@ -3827,21 +3852,25 @@ function buildExtras(M, P, b, info, gBox) {
     });
     // moonroof: tinted glass in the roof opening (or slid back under the roof when open). Wider than long, like the factory
     // panel; inside, just a slim trim ring flush with the headliner (no deep box hanging into the cab)
-    const SR = b.sunroof || 'none', LN = D.liner, LIN = 0.025; // (headliner sits 25 mm under the roof skin)
+    const SR = b.sunroof || 'none', LN = D.liner, LIN = 0.045; // (headliner sits 45 mm under the roof skin — room for the moonroof glass to slide back between)
     const xa = D.sunX - SUN_HL, xb = D.sunX + SUN_HL, zw = SUN_HW;
     if (SR !== 'none') {
       const y = D.sunY, fr = new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.6 });
       [[xa - 0.008, xa, -zw - 0.008, zw + 0.008], [xb, xb + 0.008, -zw - 0.008, zw + 0.008], [xa, xb, -zw - 0.008, -zw], [xa, xb, zw, zw + 0.008]].forEach(([x0f, x1f, z0f, z1f]) => put(rbox(x0f, x1f, y - LIN - 0.004, y - 0.004, z0f, z1f, fr, 0.002), 'body')); // thin shaft walls, roof skin → headliner
       const ring = new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.75 }), RW = 0.03, ry = y - LIN - 0.006;
       [[xa - RW, xa, -zw - RW, zw + RW], [xb, xb + RW, -zw - RW, zw + RW], [xa, xb, -zw - RW, -zw], [xa, xb, zw, zw + RW]].forEach(([x0f, x1f, z0f, z1f]) => put(rbox(x0f, x1f, ry - 0.005, ry, z0f, z1f, ring, 0.002), 'body')); // trim ring on the headliner
-      const gl = rbox(xa + 0.01, xb - 0.01, y - 0.012, y - 0.004, -zw + 0.01, zw - 0.01, new THREE.MeshPhysicalMaterial({ color: 0x07090c, transparent: true, opacity: 0.72, roughness: 0.04, clearcoat: 1, envMapIntensity: 1.6 }), 0.01);
-      if (SR === 'open') gl.position.set(-(xb - xa) - 0.03, -0.01, 0); // slid back between the roof skin and the headliner
+      const gl = rbox(xa + 0.01, xb - 0.01, y - 0.012, y - 0.004, -zw + 0.01, zw - 0.01, new THREE.MeshPhysicalMaterial({ color: 0x07090c, transparent: true, opacity: 0.72, roughness: 0.04, clearcoat: 1, envMapIntensity: 1.6, depthWrite: false }), 0.01);
+      // (the stage opens / closes it: drops a hair, then slides back between the roof skin and the headliner — and tints it)
+      // (dropBack: how far the roof skin falls away over the slid-back spot, so the glass follows the roof's curve inside it)
+      const slide = -(xb - xa) - 0.03, roofAt = (x, z) => { if (!LN) return y; const i = Math.round(((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx), j = Math.round(((z + LN.lz) / (2 * LN.lz)) * LN.nz), v = LN.y[THREE.MathUtils.clamp(i, 0, LN.nx) * (LN.nz + 1) + THREE.MathUtils.clamp(j, 0, LN.nz)]; return isNaN(v) ? y : v; };
+      let low = y; [xa + slide, D.sunX + slide, xb + slide].forEach((x) => [-zw, 0, zw].forEach((z) => { low = Math.min(low, roofAt(x, z)); })); // lowest roof over the slid-back glass
+      gl.name = 'moonroofGlass'; Object.assign(gl.userData, { base: gl.position.clone(), slide, drop: -0.01, dropBack: Math.min(-0.01, low - y - 0.003) }); // (glass top stays under the skin)
       put(gl, 'body');
     }
     // headliner: our own fabric ceiling laid just under the roof skin (measured grid), with the moonroof opening left out
     if (LN) {
       const HL = HEADLINERS[b.headliner] || HEADLINERS.oem, SL = STARLIGHTS[b.starlight] || STARLIGHTS.none, IC = INTERIOR_COLORS[b.intColor] || {};
-      const hex = HL.hex || (SL.n ? '#101012' : b.intColor === 'black' ? '#2b2b2e' : IC.hex || '#aaa397'); // (starlight on the factory liner: black, like every real install)
+      const hex = headlinerHex(b); void IC; // (starlight on the factory liner: black, like every real install)
       const NZ = LN.nz + 1, at = (i, j) => LN.y[i * NZ + j], X = (i) => LN.x0 + ((LN.x1 - LN.x0) * i) / LN.nx, Z = (j) => -LN.lz + (2 * LN.lz * j) / LN.nz;
       const inHole = (x, z, pad = 0) => SR !== 'none' && x > xa - pad && x < xb + pad && Math.abs(z) < zw + pad;
       const pos = [], idx = [], vid = new Int32Array((LN.nx + 1) * NZ).fill(-1);
@@ -4897,9 +4926,14 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   }
   function updateCutMatrix() {
     if (!model) return;
-    const h = model.holder; h.updateMatrixWorld(true);
+    // (updateWorldMatrix with parents: the truck's own matrix is otherwise a frame old while driving, so the cut boxes /
+    // spheres — moonroof hole, fender trims — trailed the body and sliced the roof, dash and wheel at speed)
+    const h = model.holder; h.updateWorldMatrix(true, true);
     restMat.makeTranslation(h.position.x, model.baseY, h.position.z);
     cutU.uCutMat.value.copy(h.matrixWorld).invert().premultiply(restMat);
+    TRIM_MAT.value.copy(cutU.uCutMat.value); // (interior pillar trim: same rest space)
+    const bi = model.bedInfo, P = base.P; // the cab box: behind the cowl, ahead of the cab's back wall, rocker to roof
+    if (bi && P) { TRIM_MIN.value.set(bi.cabRear - 0.06, P.rockerY + 0.15, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); }
   }
   function setCuts(cuts = []) {
     const n = Math.min(MAX_CUTS, cuts.length); cutU.uCutN.value = n;
@@ -4923,7 +4957,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   // windows roll (not jump) to the build's positions: winCur steps toward winTarget in the frame loop
   const winCur = {}, winTarget = {}; let winModel = null;
   function applyWindows(b) {
-    Object.assign(winTarget, { fl: 0, fr: 0, rl: 0, rr: 0, rear: 0 }, b.windows || {});
+    Object.assign(winTarget, { fl: 0, fr: 0, rl: 0, rr: 0, rear: 0 }, b.windows || {}, { roof: (b.sunroof || 'none') !== 'none' && b.sunroofOpen ? 1 : 0 }); // (roof: the moonroof glass, same motor speed; shut unless opened)
     if (winModel !== model) { winModel = model; Object.assign(winCur, winTarget); } // a fresh model starts where the build says
     applyWindowsAt(winCur);
   }
@@ -4932,7 +4966,19 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     Object.keys(winTarget).forEach((id) => { const c = winCur[id] || 0, t = winTarget[id] || 0; if (Math.abs(t - c) > 1e-4) { winCur[id] = c + Math.sign(t - c) * Math.min(Math.abs(t - c), dt * 0.42); moved = true; } });
     if (moved) applyWindowsAt(winCur);
   }
+  // moonroof glass: slides back with wv.roof (0 shut … 1 open) — a 4 mm drop first, then back under the roof — and takes the
+  // window tint. From the driver's seat it reads nearly clear (tint film only darkens light coming in), like the side glass.
+  function syncMoonroof(wv = winCur) {
+    const gl = truck.getObjectByName('moonroofGlass'); if (!gl) return;
+    const t = wv.roof || 0, u = gl.userData, m = gl.material, vlt = THREE.MathUtils.clamp((build.tint ?? 50) / 100, 0.05, 0.9);
+    const s = THREE.MathUtils.clamp((t - 0.15) / 0.85, 0, 1); // (first 15 %: drop below the roof skin; the rest: slide back toward the rear)
+    gl.position.copy(u.base).add(new THREE.Vector3(u.slide * s, THREE.MathUtils.lerp(u.drop * Math.min(1, t / 0.15), u.dropBack, s), 0));
+    const outside = Math.min(0.94, 1 - 0.78 * Math.pow(vlt, 1.25) + 0.06); // a touch darker than the side glass: moonroof glass is factory-shaded
+    m.opacity = cabinView ? Math.max(0.1, outside * 0.3) : outside;
+    m.color.copy(darkGlass).lerp(new THREE.Color(0x2a3540), vlt * 0.6); m.metalness = 0.3 * (1 - vlt); m.envMapIntensity = 1.4 + (1 - vlt) * 1.2;
+  }
   function applyWindowsAt(wv) {
+    syncMoonroof(wv);
     if (!model || !model.windows) return;
     const h = model.holder; h.updateMatrixWorld(true);
     const v = new THREE.Vector3();
@@ -4984,7 +5030,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         o.add(c.sub(cw)); o.z += Math.sign(wp.z) * ((wp.k[0] === 'F' ? rig.offF : rig.offR) + sp.z - Math.abs(wp.z)); pc.parent.worldToLocal(o); pc.position.copy(o);
       });
       if (chassis) chassis.update({ body: (v) => { body(v); return v; }, wyOf, spots: P.spots, zOffF: rig.offF, zOffR: rig.offR, ltF: ((LCA_KITS[build.lca] || LCA_KITS.stock).track || 0) * INCH, leaves: leafCount(build) });
-      updateWindowPlanes(); updateCutMatrix();
+      updateCutMatrix(); updateWindowPlanes(); // (matrix first: the window clip planes ride on the fresh body matrix too)
     }
     wheels.forEach((w, i) => { w.position.y = rig.wy + (rig.susp[i] || 0); });
     const t = tireSpec(build.tire, base.vehicle), tw = swap ? t.width * INCH : 0.27, tr = swap ? rig.wy : P.R0;
@@ -5042,6 +5088,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         if ('roughness' in m) { m.roughness = 0.03; m.metalness = 0.28 * (1 - vlt); m.envMapIntensity = 1.5 + (1 - vlt) * 1.2; }
       }
     });
+    syncMoonroof(); // (the moonroof takes the same film)
   }
   function engineModel(accent) {
     const ep = ENGINE_PBR[accent];
@@ -5446,6 +5493,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   function applyBuild(b, opts = {}, instant = false) {
     build = b;
     const P = base.P; if (!P) return;
+    TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
     if (model) { paintModel(b); tintModel(b.tint, b.tintWs || 0); engineModel(b.engineAccent); if (model.zones) { applyZones(b); applyBulge(b); } }
     const style = effStyle(b);
     const r = RIM_PBR[style === 'factory-steel16' ? 'steel' : style.startsWith('factory-') ? 'alloy' : b.rimFinish] || RIM_PBR.matte;
@@ -6301,16 +6349,17 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       liner: { x0: lx0, x1: lx1, nx, nz, lz, y: ly } };
   }
   // sound system: where you're listening from (driver's seat / outside), how far the windows are down, and how far away you are
+  let bassS = 0; // (smoothed bass thump on the body)
   function updateMusic() {
     const b = build || {}, w = winCur;
-    const open = Math.min(1, 0.24 * ((w.fl || 0) + (w.fr || 0) + (w.rl || 0) + (w.rr || 0)) + 0.16 * (w.rear || 0));
+    const open = Math.min(1, 0.24 * ((w.fl || 0) + (w.fr || 0) + (w.rl || 0) + (w.rr || 0)) + 0.16 * (w.rear || 0) + 0.2 * (w.roof || 0)); // (an open moonroof lets the stereo out too)
     const tp = truck.position, dist = camera.position.distanceTo(V(tp.x, tp.y + 1, tp.z));
     MusicSys.update({ audio: b.audio, subs: b.subs }, { inside: drive.on && drive.cam === 3, open, dist });
     const A = drive.on && drive.area, lay = outdoor.layoutId(), spd = drive.on ? Math.hypot(drive.u || 0, drive.vz || 0) : 0;
     WorldAudio.update({ driving: drive.on, speed: spd, air: !!drive.air, weather: b.weather || 'dry', inside: drive.on && drive.cam === 3, open,
       paved: A ? (A.loose ? !A.loose(drive.x, drive.z) : !A.desert) : true, wooded: ['roadside', 'forest', 'trail', 'park', 'jumps', 'mud', 'rocks'].includes(lay),
       slide: drive.on ? THREE.MathUtils.clamp(((drive.drift || 0) - 7) / 25, 0, 1) + (drive.spinning ? 0.6 : 0) : 0 });
-    if (model) { const bs = (b.subs || 'none') !== 'none' ? MusicSys.bass() : 0; model.stretch.rotation.z = bs > 0.5 ? (bs - 0.5) * 0.008 * Math.sin(performance.now() * 0.33) : 0; } // the body buzzes on big bass hits
+    if (model) { const bs = (b.subs || 'none') !== 'none' ? MusicSys.bass() : 0; const kick = bs > 0.5 && !(drive.on && drive.cam === 3) ? (bs - 0.5) * 0.004 : 0; bassS += (kick - bassS) * 0.25; model.stretch.rotation.z = bassS; } // big bass hits nudge the body (a smooth thump, not a 50 Hz buzz; none from the driver's seat)
   }
   function updateSteerWheel() {
     const sr = model && model.steerRig; if (!sr) return;
@@ -6461,7 +6510,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   renderer.domElement.addEventListener('pointerdown', (e) => { if (drive.on && e.button === 2) { camOrbit.drag = [e.clientX, e.clientY]; renderer.domElement.setPointerCapture(e.pointerId); } });
   renderer.domElement.addEventListener('pointermove', (e) => {
     if (!camOrbit.drag) return;
-    camOrbit.yaw -= (e.clientX - camOrbit.drag[0]) * 0.006; camOrbit.pitch = THREE.MathUtils.clamp(camOrbit.pitch + (e.clientY - camOrbit.drag[1]) * 0.004, -0.4, 0.9);
+    camOrbit.yaw -= (e.clientX - camOrbit.drag[0]) * 0.006; camOrbit.pitch = THREE.MathUtils.clamp(camOrbit.pitch + (e.clientY - camOrbit.drag[1]) * 0.004, -0.4, 1.35);
     camOrbit.drag = [e.clientX, e.clientY];
   });
   renderer.domElement.addEventListener('pointerup', (e) => { if (e.button === 2) camOrbit.drag = null; });
@@ -6555,7 +6604,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     // tinted glass reads almost clear from inside (dark film only blocks light from outside): see-through while in the cab
     [...model.glassMats, ...(model.wsMats || [])].forEach((mt) => { if (on && mt.opacity > 0.2) { mt.transparent = true; mt.opacity = 0.16; mt.needsUpdate = true; } });
     if (!on && was) tintModel(build.tint, build.tintWs || 0);
-    model.parts.meshes.forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
+    syncMoonroof(); // (moonroof glass: near-clear from inside)
+    // only the outer shell (roof, doors, pillars) needs its back faces from inside: the cabin's own parts (dash, seats, wheel,
+    // trim) stay single-sided — doubling them made their layered shells z-fight and shimmer as the view moved
+    const Zc = model.zones || {}, cabin = new Set([...(Zc.interior || []), ...(Zc.dash || []), ...(Zc.steer || [])]);
+    model.parts.meshes.forEach((m) => (cabin.has(m) ? [] : Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
       if (!mt) return;
       if (on && mt.side !== THREE.DoubleSide) { mt.userData.side0 = mt.side; mt.side = THREE.DoubleSide; mt.needsUpdate = true; }
       else if (!on && mt.userData.side0 !== undefined) { mt.side = mt.userData.side0; delete mt.userData.side0; mt.needsUpdate = true; }
@@ -6825,9 +6878,17 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       const sr = model.steerRig;
       sr.pivot.parent.updateWorldMatrix(true, false); // (this frame's body pose — a one-frame-old one left the eye up to half a metre behind at speed)
       const hq = model.holder.getWorldQuaternion(new THREE.Quaternion());
-      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), eye = c.add(V(-0.6, 0.33, 0).applyQuaternion(hq));
+      // your head is a weight on your neck, not bolted to the cab: it lags the body's heave (bumps, whoops, landings), nods
+      // with hits and leans with cornering — so the cab stays steady in view and you see your head move inside it
+      const hb = d.head || (d.head = { y: 0, vy: 0, z: 0, vz: 0, p: 0, vp: 0, prevVy: null });
+      const acc = hb.prevVy === null || d.air ? 0 : THREE.MathUtils.clamp((d.vy - hb.prevVy) / Math.max(dt, 1e-3), -45, 45); hb.prevVy = d.vy;
+      const neck = (x, v, k, push) => v + (-k * x - 2 * 0.45 * Math.sqrt(k) * v + push) * dt; // (a soft, slightly bouncy spring)
+      hb.vy = neck(hb.y, hb.vy, 70, -acc * 0.3); hb.y = THREE.MathUtils.clamp(hb.y + hb.vy * dt, -0.07, 0.05);
+      hb.vz = neck(hb.z, hb.vz, 45, -(d.ayPrev || 0) * 0.35); hb.z = THREE.MathUtils.clamp(hb.z + hb.vz * dt, -0.07, 0.07);
+      hb.vp = neck(hb.p, hb.vp, 60, -acc * 0.03 + (d.pitchV || 0) * 1.2); hb.p = THREE.MathUtils.clamp(hb.p + hb.vp * dt, -0.07, 0.07);
+      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), eye = c.add(V(-0.6, 0.33 + hb.y, hb.z).applyQuaternion(hq));
       camera.position.copy(eye);
-      const yawL = THREE.MathUtils.clamp(camOrbit.yaw, -2.3, 2.3), pitchL = THREE.MathUtils.clamp(camOrbit.pitch, -0.9, 0.6) - 0.1;
+      const yawL = THREE.MathUtils.clamp(camOrbit.yaw, -2.3, 2.3), pitchL = THREE.MathUtils.clamp(camOrbit.pitch, -0.9, 1.35) - 0.1 + hb.p; // (far enough up to look out through the moonroof)
       camera.quaternion.copy(hq).multiply(new THREE.Quaternion().setFromAxisAngle(YAX, -Math.PI / 2 + yawL)).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitchL));
       controls.target.copy(V(0, 0, -2).applyQuaternion(camera.quaternion).add(camera.position));
       if (camera.near !== 0.04) { camera.near = 0.04; }
@@ -6856,13 +6917,15 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
 
   // ---- Engine: body rocks with torque on a rev, idles with a slight shake
   const engine = { on: false, rpm: 0, throttle: 0, redline: 5600 };
-  function engineFx(t) {
+  // the body leans a touch on its mounts when you rev (torque rock), eased in and out. No vibration term: a 25–50 Hz tremor is
+  // faster than the screen can show and came out as a jittery flicker at the front. Still at idle; nothing in first person.
+  let rockS = 0;
+  function engineFx(t, dt) {
     if (!model) return;
-    const st = model.stretch;
-    if (!engine.on) { st.rotation.x = 0; st.position.y = 0; return; }
-    const r = engine.rpm / engine.redline;
-    st.rotation.x = -0.009 * engine.throttle * r + Math.sin(t * engine.rpm * 0.21) * 0.00016 * (1.2 - r); // (a faint idle tremor, not a shake)
-    st.position.y = Math.sin(t * engine.rpm * 0.13) * 0.00012;
+    const st = model.stretch, r = engine.on ? engine.rpm / engine.redline : 0;
+    const target = engine.on && !(drive.on && drive.cam === 3) ? -0.006 * engine.throttle * r : 0;
+    rockS += (target - rockS) * Math.min(1, dt * 5);
+    st.rotation.x = Math.abs(rockS) < 1e-6 ? 0 : rockS; st.position.y = 0;
   }
 
   // ---- Renders of each factory configuration (offscreen, never reaches the screen)
@@ -6980,7 +7043,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     updateSteerWheel(); updateMusic();
     { const now = performance.now(); // reflection capture: when scheduled, or after driving ~25 m (at most every 1.5 s)
       if ((envCap.due.length && now > envCap.due[0]) || (drive.on && now - envCap.last > 1500 && truck.position.distanceTo(envCap.at) > 25)) { envCap.due = envCap.due.filter((t) => t > now); captureEnv(); } }
-    engineFx(t);
+    engineFx(t, dt);
     // switch-panel STROBE ALL: every switched-on light group double-flashes, left/right style (two bursts per beat)
     if (lights && build.lightsOn && (build.lightSwitch || {}).strobe) {
       const ph = (t * 1.6) % 1, on = ph < 0.08 || (ph > 0.16 && ph < 0.24) || (ph > 0.5 && ph < 0.58) || (ph > 0.66 && ph < 0.74);
@@ -7182,6 +7245,42 @@ const ModelLib = (() => {
 })();
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } };
+
+// ---- CarPlay screen on the dash: a live canvas texture — status bar, app dock, and Now Playing for whatever the stereo is
+// playing (your files or Spotify). Redrawn on every music change and once a minute for the clock.
+const CarPlay = (() => {
+  const W = 640, H = 360, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d'), tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4; tex.userData.keep = true;
+  const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
+  const fit = (s, maxW) => { if (x.measureText(s).width <= maxW) return s; while (s.length > 1 && x.measureText(s + '…').width > maxW) s = s.slice(0, -1); return s + '…'; };
+  const draw = () => {
+    const st = MusicSys.state, raw = st.mode === 'spotify' ? st.sp.track : (st.tracks[st.idx] || {}).name, playing = !!st.playing && !!raw;
+    const [song, artist] = raw ? (raw.includes(' — ') ? raw.split(' — ') : [raw, st.mode === 'spotify' ? '' : 'My Music']) : ['Not Playing', 'Add music in the drive HUD → Audio'];
+    x.fillStyle = '#05070b'; x.fillRect(0, 0, W, H);
+    // left dock: clock + app icons
+    x.fillStyle = '#0d1016'; x.fillRect(0, 0, 92, H);
+    const d = new Date(); x.fillStyle = '#f2f4f7'; x.font = '600 22px -apple-system, Segoe UI, Arial'; x.textAlign = 'center'; x.fillText(d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M/i, ''), 46, 34);
+    x.font = '600 12px Segoe UI, Arial'; x.fillStyle = '#9aa3ad'; x.fillText('5G ▮▮▮', 46, 52);
+    [['#34c759', '☎'], ['#fa3c5a', '♪'], ['#2f7bf6', '➤'], ['#34c759', '✉']].forEach(([c, g], i) => {
+      const Y = 76 + i * 68; rr(18, Y, 56, 56, 13); x.fillStyle = c; x.fill(); if (i === 1 && raw) { x.strokeStyle = '#ffffff'; x.lineWidth = 3; x.stroke(); }
+      x.fillStyle = '#fff'; x.font = '30px Segoe UI Symbol, Arial'; x.fillText(g, 46, Y + 38);
+    });
+    // Now Playing card
+    const g = x.createLinearGradient(120, 40, 300, 260); g.addColorStop(0, raw ? '#ff2d55' : '#2a2f38'); g.addColorStop(1, raw ? '#5e2bff' : '#151a21');
+    rr(120, 46, 190, 190, 16); x.fillStyle = g; x.fill(); x.fillStyle = 'rgba(255,255,255,0.85)'; x.font = '96px Segoe UI Symbol, Arial'; x.fillText('♫', 215, 175);
+    x.textAlign = 'left'; x.fillStyle = '#9aa3ad'; x.font = '600 15px Segoe UI, Arial'; x.fillText(st.mode === 'spotify' ? 'SPOTIFY' : 'NOW PLAYING', 334, 70);
+    x.fillStyle = '#ffffff'; x.font = '700 30px Segoe UI, Arial'; x.fillText(fit(song, 286), 334, 112);
+    x.fillStyle = '#c3c9d1'; x.font = '500 21px Segoe UI, Arial'; x.fillText(fit(artist || '', 286), 334, 144);
+    rr(334, 176, 280, 6, 3); x.fillStyle = '#2a2f38'; x.fill(); rr(334, 176, raw ? (playing ? 150 : 90) : 0.1, 6, 3); x.fillStyle = '#ffffff'; x.fill();
+    // transport: ⏮  ⏯  ⏭
+    x.fillStyle = '#ffffff'; x.textAlign = 'center'; x.font = '34px Segoe UI Symbol, Arial';
+    x.fillText('⏮', 380, 248); x.fillText(playing ? '⏸' : '▶', 474, 250); x.fillText('⏭', 568, 248);
+    x.fillStyle = '#5b636e'; x.font = '600 13px Segoe UI, Arial'; x.fillText('CarPlay', W - 60, H - 16);
+    tex.needsUpdate = true;
+  };
+  MusicSys.subscribe(draw); setInterval(draw, 20000); draw();
+  return { tex };
+})();
 
 /* =====================================================================
    UI COMPONENTS
@@ -8416,11 +8515,24 @@ const EngineAudio = (() => {
   registerProcessor('apex-engine', ApexEngine);`;
   let ctx = null, node = null, ready = null, on = false, rpm = 0, throttle = 0, ext = null, cyl = 8, snd = EXHAUSTS.stock.snd, raf = 0, startT = 0, listeners = [], outG = null, vol = 0.9;
   const IDLE = 720, RED = 6200;
+  // Browsers only allow AudioWorklet on secure pages (https:// or localhost). On a plain http:// page the same engine model
+  // runs in a ScriptProcessor on the main thread instead — a little more CPU, same sound.
+  function fallbackNode() {
+    const port = { onmessage: null }; let proc = null;
+    class Base { constructor() { this.port = port; } }
+    new Function('AudioWorkletProcessor', 'registerProcessor', 'sampleRate', WORKLET)(Base, (name, C) => { proc = new C(); }, ctx.sampleRate);
+    const sp = ctx.createScriptProcessor(1024, 0, 2);
+    sp.onaudioprocess = (e) => { proc.process([], [[e.outputBuffer.getChannelData(0), e.outputBuffer.getChannelData(1)]]); };
+    sp.port = { postMessage: (data) => port.onmessage && port.onmessage({ data }) };
+    return sp;
+  }
   async function ensure() {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
-    if (!ready) ready = ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))).then(() => {
-      node = new AudioWorkletNode(ctx, 'apex-engine', { outputChannelCount: [2] });
+    if (!ready) ready = (ctx.audioWorklet && window.AudioWorkletNode
+      ? ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))).then(() => new AudioWorkletNode(ctx, 'apex-engine', { outputChannelCount: [2] }))
+      : Promise.resolve().then(fallbackNode)).then((n) => {
+      node = n;
       const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 3;
       const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 90; body.gain.value = 7; body.Q.value = 0.7;
       outG = ctx.createGain(); outG.gain.value = vol; node.connect(body); body.connect(comp); comp.connect(outG); outG.connect(ctx.destination); // outG: engine volume (mixer)
@@ -8440,7 +8552,7 @@ const EngineAudio = (() => {
   }
   return {
     start(opts = {}) {
-      try { if (!window.AudioWorkletNode) return false; } catch (e) { return false; }
+      if (!(window.AudioContext || window.webkitAudioContext)) return false;
       cyl = opts.cyl || 8; snd = opts.snd || snd; on = true; rpm = 0; throttle = 0;
       ensure().then(() => { startT = ctx.currentTime; }).catch(() => { on = false; });
       if (!raf) tick();
@@ -9214,7 +9326,8 @@ function App() {
       { kind: 'header', label: 'Interior · Starlight Headliner' },
       ...Object.entries(STARLIGHTS).map(([id, x]) => ({ kind: 'item', icon: 'Sparkles', label: x.label, price: x.price, installed: (applied.starlight || 'none') === id, patch: { starlight: id }, desc: x.desc })),
       { kind: 'header', label: 'Interior · Moonroof' },
-      ...Object.entries(SUNROOFS).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id, patch: { sunroof: id }, desc: x.desc })),
+      ...Object.entries(SUNROOFS).filter(([, x]) => !x.hidden).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id || (id === 'closed' && applied.sunroof === 'open'), patch: { sunroof: id }, desc: x.desc })),
+      ...((applied.sunroof || 'none') !== 'none' ? [{ kind: 'item', icon: !!applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: !!applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'Slides the glass back into the roof (also in the drive HUD → Windows).', action: () => applyPatch({ sunroof: 'closed', sunroofOpen: !!!applied.sunroofOpen }) }] : []),
       { kind: 'header', label: 'Interior · Sound System (play music from the drive HUD → Audio)' },
       ...Object.entries(AUDIO_SYSTEMS).map(([id, x]) => ({ kind: 'item', icon: 'Speaker', label: x.label, price: x.price, installed: (applied.audio || 'factory') === id, patch: { audio: id }, desc: x.desc })),
       { kind: 'header', label: 'Interior · Subwoofers' },
@@ -9686,8 +9799,8 @@ function App() {
                 return (
                   <div className="w-[250px]">
                     <div className="flex gap-1 mb-2">
-                      <button onClick={() => setW({ fl: 0, fr: 0, rl: 0, rr: 0, rear: 0 })} className="flex-1 rounded py-1 hud text-[11px] font-bold border border-white/15 text-white/75 hover:bg-white/10 flex items-center justify-center gap-1"><Icon name="ChevronsUp" size={13} />ALL UP</button>
-                      <button onClick={() => setW({ fl: 1, fr: 1, rl: 1, rr: 1, rear: 1 })} className="flex-1 rounded py-1 hud text-[11px] font-bold border border-white/15 text-white/75 hover:bg-white/10 flex items-center justify-center gap-1"><Icon name="ChevronsDown" size={13} />ALL DOWN</button>
+                      <button onClick={() => applyPatch({ windows: { fl: 0, fr: 0, rl: 0, rr: 0, rear: 0 }, sunroofOpen: false })} className="flex-1 rounded py-1 hud text-[11px] font-bold border border-white/15 text-white/75 hover:bg-white/10 flex items-center justify-center gap-1"><Icon name="ChevronsUp" size={13} />ALL UP</button>
+                      <button onClick={() => applyPatch({ windows: { fl: 1, fr: 1, rl: 1, rr: 1, rear: 1 }, sunroofOpen: (applied.sunroof || 'none') !== 'none' })} className="flex-1 rounded py-1 hud text-[11px] font-bold border border-white/15 text-white/75 hover:bg-white/10 flex items-center justify-center gap-1"><Icon name="ChevronsDown" size={13} />ALL DOWN</button>
                     </div>
                     {[['fl', 'Driver front'], ['fr', 'Passenger front'], ['rl', 'Driver rear'], ['rr', 'Passenger rear'], ['rear', 'Rear power window']].map(([id, label]) => (
                       <div key={id} className="flex items-center gap-1.5 py-0.5">
@@ -9697,6 +9810,13 @@ function App() {
                         <button onClick={() => setW({ [id]: 1 })} title="Down" className={`w-6 h-6 rounded border flex items-center justify-center ${cur[id] >= 1 ? 'border-sky-400/60 text-sky-200' : 'border-white/15 text-white/60 hover:text-white'}`}><Icon name="ChevronDown" size={13} /></button>
                       </div>
                     ))}
+                    {(applied.sunroof || 'none') !== 'none' && (() => { const open = !!applied.sunroofOpen; return (
+                      <div className="flex items-center gap-1.5 py-0.5 mt-1 pt-1.5 border-t border-white/10">
+                        <span className="hud text-[12px] text-white/80 flex-1">Moonroof</span>
+                        <button onClick={() => applyPatch({ sunroof: 'closed', sunroofOpen: false })} className={`px-2 h-6 rounded border hud text-[11px] font-bold ${!open ? 'border-sky-400/60 text-sky-200' : 'border-white/15 text-white/60 hover:text-white'}`}>CLOSE</button>
+                        <button onClick={() => applyPatch({ sunroof: 'closed', sunroofOpen: true })} className={`px-2 h-6 rounded border hud text-[11px] font-bold ${open ? 'border-sky-400/60 text-sky-200' : 'border-white/15 text-white/60 hover:text-white'}`}>OPEN</button>
+                      </div>
+                    ); })()}
                     <div className="text-[10.5px] text-white/40 mt-1.5 leading-snug">Windows up muffle the stereo outside the truck; roll them down and it opens up.</div>
                   </div>
                 );

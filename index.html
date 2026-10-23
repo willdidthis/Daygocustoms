@@ -972,6 +972,7 @@ const HEADLINERS = {
   tan:      { label: 'Tan', price: 350, hex: '#b8a585', rough: 0.92, swatch: '#b8a585', desc: 'Oak / tan cloth.' },
   white:    { label: 'White leather', price: 900, hex: '#e6e2da', rough: 0.55, swatch: '#e6e2da', desc: 'Perforated white leather.' },
   red:      { label: 'Red suede', price: 650, hex: '#6e1218', rough: 0.97, swatch: '#6e1218', desc: 'Deep red suede.' },
+  brown:    { label: 'Brown suede', price: 650, hex: '#4a2d1c', rough: 0.97, swatch: '#4a2d1c', desc: 'Saddle-brown suede.' },
   blue:     { label: 'Navy suede', price: 650, hex: '#141c34', rough: 0.97, swatch: '#141c34', desc: 'Midnight-navy suede.' },
 };
 // The headliner's color — also the interior pillar trim (A / B / C pillars, roof rails). A starlight on the factory liner
@@ -3473,8 +3474,12 @@ function installPaintShader(m) {
         }
         // the inside face of the body shell (seen from the cab): A / B / C pillars, roof rails, door frames — matte trim in
         // the headliner color, not the back of the paint
-        vec3 tr = (uTrimMat * vec4(vPW, 1.0)).xyz;
-        float trimMask = (!gl_FrontFacing && all(greaterThan(tr, uTrimMin)) && all(lessThan(tr, uTrimMax))) ? 1.0 : 0.0;
+        // …plus, above the window sills, painted faces that point into the cab (door-frame lips, pillar inner faces) or down
+        // from the roof — nothing on the outside of the truck faces that way, so only the inside changes
+        vec3 tr = (uTrimMat * vec4(vPW, 1.0)).xyz, tn = normalize(mat3(uTrimMat) * normalize(vPN)) * (gl_FrontFacing ? 1.0 : -1.0);
+        bool inCab = all(greaterThan(tr, uTrimMin)) && all(lessThan(tr, uTrimMax));
+        bool facesIn = tr.y > uTrimMin.y + 0.0 && (dot(tn, vec3(0.0, 0.0, -sign(tr.z))) > 0.35 || tn.y < -0.5) && abs(tr.z) < uTrimMax.z - 0.22;
+        float trimMask = (inCab && (!gl_FrontFacing || facesIn)) ? 1.0 : 0.0;
         diffuseColor.rgb = mix(diffuseColor.rgb, uTrim, trimMask);`)
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(mix(roughnessFactor, uRough, paintMask), 0.9, trimMask);')
       .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(mix(metalnessFactor, uMetal, paintMask), 0.0, trimMask);')
@@ -4033,21 +4038,55 @@ function buildExtras(M, P, b, info, gBox) {
       const hex = headlinerHex(b); void IC; // (starlight on the factory liner: black, like every real install)
       const NZ = LN.nz + 1, at = (i, j) => LN.y[i * NZ + j], X = (i) => LN.x0 + ((LN.x1 - LN.x0) * i) / LN.nx, Z = (j) => -LN.lz + (2 * LN.lz * j) / LN.nz;
       const inHole = (x, z, pad = 0) => SR !== 'none' && x > xa - pad && x < xb + pad && Math.abs(z) < zw + pad;
+      const GL = D.glass, zTopG = GL ? Math.min(GL.front[5][2], GL.rear[5][2]) : LN.lz + 1, zL = GL ? zTopG - 0.05 : LN.lz; // (the liner stops 5 cm inside the side-glass tops)
+      const yAt = (x, z) => { const fi = ((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx, fj = ((z + LN.lz) / (2 * LN.lz)) * LN.nz, i = Math.floor(fi), j = Math.floor(fj); if (i < 0 || j < 0 || i >= LN.nx || j >= LN.nz) return NaN; const u = fi - i, v = fj - j; return (at(i, j) * (1 - u) + at(i + 1, j) * u) * (1 - v) + (at(i, j + 1) * (1 - u) + at(i + 1, j + 1) * u) * v; };
       const pos = [], idx = [], vid = new Int32Array((LN.nx + 1) * NZ).fill(-1);
       const vert = (i, j) => { const k = i * NZ + j; if (vid[k] < 0) { vid[k] = pos.length / 3; pos.push(X(i), at(i, j) - LIN, Z(j)); } return vid[k]; };
       for (let i = 0; i < LN.nx; i++) for (let j = 0; j < LN.nz; j++) {
-        if ([at(i, j), at(i + 1, j), at(i, j + 1), at(i + 1, j + 1)].some((v) => isNaN(v)) || inHole((X(i) + X(i + 1)) / 2, (Z(j) + Z(j + 1)) / 2)) continue;
+        if ([at(i, j), at(i + 1, j), at(i, j + 1), at(i + 1, j + 1)].some((v) => isNaN(v)) || inHole((X(i) + X(i + 1)) / 2, (Z(j) + Z(j + 1)) / 2) || Math.abs((Z(j) + Z(j + 1)) / 2) > zL) continue;
         const a = vert(i, j), bb = vert(i + 1, j), c = vert(i, j + 1), d = vert(i + 1, j + 1); idx.push(a, c, bb, bb, c, d);
       }
       if (idx.length) {
         const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
         const liner = mk(geo, new THREE.MeshStandardMaterial({ color: hex, roughness: HL.rough || 0.92, side: THREE.DoubleSide })); liner.castShadow = false; put(liner, 'body');
       }
+      // interior trim in the headliner colour, so no bare body shell shows from the cab and nothing covers the glass: roof
+      // rails from the C pillar to the A pillar (liner edge down to the glass tops), A / B / C pillar panels filling the gaps
+      // between the windows, and headers above the windshield and the back glass. Each overlaps the glass edge by ~1 cm.
+      if (GL && idx.length) {
+        const trimM = new THREE.MeshStandardMaterial({ color: hex, roughness: Math.min(0.9, HL.rough || 0.9), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+        const strip = (A, B) => { // a band between two matching polylines
+          const p = [], ix = []; A.forEach((a, k) => { p.push(...a, ...B[k]); if (k) ix.push(2 * k - 2, 2 * k - 1, 2 * k, 2 * k - 1, 2 * k + 1, 2 * k); });
+          const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); g2.setIndex(ix); g2.computeVertexNormals();
+          const mm = mk(g2, trimM); mm.castShadow = false; put(mm, 'body');
+        };
+        const ys = GL.ys, yT = GL.yTop, top = yT + 0.045, zIn = (zg) => zg - 0.03, linerAt = (x, z) => { const y = yAt(x, z); return isNaN(y) ? null : y - LIN; };
+        const cabR = info.cabRear + 0.005, xFrontTop = GL.front[5][1];
+        [-1, 1].forEach((s) => {
+          // roof rail: along the side, from the cab's back wall to the windshield header
+          const A = [], B = [];
+          for (let x = Math.max(LN.x0, cabR); x <= LN.x1 + 1e-6; x += 0.04) { const yl = linerAt(x, s * zL); if (yl === null) continue; A.push([x, yl, s * zL]); B.push([x, yT - 0.035, s * (zTopG - 0.04)]); } // (down over the door frame's painted lip above the glass)
+          if (A.length > 1) strip(A, B);
+          // B pillar: between the rear door glass's front edge and the front door glass's back edge, sill to roof rail
+          const bp = (i) => s * zIn(Math.max(GL.front[i][2], GL.rear[i][2]));
+          strip([...ys.map((y, i) => [GL.rear[i][1] - 0.01, y, bp(i)]), [GL.rear[5][1] - 0.01, top, bp(5)]], [...ys.map((y, i) => [GL.front[i][0] + 0.01, y, bp(i)]), [GL.front[5][0] + 0.01, top, bp(5)]]);
+          // C pillar: from the cab's back wall to the rear door glass's back edge
+          const cp = (i) => s * zIn(GL.rear[i][2]);
+          strip([...ys.map((y, i) => [cabR, y, cp(i)]), [cabR, top, cp(5)]], [...ys.map((y, i) => [GL.rear[i][0] + 0.01, y, cp(i)]), [GL.rear[5][0] + 0.01, top, cp(5)]]);
+          // A pillar: along the front door glass's front edge, angling in toward the windshield (bands where that edge runs
+          // back as it climbs — the lowest one is cut short by the mirror sail)
+          const ai = ys.map((y, i) => i).filter((i) => i === 5 || GL.front[i][1] >= GL.front[i + 1][1] - 0.02);
+          if (ai.length > 1) strip([...ai.map((i) => [GL.front[i][1] - 0.01, ys[i], s * zIn(GL.front[i][2])]), [xFrontTop - 0.01, top, s * zIn(GL.front[5][2])]], [...ai.map((i) => [GL.front[i][1] + 0.1, ys[i], s * (GL.front[i][2] - 0.1)]), [xFrontTop + 0.07, top, s * (GL.front[5][2] - 0.1)]]);
+        });
+        // headers: liner front / back edge down to the top of the windshield / back glass
+        const zs = []; for (let z = -zL; z <= zL + 1e-6; z += 0.05) zs.push(z);
+        const hdr = (xl, xg) => { const A = [], B = []; zs.forEach((z) => { const yl = linerAt(xl, z); if (yl === null) return; A.push([xl, yl, z]); B.push([xg, yT - 0.02, z]); }); if (A.length > 1) strip(A, B); };
+        hdr(LN.x1 - 0.001, xFrontTop + 0.02); hdr(LN.x0 + 0.001, cabR);
+      }
       // starlight: fiber-optic points just under the liner, each with its own size / color / twinkle phase
       if (SL.n && idx.length) {
         const r = mulberry32(1977), sp = [], sc = [], ss = [], sph = [], col = new THREE.Color();
-        const yAt = (x, z) => { const fi = ((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx, fj = ((z + LN.lz) / (2 * LN.lz)) * LN.nz, i = Math.floor(fi), j = Math.floor(fj); if (i < 0 || j < 0 || i >= LN.nx || j >= LN.nz) return NaN; const u = fi - i, v = fj - j; return (at(i, j) * (1 - u) + at(i + 1, j) * u) * (1 - v) + (at(i, j + 1) * (1 - u) + at(i + 1, j + 1) * u) * v; };
-        const star = (x, z, c, s) => { const y = yAt(x, z); if (isNaN(y) || inHole(x, z, 0.04)) return; sp.push(x, y - LIN - 0.002, z); col.set(c); sc.push(col.r, col.g, col.b); ss.push(s); sph.push(r()); };
+        const star = (x, z, c, s) => { const y = yAt(x, z); if (isNaN(y) || inHole(x, z, 0.04) || Math.abs(z) > zL - 0.02) return; sp.push(x, y - LIN - 0.002, z); col.set(c); sc.push(col.r, col.g, col.b); ss.push(s); sph.push(r()); };
         for (let k = 0; k < SL.n * 1.9; k++) { const big = r() < 0.07; /* (about half the scatter lands off the roof's footprint) */ star(LN.x0 + r() * (LN.x1 - LN.x0), -LN.lz + r() * 2 * LN.lz, SL.cols[Math.floor(r() * SL.cols.length)], big ? 0.011 : 0.0045 + r() * 0.003); }
         if (SL.hex) for (let cl = 0; cl < 7; cl++) { // honeycomb clusters: a few hex cells traced in white dots
           const cx0 = LN.x0 + 0.1 + r() * (LN.x1 - LN.x0 - 0.2), cz0 = -LN.lz * 0.7 + r() * LN.lz * 1.4, R = 0.032;
@@ -5165,7 +5204,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     cutU.uCutMat.value.copy(h.matrixWorld).invert().premultiply(restMat);
     TRIM_MAT.value.copy(cutU.uCutMat.value); // (interior pillar trim: same rest space)
     const bi = model.bedInfo, P = base.P; // the cab box: behind the cowl, ahead of the cab's back wall, rocker to roof
-    if (bi && P) { TRIM_MIN.value.set(bi.cabRear - 0.06, P.rockerY + 0.15, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); }
+    // (bottom: the window sills when measured — the inward-facing rule must not reach the door panels / rockers below)
+    const sill = bi && bi.dash && bi.dash.glass ? bi.dash.glass.ys[0] - 0.06 : P ? P.rockerY + 0.15 : 0;
+    if (bi && P) { TRIM_MIN.value.set(bi.cabRear - 0.06, sill, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); }
   }
   function setCuts(cuts = []) {
     const n = Math.min(MAX_CUTS, cuts.length); cutU.uCutN.value = n;
@@ -6579,8 +6620,21 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       const x = lx0 + ((lx1 - lx0) * i) / nx, z = -lz + (2 * lz * j) / nz, hit = probe(fromRest(V(x, bi.roofTop - 0.3, z)), V(0, 1, 0));
       const y = hit ? toRest(hit.point).y : NaN; if (y > bi.roofTop - 0.16 && y < bi.roofTop + 0.05) ly[i * (nz + 1) + j] = y;
     }
+    // side-window outlines (driver side — the cab is symmetric): at six heights from the sill to the top of the side glass,
+    // each window's front / back edge and its |z|. The A / B / C pillars are the gaps between the glass, the roof rail runs
+    // along the glass tops, and the headliner has to stop short of them (it used to spill out over the window tops)
+    const pts = (w) => { const out = []; ((w && w.pieces) || []).forEach((pc) => { pc.updateMatrixWorld(true); const a = pc.geometry.attributes.position, ix = pc.geometry.index, n = ix ? ix.count : a.count; for (let k = 0; k < n; k++) out.push(toRest(V(0, 0, 0).fromBufferAttribute(a, ix ? ix.getX(k) : k).applyMatrix4(pc.matrixWorld))); }); return out; };
+    const fv = pts((model.windows || {}).fl), rv = pts((model.windows || {}).rl);
+    let glass = null;
+    if (fv.length > 20 && rv.length > 20) {
+      const lo = (a) => a.reduce((m, p) => Math.min(m, p.y), 9), hi = (a) => a.reduce((m, p) => Math.max(m, p.y), -9);
+      const yLo = Math.max(lo(fv), lo(rv)), yHi = Math.min(hi(fv), hi(rv)), ys = [0, 1, 2, 3, 4, 5].map((i) => yLo + 0.015 + ((yHi - yLo - 0.03) * i) / 5);
+      const band = (arr, y) => { const s = arr.filter((p) => Math.abs(p.y - y) < 0.045); return s.length ? [s.reduce((m, p) => Math.min(m, p.x), 9), s.reduce((m, p) => Math.max(m, p.x), -9), s.reduce((m, p) => Math.max(m, Math.abs(p.z)), 0)] : null; };
+      glass = { ys, yTop: yHi, front: ys.map((y) => band(fv, y)), rear: ys.map((y) => band(rv, y)) };
+      if (glass.front.some((b) => !b) || glass.rear.some((b) => !b)) glass = null;
+    }
     bi.dash = { sc, clusterX: ahead(V(sc.x - 0.25, sc.y + 0.12, sc.z), sc.x + 0.2), stackX: ahead(V(sc.x - 0.3, sc.y - 0.02, 0), sc.x + 0.28), sunX, sunY: rt ? toRest(rt.point).y : bi.roofTop,
-      liner: { x0: lx0, x1: lx1, nx, nz, lz, y: ly } };
+      liner: { x0: lx0, x1: lx1, nx, nz, lz, y: ly }, glass };
   }
   // sound system: where you're listening from (driver's seat / outside), how far the windows are down, and how far away you are
   let bassS = 0; // (smoothed bass thump on the body)
@@ -9702,7 +9756,7 @@ function App() {
               );
             })}
           </div>
-          <div className="text-[11px] text-white/45 mt-2">The fabric ceiling. Factory follows the interior color (black with a starlight).</div>
+          <div className="text-[11px] text-white/45 mt-2">The ceiling and all the interior pillar & roof-rail trim. "Match seats" follows your interior color (black with a starlight on factory cloth).</div>
         </div>
       ) },
       { kind: 'header', label: 'Interior · Starlight Headliner' },

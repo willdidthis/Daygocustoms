@@ -1638,6 +1638,7 @@ const ENVIRONMENTS = [
   { id: 'kloofendal_overcast_puresky', label: 'Mud Pits · drivable', layout: 'mud', rot: 0, height: 1.7, radius: 300, exposure: 1.05, fog: 0.006 },
   { id: 'belfast_sunset_puresky', label: 'Rock Crawl · drivable', layout: 'rocks', rot: 0, height: 1.7, radius: 300, exposure: 1.0, fog: 0.004 },
   { id: 'kloppenheim_06_puresky', label: 'Urban Whoops (parking lot) · drivable', layout: 'whoops', rot: 0, height: 1.7, radius: 600, exposure: 1.0, fog: 0.004 },
+  { id: 'backroads', hdri: 'kloofendal_48d_partly_cloudy_puresky', label: 'Backroads (long curvy two-lane) · drivable', layout: 'backroads', rot: 0, height: 1.7, radius: 1200, exposure: 1.0, fog: 0.0035 },
   { id: 'procedural',            label: 'Offline Sky (no download)', layout: 'roadside', fog: 0.008 },
 ];
 const hdriUrl = (id, q) => `https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/${q}/${id}_${q}.hdr`;
@@ -1659,17 +1660,18 @@ const GROUND_SETS = {
   forest: { d: PH_TEX('forrest_ground_01', 'diff'), n: PH_TEX('forrest_ground_01', 'nor_gl'), r: PH_TEX('forrest_ground_01', 'rough') },
 };
 
+const SKY_TINT = { value: new THREE.Color(1, 1, 1) }; // time of day: darkens / warms the photo sky (1 = as shot)
 // Projects an equirectangular photo onto a ground disk + dome (port of three.js GroundProjectedEnv).
 function makeGroundProjectedEnv(texture, height, radius) {
   const mat = new THREE.ShaderMaterial({
     side: THREE.DoubleSide, depthWrite: false,
-    uniforms: { map: { value: texture }, height: { value: height }, radius: { value: radius } },
+    uniforms: { map: { value: texture }, height: { value: height }, radius: { value: radius }, tint: SKY_TINT }, // (tint: time of day)
     vertexShader: `
       varying vec3 vWorldPosition; varying vec3 vCenter;
       void main() { vec4 wp = modelMatrix * vec4(position, 1.0); vCenter = modelMatrix[3].xyz; vWorldPosition = wp.xyz - vCenter; gl_Position = projectionMatrix * viewMatrix * wp; }`,
     fragmentShader: `
       varying vec3 vWorldPosition; varying vec3 vCenter; // the dome can follow the camera on big drive maps
-      uniform float radius; uniform float height; uniform sampler2D map;
+      uniform float radius; uniform float height; uniform sampler2D map; uniform vec3 tint;
       float diskIntersect(vec3 ro, vec3 rd, vec3 c, vec3 n, float r) {
         float d = dot(rd, n); if (d > 0.0) return 1e6;
         vec3 o = ro - c; float t = -dot(n, o) / d; vec3 q = o + rd * t;
@@ -1688,7 +1690,7 @@ function makeGroundProjectedEnv(texture, height, radius) {
           float t2 = diskIntersect(camPos, p, vec3(0.0, -height, 0.0), vec3(0.0, 1.0, 0.0), radius);
           p = (camPos + min(t1, t2) * p) / radius;
         } else { p = vec3(0.0, 1.0, 0.0); }
-        gl_FragColor = vec4(texture2D(map, equirectUv(normalize(p))).rgb, 1.0);
+        gl_FragColor = vec4(texture2D(map, equirectUv(normalize(p))).rgb * tint, 1.0);
         #include <tonemapping_fragment>
         #include <encodings_fragment>
       }`,
@@ -2624,6 +2626,139 @@ function buildOutdoor(renderer) {
     const tl = []; const tr6 = mulberry32(66); for (let i = 0; i < 90; i++) { const a = tr6() * Math.PI * 2, r = 320 + tr6() * 90; tl.push([Math.cos(a) * r, 0, Math.sin(a) * r]); } treeRing(whoopsG, tl, 61);
   }
 
+  // ======================= Backroads: a long, curvy two-lane country road =======================
+  // A ~4.6 km closed loop of two-lane blacktop through rolling, wooded hills: double-yellow centre line, white edge lines,
+  // gravel shoulders and a ditch, white reflector posts, curve-warning signs and guardrail on the tight bends, and forest
+  // right up to the trees' drip line. A loop on purpose — traffic (sedans etc.) can circulate on it later: BR.path is the
+  // centreline (x, z, tangent, elevation every metre) and BR.lane is ±1.8 m (right lane of travel = +lateral).
+  const backG = new THREE.Group(); backG.visible = false; backG.userData.noScan = true; g.add(backG);
+  mapCol.backroads = [];
+  const BX0 = -820, BX1 = 820, BZ0 = -640, BZ1 = 640, BC = 4, BNX /* (spans divide evenly by the cell) */ = (BX1 - BX0) / BC, BNZ = (BZ1 - BZ0) / BC, BRW = 3.6;
+  const brCtl = []; for (let i = 0; i < 64; i++) { const a = 1.5 * Math.PI + (i / 64) * Math.PI * 2, r = /* (starts at the bottom of the loop, heading +x) */ 560 + 62 * Math.sin(3 * a + 0.6) + 40 * Math.sin(5 * a + 2.1) + 26 * Math.sin(9 * a + 0.3) + 17 * Math.sin(14 * a + 1.2); brCtl.push(new THREE.Vector3(Math.cos(a) * r * 1.08, 0, Math.sin(a) * r * 0.82)); }
+  const brc = new THREE.CatmullRomCurve3(brCtl, true, 'centripetal'), BLEN = brc.getLength();
+  // rolling hills, easing to flat at the map's edges so the forest floor meets the far ground without a step
+  const brHills = (x, z) => (9 * Math.sin(x * 0.0061 + 0.4) * Math.sin(z * 0.0072 + 1.1) + 4.5 * Math.sin(x * 0.0137 - z * 0.0109 + 2.3) + 1.6 * Math.sin(x * 0.031 + z * 0.027))
+    * (1 - smt(BX1 - 70, BX1 - 8, Math.abs(x))) * (1 - smt(BZ1 - 70, BZ1 - 8, Math.abs(z)));
+  const brS = []; for (let s = 0; s < BLEN; s += 1) { const u = s / BLEN, p = brc.getPointAt(u), t = brc.getTangentAt(u); brS.push({ x: p.x, z: p.z, tx: t.x, tz: t.z, s, e: brHills(p.x, p.z) }); }
+  { // the road's own grade: the hills along the path, averaged over ±70 m so climbs and dips stay gentle (≤ ~7 %)
+    const N = brS.length, raw = brS.map((p) => p.e), W = 70;
+    let acc = 0; for (let i = -W; i <= W; i++) acc += raw[(i + N) % N];
+    for (let i = 0; i < N; i++) { brS[i].e = acc / (2 * W + 1); acc += raw[(i + W + 1) % N] - raw[(i - W + N) % N]; }
+    for (let i = 0; i < N; i++) { const a = brS[(i - 6 + N) % N], c = brS[(i + 6) % N]; brS[i].k = ((c.tx - a.tx) * brS[i].tz * -1 + (c.tz - a.tz) * brS[i].tx) / 12; } // signed curvature (1/m): + = bending toward +lateral
+  }
+  const bN = (BNX + 1) * (BNZ + 1), bH = new Float32Array(bN), bD = new Float32Array(bN).fill(1e9), bI = new Int32Array(bN).fill(-1);
+  brS.forEach((p, idx) => { // nearest road sample for every grid node within 60 m
+    const R = 60, gi0 = Math.max(0, Math.floor((p.x - R - BX0) / BC)), gi1 = Math.min(BNX, Math.ceil((p.x + R - BX0) / BC));
+    const gj0 = Math.max(0, Math.floor((p.z - R - BZ0) / BC)), gj1 = Math.min(BNZ, Math.ceil((p.z + R - BZ0) / BC));
+    for (let gj = gj0; gj <= gj1; gj++) for (let gi = gi0; gi <= gi1; gi++) {
+      const dx = BX0 + gi * BC - p.x, dz = BZ0 + gj * BC - p.z, d2 = dx * dx + dz * dz, k = gj * (BNX + 1) + gi;
+      if (d2 < bD[k]) { bD[k] = d2; bI[k] = idx; }
+    }
+  });
+  // road cross-section: flat lanes with a hint of crown, shoulders, a shallow ditch, then blend into the hills
+  const brSection = (e, a, hill) => { let h = e - 0.025 * Math.min(1, (a / BRW) ** 2); h -= 0.55 * Math.exp(-((a - (BRW + 3.4)) ** 2) / (2 * 0.9 ** 2)); return h + (hill - e) * smt(BRW + 4.5, BRW + 22, a); };
+  const brNear = (x, z) => { // nearest centreline sample (refined around the grid's guess) → { p, s, l } or null off the corridor
+    const gi = Math.round((x - BX0) / BC), gj = Math.round((z - BZ0) / BC); if (gi < 0 || gj < 0 || gi > BNX || gj > BNZ) return null;
+    let idx = bI[gj * (BNX + 1) + gi]; if (idx < 0) return null;
+    const N = brS.length, d2 = (i) => { const q = brS[(i + N) % N]; return (x - q.x) ** 2 + (z - q.z) ** 2; };
+    for (let step = 4; step >= 1; step >>= 1) { while (d2(idx + step) < d2(idx)) idx += step; while (d2(idx - step) < d2(idx)) idx -= step; }
+    const p = brS[(idx + N) % N]; return { p, l: (x - p.x) * -p.tz + (z - p.z) * p.tx };
+  };
+  for (let gj = 0; gj <= BNZ; gj++) for (let gi = 0; gi <= BNX; gi++) {
+    const k = gj * (BNX + 1) + gi, x = BX0 + gi * BC, z = BZ0 + gj * BC, hill = brHills(x, z);
+    if (bI[k] < 0) { bH[k] = hill; continue; }
+    const p = brS[bI[k]], l = (x - p.x) * -p.tz + (z - p.z) * p.tx; bH[k] = brSection(p.e, Math.abs(l), hill);
+  }
+  const brGrid = (x, z) => {
+    const fx = THREE.MathUtils.clamp((x - BX0) / BC, 0, BNX - 0.001), fz = THREE.MathUtils.clamp((z - BZ0) / BC, 0, BNZ - 0.001);
+    const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, v = fz - j, k = j * (BNX + 1) + i;
+    return (bH[k] * (1 - u) + bH[k + 1] * u) * (1 - v) + (bH[k + BNX + 1] * (1 - u) + bH[k + BNX + 2] * u) * v;
+  };
+  // drivable height: exact on and beside the road (smooth at any speed), the terrain grid beyond
+  const backroadsHeight = (x, z) => { const n = brNear(x, z); if (!n || Math.abs(n.l) > BRW + 9) return brGrid(x, z); return brSection(n.p.e, Math.abs(n.l), brHills(x, z)); };
+  const backroadsPaved = (x, z) => { const n = brNear(x, z); return !!n && Math.abs(n.l) < BRW + 0.35; };
+  {
+    // rolling forest floor (sunk a hair under the road corridor so the draped road never gets poked through)
+    const geo = new THREE.PlaneGeometry(BX1 - BX0, BZ1 - BZ0, BNX, BNZ); geo.rotateX(-Math.PI / 2); geo.translate((BX0 + BX1) / 2, 0, (BZ0 + BZ1) / 2); meterUV(geo, BX1 - BX0, BZ1 - BZ0);
+    // (nodes under the road and shoulders drop 0.45 m: the 4 m grid interpolates across the crown / ditch and would otherwise
+    // poke up through the asphalt between nodes)
+    const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - BZ0) / BC) * (BNX + 1) + Math.round((x - BX0) / BC), n = bI[k] >= 0 ? brNear(x, z) : null; p.setY(i, bH[k] - (n && Math.abs(n.l) < BRW + 3 ? 0.45 : 0.02)); }
+    geo.computeVertexNormals();
+    const tm = mk(geo, groundMat(GROUND_SETS.forest, 3.2, { base: '#4e3d2a', wetness: 0.25, key: 'brfloor', tint: 0.8, offset: 0 })); tm.castShadow = false; tm.receiveShadow = true; backG.add(tm);
+    const outer = new THREE.PlaneGeometry(3000, 3000); meterUV(outer, 3000, 3000); flat(outer, groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: 'brouter', wetness: 0.3, tint: 0.7, offset: 2 }), -0.25, backG, 'brouter'); // (the far ground past the map's edge)
+    // ribbons draped along the whole loop between two lateral offsets (closed: the last row joins the first)
+    const drape = (l0, l1, cols, lift, mat, step = 2) => {
+      const pos = [], uv = [], idx = []; const rows = Math.floor(brS.length / step);
+      for (let r = 0; r < rows; r++) { const q = brS[r * step]; for (let c = 0; c <= cols; c++) { const l = l0 + ((l1 - l0) * c) / cols, x = q.x - q.tz * l, z = q.z + q.tx * l; pos.push(x, brSection(q.e, Math.abs(l), brHills(x, z)) + lift, z); uv.push(q.s, l); } }
+      for (let r = 0; r < rows; r++) { const r2 = (r + 1) % rows; for (let c = 0; c < cols; c++) { const a = r * (cols + 1) + c, b2 = r2 * (cols + 1) + c; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } }
+      const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
+      const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; backG.add(m); return m;
+    };
+    drape(-BRW - 1.3, BRW + 1.3, 8, 0.03, groundMat(GROUND_SETS.gravel, 2.2, { base: '#6b6155', key: 'brshoulder', tint: 0.85, offset: -3 }));
+    drape(-BRW, BRW, 8, 0.05, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: 'brroad', tint: 0.9, offset: -5, wetness: 0.4 }));
+    const paint = (l, w, color, dashed) => {
+      const m = drape(l - w / 2, l + w / 2, 1, 0.062, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 2);
+      return m;
+    };
+    paint(0.11, 0.1, 0xe8b10c); paint(-0.11, 0.1, 0xe8b10c); paint(BRW - 0.2, 0.12, 0xf1f1ec); paint(-BRW + 0.2, 0.12, 0xf1f1ec);
+    // white reflector posts every 40 m both sides (their amber / white reflectors catch the headlights at night)
+    const postGeo = new THREE.BoxGeometry(0.08, 1.1, 0.12), refGeo = new THREE.BoxGeometry(0.01, 0.16, 0.08);
+    const nP = Math.floor(brS.length / 40) * 2, posts = new THREE.InstancedMesh(postGeo, new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: 0.6 }), nP), refl = new THREE.InstancedMesh(refGeo, new THREE.MeshStandardMaterial({ color: 0xffd28a, emissive: 0xffb84a, emissiveIntensity: 0.35, roughness: 0.2 }), nP);
+    let pi = 0;
+    for (let s = 0; s + 40 <= brS.length; s += 40) [1, -1].forEach((sd) => {
+      const q = brS[s], l = sd * (BRW + 1.7), x = q.x - q.tz * l, z = q.z + q.tx * l, y = backroadsHeight(x, z), ry = Math.atan2(-q.tz, q.tx);
+      o.position.set(x, y + 0.55, z); o.rotation.set(0, ry, 0); o.scale.set(1, 1, 1); o.updateMatrix(); posts.setMatrixAt(pi, o.matrix);
+      o.position.set(x - q.tx * 0.045 * sd, y + 0.92, z - q.tz * 0.045 * sd); o.updateMatrix(); refl.setMatrixAt(pi, o.matrix); pi++;
+      mapCol.backroads.push([x, z, 0.08]);
+    });
+    posts.count = refl.count = pi; posts.userData.noScan = refl.userData.noScan = true; backG.add(posts, refl);
+    // tight bends (radius under ~150 m): a yellow curve-warning sign 90 m before, and W-beam guardrail on the outside
+    const signTex = (dir) => canvasTex(128, 128, (x, w, h) => { x.fillStyle = '#00000000'; x.clearRect(0, 0, w, h); x.save(); x.translate(64, 64); x.rotate(Math.PI / 4); x.fillStyle = '#111'; x.fillRect(-44, -44, 88, 88); x.fillStyle = '#f5c400'; x.fillRect(-40, -40, 80, 80); x.restore(); x.strokeStyle = '#111'; x.lineWidth = 9; x.lineCap = 'round'; x.beginPath(); x.moveTo(64, 100); x.lineTo(64, 66); x.quadraticCurveTo(64, 44, 64 + dir * 22, 40); x.stroke(); x.fillStyle = '#111'; x.beginPath(); x.moveTo(64 + dir * 34, 38); x.lineTo(64 + dir * 16, 26); x.lineTo(64 + dir * 18, 52); x.fill(); });
+    const signMats = { 1: new THREE.MeshStandardMaterial({ map: signTex(1), transparent: true, alphaTest: 0.4, roughness: 0.4 }), [-1]: new THREE.MeshStandardMaterial({ map: signTex(-1), transparent: true, alphaTest: 0.4, roughness: 0.4 }) };
+    const railM = new THREE.MeshStandardMaterial({ color: 0xb9bec4, metalness: 0.75, roughness: 0.35 }), postM = new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 });
+    const railSegs = [], railPosts = []; let inBend = false, lastSign = -1e9;
+    for (let s = 0; s < brS.length; s++) {
+      const q = brS[s], tight = Math.abs(q.k) > 1 / 150;
+      if (tight && !inBend && s - lastSign > 200) { // sign before the bend, on the right-hand side of travel, facing oncoming you
+        const qs = brS[(s - 90 + brS.length) % brS.length], l = BRW + 2.1, x = qs.x - qs.tz * l, z = qs.z + qs.tx * l, y = backroadsHeight(x, z), dir = q.k > 0 ? 1 : -1; // (k > 0 bends right: the sign's right is the road's +lateral side)
+        const pole = mk(new THREE.CylinderGeometry(0.035, 0.035, 2.2, 8), postM); pole.position.set(x, y + 1.1, z); backG.add(pole);
+        const face = mk(new THREE.PlaneGeometry(0.9, 0.9), signMats[dir]); face.position.set(x, y + 2.05, z); face.rotation.y = Math.atan2(-qs.tz, qs.tx) + Math.PI / 2 + Math.PI; backG.add(face);
+        mapCol.backroads.push([x, z, 0.06]); lastSign = s;
+      }
+      inBend = tight;
+      if (tight && s % 4 === 0) { const sd = q.k > 0 ? -1 : 1, l = sd * (BRW + 1.2), x = q.x - q.tz * l, z = q.z + q.tx * l; railSegs.push([x, z, backroadsHeight(x, z), Math.atan2(-q.tz, q.tx)]); if (s % 8 === 0) railPosts.push([x - q.tz * sd * 0.12, z + q.tx * sd * 0.12, backroadsHeight(x, z)]); mapCol.backroads.push([x, z, 0.2]); }
+    }
+    const railI = new THREE.InstancedMesh(new THREE.BoxGeometry(4.1, 0.32, 0.05), railM, Math.max(1, railSegs.length)), postI = new THREE.InstancedMesh(new THREE.BoxGeometry(0.08, 0.75, 0.12), postM, Math.max(1, railPosts.length));
+    railSegs.forEach(([x, z, y, ry], i) => { o.position.set(x, y + 0.6, z); o.rotation.set(0, ry, 0); o.scale.set(1, 1, 1); o.updateMatrix(); railI.setMatrixAt(i, o.matrix); });
+    railPosts.forEach(([x, z, y], i) => { o.position.set(x, y + 0.37, z); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); postI.setMatrixAt(i, o.matrix); });
+    railI.count = railSegs.length; postI.count = railPosts.length; railI.castShadow = true; railI.userData.noScan = postI.userData.noScan = true; backG.add(railI, postI);
+    // forest: thick along the road (trees start just past the ditch), thinning further out; trunks near the road are solid
+    const tSpots = [], tr = mulberry32(1203);
+    for (let n = 0; tSpots.length < 7000 && n < 200000; n++) {
+      const x = BX0 + 8 + tr() * (BX1 - BX0 - 16), z = BZ0 + 8 + tr() * (BZ1 - BZ0 - 16), nr = brNear(x, z), d = nr ? Math.abs(nr.l) : 999;
+      if (d < BRW + 6.5) continue;
+      if (tr() > 0.25 + 0.75 * Math.exp(-(d - BRW - 6.5) / 45)) continue;
+      tSpots.push([x, z]); if (d < 45) mapCol.backroads.push([x, z, 0.32]);
+    }
+    let ti = 0;
+    kinds.forEach((kd, ki) => {
+      const n = ki === kinds.length - 1 ? tSpots.length - ti : Math.round(tSpots.length * kd.share);
+      const im = new THREE.InstancedMesh(cardGeo, new THREE.MeshStandardMaterial({ map: kd.tex, alphaTest: 0.42, side: THREE.DoubleSide, roughness: 1, metalness: 0, envMapIntensity: 0.55 }), Math.max(1, n));
+      for (let i = 0; i < n; i++, ti++) {
+        const [x, z] = tSpots[ti], hh = kd.h[0] + tr() * (kd.h[1] - kd.h[0]);
+        o.position.set(x, brGrid(x, z) - 0.05, z); o.rotation.set(0, tr() * Math.PI, 0); o.scale.set(hh * kd.wr, hh, hh * kd.wr); o.updateMatrix(); im.setMatrixAt(i, o.matrix);
+        col.setScalar(0.7 + tr() * 0.38); im.setColorAt(i, col);
+      }
+      im.count = n; im.userData.noScan = true; backG.add(im);
+    });
+  }
+  // the whole map is shifted so the start of the right-hand lane sits where the truck is shown (world origin, on the road):
+  // BSX / BSY / BSZ = map → world offset
+  const p0 = brS[0], BSX = -(p0.x - p0.tz * 1.8), BSZ = -(p0.z + p0.tx * 1.8), BSY = -brSection(p0.e, 1.8, brHills(p0.x - p0.tz * 1.8, p0.z + p0.tx * 1.8));
+  backG.position.set(BSX, BSY, BSZ);
+  mapCol.backroads.forEach((c) => { c[0] += BSX; c[1] += BSZ; });
+  const BR = { path: brS, length: BLEN, lane: 1.8, roadHalf: BRW, offset: { x: BSX, y: BSY, z: BSZ }, near: (x, z) => brNear(x - BSX, z - BSZ) };
+
   // knockable cones: tumble away from whatever hits them
   const knock =(x, z, r, vx, vz) => cones.forEach((c) => {
     if (c.lay !== layoutNow) return; const dx = c.m.position.x + (c.lay === 'whoops' ? WSX : 0) - x, dz = c.m.position.z - z, d = Math.hypot(dx, dz);
@@ -2657,7 +2792,8 @@ function buildOutdoor(renderer) {
   return {
     collide,
     knock, stepCones, mudLevel,
-    heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK },
+    heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK, backroads: (x, z) => backroadsHeight(x - BSX, z - BSZ) + BSY },
+    backroads: { ...BR, paved: (x, z) => backroadsPaved(x - BSX, z - BSZ), bounds: { x0: BX0 + 6 + BSX, x1: BX1 - 6 + BSX, z0: BZ0 + 6 + BSZ, z1: BZ1 - 6 + BSZ } },
     // the dock's front lip, sides and the tall end of the ramp's sides are walls from below: a point whose dock surface is
     // well above the truck pushes it back out through the nearest face (you drive off it, or up the ramp — not up the face)
     dockPush: (x, z, y) => {
@@ -2669,8 +2805,8 @@ function buildOutdoor(renderer) {
     whoopLane: (x, z) => { x -= WSX; const ln = laneOf(z); if (!ln || !ln.dirt) return false; const [a, b] = xs(ln); return x > a - 1 && x < b + 1; }, // (the concrete lanes count as pavement)
     group: g, leaves, tufts, roadside, park, forest, desert, desertHeight, trailHeight: (x, z) => trailHeight(x, z) + curbAt(x, z), trailPaved, trailBounds: { x0: TX0 + 8, x1: TX1 - 8, z0: TZ0 + 8, z1: TZ1 - 8 }, layoutId: () => layoutNow,
     setLayout: (layout) => {
-      layoutNow = layout; const dz = ['desert', 'lot', 'trail', 'jumps', 'mud', 'rocks', 'straight', 'whoops'].includes(layout);
-      jumps.visible = layout === 'jumps'; mudG.visible = layout === 'mud'; rocksG.visible = layout === 'rocks'; straightG.visible = layout === 'straight'; whoopsG.visible = layout === 'whoops';
+      layoutNow = layout; const dz = ['desert', 'lot', 'trail', 'jumps', 'mud', 'rocks', 'straight', 'whoops', 'backroads'].includes(layout);
+      backG.visible = layout === 'backroads'; jumps.visible = layout === 'jumps'; mudG.visible = layout === 'mud'; rocksG.visible = layout === 'rocks'; straightG.visible = layout === 'straight'; whoopsG.visible = layout === 'whoops';
       trail.visible = layout === 'trail'; lot.visible = layout === 'lot'; desert.visible = layout === 'desert'; roadside.visible = !dz && layout !== 'park'; park.visible = layout === 'park'; forest.visible = !dz && layout !== 'open';
       [vergeMesh, tufts, leaves, rocks].forEach((o) => { if (o) o.visible = !dz; });
     },
@@ -4753,6 +4889,45 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     const old = envCap.rt; envCap.rt = pmrem.fromCubemap(envCap.crt.texture); if (old) old.dispose();
     scene.environment = envCap.rt.texture; envCap.at.copy(truck.position); envCap.last = performance.now();
   }
+  // ---- Time of day: the sun's height & colour, the sky photo's brightness / warmth, ambient + reflected light, fog, a star
+  // field and moonlight at night — and the lamps read brighter as the world gets darker. hour: 0–24, null = as shot.
+  const stars = (() => {
+    const n = 1800, pos = new Float32Array(n * 3), r = mulberry32(77);
+    for (let i = 0; i < n; i++) { const u = r() * 2 - 1, a = r() * Math.PI * 2, y = Math.abs(u) * 0.95 + 0.05, h = Math.sqrt(1 - y * y); pos.set([Math.cos(a) * h * 950, y * 950, Math.sin(a) * h * 950], i * 3); }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const p = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xdfe8ff, size: 1.6, sizeAttenuation: false, fog: false, transparent: true, opacity: 0, depthWrite: false }));
+    p.visible = false; p.frustumCulled = false; p.userData.noScan = true; scene.add(p); return p;
+  })();
+  const envScale = (k) => scene.traverse((o) => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach((mt) => { if (!mt || !('envMapIntensity' in mt)) return; if (mt.userData.env0 === undefined) mt.userData.env0 = mt.envMapIntensity; mt.envMapIntensity = mt.userData.env0 * k; }); });
+  function applyTimeOfDay(hour) {
+    TOD.hour = hour === undefined ? null : hour; const B = TOD.base; if (!B) return;
+    const sst = (a, b, x) => { const q = Math.min(1, Math.max(0, (x - a) / (b - a))); return q * q * (3 - 2 * q); };
+    if (TOD.hour === null) {
+      SKY_TINT.value.setRGB(1, 1, 1); sun.color.setHex(0xfff2e0); setSun(B.dir, B.sunI); hemi.intensity = B.hemiI; hemi.color.setHex(0xdde7f3);
+      renderer.toneMappingExposure = B.exp; scene.fog.color.copy(B.fog); scene.fog.density = B.fogD; TOD.lightK = 1; TOD.envK = 1; stars.visible = false;
+    } else {
+      // a summer day: sunrise ~5:45, sunset ~8:15 PM. e = the sun's height (+1 high noon … 0 at the horizon … −1 deep night)
+      const h = TOD.hour, RISE = 5.75, LEN = 14.5, hh = (((h - RISE) % 24) + 24) % 24;
+      const e = hh < LEN ? Math.sin((hh / LEN) * Math.PI) : -Math.sin(((hh - LEN) / (24 - LEN)) * Math.PI);
+      const day = sst(-0.1, 0.3, e), night = 1 - sst(-0.22, 0.02, e), gold = sst(-0.14, 0.04, e) * (1 - sst(0.1, 0.42, e));
+      // the sun swings across the sky through the day (around the photo's own sun azimuth); the moon sits high opposite
+      const az0 = Math.atan2(B.dir.z, B.dir.x), az = az0 + ((Math.min(hh, LEN) - LEN / 2) / (LEN / 2)) * Math.PI * 0.8, el = Math.max(0.03, e) * 1.05;
+      const sunV = new THREE.Vector3(Math.cos(az) * Math.cos(el), Math.sin(el), Math.sin(az) * Math.cos(el)), moonV = new THREE.Vector3(-Math.cos(az0) * 0.6, 0.8, -Math.sin(az0) * 0.6).normalize();
+      const moonish = night > 0.5;
+      setSun(moonish ? moonV : sunV, moonish ? 0.22 * night : B.sunI * day * (0.5 + 0.5 * sst(0.04, 0.5, e)) + 0.25 * gold);
+      sun.color.set(moonish ? 0x8ea4ff : 0xfff2e0).lerp(new THREE.Color(0xff8a3c), moonish ? 0 : gold * 0.85);
+      hemi.intensity = B.hemiI * (0.15 + 0.85 * day) + 0.09 * night; hemi.color.set(0xdde7f3).lerp(new THREE.Color(0x3a4b7a), night);
+      const tint = new THREE.Color(1, 1, 1).lerp(new THREE.Color(1.0, 0.62, 0.4), gold).multiplyScalar(0.035 + 0.965 * day);
+      tint.lerp(new THREE.Color(0.03, 0.045, 0.09), night); SKY_TINT.value.copy(tint);
+      renderer.toneMappingExposure = B.exp * (0.92 + 0.08 * day);
+      scene.fog.color.copy(B.fog).multiply(tint.clone().multiplyScalar(1.1)); scene.fog.density = B.fogD * (1 + 0.5 * night);
+      TOD.lightK = 1 + 1.8 * night + 0.4 * gold; TOD.envK = 0.1 + 0.9 * day * (1 - 0.3 * gold);
+      stars.visible = night > 0.2; stars.material.opacity = Math.min(1, night * 1.3);
+    }
+    envScale(TOD.envK);
+    if (lights) setLights(!!build.lightsOn, lightSw(build)); else setRearLamps(rearState.brake, rearState.rev);
+    envCap.due = [performance.now() + 120]; // re-capture the paint reflections under the new light
+  }
   function setEnvironment(id, quality = '2k') {
     const token = ++envState.token;
     const cfg = ENVIRONMENTS.find((e) => e.id === id) || ENVIRONMENTS[0];
@@ -4762,10 +4937,11 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
       scene.environment = proceduralEnv; renderer.toneMappingExposure = 1.0;
       setSun(new THREE.Vector3(0.45, 0.62, 0.4).normalize(), 1.6); hemi.intensity = 0.3;
       scene.fog.color.setRGB(0.72, 0.77, 0.83); scene.fog.density = 0.008;
+      TOD.base = { exp: 1.0, dir: sunDir.clone(), sunI: 1.6, hemiI: 0.3, fog: scene.fog.color.clone(), fogD: 0.008 }; applyTimeOfDay(TOD.hour);
     };
     if (cfg.id === 'procedural' || !THREE.RGBELoader) { useProcedural(); return Promise.resolve('procedural'); }
     return new Promise((resolve, reject) => {
-      new THREE.RGBELoader().load(hdriUrl(cfg.id, quality), (tex) => {
+      new THREE.RGBELoader().load(hdriUrl(cfg.hdri || cfg.id, quality), (tex) => {
         if (token !== envState.token) { tex.dispose(); resolve('superseded'); return; }
         rotateEquirect(tex, cfg.rot || 0);
         tex.mapping = THREE.EquirectangularReflectionMapping;
@@ -4779,6 +4955,7 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
         renderer.toneMappingExposure = cfg.exposure;
         const s = hdrSun(tex); setSun(s.dir, s.intensity); hemi.intensity = 0.12;
         scene.fog.color.copy(hdrHorizon(tex)); scene.fog.density = cfg.fog || 0.008;
+        TOD.base = { exp: cfg.exposure, dir: s.dir.clone(), sunI: s.intensity, hemiI: 0.12, fog: scene.fog.color.clone(), fogD: scene.fog.density }; applyTimeOfDay(TOD.hour);
         const now = performance.now(); envCap.due = [now + 400, now + 3000]; // again once the ground textures have streamed in
         resolve(cfg.id);
       }, undefined, () => {
@@ -4841,16 +5018,47 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
   let model = null, acc = null, lights = null, lightsKey = '', bumpers = null, bumpersKey = '', chassis = null, extras = null, extrasKey = '', bayParts = null, bayKey = '';
   // three.js recompiles every material when the NUMBER of spot / point lights in the scene changes — fitting or removing a
   // light kit froze the page for a moment. A pool of dark placeholder lights keeps the count constant (up to the caps).
+  // time of day (null = the sky photo as shot). lightK: how much brighter lamps read (night), envK: how much of the photo's
+  // light (reflections + ambient) is left; base: the current scene's as-shot lighting, captured when it loads
+  const TOD = { hour: null, lightK: 1, envK: 1, base: null };
   const lightPad = { g: new THREE.Group(), spots: [], points: [] }, SPOT_CAP = 10, POINT_CAP = 6; // (every kit fitted at once uses 5 spots + 2 headlamps + 2 fogs / 4 points)
   // switch-panel state + the factory lamps: headlights off / low / high, factory fogs on / off
   const lightSw = (b) => ({ ...(b.lightSwitch || {}), head: b.head || 'off', oemFog: !!b.fogsOn });
   function setLights(on, sw) {
     if (!lights) return;
     lights.setOn(on, sw);
+    // night: lamps read brighter (TOD.lightK) — the same bulbs against a dark world, as your eye adapts
+    [lights.group, lights.ground].forEach((gr) => gr && gr.traverse((l) => { if (l.isSpotLight) l.intensity *= TOD.lightK; })); // (spots: setOn sets them fresh every call, so this never compounds)
     if (!model || !model.zones) return;
     const flashOff = sw.strobe && !on, glow = (zone, k) => (model.zones[zone] || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
-      if (!mt || !mt.emissive || mt.metalness > 0.7) return; mt.emissive.setHex(0xf2f5ff); mt.emissiveIntensity = flashOff ? 0 : k; }));
+      if (!mt || !mt.emissive || mt.metalness > 0.7) return; mt.emissive.setHex(0xf2f5ff); mt.emissiveIntensity = flashOff ? 0 : k * TOD.lightK; }));
     glow('headlights', sw.head === 'high' ? 1.6 : sw.head === 'low' ? 0.9 : 0); glow('fogs', sw.oemFog ? 1.1 : 0);
+    setRearLamps(rearState.brake, rearState.rev); // (tail running lights follow the headlights)
+  }
+  // rear lamps: the taillight lenses glow (running lights with the headlights, bright on the brake), a red wash on the
+  // ground behind under braking, and two white LED reverse lamps hidden low in the taillights — you see their light on the
+  // ground and whatever's behind, not the bulbs. Made once (constant light count → no shader recompiles), switched by level.
+  const rearL = { rev: [], red: null };
+  {
+    for (let i = 0; i < 2; i++) { const l = new THREE.SpotLight(0xf4f7ff, 0, 16, 0.95, 0.75, 1.4); l.castShadow = false; truck.add(l); truck.add(l.target); rearL.rev.push(l); }
+    rearL.red = new THREE.PointLight(0xff1a0a, 0, 5, 1.6); truck.add(rearL.red);
+  }
+  function placeRearLamps() { // at the bottom of each taillight, aimed back and down
+    const P = base.P; if (!P) return; const x = P.rear + 0.06, y = (P.rearBumperY || 0.7) + 0.33 + (rig.liftR || 0);
+    rearL.rev.forEach((l, i) => { const z = (i ? 1 : -1) * (P.halfW - 0.2); l.position.set(x, y, z); l.target.position.set(x - 6, 0, z * 1.4); });
+    rearL.red.position.set(x - 0.4, y + 0.1, 0);
+  }
+  let rearState = { brake: false, rev: false };
+  function setRearLamps(brake, rev) {
+    rearState = { brake, rev }; placeRearLamps();
+    const k = TOD.lightK, head = (build.head || 'off') !== 'off';
+    rearL.rev.forEach((l) => { l.intensity = rev ? 7 * k : 0; });
+    rearL.red.intensity = brake ? 1.4 * k : 0;
+    if (!model || !model.zones) return;
+    (model.zones.taillights || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
+      if (!mt || !mt.emissive || mt.metalness > 0.7 || !mt.color || !(mt.color.r > mt.color.g * 1.6 && mt.color.r > 0.2)) return; // (just the red lens)
+      mt.emissive.setHex(0xff1408); mt.emissiveIntensity = (brake ? 1.9 : head ? 0.5 : 0) * k;
+    }));
   }
   function padLights() {
     let ns = 0, np = 0; [lights && lights.group, lights && lights.ground].forEach((o) => o && o.traverse((l) => { if (l.isSpotLight) ns++; else if (l.isPointLight) np++; }));
@@ -5494,6 +5702,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     build = b;
     const P = base.P; if (!P) return;
     TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
+    if ((b.tod ?? null) !== TOD.hour) applyTimeOfDay(b.tod ?? null); // (time of day lives in the build, so presets keep it)
     if (model) { paintModel(b); tintModel(b.tint, b.tintWs || 0); engineModel(b.engineAccent); if (model.zones) { applyZones(b); applyBulge(b); } }
     const style = effStyle(b);
     const r = RIM_PBR[style === 'factory-steel16' ? 'steel' : style.startsWith('factory-') ? 'alloy' : b.rimFinish] || RIM_PBR.matte;
@@ -5562,6 +5771,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory; model.bumpers.front.forEach((m) => { m.visible = !!fs; }); model.bumpers.rear.forEach((m) => { m.visible = (b.rearBumper || 'stock') === 'stock'; }); }
     if (model) { applyWindows(b); setCuts([...trimCuts(b), ...(b.cuts || [])]); }
     refreshBoxes();
+    if (TOD.envK !== 1) envScale(TOD.envK); // (freshly built parts take the time of day's light too)
     rain.visible = b.weather === 'rain'; // weather: rain streaks + wet, puddled ground; mud = soaked ground
     if (b.weather === 'rain' || b.weather === 'mud') outdoor.setWet(true); else if (weatherWas && weatherWas !== 'dry') outdoor.setWet(false);
     weatherWas = b.weather || 'dry';
@@ -6578,6 +6788,14 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       [2.7, 1.75, 0, -1.75, -2.7].forEach((lx) => [-1.12, 1.12].forEach((lz) => { const w = outdoor.dockPush(d.x + lx * c + lz * s, d.z - lx * s + lz * c, d.y); if (w) { d.x += w[0]; d.z += w[1]; hit = true; } })); // dock faces
       return hit;
     } };
+    if (lay === 'backroads') { // spawn in the right-hand lane at the start of the loop, pointed along the road
+      const BRd = outdoor.backroads, B = BRd.bounds, p = BRd.path[0];
+      return { H: outdoor.heights.backroads, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: [0.55, 0.47, 0.37],
+        start: { x: 0, z: 0, yaw: Math.atan2(-p.tz, p.tx) }, clamp: (d) => { // (the map's lane start is the world origin)
+        let hit = false; const lim = (k, lo, hi) => { if (d[k] < lo) { d[k] = lo; hit = true; } if (d[k] > hi) { d[k] = hi; hit = true; } };
+        lim('x', B.x0, B.x1); lim('z', B.z0, B.z1); return hit;
+      } };
+    }
     if (lay === 'rocks') return { H: outdoor.heights.rocks, mu: () => 1.05, roll: 0.03, dust: [0.66, 0.6, 0.52], clamp: sq(80) };
     if (lay === 'straight') return { H: () => 0, mu: (x, z) => (Math.abs(z + 9.5) < 4.5 || (Math.abs(x) < 30 && z > -5.4 && z < 4) ? 1.0 : 0.7), loose: (x, z) => !(Math.abs(z + 9.5) < 4.5), roll: 0.02, dust: [0.6, 0.55, 0.45], clamp: (d) => { let hit = false; if (d.x < -880) { d.x = -880; hit = true; } if (d.x > 880) { d.x = 880; hit = true; } if (d.z < -22) { d.z = -22; hit = true; } if (d.z > 12) { d.z = 12; hit = true; } return hit; } };
     if (lay === 'park') return { H: () => 0, mu: () => 0.8, roll: 0.02, dust: [0.6, 0.55, 0.48], clamp: (d) => { const r = Math.hypot(d.x, d.z); if (r <= 11) return false; d.x *= 11 / r; d.z *= 11 / r; return true; } };
@@ -6589,7 +6807,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   function startDrive() {
     if (!model || !base.P) return false;
     Object.assign(drive, { on: true, area: driveArea(), x: 0, z: 0, y: 0, vy: 0, yaw: 0, r: 0, u: 0, vz: 0, ax: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, steer: 0, air: false, airT: 0, cam: 0, gear: 0, manual: false, shiftT: 0, rpm: 750, tick: 0, maxAir: 0, spinA: [0, 0, 0, 0], spinX: 0, prevT: null, drift: 0, spinning: false, rawPrev: null, chop: 0, flipped: false, lurch: 0, lurchT: 0 });
-    if (drive.area.start) { drive.x = drive.area.start.x; drive.z = drive.area.start.z; } // (spawn in front of the course, not on it)
+    if (drive.area.start) { drive.x = drive.area.start.x; drive.z = drive.area.start.z; drive.yaw = drive.area.start.yaw || 0; drive.y = drive.area.H(drive.x, drive.z); } // (spawn in front of the course, not on it)
     Object.keys(keys).forEach((k) => { keys[k] = false; }); recenterCam();
     controls.enabled = false; controls.autoRotate = false; dust.visible = true;
     if (cutaway) setCutaway(false);
@@ -6627,6 +6845,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (!drive.on) return;
     setCabinView(false); camera.near = 0.1;
     drive.on = false; dust.visible = false; envCap.due = [performance.now() + 150]; // re-capture reflections back at the stage
+    drive.brakeLit = drive.revLit = false; setRearLamps(false, false);
     if (drive.baseFov !== undefined) { camera.fov = drive.baseFov; drive.baseFov = undefined; camera.updateProjectionMatrix(); }
     truck.position.set(0, 0, 0); truck.quaternion.identity(); rig.susp = [0, 0, 0, 0];
     controls.enabled = true; controls.autoRotate = autoRotateWanted;
@@ -6640,6 +6859,12 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const d = drive, P = base.P, A = d.area, H = A.H, veh = base.vehicle, b = build, g = 9.81;
     const live = !d.flipped; // (on its roof / side: wheels in the air, no drive)
     const thr = live && (keys.w || keys.arrowup) ? 1 : 0, rev = live && (keys.s || keys.arrowdown) ? 1 : 0, stIn = live ? (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0) : 0, hand = live && !!keys[' '];
+    // burnout: gas + brake together at a crawl — the brakes hold the fronts, the throttle lights up the rears (instead of
+    // reversing). Steering swings the tail round the planted front axle.
+    const burn = !!(thr && rev && Math.abs(d.u) < 4 && !d.air);
+    // rear lamps: brake lights whenever the brake / reverse pedal (S) is down; white reverse lights only while rolling backward
+    const brakeLit = !!rev, revLit = d.u < -0.3 && !burn;
+    if (brakeLit !== d.brakeLit || revLit !== d.revLit) { d.brakeLit = brakeLit; d.revLit = revLit; setRearLamps(brakeLit, revLit); }
     const m = (veh.curb + 250) * 0.4536, a_ = Math.max(0.6, P.xF), b_ = Math.max(0.6, -P.xR), L = a_ + b_, Iz = m * (a_ * a_ + b_ * b_) * 0.55, hcg = 0.78;
     const cy = Math.cos(d.yaw), sy = Math.sin(d.yaw);
     // ground under the four tires
@@ -6689,7 +6914,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const tracLim = (rearT + frontT) * 1.15, rearShare = rearT + frontT > 0 ? rearT / (rearT + frontT) : 1;
     // final drive from the rear ring & pinion (× low range in 4L); the tire radius is in Rw, so bigger tires = taller effective gearing
     d.drift = d.drift || 0;
-    const finalR = (b.gearR || FINAL) * (fourWD ? XF.low : 1), gearR = (d.u < -0.3 || (rev && d.u < 0.8) ? REVERSE : GEARS[d.gear]) * finalR, Rw = Math.max(0.2, rig.wy);
+    const finalR = (b.gearR || FINAL) * (fourWD ? XF.low : 1), gearR = (d.u < -0.3 || (rev && !burn && d.u < 0.8) ? REVERSE : GEARS[d.gear]) * finalR, Rw = Math.max(0.2, rig.wy);
     const boost = engineBoost(b), hpE = veh.hp + boost.hp, tqE = veh.tq + boost.tq; // supercharger / intake gains
     const Fmax = Math.min((tqE * 1.356 * POWER * gearR) / Rw, (hpE * 745.7 * POWER) / Math.max(2, Math.abs(d.u)));
     d.shiftT = Math.max(0, (d.shiftT || 0) - dt);
@@ -6697,10 +6922,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     let Fdem = 0; // (traction control may trim this below)
     const bind = fourWD && Math.abs((b.gearF || 4.1) - (b.gearR || 4.1)) > 0.01; // mismatched front / rear ratios fight each other in 4WD
     if (thr) Fdem = Fmax * cut * (bind ? 0.75 : 1);
-    if (rev && d.u < 0.8) Fdem = -Fmax * 0.9;
+    if (rev && d.u < 0.8) Fdem = -Math.min(Fmax * 0.5, m * 3) * THREE.MathUtils.clamp((6.7 + d.u) / 2.5, 0, 1); // reverse: gentle (≤ 3 m/s²), tops out ~15 mph
+    if (burn) Fdem = 0; // (all the torque goes into spinning the rears — see spinX below)
     const tcs = b.tcs !== false, slipR = Math.atan2(Math.abs(d.vz + d.r * b_), Math.max(1, Math.abs(d.u)));
     if (tcs) { if (Math.abs(Fdem) > tracLim * 0.97) Fdem = Math.sign(Fdem) * tracLim * 0.97; if (slipR > 0.1 && Fdem > 0) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.1) * 4, 0.25, 1); } // traction / stability control: no wheelspin, eases power when the rear steps out
-    const spinning = Math.abs(Fdem) > tracLim * 1.02 && !d.air; d.spinning = spinning;
+    const spinning = (Math.abs(Fdem) > tracLim * 1.02 && !d.air) || burn; d.spinning = spinning;
     const Fx = Math.sign(Fdem) * Math.min(Math.abs(Fdem), tracLim * (spinning ? 0.85 : 1));
     const brake = rev && d.u > 0.8 ? mu * (Nf + Nr) * 0.85 : 0, hb = hand ? mu * Nr * 0.75 : 0;
     const u = d.u, vz = d.vz, r = d.r, st = d.steer;
@@ -6716,7 +6942,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const lowSlide = paved && wth === 'dry' && diff !== 'open' && (d.drift || 0) > 8 ? 1 - 0.16 * (1 - THREE.MathUtils.clamp(Math.abs(d.u) / 20, 0, 1)) : 1;
     // wheelspin costs side grip only on the tires that are actually spinning: both with a locker, mostly both with an LSD,
     // just the light inside tire with an open diff (the loaded outside tire still holds the rear in line)
-    const spinLoss = !spinning ? 1 : diff === 'open' ? 1 - 0.5 * (nLight / Math.max(1, Nr)) : diff === 'lsd' ? 0.6 : 0.5;
+    const spinLoss = burn ? 0.12 : !spinning ? 1 : diff === 'open' ? 1 - 0.5 * (nLight / Math.max(1, Nr)) : diff === 'lsd' ? 0.6 : 0.5; // (burnout: rears spinning flat out hold almost nothing sideways)
     const capR = Math.sqrt(Math.max(0, (mu * Nr * kR) ** 2 - (Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide;
     const CF = 8.6, CR = 12.5; // softer front cornering stiffness → a gentle push at the limit until the rear is overloaded
     const Fyf = THREE.MathUtils.clamp(-CF * Nf * mu * af, -capF, capF), Fyr = THREE.MathUtils.clamp(-CR * Nr * mu * ar, -capR, capR);
@@ -6726,12 +6952,15 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (!d.air) {
       d.u += (sumX / m - d.r * d.vz) * dt; d.vz += (sumZ / m + d.r * d.u) * dt; d.r += (torque / Iz) * dt;
       const w = THREE.MathUtils.clamp(1 - Math.abs(d.u) / 2.5, 0, 1); // low speed: kinematic steering, no sliding
-      if (w > 0) { d.r = d.r * (1 - w) + ((d.u * Math.tan(st)) / L) * w; d.vz *= 1 - w * 0.9; }
+      if (w > 0 && !burn) { d.r = d.r * (1 - w) + ((d.u * Math.tan(st)) / L) * w; d.vz *= 1 - w * 0.9; }
       if (!thr && !rev && Math.abs(d.u) < 0.25 && Math.abs(d.vz) < 0.3) { d.u = 0; d.vz = 0; d.r = 0; }
       if ((brake || hb) && Math.abs(d.u) < 0.3) d.u = 0;
+      if (burn) { // fronts locked: it barely creeps; steering pivots the body on the front axle, the tail swinging out
+        d.u *= Math.pow(0.04, dt); d.r += (stIn * 0.75 - d.r) * Math.min(1, dt * 6); d.vz = d.r * a_;
+      }
       d.ax = THREE.MathUtils.clamp(sumX / m, -9, 7);
     } else { d.r *= Math.pow(0.5, dt); d.ax = 0; }
-    d.u = THREE.MathUtils.clamp(d.u, -19, 62);
+    d.u = THREE.MathUtils.clamp(d.u, -7.5, 62);
     d.yaw += d.r * dt;
     d.x += (cy * d.u + sy * d.vz) * dt; d.z += (-sy * d.u + cy * d.vz) * dt;
     if (A.clamp(d)) { d.u *= -0.25; d.vz *= 0.3; d.r *= 0.4; handlers.current.onLand && handlers.current.onLand(6); }
@@ -6845,7 +7074,8 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     truck.quaternion.copy(qY).multiply(qP).multiply(qR);
     // wheel spin: rears over-spin when traction is exceeded — an open diff spins the lighter (unloaded) tire
     const excess = spinning ? (Math.abs(Fdem) - tracLim) / Math.max(800, tracLim) : 0; // wheelspin grows with how far torque exceeds grip
-    d.spinX += ((d.air && thr ? 40 : Math.min(42, excess * 16)) - d.spinX) * Math.min(1, dt * 4);
+    // (burnout: the rears spin up to ~5000 rpm in first and hold there — just under the limiter)
+    d.spinX += ((burn ? 5000 / (9.549 * gearR) : d.air && thr ? 40 : Math.min(42, excess * 16)) - d.spinX) * Math.min(1, dt * (burn ? 2.5 : 4));
     const wg = d.u / Rw, heavyL = NrL >= NrR, extra = (i) => { if (fr[i]) return 0; const left = P.spots[i].s < 0; if (diff === 'locker' || d.air) return d.spinX; const light = left !== heavyL; return diff === 'lsd' ? d.spinX * (light ? 1.4 : 0.6) : light ? d.spinX * 2 : 0; };
     // camber: rear tires lean with the axle housing; IFS fronts pick up a little camber gain through their travel
     const rIx = P.spots.map((_, i) => i).filter((i) => !fr[i]), zr = Math.max(0.5, Math.abs(P.spots[rIx[0]] ? P.spots[rIx[0]].z : 0.8));
@@ -6868,11 +7098,14 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     d.drift = Math.abs(Math.atan2(d.vz, Math.max(0.5, Math.abs(d.u)))) * DEG;
     const slide = d.drift > 10 || spinning || hand;
     const peel = diff === 'open' && spinning && d.drift <= 10 && !hand; // open diff: only the light tire smokes
-    if (!d.air && (slide || ((A.loose ? A.loose(d.x, d.z) : A.desert) && Math.abs(d.u) > 3))) [2, 3].filter((i) => !peel || (P.spots[i].s < 0) !== heavyL).forEach((i) => { if (Math.random() < (slide ? 1 : Math.min(1, Math.abs(d.u) / 18))) emitDust(wpos[i][0] - cy * 0.4, hs[i] + 0.2, wpos[i][1] + sy * 0.4, Math.abs(d.u), A.dust); });
+    // (spinning on pavement makes white-grey tire smoke, not dirt; a burnout pours it out)
+    const smoke = spinning && paved ? [0.86, 0.86, 0.84] : A.dust, puffs = burn ? 3 : 1;
+    if (!d.air && (slide || ((A.loose ? A.loose(d.x, d.z) : A.desert) && Math.abs(d.u) > 3))) [2, 3].filter((i) => !peel || (P.spots[i].s < 0) !== heavyL).forEach((i) => { for (let n = 0; n < puffs; n++) if (Math.random() < (slide ? 1 : Math.min(1, Math.abs(d.u) / 18))) emitDust(wpos[i][0] - cy * 0.4, hs[i] + 0.2, wpos[i][1] + sy * 0.4, burn ? 14 : Math.abs(d.u), smoke); });
     if (landed > 3) for (let k = 0; k < 18; k++) { const i = k % 4; emitDust(wpos[i][0], hs[i] + 0.2, wpos[i][1], 10, A.dust); }
     sunAnchor.copy(truck.position); sun.position.copy(sunAnchor).addScaledVector(sunDir, 20); sun.target.position.copy(sunAnchor);
     if (envState.gp) envState.gp.position.set(camera.position.x, 0, camera.position.z); // sky dome travels with you
     sky.position.set(camera.position.x, 0, camera.position.z);
+    if (stars.visible) stars.position.copy(camera.position);
     setCabinView(d.cam === 3);
     if (d.cam === 3 && model && model.steerRig) { // first person: the driver's eye, riding with the body; right-drag looks around
       const sr = model.steerRig;
@@ -7967,6 +8200,116 @@ function DecalModal({ open, onClose, current, onApply }) {
     </ModalShell>
   );
 }
+// ---- Accounts & saved presets. The site is static (GitHub Pages — no server yet), so accounts and presets live in this
+// browser's storage: they stay on this device / browser, not across devices. Everything goes through Accounts.*, so an online
+// backend can replace the storage later without touching the UI.
+const Accounts = (() => {
+  const K = { accounts: 'apex.accounts', session: 'apex.session', presets: (id) => 'apex.presets.' + id };
+  const rd = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+  const wr = (k, v) => localStorage.setItem(k, JSON.stringify(v)); // (throws when storage is full / blocked — callers show it)
+  const subs = new Set(), emit = () => subs.forEach((f) => f());
+  // your account ID: DGC-XXXX-XXXX from a crypto-random draw (no look-alike characters), unique among accounts here
+  const newId = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => A[x % A.length]).join(''); return `DGC-${s.slice(0, 4)}-${s.slice(4)}`; };
+  const norm = (e) => e.trim().toLowerCase();
+  return {
+    subscribe: (f) => { subs.add(f); return () => subs.delete(f); },
+    validEmail: (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim()),
+    current: () => { const e = rd(K.session, null), all = rd(K.accounts, {}); return e && all[e] ? all[e] : null; },
+    // one step: an email you've used here signs you back in; a new one creates the account
+    signIn: (email) => {
+      const e = norm(email), all = rd(K.accounts, {}); let acct = all[e], created = false;
+      if (!acct) { const used = new Set(Object.values(all).map((a) => a.id)); let id; do id = newId(); while (used.has(id)); acct = all[e] = { id, email: e, created: Date.now() }; wr(K.accounts, all); created = true; }
+      wr(K.session, e); emit(); return { acct, created };
+    },
+    signOut: () => { try { localStorage.removeItem(K.session); } catch (e) { /* ignore */ } emit(); },
+    presets: (acct) => (acct ? rd(K.presets(acct.id), []) : []),
+    savePresets: (acct, list) => { wr(K.presets(acct.id), list); emit(); },
+  };
+})();
+// time-of-day picker (slider + presets) — used in the location menu and the drive HUD. null = the sky as photographed
+const TOD_PRESETS = [[null, 'Photo'], [6, 'Dawn'], [13, 'Noon'], [19.75, 'Sunset'], [22.5, 'Night']]; // (summer day: sunrise ~5:45, sunset ~8:15 PM)
+function TimeOfDayControl({ value, onChange }) {
+  const v = value ?? null, fmt = (h) => { const hh = Math.floor(h) % 24, mm = Math.round((h % 1) * 60); return `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'AM' : 'PM'}`; };
+  return (
+    <div>
+      <div className="flex items-center justify-between"><span className="hud text-[11px] tracking-[0.2em] uppercase text-white/50">Time of day</span><span className="hud text-[12px] text-amber-300 font-bold">{v === null ? 'As photographed' : fmt(v)}</span></div>
+      <input type="range" min="0" max="23.75" step="0.25" value={v === null ? 12 : v} onChange={(e) => onChange(+e.target.value)} className="hud-range w-full mt-1" />
+      <div className="flex gap-1 mt-1">{TOD_PRESETS.map(([h, l]) => <button key={l} onClick={() => onChange(h)} className={`flex-1 rounded py-1 hud text-[11px] font-bold border ${v === h ? 'bg-amber-400/20 border-amber-400/70 text-amber-200' : 'border-white/12 text-white/60 hover:bg-white/10'}`}>{l}</button>)}</div>
+    </div>
+  );
+}
+function useAccount() { const [, bump] = useState(0); useEffect(() => Accounts.subscribe(() => bump((n) => n + 1)), []); return Accounts.current(); }
+// Account + saved presets: create an account with just an email (you get your own account ID), then save the current build
+// under any name you like, and load / update / rename / delete them later
+function AccountModal({ open, onClose, build, onLoad }) {
+  const acct = useAccount();
+  const [email, setEmail] = useState(''), [msg, setMsg] = useState(null), [name, setName] = useState(''), [edit, setEdit] = useState(null), [del, setDel] = useState(null), [copied, setCopied] = useState(false);
+  if (!open) return null;
+  const list = Accounts.presets(acct);
+  const store = (next, ok) => { try { Accounts.savePresets(acct, next); setMsg(ok ? { ok } : null); return true; } catch (e) { setMsg({ err: 'Couldn’t save — this browser’s storage is full or blocked. Deleting a preset with a custom decal frees the most room.' }); return false; } };
+  const snapshot = () => JSON.parse(JSON.stringify(build));
+  const saveNew = () => { const nm = name.length ? name : `Build ${list.length + 1}`; if (store([{ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: nm, build: snapshot(), saved: Date.now() }, ...list], `Saved “${nm}”.`)) setName(''); };
+  const when = (t) => new Date(t).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const pill = 'rounded-full px-3 py-1 hud text-[11px] font-bold tracking-wider uppercase border';
+  return (
+    <ModalShell title="MY" accent="ACCOUNT" sub={acct ? 'Your account & saved builds' : 'Create an account to save your builds'} onClose={onClose}>
+      {!acct ? (
+        <form onSubmit={(e) => { e.preventDefault(); if (!Accounts.validEmail(email)) { setMsg({ err: 'Enter a valid email address.' }); return; } try { const r = Accounts.signIn(email); setEmail(''); setMsg({ ok: r.created ? `Account created — your ID is ${r.acct.id}.` : `Welcome back — signed in as ${r.acct.email}.` }); } catch (err) { setMsg({ err: 'Couldn’t create the account — this browser is blocking storage.' }); } }} className="max-w-md">
+          <label className="hud text-[12px] tracking-[0.2em] uppercase text-white/55">Email</label>
+          <div className="flex gap-2 mt-1.5">
+            <input type="email" autoFocus value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="flex-1 bg-black/40 border border-white/15 rounded px-3 py-2 text-[14px] text-white" />
+            <button className="rounded px-4 hud font-bold text-[13px] bg-amber-400 text-black">Create / Sign in</button>
+          </div>
+          <div className="text-[12px] text-white/45 mt-2 leading-snug">Just an email for now — no password. You’ll get your own account ID. Accounts and saved builds are kept in this browser on this device.</div>
+          {msg && msg.err && <div className="text-red-300 text-[12.5px] mt-1.5">{msg.err}</div>}
+        </form>
+      ) : (
+        <div className="space-y-4">
+          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 flex flex-wrap items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-amber-300"><Icon name="User" size={18} /></div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[14px] text-white truncate">{acct.email}</div>
+              <div className="hud text-[12px] text-white/55">Account ID <span className="text-amber-300 font-bold tracking-wider">{acct.id}</span>
+                <button onClick={() => { try { navigator.clipboard.writeText(acct.id); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch (e) { /* ignore */ } }} className="ml-2 text-white/50 hover:text-white">{copied ? 'copied' : 'copy'}</button></div>
+            </div>
+            <button onClick={() => { Accounts.signOut(); setMsg(null); }} className={`${pill} border-white/20 text-white/70 hover:text-white`}>Sign out</button>
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); saveNew(); }}>
+            <label className="hud text-[12px] tracking-[0.2em] uppercase text-white/55">Save the current build as a preset</label>
+            <div className="flex gap-2 mt-1.5">
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={`Build ${list.length + 1}`} className="flex-1 bg-black/40 border border-white/15 rounded px-3 py-2 text-[14px] text-white" />
+              <button className="rounded px-4 hud font-bold text-[13px] bg-amber-400 text-black flex items-center gap-1.5"><Icon name="Save" size={14} />Save</button>
+            </div>
+          </form>
+          {msg && <div className={`text-[12.5px] ${msg.err ? 'text-red-300' : 'text-emerald-300'}`}>{msg.err || msg.ok}</div>}
+          <div>
+            <div className="hud text-[12px] tracking-[0.2em] uppercase text-white/55 mb-1.5">Saved presets ({list.length})</div>
+            {!list.length && <div className="text-[13px] text-white/45">No presets yet — build something and save it above.</div>}
+            <div className="space-y-1.5 max-h-[42vh] overflow-y-auto scroll-thin pr-1">
+              {list.map((p) => (
+                <div key={p.id} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 flex flex-wrap items-center gap-2">
+                  <div className="flex-1 min-w-[160px]">
+                    {edit && edit.id === p.id
+                      ? <form onSubmit={(e) => { e.preventDefault(); store(list.map((q) => (q.id === p.id ? { ...q, name: edit.name } : q)), 'Renamed.'); setEdit(null); }}><input autoFocus value={edit.name} onChange={(e) => setEdit({ id: p.id, name: e.target.value })} onBlur={() => setEdit(null)} className="w-full bg-black/40 border border-amber-400/50 rounded px-2 py-1 text-[13.5px] text-white" /></form>
+                      : <div className="text-[14px] text-white break-words whitespace-pre-wrap">{p.name}</div>}
+                    <div className="text-[11px] text-white/40">{p.updated ? `Updated ${when(p.updated)}` : `Saved ${when(p.saved)}`}</div>
+                  </div>
+                  <button onClick={() => { onLoad(p.build); setMsg({ ok: `Loaded “${p.name}”.` }); }} className={`${pill} bg-amber-400 text-black border-amber-400`}>Load</button>
+                  <button title="Overwrite this preset with the current build" onClick={() => store(list.map((q) => (q.id === p.id ? { ...q, build: snapshot(), updated: Date.now() } : q)), `Updated “${p.name}” with the current build.`)} className={`${pill} border-white/20 text-white/75 hover:text-white`}>Update</button>
+                  <button onClick={() => setEdit({ id: p.id, name: p.name })} className={`${pill} border-white/20 text-white/75 hover:text-white`}>Rename</button>
+                  {del === p.id
+                    ? <button onClick={() => { store(list.filter((q) => q.id !== p.id), `Deleted “${p.name}”.`); setDel(null); }} className={`${pill} border-red-400 text-red-300 bg-red-500/10`}>Sure?</button>
+                    : <button onClick={() => setDel(p.id)} className={`${pill} border-white/20 text-white/50 hover:text-red-300`}>Delete</button>}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="text-[11.5px] text-white/40 leading-snug">Saved in this browser on this device. Clearing your browser data removes them.</div>
+        </div>
+      )}
+    </ModalShell>
+  );
+}
 function ScanModal({ open, onClose, vehicle, onStart, onImportScan, onImportModel }) {
   const [files, setFiles] = useState([]);
   const [scanStatus, setScanStatus] = useState(null);
@@ -8685,6 +9028,7 @@ function App() {
   const [hudPop, setHudPop] = useState(null); // drive HUD pop-up panel: lights / windows / audio / volume / drive
   const [mixOpen, setMixOpen] = useState(false); // header volume mixer
   const [devOpen, setDevOpen] = useState(false), [decalOpen, setDecalOpen] = useState(false); // developer panel / custom decal
+  const [accountOpen, setAccountOpen] = useState(false), account = useAccount(); // account & saved presets
   const [devUnlocked, setDevUnlocked] = useState(() => { try { return localStorage.getItem('apex.dev') === '1'; } catch (e) { return false; } });
   useEffect(() => { const kd = (e) => { if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') { e.preventDefault(); setDevOpen(true); } }; window.addEventListener('keydown', kd); return () => window.removeEventListener('keydown', kd); }, []);
   useEffect(() => { // L cycles the headlights while driving: off → low → high
@@ -9017,6 +9361,7 @@ function App() {
       { kind: 'item', label: 'Select Year / Make / Model', icon: 'Truck', desc: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}. Load factory specs from the US catalog, enter custom specs, or import a .glb mesh.`, right: <Icon name="ChevronRight" size={18} />, action: () => setVehicleModal(true) },
       { kind: 'item', label: '3D Model Library', icon: 'Box', desc: customModel ? `Active: ${customModel.name}. Swap, rotate or remove the realistic model saved for this vehicle.` : 'No realistic model saved for this vehicle yet — import a .glb to replace the placeholder body.', right: <Icon name="ChevronRight" size={18} />, action: openLibrary },
       { kind: 'item', label: 'Scan My Truck', icon: 'ScanLine', desc: 'Import a photogrammetry scan of your truck for an exact replica, or match paint & parts from photos.', right: <Icon name="ChevronRight" size={18} />, action: () => setScanModal(true) },
+      { kind: 'item', label: account ? 'My Account & Saved Builds' : 'Create Account / Save Builds', icon: 'UserCircle', desc: account ? `Signed in · ${account.id}. Save this build as a preset, or load one you saved.` : 'Make an account with just your email to save builds as presets you can name anything.', right: <Icon name="ChevronRight" size={18} />, action: () => setAccountOpen(true) },
       { kind: 'item', label: 'Reset Build to Stock', icon: 'RotateCcw', desc: 'Remove every modification and scanned damage, and return to the factory configuration.', right: null, action: () => { setApplied(DEFAULT_BUILD); setPreview(null); setDamage([]); } },
     ];
   } else if (category === 'factory') {
@@ -9672,6 +10017,7 @@ function App() {
                     {e.label}{envId === e.id && <Icon name="Check" size={15} />}
                   </button>
                 ))}
+                <div className="mt-1 border-t border-white/10 px-2.5 py-2"><TimeOfDayControl value={applied.tod} onChange={(h) => applyPatch({ tod: h })} /></div>
                 <div className="mt-1 border-t border-white/10 pt-1">
                   <label className="flex items-center gap-2 px-2.5 py-1.5 text-[12.5px] text-white/75 cursor-pointer">
                     <input type="checkbox" checked={wet} onChange={(e) => setWet(e.target.checked)} className="accent-amber-400" />Wet road (puddles & damp patches)
@@ -9687,6 +10033,7 @@ function App() {
               </div>
             )}
           </div>
+          <button onClick={() => setAccountOpen(true)} title={account ? `${account.email} · ${account.id}` : 'Create account / save builds'} className={`h-10 rounded-full glass-panel border flex items-center gap-1.5 px-3 transition ${account ? 'border-amber-400/60 text-amber-300' : 'border-white/10 text-white/80 hover:text-white'}`}><Icon name="UserCircle" size={17} /><span className="hidden md:inline hud text-[12px] font-bold tracking-wider">{account ? 'MY BUILDS' : 'SIGN UP'}</span></button>
           <button onClick={() => setScanModal(true)} disabled={scan.phase === 'running'} className="flex items-center gap-2 rounded-full bg-amber-400 text-black px-4 py-2 hud font-bold text-[14px] tracking-wider uppercase hover:bg-amber-300 transition shadow-lg shadow-amber-500/20 disabled:opacity-50">
             <Icon name="ScanLine" size={16} /><span className="hidden sm:inline">Scan / Import</span>
           </button>
@@ -9836,6 +10183,7 @@ function App() {
                       <button key={w} onClick={() => applyPatch({ weather: w })} className={`flex-1 rounded py-1 hud text-[11px] font-bold border ${(applied.weather || 'dry') === w ? 'bg-sky-400/20 border-sky-400/60 text-sky-200' : 'border-white/12 text-white/55'}`}>{l}</button>
                     ))}
                   </div>
+                  <div className="mt-2"><TimeOfDayControl value={applied.tod} onChange={(h) => applyPatch({ tod: h })} /></div>
                   <button onPointerDown={() => WorldAudio.horn(true)} onPointerUp={() => WorldAudio.horn(false)} onPointerLeave={() => WorldAudio.horn(false)} className="w-full mt-2 rounded py-1.5 hud text-[11px] font-bold border border-white/15 text-white/80 hover:bg-white/10 select-none">HOLD FOR HORN (H)</button>                  <div className="hud text-[10.5px] tracking-[0.18em] text-white/45 mt-2 mb-1">CAMERA (C)</div>
                   <div className="grid grid-cols-4 gap-1">
                     {['Chase', 'Close', 'Side', 'Driver'].map((l, i) => (
@@ -9855,7 +10203,7 @@ function App() {
             </div>
             <div className="relative h-1.5 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${driveHud ? Math.min(100, (driveHud.rpm / 6200) * 100) : 0}%` }} /></div>
             {driveHud && (driveHud.drift > 12 || driveHud.spinning) && <div className="mt-1.5 flex gap-1.5">{driveHud.drift > 12 && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-amber-400 text-black hud tracking-wider">DRIFT {Math.round(driveHud.drift)}°</span>}{driveHud.spinning && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-red-500 text-white hud tracking-wider">WHEELSPIN · {driveHud.diff === 'open' ? 'OPEN DIFF' : driveHud.diff === 'lsd' ? 'LSD' : 'LOCKED'}</span>}</div>}
-            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · Esc exit</div>
+            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · Esc exit</div>
            </div>
             <div className="flex gap-1 mt-2.5">
               {[['lights', 'Lightbulb', 'Lights'], ['windows', 'PanelTop', 'Windows'], ['audio', 'Music', 'Audio'], ['volume', 'Volume2', 'Volume'], ['drive', 'Settings2', 'Drive']].map(([id, ic, l]) => (
@@ -9923,6 +10271,7 @@ function App() {
 
       <VehicleModal open={vehicleModal} initialTab={vehicleTab} onClose={() => { setVehicleModal(false); setVehicleTab('catalog'); }} vehicle={vehicle} onApply={loadVehicle} customModel={customModel}
         onImportModel={(f) => startImport(f, 'stock')} onRotateModel={rotateModel} onClearModel={removeModel} onTogglePaint={toggleModelPaint} />
+      <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} build={applied} onLoad={(b) => { setApplied({ ...DEFAULT_BUILD, ...b }); setPreview(null); }} />
       <DevModal open={devOpen} onClose={() => setDevOpen(false)} unlocked={devUnlocked} onUnlock={() => { setDevUnlocked(true); try { localStorage.setItem('apex.dev', '1'); } catch (e) { /* ignore */ } }} onLock={() => { setDevUnlocked(false); applyPatch({ badges: {} }); try { localStorage.removeItem('apex.dev'); } catch (e) { /* ignore */ } }} />
       <DecalModal open={decalOpen} onClose={() => setDecalOpen(false)} current={applied.decal} onApply={(d) => applyPatch({ decal: d })} />
       <ScanModal open={scanModal} onClose={() => setScanModal(false)} vehicle={vehicle} onStart={runScan} onImportScan={(f) => { startImport(f, 'scan'); return Promise.resolve(); }} onImportModel={() => importRef.current && importRef.current.click()} />

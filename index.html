@@ -1629,7 +1629,6 @@ function makeDamageTextures() {
    with the 3D road (which runs along X behind the vehicle).
    ===================================================================== */
 const ENVIRONMENTS = [
-  { id: 'autumn_forest_04',      label: 'Backcountry Forest Road',   layout: 'roadside', rot: 0,   height: 1.7, radius: 70,  exposure: 1.0,  fog: 0.012 },
   { id: 'goegap',                label: 'Desert Short-Course · drivable', layout: 'desert', rot: 0, height: 1.7, radius: 180, exposure: 0.95, fog: 0.0035 },
   { id: 'kloofendal_48d_partly_cloudy_puresky', label: 'Dirt Lot & Parking Lot · drivable', layout: 'lot', rot: 0, height: 1.7, radius: 200, exposure: 1.0, fog: 0.004 },
   { id: 'kloofendal_43d_clear_puresky', label: 'Big Parking Lot → Backcountry Road · drivable', layout: 'trail', rot: 0, height: 1.7, radius: 400, exposure: 1.0, fog: 0.0055 },
@@ -1639,25 +1638,24 @@ const ENVIRONMENTS = [
   { id: 'belfast_sunset_puresky', label: 'Rock Crawl · drivable', layout: 'rocks', rot: 0, height: 1.7, radius: 300, exposure: 1.0, fog: 0.004 },
   { id: 'kloppenheim_06_puresky', label: 'Urban Whoops (parking lot) · drivable', layout: 'whoops', rot: 0, height: 1.7, radius: 600, exposure: 1.0, fog: 0.004 },
   { id: 'backroads', hdri: 'kloofendal_48d_partly_cloudy_puresky', label: 'Backroads (long curvy two-lane) · drivable', layout: 'backroads', rot: 0, height: 1.7, radius: 1200, exposure: 1.0, fog: 0.0035 },
-  { id: 'procedural',            label: 'Offline Sky (no download)', layout: 'roadside', fog: 0.008 },
 ];
 const hdriUrl = (id, q) => `https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/${q}/${id}_${q}.hdr`;
 const PH_TEX = (id, map, res = '1k') => `https://dl.polyhaven.org/file/ph-assets/Textures/jpg/${res}/${id}/${id}_${map}_${res}.jpg`;
 const GROUND_SETS = {
   road:   { d: PH_TEX('asphalt_02', 'diff', '2k'), n: PH_TEX('asphalt_02', 'nor_gl', '2k'), r: PH_TEX('asphalt_02', 'rough', '2k') },
   layby:  { d: PH_TEX('leaf_scattered_gravel', 'diff'), n: PH_TEX('leaf_scattered_gravel', 'nor_gl'), r: PH_TEX('leaf_scattered_gravel', 'rough') },
-  gravel: { d: PH_TEX('gravel_road', 'diff'), n: PH_TEX('gravel_road', 'nor_gl'), r: PH_TEX('gravel_road', 'rough') },
-  verge:  { d: PH_TEX('forest_leaves_02', 'diffuse'), n: PH_TEX('forest_leaves_02', 'nor_gl'), r: PH_TEX('forest_leaves_02', 'rough') },
+  gravel: { d: PH_TEX('gravel_road', 'diff', '2k'), n: PH_TEX('gravel_road', 'nor_gl'), r: PH_TEX('gravel_road', 'rough') },
+  verge:  { d: PH_TEX('forest_leaves_02', 'diffuse', '2k'), n: PH_TEX('forest_leaves_02', 'nor_gl'), r: PH_TEX('forest_leaves_02', 'rough') },
   patch:  { d: PH_TEX('worn_asphalt', 'diff'), n: PH_TEX('worn_asphalt', 'nor_gl'), r: PH_TEX('worn_asphalt', 'rough') },
   desert: { d: PH_TEX('sandy_gravel_02', 'diff'), n: PH_TEX('sandy_gravel_02', 'nor_gl'), r: PH_TEX('sandy_gravel_02', 'rough') },
-  dirt:   { d: PH_TEX('dirt_aerial_02', 'diff'), n: PH_TEX('dirt_aerial_02', 'nor_gl'), r: PH_TEX('dirt_aerial_02', 'rough') },
+  dirt:   { d: PH_TEX('dirt_aerial_02', 'diff', '2k'), n: PH_TEX('dirt_aerial_02', 'nor_gl'), r: PH_TEX('dirt_aerial_02', 'rough') },
   track:  { d: PH_TEX('red_sand', 'diff'), n: PH_TEX('red_sand', 'nor_gl'), r: PH_TEX('red_sand', 'rough') },
   grass:  { d: PH_TEX('aerial_grass_rock', 'diff'), n: PH_TEX('aerial_grass_rock', 'nor_gl'), r: PH_TEX('aerial_grass_rock', 'rough') },
   rocks:  { d: PH_TEX('aerial_rocks_02', 'diff'), n: PH_TEX('aerial_rocks_02', 'nor_gl'), r: PH_TEX('aerial_rocks_02', 'rough') },
   boulder: { d: PH_TEX('rock_boulder_dry', 'diff'), n: PH_TEX('rock_boulder_dry', 'nor_gl'), r: PH_TEX('rock_boulder_dry', 'rough') },
   mud:    { d: PH_TEX('brown_mud_02', 'diff'), n: PH_TEX('brown_mud_02', 'nor_gl'), r: PH_TEX('brown_mud_02', 'rough') },
   trail:  { d: PH_TEX('rocky_trail', 'diff'), n: PH_TEX('rocky_trail', 'nor_gl'), r: PH_TEX('rocky_trail', 'rough') },
-  forest: { d: PH_TEX('forrest_ground_01', 'diff'), n: PH_TEX('forrest_ground_01', 'nor_gl'), r: PH_TEX('forrest_ground_01', 'rough') },
+  forest: { d: PH_TEX('forrest_ground_01', 'diff', '2k'), n: PH_TEX('forrest_ground_01', 'nor_gl'), r: PH_TEX('forrest_ground_01', 'rough') },
 };
 
 const SKY_TINT = { value: new THREE.Color(1, 1, 1) }; // time of day: darkens / warms the photo sky (1 = as shot)
@@ -1803,6 +1801,14 @@ function buildOutdoor(renderer) {
       sh.fragmentShader = sh.fragmentShader
         .replace('#include <common>', '#include <common>\nvarying vec3 vWPos;\nuniform sampler2D uPuddle;\nuniform float uWet;\nuniform float uWetMul;\nuniform vec2 uFade;\nfloat wetAt(){ return texture2D(uPuddle, vWPos.xz / 11.0).r; }')
         .replace('#include <map_fragment>', `#include <map_fragment>
+          #ifdef USE_MAP
+            // break up the tiling: a second sample of the same photo at another scale / offset, blended in large blotches,
+            // plus broad light / dark patches — so the ground doesn't read as one small square stamped over and over
+            float mN = texture2D(uPuddle, vWPos.xz / 53.0 + 0.27).r, mN2 = texture2D(uPuddle, vWPos.xz / 17.0 + 0.61).r;
+            vec4 tB = texture2D(map, vUv * 0.43 + vec2(0.37, 0.13));
+            diffuseColor.rgb = mix(diffuseColor.rgb, tB.rgb * diffuse, smoothstep(0.35, 0.65, mN2));
+            diffuseColor.rgb *= 0.8 + 0.4 * mN;
+          #endif
           float wetDark = smoothstep(0.28, 0.7, wetAt()) * uWet * uWetMul;
           diffuseColor.rgb *= mix(1.0, 0.55, wetDark);
           diffuseColor.a *= 1.0 - smoothstep(uFade.x, uFade.y, length(vWPos.xz));`)
@@ -1995,10 +2001,19 @@ function buildOutdoor(renderer) {
     const m = mergeGeos([a, b]); const n = m.attributes.normal; for (let i = 0; i < n.count; i++) n.setXYZ(i, n.getX(i) * 0.35, 0.94, n.getZ(i) * 0.35);
     return m;
   })();
+  // tree cards use pictures of real photoscanned trees (Poly Haven CC0 fir & broadleaf models, rendered once by
+  // tools/bake-trees.html into trees/*.png — wr is each picture's width / height). If those pictures can't load (offline,
+  // or opened straight from disk), the card falls back to the hand-drawn tree.
+  const realTree = (file, fallback) => {
+    const t = tl.load('trees/' + file, undefined, undefined, () => { t.image = fallback.image; t.needsUpdate = true; });
+    t.encoding = THREE.sRGBEncoding; t.anisotropy = aniso; return t;
+  };
+  const fir = (n, s) => realTree(`fir_sapling_medium_${n}.png`, treeTex(256, 512, s, conifer)), broad = (n, s) => realTree(`tree_small_02_${n}.png`, treeTex(384, 384, s, hardwood));
   const kinds = [
-    { tex: treeTex(256, 512, 11, conifer), h: [12, 22], wr: 0.42, share: 0.26 }, { tex: treeTex(256, 512, 12, conifer), h: [10, 19], wr: 0.4, share: 0.22 },
-    { tex: treeTex(256, 512, 13, conifer), h: [14, 24], wr: 0.36, share: 0.18 },
-    { tex: treeTex(384, 384, 21, hardwood), h: [8, 13], wr: 0.9, share: 0.18 }, { tex: treeTex(384, 384, 22, hardwood), h: [7, 12], wr: 0.95, share: 0.16 },
+    { tex: fir('a_0', 11), h: [13, 22], wr: 0.565, share: 0.13 }, { tex: fir('a_130', 12), h: [12, 21], wr: 0.821, share: 0.12 },
+    { tex: fir('b_0', 13), h: [12, 20], wr: 0.548, share: 0.13 }, { tex: fir('b_130', 11), h: [11, 19], wr: 0.741, share: 0.12 },
+    { tex: fir('c_0', 12), h: [9, 15], wr: 0.729, share: 0.11 }, { tex: fir('c_130', 13), h: [9, 15], wr: 0.989, share: 0.1 },
+    { tex: broad('a_0', 21), h: [8, 13], wr: 0.64, share: 0.15 }, { tex: broad('a_130', 22), h: [8, 12], wr: 1.133, share: 0.14 },
   ];
   const forest = new THREE.Group(); forest.userData.noScan = true; roadside.add(forest);
   const spots = [];
@@ -2685,7 +2700,13 @@ function buildOutdoor(renderer) {
     const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - BZ0) / BC) * (BNX + 1) + Math.round((x - BX0) / BC), n = bI[k] >= 0 ? brNear(x, z) : null; p.setY(i, bH[k] - (n && Math.abs(n.l) < BRW + 3 ? 0.45 : 0.02)); }
     geo.computeVertexNormals();
     const tm = mk(geo, groundMat(GROUND_SETS.forest, 3.2, { base: '#4e3d2a', wetness: 0.25, key: 'brfloor', tint: 0.8, offset: 0 })); tm.castShadow = false; tm.receiveShadow = true; backG.add(tm);
-    const outer = new THREE.PlaneGeometry(3000, 3000); meterUV(outer, 3000, 3000); flat(outer, groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: 'brouter', wetness: 0.3, tint: 0.7, offset: 2 }), -0.25, backG, 'brouter'); // (the far ground past the map's edge)
+    // the far ground past the map's edge: a frame around the map only (a single big sheet floated over every valley and dip
+    // below its height — you drove through it going downhill from the start)
+    const farMat = groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: 'brouter', wetness: 0.3, tint: 0.7, offset: 2 }), FR = 1500;
+    [[BX0 - FR, BX0, BZ0 - FR, BZ1 + FR], [BX1, BX1 + FR, BZ0 - FR, BZ1 + FR], [BX0, BX1, BZ0 - FR, BZ0], [BX0, BX1, BZ1, BZ1 + FR]].forEach(([x0, x1, z0, z1]) => {
+      const pg = new THREE.PlaneGeometry(x1 - x0, z1 - z0); meterUV(pg, x1 - x0, z1 - z0);
+      const m = flat(pg, farMat, -0.05, backG, 'brouter'); m.position.x = (x0 + x1) / 2; m.position.z = (z0 + z1) / 2;
+    });
     // ribbons draped along the whole loop between two lateral offsets (closed: the last row joins the first)
     const drape = (l0, l1, cols, lift, mat, step = 2) => {
       const pos = [], uv = [], idx = []; const rows = Math.floor(brS.length / step);
@@ -2757,7 +2778,10 @@ function buildOutdoor(renderer) {
   const p0 = brS[0], BSX = -(p0.x - p0.tz * 1.8), BSZ = -(p0.z + p0.tx * 1.8), BSY = -brSection(p0.e, 1.8, brHills(p0.x - p0.tz * 1.8, p0.z + p0.tx * 1.8));
   backG.position.set(BSX, BSY, BSZ);
   mapCol.backroads.forEach((c) => { c[0] += BSX; c[1] += BSZ; });
-  const BR = { path: brS, length: BLEN, lane: 1.8, roadHalf: BRW, offset: { x: BSX, y: BSY, z: BSZ }, near: (x, z) => brNear(x - BSX, z - BSZ) };
+  const BR = { path: brS, length: BLEN, lane: 1.8, roadHalf: BRW, offset: { x: BSX, y: BSY, z: BSZ }, near: (x, z) => brNear(x - BSX, z - BSZ),
+    // reset spot: the nearest right-hand lane for the way you're facing (world coords)
+    safe: (x, z, yaw) => { const n = brNear(x - BSX, z - BSZ); if (!n) return null; const p = n.p, fwd = Math.cos(yaw) * p.tx - Math.sin(yaw) * p.tz >= 0, l = fwd ? 1.8 : -1.8;
+      return { x: p.x - p.tz * l + BSX, z: p.z + p.tx * l + BSZ, yaw: Math.atan2(-p.tz, p.tx) + (fwd ? 0 : Math.PI) }; } };
 
   // knockable cones: tumble away from whatever hits them
   const knock =(x, z, r, vx, vz) => cones.forEach((c) => {
@@ -6705,7 +6729,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     e.preventDefault();
     if (k === 'c') { if (e.type === 'keydown' && !e.repeat) drive.cam = (drive.cam + 1) % 4; return; }
     if (k === 'h') { if (!e.repeat) WorldAudio.horn(e.type === 'keydown'); return; } // horn
-    if (k === 'r') { if (e.type === 'keydown' && !e.repeat) resetTruck(); return; } // put it back on its wheels
+    // R: a tap puts it back on its wheels once it's rolled over and stopped; HOLD it (0.8 s) to reset any time — stuck in a
+    // guardrail, beached, lost (on the backroads it drops you back in the nearest lane)
+    if (k === 'r') { if (e.type === 'keydown') { if (!e.repeat) { drive.rHeld = performance.now(); resetTruck(); } } else drive.rHeld = 0; return; }
     if (k === 'e' || k === 'q' || k === 'm') { // E / Q: shift up / down (switches to manual) · M: back to automatic
       if (e.type !== 'keydown' || e.repeat) return;
       if (k === 'm') { drive.manual = !drive.manual; return; }
@@ -6790,7 +6816,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     } };
     if (lay === 'backroads') { // spawn in the right-hand lane at the start of the loop, pointed along the road
       const BRd = outdoor.backroads, B = BRd.bounds, p = BRd.path[0];
-      return { H: outdoor.heights.backroads, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: [0.55, 0.47, 0.37],
+      return { H: outdoor.heights.backroads, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: [0.55, 0.47, 0.37], safe: BRd.safe,
         start: { x: 0, z: 0, yaw: Math.atan2(-p.tz, p.tx) }, clamp: (d) => { // (the map's lane start is the world origin)
         let hit = false; const lim = (k, lo, hi) => { if (d[k] < lo) { d[k] = lo; hit = true; } if (d[k] > hi) { d[k] = hi; hit = true; } };
         lim('x', B.x0, B.x1); lim('z', B.z0, B.z1); return hit;
@@ -6835,10 +6861,12 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   // reset: only once it's rolled over and come to rest (under ~2 mph). Back on its wheels where it is (same heading),
   // dropped from just above the ground, everything at rest
   const canReset = (d) => !!d.flipped && Math.hypot(d.u, d.vz) < 0.9;
-  function resetTruck() {
-    if (!drive.on || !canReset(drive)) return;
+  function resetTruck(force) {
+    if (!drive.on || (!force && !canReset(drive))) return;
     const d = drive;
-    Object.assign(d, { u: 0, vz: 0, r: 0, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, air: false, airT: 0, flipped: false, prevT: null, rawPrev: null, chop: 0, drift: 0, spinX: 0, ax: 0 });
+    const spot = force && d.area.safe ? d.area.safe(d.x, d.z, d.yaw) : null; // (a held reset moves you somewhere drivable)
+    if (spot) Object.assign(d, spot);
+    Object.assign(d, { u: 0, vz: 0, r: 0, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, air: false, airT: 0, flipped: false, prevT: null, rawPrev: null, chop: 0, drift: 0, spinX: 0, ax: 0, rHeld: 0 });
     d.y = d.area.H(d.x, d.z) + 0.25; rig.susp = [0, 0, 0, 0];
   }
   function stopDrive() {
@@ -6857,6 +6885,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   const avg = (arr) => arr.reduce((a, b) => a + b, 0) / Math.max(1, arr.length);
   function driveStep(dt) {
     const d = drive, P = base.P, A = d.area, H = A.H, veh = base.vehicle, b = build, g = 9.81;
+    if (d.rHeld && performance.now() - d.rHeld >= 800) resetTruck(true); // (R held: reset)
     const live = !d.flipped; // (on its roof / side: wheels in the air, no drive)
     const thr = live && (keys.w || keys.arrowup) ? 1 : 0, rev = live && (keys.s || keys.arrowdown) ? 1 : 0, stIn = live ? (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0) : 0, hand = live && !!keys[' '];
     // burnout: gas + brake together at a crawl — the brakes hold the fronts, the throttle lights up the rears (instead of
@@ -6926,6 +6955,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (burn) Fdem = 0; // (all the torque goes into spinning the rears — see spinX below)
     const tcs = b.tcs !== false, slipR = Math.atan2(Math.abs(d.vz + d.r * b_), Math.max(1, Math.abs(d.u)));
     if (tcs) { if (Math.abs(Fdem) > tracLim * 0.97) Fdem = Math.sign(Fdem) * tracLim * 0.97; if (slipR > 0.1 && Fdem > 0) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.1) * 4, 0.25, 1); } // traction / stability control: no wheelspin, eases power when the rear steps out
+    // a keyboard throttle is all-or-nothing: in a power slide a driver would feather it, so past ~17° of rear slip the drive
+    // eases off by itself (to ~half at big angles) — the slide holds instead of the rear being shoved further round
+    else if (Fdem > 0 && slipR > 0.3) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.3) * 1.6, 0.5, 1);
     const spinning = (Math.abs(Fdem) > tracLim * 1.02 && !d.air) || burn; d.spinning = spinning;
     const Fx = Math.sign(Fdem) * Math.min(Math.abs(Fdem), tracLim * (spinning ? 0.85 : 1));
     const brake = rev && d.u > 0.8 ? mu * (Nf + Nr) * 0.85 : 0, hb = hand ? mu * Nr * 0.75 : 0;
@@ -6948,10 +6980,15 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const Fyf = THREE.MathUtils.clamp(-CF * Nf * mu * af, -capF, capF), Fyr = THREE.MathUtils.clamp(-CR * Nr * mu * ar, -capR, capR);
     const roll = (A.roll + (A.sink ? A.sink(d.x, d.z) * 0.32 : 0)) * m * g * (Math.abs(u) > 0.1 ? Math.sign(u) : 0), drag = 0.24 * u * Math.abs(u);
     const Fb = (brake + hb) * (Math.abs(u) > 0.3 ? Math.sign(u) : 0);
-    const sumX = Fx + Fyf * Math.sin(st) - drag - roll - Fb - m * g * Math.sin(d.pitch), sumZ = Fyf * Math.cos(st) + Fyr, torque = -a_ * Fyf * Math.cos(st) + b_ * Fyr - (hand ? 0 : Iz * d.r * 0.45 * Math.min(1, Math.abs(d.u) / 8)); // tire yaw damping: slides settle so they can be caught
+    // countersteering (wheel pointed against the rotation) in a slide: the fronts bite and settle the yaw — catches the
+    // slide instead of whipping the rear out further
+    const counter = st * d.r < 0 && slipR > 0.12 ? Math.min(1, Math.abs(st) / 0.25) : 0;
+    const sumX = Fx + Fyf * Math.sin(st) - drag - roll - Fb - m * g * Math.sin(d.pitch), sumZ = Fyf * Math.cos(st) + Fyr, torque = -a_ * Fyf * Math.cos(st) + b_ * Fyr - (hand ? 0 : Iz * d.r * (0.45 * Math.min(1, Math.abs(d.u) / 8) + 0.6 * counter)); // tire yaw damping: slides settle so they can be caught
     if (!d.air) {
       d.u += (sumX / m - d.r * d.vz) * dt; d.vz += (sumZ / m + d.r * d.u) * dt; d.r += (torque / Iz) * dt;
-      const w = THREE.MathUtils.clamp(1 - Math.abs(d.u) / 2.5, 0, 1); // low speed: kinematic steering, no sliding
+      // low speed: kinematic steering, no sliding. (By total speed: deep in a drift the forward speed can fall under 2.5 m/s
+      // while you're still sliding sideways fast — keyed on forward speed alone it killed the slide in one frame, like a wall)
+      const w = THREE.MathUtils.clamp(1 - Math.hypot(d.u, d.vz) / 2.5, 0, 1);
       if (w > 0 && !burn) { d.r = d.r * (1 - w) + ((d.u * Math.tan(st)) / L) * w; d.vz *= 1 - w * 0.9; }
       if (!thr && !rev && Math.abs(d.u) < 0.25 && Math.abs(d.vz) < 0.3) { d.u = 0; d.vz = 0; d.r = 0; }
       if ((brake || hb) && Math.abs(d.u) < 0.3) d.u = 0;
@@ -7144,7 +7181,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const fovT = d.baseFov + Math.min(16, Math.hypot(d.u, d.vz) * 0.3); camera.fov += (fovT - camera.fov) * Math.min(1, dt * 2.5); camera.updateProjectionMatrix();
     }
     d.tick += dt;
-    if (d.tick > 0.1) { d.tick = 0; handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, flipped: !!d.flipped, canReset: canReset(d) }); }
+    if (d.tick > 0.1) { d.tick = 0; handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0 }); }
     if (landed > 3) handlers.current.onLand && handlers.current.onLand(landed);
   }
 
@@ -9051,7 +9088,7 @@ function App() {
   const [scan, setScan] = useState({ phase: 'idle' });
   const [customModel, setCustomModel] = useState(null); // { name, kind, paint, wheels, tris }
   const [vehicleTab, setVehicleTab] = useState('catalog');
-  const [envId, setEnvId] = useState(() => { const v = lsGet('apex-out-env2', 'autumn_forest_04'); return ENVIRONMENTS.some((e) => e.id === v) ? v : 'autumn_forest_04'; });
+  const [envId, setEnvId] = useState(() => { const v = lsGet('apex-out-env2', 'backroads'); return ENVIRONMENTS.some((e) => e.id === v) ? v : 'backroads'; }); // (a removed location falls back to the backroads)
   const [wet, setWet] = useState(() => lsGet('apex-wet', '1') === '1');
   const [quality, setQuality] = useState(() => lsGet('apex-gfx', window.innerWidth < 768 ? 'performance' : 'cinematic'));
   const [doorsOpen, setDoorsOpen] = useState(false);
@@ -10099,6 +10136,12 @@ function App() {
       )}
       {driving && (
         <>
+          {driveHud && driveHud.resetHold > 0 && (
+            <div className="absolute z-40 left-1/2 -translate-x-1/2 top-[76px] glass-panel border border-amber-400/50 rounded-lg px-4 py-2 w-56">
+              <div className="hud text-[12px] font-bold tracking-wider text-amber-300 text-center">HOLD R — RESETTING</div>
+              <div className="h-1.5 mt-1.5 rounded bg-white/10 overflow-hidden"><div className="h-full bg-amber-400" style={{ width: `${Math.round(driveHud.resetHold * 100)}%` }} /></div>
+            </div>
+          )}
           {/* rolled over and stopped: the only time a reset is offered */}
           {driveHud && driveHud.canReset && (
             <button onClick={() => stageRef.current && stageRef.current.resetTruck()} className="absolute z-40 right-4 top-[76px] md:right-6 rounded-lg px-4 py-2.5 glass-panel border border-red-400/60 text-left hover:bg-red-500/20">
@@ -10203,7 +10246,7 @@ function App() {
             </div>
             <div className="relative h-1.5 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${driveHud ? Math.min(100, (driveHud.rpm / 6200) * 100) : 0}%` }} /></div>
             {driveHud && (driveHud.drift > 12 || driveHud.spinning) && <div className="mt-1.5 flex gap-1.5">{driveHud.drift > 12 && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-amber-400 text-black hud tracking-wider">DRIFT {Math.round(driveHud.drift)}°</span>}{driveHud.spinning && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-red-500 text-white hud tracking-wider">WHEELSPIN · {driveHud.diff === 'open' ? 'OPEN DIFF' : driveHud.diff === 'lsd' ? 'LSD' : 'LOCKED'}</span>}</div>}
-            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · Esc exit</div>
+            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · hold R reset · Esc exit</div>
            </div>
             <div className="flex gap-1 mt-2.5">
               {[['lights', 'Lightbulb', 'Lights'], ['windows', 'PanelTop', 'Windows'], ['audio', 'Music', 'Audio'], ['volume', 'Volume2', 'Volume'], ['drive', 'Settings2', 'Drive']].map(([id, ic, l]) => (

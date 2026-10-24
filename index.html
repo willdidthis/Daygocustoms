@@ -1029,6 +1029,9 @@ const TRIM_COL = { value: new THREE.Color('#b3ada3') }; // shared by every paint
 const TRIM_MAT = { value: new THREE.Matrix4() }, TRIM_MIN = { value: new THREE.Vector3(1e6, 1e6, 1e6) }, TRIM_MAX = { value: new THREE.Vector3(-1e6, -1e6, -1e6) };
 // below the window sills the inside of the door skins take the interior colour (door panels), above it the trim colour
 const TRIM_SILL = { value: 1e6 }, TRIM_LOW = { value: new THREE.Color('#aaa397') };
+// the side glass line in rest space (|z| = x + y · height; z = its lower edge): anything painted that sits inboard of it is
+// inside the cab. And the interior's surface texture (cloth weave / leather grain…) so trim reads as the same material.
+const TRIM_GLASS = { value: new THREE.Vector3(0, 0, 1e6) }, TRIM_TEX = { value: null }, TRIM_TEXF = { value: 4.5 }, TRIM_TEXK = { value: 0 };
 // Starlight headliner: fiber-optic "stars" through the headliner (they twinkle). cols = the mix of star colors.
 const STARLIGHTS = {
   none:  { label: 'No starlight', price: 0, desc: 'Plain headliner.' },
@@ -1682,25 +1685,26 @@ const ENVIRONMENTS = [
   { id: 'belfast_sunset_puresky', label: 'Rock Crawl · drivable', layout: 'rocks', rot: 0, height: 1.7, radius: 300, exposure: 1.0, fog: 0.004 },
   { id: 'kloppenheim_06_puresky', label: 'Urban Whoops (parking lot) · drivable', layout: 'whoops', rot: 0, height: 1.7, radius: 600, exposure: 1.0, fog: 0.004 },
   { id: 'backroads', hdri: 'kloofendal_48d_partly_cloudy_puresky', label: 'Backroads (long curvy two-lane) · drivable', layout: 'backroads', rot: 0, height: 1.7, radius: 1200, exposure: 1.0, fog: 0.0035 },
-  { id: 'drift', hdri: 'qwantani_afternoon_puresky', label: 'Drift Track (wide, curvy, through the trees) · drivable', layout: 'drift', rot: 0, height: 1.7, radius: 900, exposure: 1.0, fog: 0.0035 },
+  { id: 'drift', hdri: 'qwantani_afternoon_puresky', label: 'Drift Road (two-lane through the forest) · drivable', layout: 'drift', rot: 0, height: 1.7, radius: 900, exposure: 1.0, fog: 0.0035 },
 ];
 const hdriUrl = (id, q) => `https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/${q}/${id}_${q}.hdr`;
 const PH_TEX = (id, map, res = '1k') => `https://dl.polyhaven.org/file/ph-assets/Textures/jpg/${res}/${id}/${id}_${map}_${res}.jpg`;
+// d / n / r: colour, normal & roughness photos · h: height map (parallax depth) · p: how deep that relief is, in metres
 const GROUND_SETS = {
-  road:   { d: PH_TEX('asphalt_02', 'diff', '2k'), n: PH_TEX('asphalt_02', 'nor_gl', '2k'), r: PH_TEX('asphalt_02', 'rough', '2k') },
-  layby:  { d: PH_TEX('leaf_scattered_gravel', 'diff'), n: PH_TEX('leaf_scattered_gravel', 'nor_gl'), r: PH_TEX('leaf_scattered_gravel', 'rough') },
-  gravel: { d: PH_TEX('gravel_road', 'diff', '2k'), n: PH_TEX('gravel_road', 'nor_gl'), r: PH_TEX('gravel_road', 'rough') },
-  verge:  { d: PH_TEX('forest_leaves_02', 'diffuse', '2k'), n: PH_TEX('forest_leaves_02', 'nor_gl'), r: PH_TEX('forest_leaves_02', 'rough') },
-  patch:  { d: PH_TEX('worn_asphalt', 'diff'), n: PH_TEX('worn_asphalt', 'nor_gl'), r: PH_TEX('worn_asphalt', 'rough') },
-  desert: { d: PH_TEX('sandy_gravel_02', 'diff'), n: PH_TEX('sandy_gravel_02', 'nor_gl'), r: PH_TEX('sandy_gravel_02', 'rough') },
-  dirt:   { d: PH_TEX('dirt_aerial_02', 'diff', '2k'), n: PH_TEX('dirt_aerial_02', 'nor_gl'), r: PH_TEX('dirt_aerial_02', 'rough') },
-  track:  { d: PH_TEX('red_sand', 'diff'), n: PH_TEX('red_sand', 'nor_gl'), r: PH_TEX('red_sand', 'rough') },
-  grass:  { d: PH_TEX('aerial_grass_rock', 'diff'), n: PH_TEX('aerial_grass_rock', 'nor_gl'), r: PH_TEX('aerial_grass_rock', 'rough') },
-  rocks:  { d: PH_TEX('aerial_rocks_02', 'diff'), n: PH_TEX('aerial_rocks_02', 'nor_gl'), r: PH_TEX('aerial_rocks_02', 'rough') },
-  boulder: { d: PH_TEX('rock_boulder_dry', 'diff'), n: PH_TEX('rock_boulder_dry', 'nor_gl'), r: PH_TEX('rock_boulder_dry', 'rough') },
-  mud:    { d: PH_TEX('brown_mud_02', 'diff'), n: PH_TEX('brown_mud_02', 'nor_gl'), r: PH_TEX('brown_mud_02', 'rough') },
-  trail:  { d: PH_TEX('rocky_trail', 'diff'), n: PH_TEX('rocky_trail', 'nor_gl'), r: PH_TEX('rocky_trail', 'rough') },
-  forest: { d: PH_TEX('forrest_ground_01', 'diff', '2k'), n: PH_TEX('forrest_ground_01', 'nor_gl'), r: PH_TEX('forrest_ground_01', 'rough') },
+  road:   { d: PH_TEX('asphalt_02', 'diff', '2k'), n: PH_TEX('asphalt_02', 'nor_gl', '2k'), r: PH_TEX('asphalt_02', 'rough', '2k'), h: PH_TEX('asphalt_02', 'disp'), p: 0.006 },
+  layby:  { d: PH_TEX('leaf_scattered_gravel', 'diff'), n: PH_TEX('leaf_scattered_gravel', 'nor_gl'), r: PH_TEX('leaf_scattered_gravel', 'rough'), h: PH_TEX('leaf_scattered_gravel', 'disp'), p: 0.035 },
+  gravel: { d: PH_TEX('gravel_road', 'diff', '2k'), n: PH_TEX('gravel_road', 'nor_gl'), r: PH_TEX('gravel_road', 'rough'), h: PH_TEX('gravel_road', 'disp'), p: 0.035 },
+  verge:  { d: PH_TEX('forest_leaves_02', 'diffuse', '2k'), n: PH_TEX('forest_leaves_02', 'nor_gl'), r: PH_TEX('forest_leaves_02', 'rough'), h: PH_TEX('forest_leaves_02', 'disp'), p: 0.05 },
+  patch:  { d: PH_TEX('worn_asphalt', 'diff'), n: PH_TEX('worn_asphalt', 'nor_gl'), r: PH_TEX('worn_asphalt', 'rough'), h: PH_TEX('worn_asphalt', 'disp'), p: 0.008 },
+  desert: { d: PH_TEX('sandy_gravel_02', 'diff'), n: PH_TEX('sandy_gravel_02', 'nor_gl'), r: PH_TEX('sandy_gravel_02', 'rough'), h: PH_TEX('sandy_gravel_02', 'disp'), p: 0.04 },
+  dirt:   { d: PH_TEX('dirt_aerial_02', 'diff', '2k'), n: PH_TEX('dirt_aerial_02', 'nor_gl'), r: PH_TEX('dirt_aerial_02', 'rough'), h: PH_TEX('dirt_aerial_02', 'disp'), p: 0.07 },
+  track:  { d: PH_TEX('red_sand', 'diff'), n: PH_TEX('red_sand', 'nor_gl'), r: PH_TEX('red_sand', 'rough'), h: PH_TEX('red_sand', 'disp'), p: 0.04 },
+  grass:  { d: PH_TEX('aerial_grass_rock', 'diff'), n: PH_TEX('aerial_grass_rock', 'nor_gl'), r: PH_TEX('aerial_grass_rock', 'rough'), h: PH_TEX('aerial_grass_rock', 'disp'), p: 0.08 },
+  rocks:  { d: PH_TEX('aerial_rocks_02', 'diff'), n: PH_TEX('aerial_rocks_02', 'nor_gl'), r: PH_TEX('aerial_rocks_02', 'rough'), h: PH_TEX('aerial_rocks_02', 'disp'), p: 0.12 },
+  boulder: { d: PH_TEX('rock_boulder_dry', 'diff'), n: PH_TEX('rock_boulder_dry', 'nor_gl'), r: PH_TEX('rock_boulder_dry', 'rough'), h: PH_TEX('rock_boulder_dry', 'disp'), p: 0.05 },
+  mud:    { d: PH_TEX('brown_mud_02', 'diff'), n: PH_TEX('brown_mud_02', 'nor_gl'), r: PH_TEX('brown_mud_02', 'rough'), h: PH_TEX('brown_mud_02', 'disp'), p: 0.05 },
+  trail:  { d: PH_TEX('rocky_trail', 'diff'), n: PH_TEX('rocky_trail', 'nor_gl'), r: PH_TEX('rocky_trail', 'rough'), h: PH_TEX('rocky_trail', 'disp'), p: 0.09 },
+  forest: { d: PH_TEX('forrest_ground_01', 'diff', '2k'), n: PH_TEX('forrest_ground_01', 'nor_gl'), r: PH_TEX('forrest_ground_01', 'rough'), h: PH_TEX('forrest_ground_01', 'disp'), p: 0.07 },
 };
 
 const SKY_TINT = { value: new THREE.Color(1, 1, 1) }; // time of day: darkens / warms the photo sky (1 = as shot)
@@ -1838,14 +1842,44 @@ function buildOutdoor(renderer) {
   }, { srgb: false });
   const wetU = { value: 0.65 };
   function groundShader(mat, { fade = null, wetness = 1, key }) {
-    const U = { uPuddle: { value: puddle }, uWet: wetU, uWetMul: { value: wetness }, uFade: { value: fade ? new THREE.Vector2(fade[0], fade[1]) : new THREE.Vector2(1e5, 2e5) } };
+    const U = { uPuddle: { value: puddle }, uWet: wetU, uWetMul: { value: wetness }, uFade: { value: fade ? new THREE.Vector2(fade[0], fade[1]) : new THREE.Vector2(1e5, 2e5) }, uDisp: { value: null }, uPom: { value: 0 } };
+    mat.userData.groundU = U;
+    const SC = THREE.ShaderChunk;
     mat.onBeforeCompile = (sh) => {
       Object.assign(sh.uniforms, U);
-      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWPos;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWPos;\nvarying vec3 vWNor;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWNor = normalize(mat3(modelMatrix) * objectNormal);');
+      // POM: parallax occlusion from the photo's height map — the ray from the eye marches down into the ground, so stones,
+      // clumps and ruts have real depth up close (faded out by ~26 m); the height map also darkens the low spots everywhere
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying vec3 vWPos;\nuniform sampler2D uPuddle;\nuniform float uWet;\nuniform float uWetMul;\nuniform vec2 uFade;\nfloat wetAt(){ return texture2D(uPuddle, vWPos.xz / 11.0).r; }')
-        .replace('#include <map_fragment>', `#include <map_fragment>
+        .replace('#include <common>', `#include <common>
+          varying vec3 vWPos; varying vec3 vWNor;
+          uniform sampler2D uPuddle; uniform float uWet; uniform float uWetMul; uniform vec2 uFade;
+          uniform sampler2D uDisp; uniform float uPom;
+          float wetAt(){ return texture2D(uPuddle, vWPos.xz / 11.0).r; }`)
+        .replace('void main() {', `void main() {
+          vec2 pUv = vUv; float pAO = 1.0;
+          #if defined( POM ) && defined( USE_MAP )
+          {
+            vec2 du1 = dFdx(vUv), du2 = dFdy(vUv);
+            float camD = length(cameraPosition - vWPos), fadeP = 1.0 - smoothstep(12.0, 26.0, camD);
+            if (fadeP > 0.001) {
+              vec3 N = normalize(vWNor), dp1 = dFdx(vWPos), dp2 = dFdy(vWPos), dp2p = cross(dp2, N), dp1p = cross(N, dp1);
+              float det = dot(dp1, dp2p); det = abs(det) < 1e-10 ? 1e-10 : det;
+              vec3 gU = (dp2p * du1.x + dp1p * du2.x) / det, gV = (dp2p * du1.y + dp1p * du2.y) / det;
+              vec3 V = normalize(vWPos - cameraPosition); float vn = max(-dot(V, N), 0.18);
+              vec2 dir = vec2(dot(gU, V), dot(gV, V)) / vn * uPom * fadeP; // uv shift across the full depth
+              int nL = int(mix(22.0, 8.0, vn)); float lD = 1.0 / float(nL), cur = 0.0;
+              vec2 uv = vUv, dUv = dir * lD; float hh = 1.0 - textureGrad(uDisp, uv, du1, du2).r;
+              for (int i = 0; i < 24; i++) { if (i >= nL || cur >= hh) break; uv += dUv; cur += lD; hh = 1.0 - textureGrad(uDisp, uv, du1, du2).r; }
+              vec2 prev = uv - dUv; float aft = hh - cur, bef = (1.0 - textureGrad(uDisp, prev, du1, du2).r) - (cur - lD);
+              pUv = mix(uv, prev, clamp(aft / (aft - bef + 1e-5), 0.0, 1.0));
+            }
+            pAO = mix(0.62, 1.08, textureGrad(uDisp, pUv, du1, du2).r);
+          }
+          #endif`)
+        .replace('#include <map_fragment>', `${SC.map_fragment.replace('texture2D( map, vUv )', 'texture2D( map, pUv )')}
+          diffuseColor.rgb *= pAO;
           #ifdef USE_MAP
             // break up the tiling: a second sample of the same photo at another scale / offset, blended in large blotches,
             // plus broad light / dark patches — so the ground doesn't read as one small square stamped over and over
@@ -1857,12 +1891,12 @@ function buildOutdoor(renderer) {
           float wetDark = smoothstep(0.28, 0.7, wetAt()) * uWet * uWetMul;
           diffuseColor.rgb *= mix(1.0, 0.55, wetDark);
           diffuseColor.a *= 1.0 - smoothstep(uFade.x, uFade.y, length(vWPos.xz));`)
-        .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+        .replace('#include <roughnessmap_fragment>', `${SC.roughnessmap_fragment.replace('texture2D( roughnessMap, vUv )', 'texture2D( roughnessMap, pUv )')}
           roughnessFactor = mix(roughnessFactor, 0.05, smoothstep(0.47, 0.8, wetAt()) * uWet * uWetMul);`)
-        .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+        .replace('#include <normal_fragment_maps>', `${SC.normal_fragment_maps.replace(/texture2D\( normalMap, vUv \)/g, 'texture2D( normalMap, pUv )')}
           normal = normalize(mix(normal, normalize(vNormal) * (gl_FrontFacing ? 1.0 : -1.0), smoothstep(0.47, 0.8, wetAt()) * uWet * uWetMul));`);
     };
-    mat.customProgramCacheKey = () => 'apex-ground-' + key;
+    mat.customProgramCacheKey = () => 'apex-ground-' + key + (mat.defines && 'POM' in mat.defines ? '-pom' : '');
     if (fade) mat.transparent = true;
   }
   // geometry UVs in metres so textures tile by real size
@@ -1880,7 +1914,8 @@ function buildOutdoor(renderer) {
     groundShader(mat, { fade, wetness, key });
     const ld = (u, srgb) => new Promise((res, rej) => tl.load(u, (t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1 / tile, 1 / tile); t.anisotropy = aniso; if (srgb) t.encoding = THREE.sRGBEncoding; res(t); }, undefined, rej));
     Promise.all([ld(set.d, true), ld(set.n, false), ld(set.r, false)])
-      .then(([d, n, r]) => { mat.map = d; mat.normalMap = n; mat.normalScale.set(0.9, 0.9); mat.roughnessMap = r; mat.roughness = 1; mat.color.setScalar(tint); mat.needsUpdate = true; })
+      .then(([d, n, r]) => { mat.map = d; mat.normalMap = n; mat.normalScale.set(0.9, 0.9); mat.roughnessMap = r; mat.roughness = 1; if (Array.isArray(tint)) mat.color.setRGB(...tint); else mat.color.setScalar(tint); mat.needsUpdate = true;
+        if (set.h) ld(set.h, false).then((h) => { const U = mat.userData.groundU; U.uDisp.value = h; U.uPom.value = set.p || 0.04; mat.defines = { ...(mat.defines || {}), POM: '' }; mat.needsUpdate = true; }).catch(() => {}); })
       .catch(() => { /* offline → procedural colour stays */ });
     return mat;
   }
@@ -2060,6 +2095,195 @@ function buildOutdoor(renderer) {
     { tex: fir('c_0', 12), h: [9, 15], wr: 0.729, share: 0.11 }, { tex: fir('c_130', 13), h: [9, 15], wr: 0.989, share: 0.1 },
     { tex: broad('a_0', 21), h: [8, 13], wr: 0.64, share: 0.15 }, { tex: broad('a_130', 22), h: [8, 12], wr: 1.133, share: 0.14 },
   ];
+  // ---------- real 3D trees for the ones you pass close to: a trunk plus dozens of branch / leaf cards cut from the same
+  // photographed trees (so near and far trees match), set in whorls (firs) or a domed crown (broadleaf). Normals point out
+  // from the tree's middle so the crown shades as one round mass, and the inside is darker (self-shadowing).
+  const nrm3 = (x, y, z) => { const l = Math.hypot(x, y, z) || 1; return [x / l, y / l, z / l]; };
+  // double-sided cards keep one normal on both faces (no black backsides), and dissolve (dithered) within a few metres of
+  // the camera so a trunk or branch right in front of the lens doesn't block the whole view
+  const nearFadeU = { value: new THREE.Vector2(2, 6.5) }; // (tighter while driving — set in tick)
+  const noFlip = (m, key) => {
+    m.onBeforeCompile = (sh) => {
+      sh.uniforms.uNearFade = nearFadeU;
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vFW;')
+        .replace('#include <begin_vertex>', `#include <begin_vertex>
+          #ifdef USE_INSTANCING
+            vFW = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;
+          #else
+            vFW = (modelMatrix * vec4(transformed, 1.0)).xyz;
+          #endif`);
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vFW;\nuniform vec2 uNearFade;')
+        .replace('void main() {', `void main() {
+          { float cd = distance(vFW, cameraPosition), th = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+            if (cd < uNearFade.y && th > smoothstep(uNearFade.x, uNearFade.y, cd)) discard; }`)
+        .replace('#include <normal_fragment_begin>', THREE.ShaderChunk.normal_fragment_begin.replace('normal = normal * faceDirection;', ''));
+    };
+    m.customProgramCacheKey = () => key; return m;
+  };
+  const foliageMat = (tex) => noFlip(new THREE.MeshStandardMaterial({ map: tex, alphaTest: 0.45, side: THREE.DoubleSide, vertexColors: true, roughness: 0.92, metalness: 0, envMapIntensity: 0.55 }), 'foliage-nf');
+  const treeGeo = (build) => {
+    const P = [], N = [], U = [], Cc = [];
+    // quad a-b (bottom edge, a = inner end) / d-c (top edge); uv = [u0, v0, u1, v1]; n = normal or fn(point); sa / sb = shade at the a / b end
+    const q = (a, b, c, d, uv, n, sa, sb) => {
+      const V = [[a, uv[0], uv[1], sa], [b, uv[2], uv[1], sb], [c, uv[2], uv[3], sb], [d, uv[0], uv[3], sa]];
+      [0, 1, 2, 0, 2, 3].forEach((i) => { const [p, u, v, s] = V[i], nn = typeof n === 'function' ? n(p) : n; P.push(p[0], p[1], p[2]); N.push(nn[0], nn[1], nn[2]); U.push(u, v); Cc.push(s, s, s); });
+    };
+    const cyl = (a, b, r0, r1, seg, uv, shade = 0.8) => { // tapered limb from a to b, bark crop wrapped round it
+      const ax = nrm3(b[0] - a[0], b[1] - a[1], b[2] - a[2]), up = Math.abs(ax[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
+      const t1 = nrm3(ax[1] * up[2] - ax[2] * up[1], ax[2] * up[0] - ax[0] * up[2], ax[0] * up[1] - ax[1] * up[0]);
+      const t2 =[ax[1] * t1[2] - ax[2] * t1[1], ax[2] * t1[0] - ax[0] * t1[2], ax[0] * t1[1] - ax[1] * t1[0]];
+      const ring = (c, r, ang) => [c[0] + (t1[0] * Math.cos(ang) + t2[0] * Math.sin(ang)) * r, c[1] + (t1[1] * Math.cos(ang) + t2[1] * Math.sin(ang)) * r, c[2] + (t1[2] * Math.cos(ang) + t2[2] * Math.sin(ang)) * r];
+      const out = (p) => { const k = (p[0] - a[0]) * ax[0] + (p[1] - a[1]) * ax[1] + (p[2] - a[2]) * ax[2]; return nrm3(p[0] - a[0] - ax[0] * k, p[1] - a[1] - ax[1] * k + 0.1, p[2] - a[2] - ax[2] * k); };
+      for (let i = 0; i < seg; i++) {
+        const g0 = (i / seg) * Math.PI * 2, g1 = ((i + 1) / seg) * Math.PI * 2, u0 = uv[0] + ((uv[2] - uv[0]) * i) / seg, u1 = uv[0] + ((uv[2] - uv[0]) * (i + 1)) / seg;
+        q(ring(a, r0, g0), ring(a, r0, g1), ring(b, r1, g1), ring(b, r1, g0), [u0, uv[1], u1, uv[3]], out, shade, shade);
+      }
+    };
+    build(q, cyl);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(U, 2)); g.setAttribute('color', new THREE.Float32BufferAttribute(Cc, 3));
+    g.computeBoundingSphere(); return g;
+  };
+  const firGeo = (seed) => treeGeo((q, cyl) => { // unit height; crops are pixel boxes in the 579×1024 fir photo (f: trunk end on the right)
+    const r = mulberry32(seed), sprays = [[320, 370, 260, 110, 0], [10, 580, 300, 100, 1], [320, 560, 250, 110, 0]];
+    const cr = ([x, y, w, h, f]) => { const u0 = x / 579, u1 = (x + w) / 579, v1 = 1 - y / 1024, v0 = 1 - (y + h) / 1024; return f ? [u1, v0, u0, v1] : [u0, v0, u1, v1]; };
+    cyl([0, 0, 0], [0, 0.97, 0], 0.011, 0.003, 6, [0.508, 0.02, 0.527, 0.13], 0.6);
+    const out = (p) => { const h = Math.hypot(p[0], p[2]) + 1e-4; return nrm3(p[0] / h, 0.6, p[2] / h); };
+    const W = 12;
+    for (let k = 0; k < W; k++) {
+      const t = k / (W - 1), y = 0.08 + 0.87 * t + (r() - 0.5) * 0.02, R = 0.3 * Math.pow(1 - t, 0.9) + 0.045, B = t > 0.8 ? 4 : 6;
+      for (let j = 0; j < B; j++) {
+        const a = k * 2.4 + (j / B) * Math.PI * 2 + (r() - 0.5) * 0.5, dx = Math.cos(a), dz = Math.sin(a), L = R * (0.8 + r() * 0.35), dr = L * (0.16 + r() * 0.2);
+        const hc = (0.045 + 0.035 * (1 - t)) * (0.85 + r() * 0.3), uv = cr(sprays[Math.floor(r() * 3)]);
+        const b0 = [dx * 0.01, y, dz * 0.01], tip = [dx * L, y - dr, dz * L], sIn = 0.38 + 0.25 * t, sOut = 0.92 + 0.12 * r();
+        q([b0[0], b0[1] - hc * 0.6, b0[2]], [tip[0], tip[1] - hc, tip[2]], [tip[0], tip[1] + hc, tip[2]], [b0[0], b0[1] + hc * 0.6, b0[2]], uv, out, sIn, sOut);
+        if (j % 2 === 0 || t < 0.45) { const ex = -dz * hc * 1.15, ez = dx * hc * 1.15; q([b0[0] - ex * 0.5, b0[1], b0[2] - ez * 0.5], [tip[0] - ex, tip[1], tip[2] - ez], [tip[0] + ex, tip[1], tip[2] + ez], [b0[0] + ex * 0.5, b0[1], b0[2] + ez * 0.5], uv, out, sIn, sOut); }
+      }
+    }
+  });
+  const broadGeo = (seed) => treeGeo((q, cyl) => { // crops in the 655×1024 broadleaf photo
+    const r = mulberry32(seed), crops = [[120, 10, 300, 250], [240, 0, 260, 200], [400, 190, 250, 300]], bark = [0.43, 0.02, 0.505, 0.3];
+    const cr = ([x, y, w, h]) => [x / 655, 1 - (y + h) / 1024, (x + w) / 655, 1 - y / 1024];
+    cyl([0, 0, 0], [0.01, 0.52, 0], 0.019, 0.012, 7, bark, 0.62);
+    const C = [0, 0.67, 0], RX = 0.28, RY = 0.23;
+    for (let i = 0; i < 4; i++) { const a = i * 1.7 + r(), e = [Math.cos(a) * 0.17, 0.6 + r() * 0.14, Math.sin(a) * 0.17]; cyl([0.006, 0.42 + i * 0.03, 0], e, 0.009, 0.004, 5, bark, 0.55); }
+    const out = (p) => nrm3((p[0] - C[0]) / RX, ((p[1] - C[1]) / RY) * 0.8 + 0.3, (p[2] - C[2]) / RX);
+    for (let i = 0; i < 54; i++) {
+      let dx, dy, dz; do { dx = r() * 2 - 1; dy = r() * 2 - 1; dz = r() * 2 - 1; } while (dx * dx + dy * dy + dz * dz > 1 || dx * dx + dy * dy + dz * dz < 0.01);
+      const len = Math.hypot(dx, dy, dz), ux = dx / len, uy = dy / len, uz = dz / len, rr = 0.45 + 0.55 * Math.sqrt(r());
+      const p = [C[0] + ux * RX * rr, C[1] + uy * RY * rr, C[2] + uz * RX * rr], c = crops[Math.floor(r() * 3)], uv = cr(c), asp = Math.sqrt(c[2] / c[3]), s = 0.12 + r() * 0.08;
+      const n = nrm3(ux + (r() - 0.5) * 0.9, uy * 0.4 + 0.25, uz + (r() - 0.5) * 0.9), e1 = nrm3(-n[2], 0, n[0]), e2 = [n[1] * e1[2] - n[2] * e1[1], n[2] * e1[0] - n[0] * e1[2], n[0] * e1[1] - n[1] * e1[0]];
+      const roll = (r() - 0.5) * 0.7, cR = Math.cos(roll), sR = Math.sin(roll), A = e1.map((v, k) => v * cR + e2[k] * sR), Bv = e2.map((v, k) => v * cR - e1[k] * sR), hw = s * asp, hh = s / asp;
+      const pt = (i1, i2) => [p[0] + A[0] * hw * i1 + Bv[0] * hh * i2, p[1] + A[1] * hw * i1 + Bv[1] * hh * i2, p[2] + A[2] * hw * i1 + Bv[2] * hh * i2];
+      const sh = 0.5 + 0.42 * rr + 0.12 * uy;
+      q(pt(-1, -1), pt(1, -1), pt(1, 1), pt(-1, 1), uv, out, sh, sh);
+    }
+  });
+  const firKit = { geos: [firGeo(101), firGeo(202), firGeo(303)], mat: foliageMat(kinds[0].tex) };
+  const broadKit = { geos: [broadGeo(404), broadGeo(505)], mat: foliageMat(kinds[6].tex) };
+  // Instances grouped into ~cell-sized patches, each its own InstancedMesh with a bounding sphere around its instances
+  // (three.js culls an InstancedMesh by its geometry's bounds alone, which would make whole forests blink out).
+  const noAO = []; // (alpha-cut cards: kept out of the SSAO depth pass)
+  const scatter = (parent, geo, mat, items, { cell = 160, shadow = false, pad = 25 } = {}) => {
+    const cells = new Map();
+    items.forEach((it) => { const k = `${Math.floor(it.p[0] / cell)},${Math.floor(it.p[2] / cell)}`; if (!cells.has(k)) cells.set(k, []); cells.get(k).push(it); });
+    cells.forEach((list) => {
+      const g2 = geo.clone(), im = new THREE.InstancedMesh(g2, mat, list.length), box = new THREE.Box3();
+      list.forEach((it, i) => { o.position.set(it.p[0], it.p[1], it.p[2]); o.rotation.set(it.rx || 0, it.ry || 0, it.rz || 0); o.scale.set(it.s[0], it.s[1], it.s[2]); o.updateMatrix(); im.setMatrixAt(i, o.matrix); im.setColorAt(i, col.setScalar(it.c)); box.expandByPoint(o.position); });
+      box.expandByScalar(pad); g2.boundingSphere = box.getBoundingSphere(new THREE.Sphere()); g2.boundingBox = box;
+      im.castShadow = shadow; im.receiveShadow = true; im.userData.noScan = true; parent.add(im); if (mat.alphaTest) noAO.push(im);
+    });
+  };
+  const plant3D = (parent, list, rand) => { // list: [x, y, z, height, kind 'fir' | 'broad']
+    const by = new Map();
+    list.forEach(([x, y, z, h, kind]) => {
+      const kit = kind === 'fir' ? firKit : broadKit, gi = Math.floor(rand() * kit.geos.length), key = kind + gi, w = h * (kind === 'fir' ? 0.95 + rand() * 0.35 : 0.9 + rand() * 0.4);
+      if (!by.has(key)) by.set(key, { geo: kit.geos[gi], mat: kit.mat, items: [] });
+      by.get(key).items.push({ p: [x, y - 0.08, z], ry: rand() * Math.PI * 2, s: [w, h, w], c: 0.78 + rand() * 0.32 });
+    });
+    by.forEach(({ geo, mat, items }) => scatter(parent, geo, mat, items, { shadow: true }));
+  };
+
+  // ---------- rocks: lumpy faceted stones with the photographed boulder surface
+  const rockMatHQ = new THREE.MeshStandardMaterial({ color: 0xb8b0a5, roughness: 1, metalness: 0 });
+  [['map', GROUND_SETS.boulder.d, true], ['normalMap', GROUND_SETS.boulder.n, false], ['roughnessMap', GROUND_SETS.boulder.r, false]].forEach(([k, u, srgb]) => tl.load(u, (t) => {
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 1); t.anisotropy = aniso; if (srgb) t.encoding = THREE.sRGBEncoding; rockMatHQ[k] = t; rockMatHQ.needsUpdate = true;
+  }));
+  const rockGeoHQ = (seed, squash = 0.62) => {
+    const geo = new THREE.IcosahedronGeometry(1, 2), p = geo.attributes.position, r = mulberry32(seed), f = [r() * 6, r() * 6, r() * 6, r() * 6];
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+      const k = 0.78 + 0.16 * Math.sin(x * 2.3 + f[0]) * Math.sin(z * 2.1 + f[1]) + 0.1 * Math.sin(y * 3.7 + x * 1.9 + f[2]) + 0.06 * Math.sin(z * 6.1 + y * 5.3 + f[3]);
+      p.setXYZ(i, x * k * (1.1 + f[0] * 0.03), Math.max(y * k * squash, -0.3 * squash), z * k);
+    }
+    geo.computeVertexNormals(); return geo;
+  };
+  const rockKit = [rockGeoHQ(7), rockGeoHQ(19), rockGeoHQ(31)];
+  const placeRocks = (parent, list, rand) => { // list: [x, y, z, size]
+    const by = rockKit.map(() => []);
+    list.forEach(([x, y, z, s]) => by[Math.floor(rand() * rockKit.length)].push({ p: [x, y - s * 0.22, z], rx: (rand() - 0.5) * 0.4, ry: rand() * Math.PI * 2, rz: (rand() - 0.5) * 0.4, s: [s * (0.9 + rand() * 0.4), s * (0.7 + rand() * 0.5), s * (0.9 + rand() * 0.4)], c: 0.72 + rand() * 0.35 }));
+    by.forEach((items, i) => items.length && scatter(parent, rockKit[i], rockMatHQ, items, { shadow: true, pad: 6 }));
+  };
+
+  // ---------- 3D grass: clumps of real blades in a ~50 m patch that follows the camera; each 8 m chunk is seeded from its
+  // position, so the same grass is there when you come back. Blades sway in the wind and shrink away at the patch's edge.
+  const windT = { value: 0 };
+  const bladeGeo = (() => {
+    const P = [], N = [], Cc = [], r = mulberry32(41);
+    for (let b = 0; b < 12; b++) { // (blades a bit wider than life so they still read at 15–20 m instead of vanishing)
+      const a = r() * Math.PI * 2, rr = Math.sqrt(r()) * 0.22, bx = Math.cos(a) * rr, bz = Math.sin(a) * rr, h = 0.5 + r() * 0.5, w = 0.026 + r() * 0.026;
+      const face = r() * Math.PI, fx = Math.cos(face), fz = Math.sin(face), lean = 0.08 + r() * 0.3, la = a + (r() - 0.5), lx = Math.cos(la) * lean, lz = Math.sin(la) * lean;
+      const n = nrm3(-fz * 0.45, 0.9, fx * 0.45), tint = 0.85 + r() * 0.3;
+      const pt = (t, sd) => [bx + fx * w * (1 - t) * sd + lx * t * t, h * t, bz + fz * w * (1 - t) * sd + lz * t * t];
+      const put = (p, t) => { P.push(...p); N.push(...n); const c = (0.3 + 0.7 * t) * tint; Cc.push(c, c, c); };
+      const a0 = pt(0, -1), a1 = pt(0, 1), m0 = pt(0.5, -1), m1 = pt(0.5, 1), tp = pt(1, 0);
+      put(a0, 0); put(a1, 0); put(m1, 0.5); put(a0, 0); put(m1, 0.5); put(m0, 0.5); put(m0, 0.5); put(m1, 0.5); put(tp, 1);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(Cc, 3));
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5); return g;
+  })();
+  const grassMat3D = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.82, metalness: 0, envMapIntensity: 0.5 });
+  grassMat3D.onBeforeCompile = (sh) => {
+    sh.uniforms.uTime = windT;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform float uTime;')
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        #ifdef USE_INSTANCING
+          vec3 ip = (modelMatrix * vec4(instanceMatrix[3].xyz, 1.0)).xyz;
+          float fd = 1.0 - smoothstep(17.0, 25.0, distance(ip.xz, cameraPosition.xz));
+          float sw = sin(uTime * 1.9 + ip.x * 0.35 + ip.z * 0.27) + 0.4 * sin(uTime * 3.7 + ip.x * 1.1);
+          transformed.xz += vec2(0.06, 0.035) * sw * position.y * position.y;
+          transformed *= fd;
+        #endif`);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_begin>', THREE.ShaderChunk.normal_fragment_begin.replace('normal = normal * faceDirection;', ''));
+  };
+  grassMat3D.customProgramCacheKey = () => 'grass3d';
+  const grassFields = [];
+  // height(x, z) / dens(x, z) → 0..1 in the parent's coordinates; tint(rand) → [r, g, b]
+  const makeGrass = (parent, { height, dens, tint, size = [0.22, 0.5], per = 70, seed = 1, CH = 8, R = 3 }) => {
+    const NS = (2 * R + 1) ** 2, im = new THREE.InstancedMesh(bladeGeo, grassMat3D, NS * per), zero = new THREE.Matrix4().makeScale(0, 0, 0);
+    im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); im.setColorAt(0, col.setScalar(1)); im.userData.noScan = true; im.receiveShadow = true; im.frustumCulled = false; parent.add(im); noAO.push(im);
+    const slots = new Array(NS).fill(null); let at0 = null;
+    const fill = (slot, ci, cj) => {
+      const r = mulberry32(((ci * 73856093) ^ (cj * 19349663) ^ seed) >>> 0);
+      for (let k = 0; k < per; k++) {
+        const idx = slot * per + k, x = (ci + r()) * CH, z = (cj + r()) * CH, s = size[0] + r() * (size[1] - size[0]), ry = r() * Math.PI * 2, pick = r(), c = tint(r);
+        if (pick > dens(x, z)) { im.setMatrixAt(idx, zero); continue; }
+        o.position.set(x, height(x, z) - 0.03, z); o.rotation.set(0, ry, 0); o.scale.set(s * 1.3, s, s * 1.3); o.updateMatrix(); im.setMatrixAt(idx, o.matrix);
+        im.setColorAt(idx, col.setRGB(c[0], c[1], c[2]));
+      }
+    };
+    const f = { update: (x, z) => { // x, z: camera position in the parent's coordinates
+      if (!parent.visible) return;
+      const ci = Math.floor(x / CH), cj = Math.floor(z / CH), key = ci + ',' + cj; if (key === at0) return; at0 = key;
+      const want = new Set(); for (let j = -R; j <= R; j++) for (let i = -R; i <= R; i++) want.add((ci + i) + ',' + (cj + j));
+      const free = []; slots.forEach((s, i) => { if (s && want.has(s)) want.delete(s); else free.push(i); });
+      want.forEach((k) => { const sl = free.pop(), [a, b] = k.split(',').map(Number); slots[sl] = k; fill(sl, a, b); });
+      im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true;
+    }, parent };
+    grassFields.push(f); return f;
+  };
+
   const forest = new THREE.Group(); forest.userData.noScan = true; roadside.add(forest);
   const spots = [];
   for (let tries = 0; spots.length < 1150 && tries < 20000; tries++) {
@@ -2071,6 +2295,10 @@ function buildOutdoor(renderer) {
     spots.push([x, z]);
   }
   const col = new THREE.Color();
+  { // the trees nearest the vehicle are real 3D; the rest stay photo cards
+    const near3 = []; for (let i = spots.length - 1; i >= 0; i--) if (Math.hypot(spots[i][0], spots[i][1]) < 50) near3.push(...spots.splice(i, 1));
+    plant3D(forest, near3.map(([x, z]) => { const fir = rnd() < 0.72; return [x, 0, z, fir ? 11 + rnd() * 9 : 8 + rnd() * 5, fir ? 'fir' : 'broad']; }), rnd);
+  }
   let si = 0;
   kinds.forEach((kd, ki) => {
     const n = ki === kinds.length - 1 ? spots.length - si : Math.round(spots.length * kd.share);
@@ -2110,9 +2338,7 @@ function buildOutdoor(renderer) {
   tufts.count = ti; g.add(tufts);
 
   // ---------- rocks & pebbles on the gravel edges
-  const rockGeo = new THREE.IcosahedronGeometry(1, 1);
-  { const p = rockGeo.attributes.position, r2 = mulberry32(3); for (let i = 0; i < p.count; i++) { const k = 0.75 + r2() * 0.45; p.setXYZ(i, p.getX(i) * k, p.getY(i) * k * 0.6, p.getZ(i) * k); } rockGeo.computeVertexNormals(); }
-  const rocks = new THREE.InstancedMesh(rockGeo, new THREE.MeshStandardMaterial({ color: 0x8a8378, roughness: 0.92 }), 260); rocks.userData.noScan = true; rocks.castShadow = true; rocks.receiveShadow = true;
+  const rocks = new THREE.InstancedMesh(rockGeoHQ(3), rockMatHQ, 260); rocks.userData.noScan = true; rocks.castShadow = true; rocks.receiveShadow = true;
   for (let i = 0; i < 260; i++) {
     const edge = rnd(); let x, z, big = 1;
     if (edge < 0.4) { x = (rnd() - 0.5) * 34; z = 4.0 + rnd() * 1.8; } else if (edge < 0.62) { const s = rnd() < 0.5 ? -1 : 1; x = s * (15 + rnd() * 10); z = -4 + rnd() * 8; }
@@ -2530,10 +2756,9 @@ function buildOutdoor(renderer) {
   const boulderH = (x, z) => { let h = 0; const cx = Math.floor(x / 6), cz = Math.floor(z / 6); for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) (bGrid.get(`${cx + i},${cz + j}`) || []).forEach(([bx, bz, r]) => { const d = Math.hypot(x - bx, z - bz); if (d < r) h = Math.max(h, r * 0.72 * Math.sqrt(1 - (d / r) ** 2)); }); return h; };
   const rocksHeight = makeField(rocksG, 85, 0.5, (x, z) => THREE.MathUtils.lerp(rockBase(x, z) + boulderH(x, z), 9.9, sst(80, 85, Math.max(Math.abs(x), Math.abs(z)))), groundMat(GROUND_SETS.rocks, 3.5, { base: '#a8794f', key: 'rockground', wetness: 0, tint: 1, offset: 0 }));
   {
-    const bm = new THREE.MeshStandardMaterial({ color: 0x8a7f72, roughness: 0.93, metalness: 0, flatShading: true }); // (the ground shader can't do instancing)
-    new THREE.TextureLoader().load(GROUND_SETS.boulder.d, (tx) => { tx.encoding = THREE.sRGBEncoding; tx.wrapS = tx.wrapT = THREE.RepeatWrapping; bm.map = tx; bm.color.setHex(0xffffff); bm.needsUpdate = true; }, undefined, () => {});
-    const bgeo = new THREE.IcosahedronGeometry(1, 2); { const p = bgeo.attributes.position, r = mulberry32(9); for (let i = 0; i < p.count; i++) { const k = 0.86 + r() * 0.24; p.setXYZ(i, p.getX(i) * k, p.getY(i) * k, p.getZ(i) * k); } bgeo.computeVertexNormals(); }
-    const inst = new THREE.InstancedMesh(bgeo, bm, BOULDERS.length);
+    // (the same photographed-boulder stones as the forest maps — colour, normal & roughness maps on a lumpy shape — not
+    // flat-shaded facets; full height here, since the drivable boulder bumps are ~0.72 × their radius tall)
+    const inst = new THREE.InstancedMesh(rockGeoHQ(9, 1), rockMatHQ, BOULDERS.length);
     BOULDERS.forEach(([x, z, r, q], i) => { o.position.set(x, rockBase(x, z) - r * 0.08, z); o.rotation.set(q * 3, q * 7, q * 5); o.scale.set(r, r * 0.74, r * (0.85 + q * 0.3)); o.updateMatrix(); inst.setMatrixAt(i, o.matrix); });
     inst.castShadow = true; inst.receiveShadow = true; inst.userData.noScan = true; rocksG.add(inst);
     const tl = []; const tr4 = mulberry32(17); for (let i = 0; i < 160; i++) { const a = tr4() * Math.PI * 2, r = 86 + tr4() * 40; const x = Math.cos(a) * r, z = Math.sin(a) * r; tl.push([x, 9.88, z]); } treeRing(rocksG, tl, 120); // juniper on the rim
@@ -2700,8 +2925,17 @@ function buildOutdoor(renderer) {
     const [X0, X1, Z0, Z1] = C.box, CC = 4, NX = (X1 - X0) / CC, NZ = (Z1 - Z0) / CC, RW = C.half;
     const ctl = []; for (let i = 0; i < C.nCtl; i++) { const a = 1.5 * Math.PI + (i / C.nCtl) * Math.PI * 2, r = C.radius(a); ctl.push(new THREE.Vector3(Math.cos(a) * r * C.sx, 0, Math.sin(a) * r * C.sz)); } // (starts at the bottom of the loop, heading +x)
     const crv = new THREE.CatmullRomCurve3(ctl, true, 'centripetal'), LEN = crv.getLength();
+    // little mountains: steep rounded peaks kept well back from the road (at least 2.2 radii), so the road's grade barely feels them
+    const peaks = [], pr = mulberry32(C.seed + 5), coarse = crv.getSpacedPoints(400);
+    for (let n = 0; peaks.length < (C.peaks || 0) && n < 4000; n++) {
+      const rad = 28 + pr() * 42, x = X0 + 60 + pr() * (X1 - X0 - 120), z = Z0 + 60 + pr() * (Z1 - Z0 - 120);
+      let d = 1e9; coarse.forEach((q) => { d = Math.min(d, Math.hypot(x - q.x, z - q.z)); });
+      if (d < rad * 2.2 + 12 || peaks.some((k) => Math.hypot(k.x - x, k.z - z) < (k.r + rad) * 0.9)) continue;
+      peaks.push({ x, z, r: rad, h: (16 + pr() * 30) * (C.peakH || 1) });
+    }
+    const peakAt = (x, z) => { let h = 0; for (const k of peaks) { const d2 = (x - k.x) ** 2 + (z - k.z) ** 2; if (d2 < 9 * k.r * k.r) h += k.h * Math.exp(-d2 / (2 * (k.r * 0.55) ** 2)) * (1 + 0.08 * Math.sin(x * 0.21 + z * 0.17)); } return h; };
     // rolling hills, easing to flat at the map's edges so the ground meets the far ground without a step
-    const hills = (x, z) => C.hill * (9 * Math.sin(x * 0.0061 + 0.4) * Math.sin(z * 0.0072 + 1.1) + 4.5 * Math.sin(x * 0.0137 - z * 0.0109 + 2.3) + 1.6 * Math.sin(x * 0.031 + z * 0.027))
+    const hills = (x, z) => (C.hill * (9 * Math.sin(x * 0.0061 + 0.4) * Math.sin(z * 0.0072 + 1.1) + 4.5 * Math.sin(x * 0.0137 - z * 0.0109 + 2.3) + 1.6 * Math.sin(x * 0.031 + z * 0.027)) + peakAt(x, z))
       * (1 - smt(X1 - 70, X1 - 8, Math.abs(x))) * (1 - smt(Z1 - 70, Z1 - 8, Math.abs(z)));
     const S = []; for (let s = 0; s < LEN; s += 1) { const u = s / LEN, p = crv.getPointAt(u), t = crv.getTangentAt(u); S.push({ x: p.x, z: p.z, tx: t.x, tz: t.z, s, e: hills(p.x, p.z) }); }
     { // the road's own grade: the hills along the path averaged over ±W m so climbs and dips stay gentle
@@ -2740,14 +2974,18 @@ function buildOutdoor(renderer) {
     };
     const VERGE = RW + C.shoulder + 12; // (the exact ground ribbon reaches this far from the centreline)
     // drivable height: exact on and beside the road (smooth at any speed, and matching the ribbons), the terrain grid beyond
-    const height = (x, z) => { const n = near(x, z); if (!n || Math.abs(n.l) > VERGE) return grid(x, z); return section(n.p.e, Math.abs(n.l), hills(x, z)); };
+    // (the road, shoulder and verge ribbons are drawn a hair apart so they never flicker; the drivable height includes that
+    // same lift, so the tires sit on the asphalt you see instead of a few centimetres into it)
+    const LIFT = { road: 0.02, shoulder: 0.012, verge: 0.004 };
+    const liftAt = (a) => (a < RW ? LIFT.road : a < RW + C.shoulder ? LIFT.shoulder : LIFT.verge);
+    const height = (x, z) => { const n = near(x, z); if (!n || Math.abs(n.l) > VERGE) return grid(x, z); const a = Math.abs(n.l); return section(n.p.e, a, hills(x, z)) + liftAt(a); };
     const paved = (x, z) => { const n = near(x, z); return !!n && Math.abs(n.l) < RW + C.pavedExtra; };
     {
       // terrain (sunk 0.5 m under the road corridor, which the exact ribbons cover)
       const geo = new THREE.PlaneGeometry(X1 - X0, Z1 - Z0, NX, NZ); geo.rotateX(-Math.PI / 2); geo.translate((X0 + X1) / 2, 0, (Z0 + Z1) / 2); meterUV(geo, X1 - X0, Z1 - Z0);
       const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - Z0) / CC) * (NX + 1) + Math.round((x - X0) / CC), n = gI[k] >= 0 ? near(x, z) : null; p.setY(i, gH[k] - (n && Math.abs(n.l) < VERGE - 4 ? 0.5 : 0.02)); }
       geo.computeVertexNormals();
-      const floorMat = groundMat(C.groundSet, 3.2, { base: C.groundBase, wetness: 0.25, key: C.id + 'floor', tint: 0.8, offset: 0 });
+      const floorMat = groundMat(C.groundSet, 3.2, { base: C.groundBase, wetness: 0.25, key: C.id + 'floor', tint: C.groundTint || 0.8, offset: 0 });
       const tm = mk(geo, floorMat); tm.castShadow = false; tm.receiveShadow = true; G.add(tm);
       // the far ground past the map's edge: a frame around the map only
       const farMat = groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: C.id + 'outer', wetness: 0.3, tint: 0.7, offset: 2 }), FR = 1500;
@@ -2764,10 +3002,10 @@ function buildOutdoor(renderer) {
         const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; G.add(m); return m;
       };
       // the exact ground either side of the road (flush with the shoulders — no step, nothing hovering)
-      drape(-VERGE, -(RW + C.shoulder) + 0.02, 14, 0.015, floorMat); drape(RW + C.shoulder - 0.02, VERGE, 14, 0.015, floorMat);
-      if (C.shoulder > 0) drape(-RW - C.shoulder, RW + C.shoulder, 8, 0.03, groundMat(C.shoulderSet, 2.2, { base: '#6b6155', key: C.id + 'shoulder', tint: 0.85, offset: -3 }));
-      drape(-RW, RW, Math.max(8, Math.round(RW * 2)), 0.05, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: C.id + 'road', tint: 0.9, offset: -5, wetness: 0.4 }));
-      const paint = (l, w, color, filter) => drape(l - w / 2, l + w / 2, 1, 0.062, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 2, filter);
+      drape(-VERGE, -(RW + C.shoulder) + 0.02, 14, LIFT.verge, floorMat); drape(RW + C.shoulder - 0.02, VERGE, 14, LIFT.verge, floorMat);
+      if (C.shoulder > 0) drape(-RW - C.shoulder, RW + C.shoulder, 8, LIFT.shoulder, groundMat(C.shoulderSet, 2.2, { base: '#6b6155', key: C.id + 'shoulder', tint: 0.85, offset: -3 }));
+      drape(-RW, RW, Math.max(8, Math.round(RW * 2)), LIFT.road, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: C.id + 'road', tint: 0.9, offset: -5, wetness: 0.4 }), 1);
+      const paint = (l, w, color, filter) => drape(l - w / 2, l + w / 2, 1, LIFT.road + 0.008, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 1, filter);
       if (C.lines === 'twoLane') { paint(0.11, 0.1, 0xe8b10c); paint(-0.11, 0.1, 0xe8b10c); }
       paint(RW - 0.2, 0.12, 0xf1f1ec); paint(-RW + 0.2, 0.12, 0xf1f1ec);
       if (C.curbs) { // red / white rumble curbs along both edges through the bends
@@ -2775,7 +3013,7 @@ function buildOutdoor(renderer) {
         curbTex.wrapS = curbTex.wrapT = THREE.RepeatWrapping; curbTex.repeat.set(0.5, 1);
         const curbM = new THREE.MeshStandardMaterial({ map: curbTex, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6 });
         const inBend = (q) => Math.abs(q.k) > 1 / 110;
-        drape(RW - 0.05, RW + 0.95, 1, 0.07, curbM, 2, inBend); drape(-RW - 0.95, -RW + 0.05, 1, 0.07, curbM, 2, inBend);
+        drape(RW - 0.05, RW + 0.95, 1, LIFT.road + 0.014, curbM, 2, inBend); drape(-RW - 0.95, -RW + 0.05, 1, LIFT.road + 0.014, curbM, 2, inBend);
       }
       if (C.posts) { // white reflector posts every 40 m both sides (their reflectors catch the headlights at night)
         const postGeo = new THREE.BoxGeometry(0.08, 1.1, 0.12), refGeo = new THREE.BoxGeometry(0.01, 0.16, 0.08);
@@ -2811,24 +3049,47 @@ function buildOutdoor(renderer) {
         railI.count = railSegs.length; postI.count = railPosts.length; railI.castShadow = true; railI.userData.noScan = postI.userData.noScan = true; G.add(railI, postI);
       }
       // forest: from C.treeGap past the road edge, densest near the road and thinning out; trunks near the road are solid
-      const tSpots = [], tr = mulberry32(C.seed);
-      for (let n = 0; tSpots.length < C.trees && n < 200000; n++) {
+      // (trees within C.near3D m of the road edge are real 3D trees; past that, photo cards; bare rocky tops on the peaks)
+      const tSpots = [], nearT = [], tr = mulberry32(C.seed), NEAR3 = RW + C.treeGap + (C.near3D || 30);
+      for (let n = 0; tSpots.length + nearT.length < C.trees && n < 300000; n++) {
         const x = X0 + 8 + tr() * (X1 - X0 - 16), z = Z0 + 8 + tr() * (Z1 - Z0 - 16), nr = near(x, z), d = nr ? Math.abs(nr.l) : 999;
         if (d < RW + C.treeGap) continue;
-        if (tr() > 0.25 + 0.75 * Math.exp(-(d - RW - C.treeGap) / 45)) continue;
-        tSpots.push([x, z]); if (d < 45 + C.treeGap) col0.push([x, z, 0.32]);
+        if (tr() > 0.25 + 0.75 * Math.exp(-(d - RW - C.treeGap) / (C.treeFall || 45))) continue;
+        if (peakAt(x, z) > 20 && tr() < 0.7) continue;
+        (d < NEAR3 ? nearT : tSpots).push([x, z, d]); if (d < 45 + C.treeGap) col0.push([x, z, 0.3]);
       }
+      // (a fir's lowest branches spread ~0.3 × its height, so firs only stand where they'd clear the lane; right at the edge
+      // it's broadleaf trees, whose crowns start well above a truck)
+      plant3D(G, nearT.map(([x, z, d]) => { const hf = 12 + tr() * 10, fir = tr() < (C.firShare ?? 0.7) && (d - RW + 0.3) > hf * 0.33; return [x, height(x, z), z, fir ? hf : 8 + tr() * 6, fir ? 'fir' : 'broad']; }), tr);
       let ti = 0;
       kinds.forEach((kd, ki) => {
-        const n = ki === kinds.length - 1 ? tSpots.length - ti : Math.round(tSpots.length * kd.share);
-        const im = new THREE.InstancedMesh(cardGeo, new THREE.MeshStandardMaterial({ map: kd.tex, alphaTest: 0.42, side: THREE.DoubleSide, roughness: 1, metalness: 0, envMapIntensity: 0.55 }), Math.max(1, n));
-        for (let i = 0; i < n; i++, ti++) {
+        const n = ki === kinds.length - 1 ? tSpots.length - ti : Math.round(tSpots.length * kd.share), items = [];
+        for (let i = 0; i < n && ti < tSpots.length; i++, ti++) {
           const [x, z] = tSpots[ti], hh = kd.h[0] + tr() * (kd.h[1] - kd.h[0]);
-          o.position.set(x, height(x, z) - 0.05, z); o.rotation.set(0, tr() * Math.PI, 0); o.scale.set(hh * kd.wr, hh, hh * kd.wr); o.updateMatrix(); im.setMatrixAt(i, o.matrix);
-          col.setScalar(0.7 + tr() * 0.38); im.setColorAt(i, col);
+          items.push({ p: [x, height(x, z) - 0.05, z], ry: tr() * Math.PI, s: [hh * kd.wr, hh, hh * kd.wr], c: 0.7 + tr() * 0.38 });
         }
-        im.count = n; im.userData.noScan = true; G.add(im);
+        if (items.length) scatter(G, cardGeo, noFlip(new THREE.MeshStandardMaterial({ map: kd.tex, alphaTest: 0.42, side: THREE.DoubleSide, roughness: 1, metalness: 0, envMapIntensity: 0.55 }), 'card-nf'), items, { cell: 280 });
       });
+      // rocks: pebbles and stones along the road edge, scattered rocks and boulders in the woods, rock piles on the peaks
+      if (C.rocks) {
+        const rk = [], rq = mulberry32(C.seed + 9), edge = RW + C.shoulder;
+        for (let n = 0; rk.length < C.rocks && n < 80000; n++) {
+          const x = X0 + 10 + rq() * (X1 - X0 - 20), z = Z0 + 10 + rq() * (Z1 - Z0 - 20), nr = near(x, z), d = nr ? Math.abs(nr.l) : 999, t = rq();
+          if (d < edge + 0.45) continue;
+          let s;
+          if (d < edge + 4) { if (t > 0.6) continue; s = 0.07 + Math.pow(rq(), 2) * 0.32; }
+          else if (peakAt(x, z) > 9) s = 0.7 + Math.pow(rq(), 1.5) * 3.4;
+          else { if (d > 80 && t > 0.35) continue; s = 0.18 + Math.pow(rq(), 3) * 2.4; }
+          rk.push([x, height(x, z) - s * 0.08, z, s]);
+          if (s > 0.6 && d < 70) col0.push([x, z, s * 0.75]);
+        }
+        placeRocks(G, rk, rq);
+      }
+      if (C.grass) { // real grass blades (not on the road or shoulder; thin on the rocky peaks)
+        const g0 = RW + C.shoulder + 0.2;
+        makeGrass(G, { height, seed: C.seed, size: C.grass.size, per: C.grass.per, tint: C.grass.tint,
+          dens: (x, z) => { const n = near(x, z), a = n ? Math.abs(n.l) : 999; return a < g0 ? 0 : C.grass.d * smt(g0, g0 + 1.4, a) * (peakAt(x, z) > 12 ? 0.25 : 1); } });
+      }
     }
     // the whole map is shifted so the start of the right-hand lane sits where the truck is shown (world origin, on the road)
     const p0 = S[0], LO = C.lane, SX = -(p0.x - p0.tz * LO), SZ = -(p0.z + p0.tx * LO), SY = -section(p0.e, LO, hills(p0.x - p0.tz * LO, p0.z + p0.tx * LO));
@@ -2846,13 +3107,16 @@ function buildOutdoor(renderer) {
   const BR = makeLoopMap({ id: 'backroads', box: [-820, 820, -640, 640], half: 3.6, nCtl: 64, sx: 1.08, sz: 0.82,
     radius: (a) => 560 + 62 * Math.sin(3 * a + 0.6) + 40 * Math.sin(5 * a + 2.1) + 26 * Math.sin(9 * a + 0.3) + 17 * Math.sin(14 * a + 1.2),
     hill: 1, gradeW: 70, ditch: true, flatTo: 4.5, shoulder: 1.3, shoulderSet: GROUND_SETS.gravel, pavedExtra: 0.35, lines: 'twoLane', curbs: false, posts: true, rails: true,
-    treeGap: 6.5, trees: 7000, seed: 1203, lane: 1.8, groundSet: GROUND_SETS.forest, groundBase: '#4e3d2a' });
+    treeGap: 6.5, trees: 7000, seed: 1203, lane: 1.8, groundSet: GROUND_SETS.forest, groundBase: '#4e3d2a', near3D: 22, peaks: 6, peakH: 0.8, rocks: 1800,
+    grass: { d: 0.35, per: 80, size: [0.2, 0.42], tint: (r) => { const v = 0.75 + r() * 0.45; return r() < 0.45 ? [0.2 * v, 0.17 * v, 0.08 * v] : [0.12 * v, 0.17 * v, 0.06 * v]; } } });
   const backG = BR.group;
-  // Drift Track: 12 m wide, flowing tight bends (radius ~35–70 m), gentle hills, wide grass run-off, no rails or posts
-  const DT = makeLoopMap({ id: 'drift', box: [-420, 420, -340, 340], half: 6, nCtl: 56, sx: 1.12, sz: 0.86,
+  // Drift Road: a real two-lane road (one lane each way) winding through a thick forest — flowing tight bends (radius
+  // ~35–70 m), the trees a step off the edge, no guardrails; hills, little rocky mountains, rocks and real grass
+  const DT = makeLoopMap({ id: 'drift', box: [-420, 420, -340, 340], half: 3.8, nCtl: 56, sx: 1.12, sz: 0.86,
     radius: (a) => 255 + 34 * Math.sin(3 * a + 0.4) + 28 * Math.sin(5 * a + 1.3) + 20 * Math.sin(7 * a + 2.2) + 12 * Math.sin(11 * a + 0.7),
-    hill: 0.35, gradeW: 90, ditch: false, flatTo: 9, shoulder: 0, shoulderSet: GROUND_SETS.gravel, pavedExtra: 0.9, lines: 'track', curbs: true, posts: false, rails: false,
-    treeGap: 24, trees: 4200, seed: 777, lane: 0, groundSet: GROUND_SETS.grass, groundBase: '#5d6b3f' });
+    hill: 0.8, gradeW: 70, ditch: false, flatTo: 2.4, shoulder: 0.6, shoulderSet: GROUND_SETS.gravel, pavedExtra: 0.3, lines: 'twoLane', curbs: false, posts: false, rails: false,
+    treeGap: 1.8, treeFall: 70, trees: 9000, near3D: 30, firShare: 0.68, seed: 777, lane: 1.9, groundSet: GROUND_SETS.grass, groundBase: '#5d6b3f', peaks: 16, peakH: 1, rocks: 2600,
+    groundTint: [0.6, 0.76, 0.46], grass: { d: 0.95, per: 150, size: [0.3, 0.7], tint: (r) => { const v = 0.7 + r() * 0.5; return r() < 0.14 ? [0.42 * v, 0.38 * v, 0.17 * v] : [0.22 * v, 0.31 * v, 0.09 * v]; } } });
   const driftG = DT.group;
 
   // knockable cones: tumble away from whatever hits them
@@ -2885,9 +3149,12 @@ function buildOutdoor(renderer) {
     });
     return best;
   };
+  const camL = new THREE.Vector3();
   return {
-    collide,
+    collide, noAO,
     knock, stepCones, mudLevel,
+    // every frame: wind for the grass, and the grass patch follows the camera
+    tick: (dt, cam, driving) => { windT.value += dt; nearFadeU.value.set(driving ? 0.6 : 2, driving ? 2.2 : 6.5); grassFields.forEach((f) => { if (!f.parent.visible) return; f.parent.worldToLocal(camL.copy(cam)); f.update(camL.x, camL.z); }); },
     heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK, backroads: BR.height, drift: DT.height },
     backroads: BR, drift: DT,
     // the dock's front lip, sides and the tall end of the ramp's sides are walls from below: a point whose dock surface is
@@ -3521,6 +3788,7 @@ function installPaintShader(m) {
     uRough: { value: 0.3 }, uMetal: { value: 0 }, uCoat: { value: 1 }, uCoatRough: { value: 0.05 },
     uOrigCoat: { value: m.clearcoat || 0 }, uOrigCoatRough: { value: m.clearcoatRoughness || 0 },
     uTrim: TRIM_COL, uTrimMat: TRIM_MAT, uTrimMin: TRIM_MIN, uTrimMax: TRIM_MAX, uTrimSill: TRIM_SILL, uTrimLow: TRIM_LOW,
+    uTrimGlass: TRIM_GLASS, uTrimTex: TRIM_TEX, uTrimTexF: TRIM_TEXF, uTrimTexK: TRIM_TEXK,
   };
   m.clearcoat = Math.max(m.clearcoat || 0, 1e-3); // keep USE_CLEARCOAT compiled; the shader mixes the real value per pixel
   m.onBeforeCompile = (sh) => {
@@ -3531,7 +3799,7 @@ function installPaintShader(m) {
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
         uniform float uPaintOn, uKeyLum, uTol, uWrapOn, uWrapScale, uRough, uMetal, uCoat, uCoatRough, uOrigCoat, uOrigCoatRough;
-        uniform vec3 uKey, uTarget, uWrapOrigin, uTrim, uTrimMin, uTrimMax, uTrimLow; uniform float uTrimSill; uniform mat4 uTrimMat; uniform sampler2D uWrap; varying vec3 vPW; varying vec3 vPN;
+        uniform vec3 uKey, uTarget, uWrapOrigin, uTrim, uTrimMin, uTrimMax, uTrimLow, uTrimGlass; uniform float uTrimSill, uTrimTexF, uTrimTexK; uniform mat4 uTrimMat; uniform sampler2D uWrap, uTrimTex; varying vec3 vPW; varying vec3 vPN;
         vec2 apexChroma(vec3 c, float l) { return vec2(c.r - c.g, (c.r + c.g) * 0.5 - c.b) / max(l, 0.03); }
         vec3 apexTri() { vec3 n = pow(abs(normalize(vPN)), vec3(4.0)); n /= (n.x + n.y + n.z); vec3 p = (vPW - uWrapOrigin) * uWrapScale;
           return texture2D(uWrap, p.yz).rgb * n.x + texture2D(uWrap, p.xz).rgb * n.y + texture2D(uWrap, p.xy).rgb * n.z; }`)
@@ -3551,8 +3819,23 @@ function installPaintShader(m) {
         vec3 tr = (uTrimMat * vec4(vPW, 1.0)).xyz, tn = normalize(mat3(uTrimMat) * normalize(vPN)) * (gl_FrontFacing ? 1.0 : -1.0);
         bool inCab = all(greaterThan(tr, uTrimMin)) && all(lessThan(tr, uTrimMax));
         bool facesIn = tr.y > uTrimMin.y + 0.0 && (dot(tn, vec3(0.0, 0.0, -sign(tr.z))) > 0.35 || (tn.y < -0.5 && tr.y > uTrimSill)) && abs(tr.z) < uTrimMax.z - 0.22;
-        float trimMask = (inCab && (!gl_FrontFacing || facesIn)) ? 1.0 : 0.0;
-        diffuseColor.rgb = mix(diffuseColor.rgb, tr.y > uTrimSill ? uTrim : uTrimLow, trimMask);`)
+        // …and anything painted that sits inboard of the side glass line (door jambs, the B-pillar, the window-sill ledge, the
+        // corners where roof meets pillars) — except the outside of the cab's back wall, the cowl / windshield frame up front,
+        // and up-facing roof skin. Plus the inside of the back wall (faces pointing forward, just ahead of it).
+        float cabRear = uTrimMin.x + 0.06, cowlX = uTrimMax.x - 0.05;
+        float gz = min(uTrimGlass.x + uTrimGlass.y * tr.y, uTrimGlass.x + uTrimGlass.y * uTrimGlass.z) - 0.025;
+        // (outward-facing faces are only ever seen from outside — from inside they're back faces, handled above)
+        bool outward = dot(tn, vec3(0.0, 0.0, sign(tr.z))) > 0.3;
+        bool inboard = abs(tr.z) < gz && tr.x < cowlX - 0.3 && !outward && !(tn.x < -0.4 && tr.x < cabRear + 0.25)
+          && !(tn.y > 0.5 && tr.y > uTrimSill + 0.12) && !(tn.x > 0.4 && tr.x > cowlX - 0.9);
+        bool backWall = tn.x > 0.5 && tr.x < cabRear + 0.4 && abs(tr.z) < uTrimMax.z - 0.25;
+        float trimMask = (inCab && (!gl_FrontFacing || facesIn || inboard || backWall)) ? 1.0 : 0.0;
+        diffuseColor.rgb = mix(diffuseColor.rgb, tr.y > uTrimSill ? uTrim : uTrimLow, trimMask);
+        if (trimMask > 0.5 && uTrimTexK > 0.0) { // the interior's own surface texture, projected along the face's axis
+          vec3 tw = pow(abs(tn), vec3(4.0)); tw /= (tw.x + tw.y + tw.z + 1e-5); vec3 tq = tr * uTrimTexF;
+          float tTx = texture2D(uTrimTex, tq.yz).r * tw.x + texture2D(uTrimTex, tq.xz).r * tw.y + texture2D(uTrimTex, tq.xy).r * tw.z;
+          diffuseColor.rgb *= mix(1.0, 0.68 + 0.64 * tTx, uTrimTexK * (tr.y > uTrimSill ? 0.6 : 1.0));
+        }`)
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(mix(roughnessFactor, uRough, paintMask), 0.9, trimMask);')
       .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(mix(metalnessFactor, uMetal, paintMask), 0.0, trimMask);')
       .replace('#include <lights_physical_fragment>', `#include <lights_physical_fragment>
@@ -4183,7 +4466,8 @@ function buildExtras(M, P, b, info, gBox) {
       // rails from the C pillar to the A pillar (liner edge down to the glass tops), A / B / C pillar panels filling the gaps
       // between the windows, and headers above the windshield and the back glass. Each overlaps the glass edge by ~1 cm.
       if (GL && idx.length) {
-        const trimM = new THREE.MeshStandardMaterial({ color: hex, roughness: Math.min(0.9, HL.rough || 0.9), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+        // (a firm depth bias: where a strip lies right on the shell's inner face it must win outright — a weak one striped)
+        const trimM = new THREE.MeshStandardMaterial({ color: hex, roughness: Math.min(0.9, HL.rough || 0.9), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 });
         const strip = (A, B) => { // a band between two matching polylines
           const p = [], ix = []; A.forEach((a, k) => { p.push(...a, ...B[k]); if (k) ix.push(2 * k - 2, 2 * k - 1, 2 * k, 2 * k - 1, 2 * k + 1, 2 * k); });
           const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); g2.setIndex(ix); g2.computeVertexNormals();
@@ -4315,8 +4599,12 @@ function buildExtras(M, P, b, info, gBox) {
     [1, -1].forEach((s) => { const tub = mk(new THREE.CylinderGeometry(P.R0 + 0.09, P.R0 + 0.09, 0.26, 28, 1, false, -Math.PI / 2, Math.PI), liner); tub.rotation.x = -Math.PI / 2; tub.position.set(P.xR, P.wheelY0 + 0.02, s * (bw - 0.17)); put(tub); });
   }
   const topper = b.topper || 'none';
+  // a topper / camper's cab end: ~1" (2.5 cm) clear of the cab's measured back face at every height it reaches — the same
+  // gap the bed keeps (lean: how far its front face sets back from bottom to top, over its height h)
+  const cabClear = (h, lean = 0) => { let x = x0 - 0.05; (info.cabBack || []).forEach(([y, xb]) => { if (y <= rail + h + 0.03) x = Math.min(x, xb - 0.025 + lean * THREE.MathUtils.clamp((y - rail) / h, 0, 1)); }); return x; };
   if (topper.startsWith('gfc')) { // Go Fast Campers-style platform camper: flat aluminium box at cab height, roof hinged at the cab end
     const x1g = info.x1 + 0.05, bwg = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012) - 0.012), h = info.roofTop - rail - 0.01;
+    const x0 = cabClear(h); // (shadows the bed's cab end inside this block)
     const skin = new THREE.MeshStandardMaterial({ color: 0x2b2d30, roughness: 0.55, metalness: 0.35 }), trimM = new THREE.MeshStandardMaterial({ color: 0x111214, roughness: 0.6 });
     put(rbox(x1g, x0, rail, rail + h - 0.04, -bwg, bwg, skin, 0.03), 'body');                                                 // box
     [1, -1].forEach((s) => { put(rbox(x1g + 0.15, x0 - 0.12, rail + 0.12, rail + h - 0.14, s * bwg - 0.004, s * bwg + 0.004, trimM, 0.01), 'body'); }); // gull-wing door panels
@@ -4331,15 +4619,14 @@ function buildExtras(M, P, b, info, gBox) {
       put(loftMesh([[x1g + 0.02, rail + h - 0.03, -bwg + 0.01], [tipX, tipY - 0.03, -bwg + 0.01], [tipX + 0.01, tipY - 0.03, -bwg + 0.02]], [[x1g + 0.02, rail + h - 0.03, bwg - 0.01], [tipX, tipY - 0.03, bwg - 0.01], [tipX + 0.01, tipY - 0.03, bwg - 0.02]], fab), 'body');
     }
   }
-  const x0g = x0; // (the bed's cab end)
   if (topper !== 'none' && !topper.startsWith('gfc')) {
     // the shell sits on the bed rails: inside their outer edge, and its rear stops on top of the closed tailgate (no overhang)
-    // (a 5 cm gap to the cab — it used to touch / poke into the cab's back — and the base sits ON the bed rails, centred on
+    // (a ~1" gap to the cab's back face at every height — see cabClear — and the base sits ON the bed rails, centred on
     // their tops, instead of out at their outer edge)
-    const x1 = info.x1 + 0.05, x0 = x0g - 0.05, bw = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012)) - 0.045;
+    const x1 = info.x1 + 0.05, bw = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012)) - 0.045;
     const soft = topper.startsWith('softopper'), T = TOPPER_SHAPES[soft ? 'soft' : topper] || TOPPER_SHAPES['are-cx'];
     const rackMat0 = new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.5, metalness: 0.45 });
-    const h = info.roofTop - rail + T.dh, bwB = bw + T.flare, bwT = bw - T.tumble, r = T.r;
+    const h = info.roofTop - rail + T.dh, bwB = bw + T.flare, bwT = bw - T.tumble, r = T.r, x0 = cabClear(h, T.front);
     // cross-section (z, y above the rail): flared / tumbled-in sides, rounded shoulders, crowned top
     const sec = new THREE.Shape();
     sec.moveTo(-bwB, 0); sec.lineTo(bwB, 0); sec.quadraticCurveTo(bwB + T.bow, (h - r) * 0.55, bwT, h - r); sec.quadraticCurveTo(bwT, h, bwT - r, h);
@@ -5181,8 +5468,12 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
       const ssao = new THREE.SSAOPass(scene, camera, 2, 2);
       ssao.kernelRadius = 0.5; ssao.minDistance = 0.0002; ssao.maxDistance = 0.006;
       const origOverride = ssao.renderOverride.bind(ssao);
+      // (the depth / normal pass draws both faces: from inside the cab you see the BACK of the roof & headliner, and with
+      // single-sided faces they dropped out of it — the trees above showed through as blotchy occlusion on the ceiling.
+      // Alpha-cut cards — leaves, grass, tree cards — stay out of it: drawn as solid quads they'd cast square shadows)
+      if (ssao.normalMaterial) ssao.normalMaterial.side = THREE.DoubleSide;
       ssao.renderOverride = (...args) => {
-        const hide = [outdoor.leaves, outdoor.tufts, outdoor.forest, envState.gp, sky].filter(Boolean), prev = hide.map((o) => o.visible);
+        const hide = [outdoor.leaves, outdoor.tufts, outdoor.forest, envState.gp, sky, ...outdoor.noAO].filter(Boolean), prev = hide.map((o) => o.visible);
         hide.forEach((o) => { o.visible = false; }); origOverride(...args); hide.forEach((o, i) => { o.visible = prev[i]; });
       };
       composer.addPass(ssao);
@@ -5375,7 +5666,10 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const bi = model.bedInfo, P = base.P; // the cab box: behind the cowl, ahead of the cab's back wall, rocker to roof
     // (bottom: the window sills when measured — the inward-facing rule must not reach the door panels / rockers below)
     const sill = bi && bi.dash && bi.dash.glass ? bi.dash.glass.ys[0] - 0.06 : P ? P.rockerY + 0.15 : 0;
-    if (bi && P) { TRIM_MIN.value.set(bi.cabRear - 0.06, P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
+    // (its back: the cab's measured back wall — cabRear is the roof's rear edge, ~13 cm ahead of the wall at seat height)
+    const wallX = bi && bi.cabBack && bi.cabBack.length ? bi.cabBack.filter(([y]) => y < bi.railY + 0.25).reduce((m, [, x]) => Math.min(m, x), 1e9) - 0.006 : 1e9;
+    if (bi && P) { TRIM_MIN.value.set(Math.min(bi.cabRear - 0.06, wallX), P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
+    if (model.glassFit) TRIM_GLASS.value.set(model.glassFit.gm, model.glassFit.gk, model.glassFit.bot);
   }
   function setCuts(cuts = []) {
     const n = Math.min(MAX_CUTS, cuts.length); cutU.uCutN.value = n;
@@ -5581,6 +5875,8 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       gk = sxx > 1e-6 ? sxy / sxx : 0; gm = mz - gk * my;
     }
     const glassZ = (y) => gm + gk * y;
+    const glassBot = gls.length > 20 ? gls.reduce((m, q) => Math.min(m, q[0]), 1e9) : P.cowlY; // the side windows' lower edge (the sill)
+    model.glassFit = { gm, gk, bot: glassBot }; // (the paint shader's cab-trim rule uses the same glass line)
     // hood skin height along the truck (probed before the split): the hood's inner frame is what sits just under it
     const hoodTops = []; for (let i = 0; i <= 16; i++) { const x = P.cowlX - 0.1 + ((P.front - P.cowlX) * i) / 16, h = probe(V(x, prof.roofTop + 1, 0.3), V(0, -1, 0)); hoodTops.push([x, h && h.point.y > P.hoodY - 0.25 ? h.point.y : null]); }
     // steering wheel: the dominant non-paint material around where a 1st-gen Tundra's wheel hub sits (driver side is −z)
@@ -5609,6 +5905,15 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       }
     }
     const onWheel = (c) => !wheelN || (c.distanceTo(wheelC) < 0.215 && Math.abs(V(0, 0, 0).subVectors(c, wheelC).dot(wheelN)) < 0.055);
+    // headlamp lens outline per side (the clear parts in the headlamp area): the corner-lamp housing seen through it is lamp,
+    // although it reaches further back than the usual headlamp box — it was being taken as engine (a dark patch where the hood
+    // seemed to show through, driver side) or as fender liner (a black corner lamp, passenger side)
+    const lensBox = { 1: new THREE.Box3(), [-1]: new THREE.Box3() }, lv = V(0, 0, 0);
+    model.parts.meshes.forEach((m) => { if (Array.isArray(m.material) || paintSet.has(m.material) || !(m.material.map || (m.material.transparent && !(m.material.metalness > 0.7)))) return; // (a lens, as lampMat sees one)
+      const g = m.geometry, pa = g.attributes.position; if (!pa) return; m.updateMatrixWorld(true);
+      for (let k = 0; k < pa.count; k++) { lv.fromBufferAttribute(pa, k).applyMatrix4(m.matrixWorld); const az = Math.abs(lv.z); if (lv.x > P.front - 0.55 && lv.y > P.hoodY - 0.45 && lv.y < P.hoodY - 0.04 && az > 0.4 && az < P.halfW + 0.08) lensBox[lv.z > 0 ? 1 : -1].expandByPoint(lv); } });
+    const behindCornerLens = (cx, cy, cz) => { const lb = lensBox[cz > 0 ? 1 : -1]; if (lb.isEmpty()) return false; const z0 = Math.min(Math.abs(lb.min.z), Math.abs(lb.max.z)), z1 = Math.max(Math.abs(lb.min.z), Math.abs(lb.max.z)), az = Math.abs(cz);
+      return cx > lb.min.x - 0.22 && cx < lb.max.x && cy > lb.min.y - 0.04 && cy < lb.max.y + 0.01 && az > z0 + (z1 - z0) * 0.3 && az < z1 + 0.01; }; // (the outer part: the corner lamp)
     const hoodTopAt = (x) => { let best = null, bd = 1e9; hoodTops.forEach(([hx, hy]) => { if (hy !== null && Math.abs(hx - x) < bd) { bd = Math.abs(hx - x); best = hy; } }); return best === null ? P.hoodY : best; };
     function zoneOf(mt, ctx) {
       const cx = (a.x + b.x + c.x) / 3, cy = (a.y + b.y + c.y) / 3, cz = (a.z + b.z + c.z) / 3, az = Math.abs(cz);
@@ -5625,10 +5930,12 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       if (steerMat && mt === steerMat && Math.abs(cx - steerC0.x) < 0.17 && Math.abs(cy - steerC0.y) < 0.25 && Math.abs(cz - steerC0.z) < 0.26 && onWheel(V(cx, cy, cz))) return 'steer'; // steering wheel rim + hub (rotates)
       // cabin interior (seats, door panels, console, dash): inside the cab, well inboard of the side glass / skin
       // (not the wheel-well liner where it reaches back under the cab's footprint — that was getting the interior colour)
-      if (!isP && !isG && cx > cabRear + 0.03 && cx < P.cowlX - 0.02 && cy > P.rockerY + 0.1 && cy < prof.roofTop - 0.02 && az < Math.min(glassZ(cy) - 0.06, P.halfW - 0.06)
+      // (the door panels' tops run right out under the glass at the sill, so below the sill they may reach the glass line)
+      if (!isP && !isG && cx > cabRear + 0.03 && cx < P.cowlX - 0.02 && cy > P.rockerY + 0.1 && cy < prof.roofTop - 0.02 && az < Math.min(cy < glassBot + 0.02 ? glassZ(cy) + 0.008 : glassZ(cy) - 0.06, P.halfW - 0.04)
         && !arches.some((w) => Math.hypot(cx - w.x, cy - P.wheelY0) < P.R0 + 0.4 && az > 0.38)) return cx > steerC0.x - 0.07 && cy > P.rockerY + 0.35 ? 'dash' : 'interior';
       // the cowl panel under the windshield (black plastic on the real truck)
       if (!isP && !isG && !isChrome(mt) && cx > P.cowlX - 0.2 && cx < P.cowlX + 0.16 && cy > P.hoodY - 0.12 && cy < P.cowlY + 0.08 && az < P.halfW - 0.12) return 'cowl';
+      if (!isP && !isG && behindCornerLens(cx, cy, cz)) return 'headlights'; // (the corner lamp's housing, seen through its lens)
       // the engine & everything else under the hood (behind the radiator support, below the hood skin)
       if (!isG && !ctx.meshFront && cx > P.cowlX - 0.16 && cx < P.front - 0.44 && cy > P.wheelY0 - 0.05 && cy < P.hoodY - (isP ? 0.1 : 0.035) && az < (isP ? Math.min(0.6, P.halfW - 0.3) : P.halfW - 0.1) && !(az > 0.42 && Math.hypot(cx - P.xF, cy - P.wheelY0) < P.R0 + 0.4)) return 'engine'; // (not the wheel-well liners)
       if (!isP && isChrome(mt) && !ctx.meshFront && az < 0.51 && cx > P.front - 0.5 && cy > P.hoodY - 0.46 && cy < P.hoodY + 0.02) return 'grille'; // chrome grille surround (not the lamps beside it)
@@ -5835,6 +6142,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     // third brake light: the roof's rear edge over the back glass (y) and the cab's back face just below it (x)
     const b3h = probe(V(cabRear + 0.07, prof.roofTop + 1, 0), V(0, -1, 0)), b3Y = b3h ? b3h.point.y : prof.roofTop - 0.04;
     const b3f = probe(V(cabRear - 1.2, b3Y - 0.05, 0), V(1, 0, 0), 2.5), b3 = { x: b3f && b3f.point.x < cabRear + 0.3 ? b3f.point.x : cabRear + 0.02, y: b3Y };
+    // the cab's back face above the bed rails, height by height (its rearmost point across the width): it leans, and sits
+    // well behind the roof's rear edge at the bottom — toppers & campers keep their gap to this, not to cabRear
+    const cabBack = []; for (let y = railY + 0.07; y < prof.roofTop - 0.01; y += 0.04) { // (from just over the bed's front rail cap)
+      let xb = Infinity; [0, 0.35, -0.35, 0.62, -0.62].forEach((z) => { const h = probe(V(cabRear - 1.2, y, z), V(1, 0, 0), 2); if (h && h.point.x > cabRear - 0.4 && h.object.userData.zone !== 'bedCover') xb = Math.min(xb, h.point.x); });
+      if (Number.isFinite(xb)) cabBack.push([y, xb]); }
     // rear cab floor (footwell) height, from the interior's lowest surfaces between the rear bench and the front seats
     let cabFloor = P.rockerY + 0.15; { const fv = V(0, 0, 0); let lo = Infinity; ((model.zones || {}).interior || []).forEach((m) => { const a = m.geometry.attributes.position, ix = m.geometry.index; if (!ix) return; m.updateMatrixWorld(true); for (let k = 0; k < ix.count; k += 3) { fv.fromBufferAttribute(a, ix.getX(k)).applyMatrix4(m.matrixWorld); if (fv.x > cabRear + 0.4 && fv.x < cabRear + 0.85 && Math.abs(fv.z) > 0.1 && Math.abs(fv.z) < 0.6) lo = Math.min(lo, fv.y); } }); if (lo < P.hoodY) cabFloor = lo; }
     // headlamp beam origins (front face, per side) from the headlight zone
@@ -5849,7 +6161,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const badgeAt = { tgY, lowY, low: [[backX(lowY, -0.45), -0.45], [backX(lowY, 0.42), 0.42]], tg: [[backX(tgY, -0.36), -0.36], [backX(tgY, 0.36), 0.36], [backX(tgY - 0.13, -0.36), -0.36], [backX(tgY - 0.13, 0.36), 0.36]],
       trd: { x: P.xR - P.R0 - 0.42, y: P.wheelY0 + 0.32, z: [1, -1].map((s) => skinZ(P.xR - P.R0 - 0.55, P.xR - P.R0 - 0.29, P.wheelY0 + 0.32, s, 0.03)) },
       sr5: { x: P.xF - P.R0 - 0.22, y: P.wheelY0 + 0.33, z: [1, -1].map((s) => skinZ(P.xF - P.R0 - 0.3, P.xF - P.R0 - 0.14, P.wheelY0 + 0.33, s, 0.02)) } };
-    model.bedInfo = { badgeAt, heads, cabFloor, b3, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw };
+    model.bedInfo = { badgeAt, heads, cabFloor, b3, cabBack, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw };
     // grille opening: only the grille's own surface just under the hood's leading edge (not guard tubes or bumper bits out front)
     const gbx = new THREE.Box3();
     ((model.zones && model.zones.grille) || []).forEach((m) => { const gg = m.geometry, p = gg.attributes.position, ix = gg.index, n = ix ? ix.count : p.count; m.updateMatrixWorld(true); for (let i = 0; i < n; i++) { fv.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); if (fv.y > P.hoodY - 0.45) gbx.expandByPoint(fv); } });
@@ -6000,7 +6312,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     build = b;
     const P = base.P; if (!P) return;
     TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
-    TRIM_LOW.value.set((INTERIOR_COLORS[b.intColor] || INTERIOR_COLORS.stock).hex).multiplyScalar(0.8); // (door skins below the sill: the door-panel colour)
+    TRIM_LOW.value.set((INTERIOR_COLORS[b.intColor] || INTERIOR_COLORS.stock).hex); // (door skins & the cab's back wall below the sill: the interior colour…)
+    { const IT = INTERIOR_TRIMS[b.intTrim] || INTERIOR_TRIMS.cloth, k = IT.tex || 'vinylGrain'; // (…in the interior's own fabric / leather)
+      TRIM_TEX.value = interiorDetailTex(k); TRIM_TEXF.value = { weave: 11, grain: 3.6, perf: 3.2, nap: 5, vinylGrain: 4.5 }[k] || 4; TRIM_TEXK.value = 1; }
     if ((b.tod ?? null) !== TOD.hour) applyTimeOfDay(b.tod ?? null); // (time of day lives in the build, so presets keep it)
     if (model) { paintModel(b); tintModel(b.tint, b.tintWs || 0); engineModel(b.engineAccent); if (model.zones) { applyZones(b); applyBulge(b); } }
     const style = effStyle(b);
@@ -6854,6 +7168,16 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       const x = lx0 + ((lx1 - lx0) * i) / nx, z = -lz + (2 * lz * j) / nz, hit = probe(fromRest(V(x, bi.roofTop - 0.3, z)), V(0, 1, 0));
       const y = hit ? toRest(hit.point).y : NaN; if (y > bi.roofTop - 0.16 && y < bi.roofTop + 0.05) ly[i * (nz + 1) + j] = y;
     }
+    { // the model's roof underside is a jumble (inner panel, bows, seams), so a liner laid on it looked crumpled and bits poked
+      // through at the corners: follow a smooth surface under all of it instead — the lowest point within 15 cm (nothing pokes
+      // through), then blurred (the blurs reach no further than that, so it stays under every raw point)
+      const N1 = nz + 1, pass = (src, R, f) => { const out = new Float32Array(src.length).fill(NaN);
+        for (let i = 0; i <= nx; i++) for (let j = 0; j <= nz; j++) { if (isNaN(src[i * N1 + j])) continue; const vals = [];
+          for (let di = -R; di <= R; di++) for (let dj = -R; dj <= R; dj++) { const ii = i + di, jj = j + dj; if (ii < 0 || jj < 0 || ii > nx || jj > nz) continue; const v = src[ii * N1 + jj]; if (!isNaN(v)) vals.push(v); }
+          out[i * N1 + j] = f(vals); } return out; };
+      const avg = (v) => v.reduce((a, b) => a + b, 0) / v.length;
+      ly.set(pass(pass(pass(ly, 3, (v) => Math.min(...v)), 2, avg), 1, avg));
+    }
     // side-window outlines (driver side — the cab is symmetric): at six heights from the sill to the top of the side glass,
     // each window's front / back edge and its |z|. The A / B / C pillars are the gaps between the glass, the roof rail runs
     // along the glass tops, and the headliner has to stop short of them (it used to spill out over the window tops)
@@ -7641,7 +7965,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (drive.on) driveStep(dt); else controls.update();
     if (dust.visible) updateDust(dt);
     if (rain.visible) updateRain(dt);
-    stepWindows(dt); if (remotes.size) stepRemotes(dt);
+    stepWindows(dt); if (remotes.size) stepRemotes(dt); outdoor.tick(dt, camera.position, drive.on);
     updateSteerWheel(); updateMusic();
     { const now = performance.now(); // reflection capture: when scheduled, or after driving ~25 m (at most every 1.5 s)
       if ((envCap.due.length && now > envCap.due[0]) || (drive.on && now - envCap.last > 1500 && truck.position.distanceTo(envCap.at) > 25)) { envCap.due = envCap.due.filter((t) => t > now); captureEnv(); } }
@@ -9376,6 +9700,41 @@ const EngineAudio = (() => {
   registerProcessor('apex-engine', ApexEngine);`;
   let ctx = null, node = null, ready = null, on = false, rpm = 0, throttle = 0, ext = null, cyl = 8, snd = EXHAUSTS.stock.snd, raf = 0, startT = 0, listeners = [], outG = null, vol = 0.9;
   const IDLE = 720, RED = 6200;
+  // ---- Recorded V8 ('rec', the default): sounds/v8-start-rev.mp3 — a cold start and fast idle, mic right at the tailpipe.
+  // Cut into a start clip and two seamless loops: the calm idle (off throttle) and the loud, rough stretch just after it fires
+  // (on throttle). Both are re-pitched with rpm and cross-faded by throttle, and a low-pass opens up as you press the pedal.
+  // The mic-in-the-pipe loudness is tamed: each piece normalised, the clipped top end rolled off, then the compressor.
+  // 'synth' is the original modelled engine (kept as the alternative, and the fallback if the file can't load).
+  const REC = { url: 'sounds/v8-start-rev.mp3', start: [0, 3.4], crank: 2.05, onLoop: [3.0, 9.0], offLoop: [14.0, 22.0], baseRpm: 900, maxRate: 5 };
+  let mode = 'rec', rec = null, recLoad = null, recN = null, recLP = null, mixIn = null;
+  const loadRec = () => recLoad || (recLoad = fetch(REC.url).then((r) => { if (!r.ok) throw new Error('no engine recording'); return r.arrayBuffer(); })
+    .then((ab) => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej))).then((buf) => {
+      const sr = buf.sampleRate, ch = buf.numberOfChannels;
+      const cut = ([a, b], loop) => { // loop: the last 0.3 s is cross-faded over the start, so the end runs straight into the beginning
+        const i0 = Math.round(a * sr), n = Math.min(Math.round((b - a) * sr), buf.length - i0), X = Math.round(0.3 * sr), len = loop ? n - X : n, out = ctx.createBuffer(2, len, sr);
+        let ss = 0;
+        for (let c = 0; c < 2; c++) {
+          const src = buf.getChannelData(Math.min(c, ch - 1)), dst = out.getChannelData(c);
+          for (let i = 0; i < len; i++) dst[i] = src[i0 + i];
+          if (loop) for (let i = 0; i < X; i++) { const t = i / X; dst[i] = src[i0 + i] * Math.sqrt(t) + src[i0 + n - X + i] * Math.sqrt(1 - t); }
+          else for (let i = Math.max(0, len - Math.round(0.6 * sr)); i < len; i++) dst[i] *= (len - i) / (0.6 * sr); // the start clip fades as the loops come in
+          for (let i = 0; i < len; i += 7) ss += dst[i] * dst[i];
+        }
+        return { buf: out, norm: 0.11 / Math.max(1e-4, Math.sqrt(ss / (2 * len / 7))) }; // → about the same loudness as the modelled engine
+      };
+      rec = { start: cut(REC.start, false), on: cut(REC.onLoop, true), off: cut(REC.offLoop, true) };
+      return rec;
+    }));
+  const recStop = (fade = 0.4) => {
+    if (!recN) return; const t = ctx.currentTime, n = recN; recN = null;
+    [n.on, n.off, n.st].forEach((v) => { if (!v) return; v.g.gain.cancelScheduledValues(t); v.g.gain.setTargetAtTime(0, t, fade / 4); try { v.src.stop(t + fade); } catch (e) { /* already stopped */ } });
+  };
+  const recPlay = (withStart) => { // loops (and the start clip) — the gains / pitch are driven from tick()
+    if (!rec || !mixIn) return; recStop(0.1);
+    const voice = (p, loop) => { const src = ctx.createBufferSource(), g = ctx.createGain(); src.buffer = p.buf; src.loop = loop; g.gain.value = 0; src.connect(g); g.connect(recLP); src.start(); return { src, g, norm: p.norm }; };
+    recN = { on: voice(rec.on, true), off: voice(rec.off, true), st: withStart ? voice(rec.start, false) : null, t0: ctx.currentTime, withStart };
+    if (recN.st) recN.st.g.gain.value = rec.start.norm * 0.9;
+  };
   // Browsers only allow AudioWorklet on secure pages (https:// or localhost). On a plain http:// page the same engine model
   // runs in a ScriptProcessor on the main thread instead — a little more CPU, same sound.
   function fallbackNode() {
@@ -9397,29 +9756,52 @@ const EngineAudio = (() => {
       const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 3;
       const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 90; body.gain.value = 7; body.Q.value = 0.7;
       outG = ctx.createGain(); outG.gain.value = vol; node.connect(body); body.connect(comp); comp.connect(outG); outG.connect(ctx.destination); // outG: engine volume (mixer)
+      // recorded engine: voices → low-pass (opens with throttle) → a high-shelf cut (the clipped fizz) → the same compressor
+      recLP = ctx.createBiquadFilter(); recLP.type = 'lowpass'; recLP.frequency.value = 1400; recLP.Q.value = 0.5;
+      const shelf = ctx.createBiquadFilter(); shelf.type = 'highshelf'; shelf.frequency.value = 3000; shelf.gain.value = -9;
+      recLP.connect(shelf); shelf.connect(comp); mixIn = comp;
     });
     return ready;
   }
   function tick() {
     raf = requestAnimationFrame(tick);
     if (!node) return;
-    const t = ctx.currentTime, since = t - startT;
+    const t = ctx.currentTime, since = t - startT, useRec = mode === 'rec' && !!recN;
     let target = IDLE + throttle * (RED - IDLE);
-    if (on && since < 1.2) target = since < 0.6 ? 210 + Math.sin(since * 25) * 40 : 1450 - (since - 0.6) * 1150; // crank → catch → settle
+    const crank = useRec && recN.withStart ? REC.crank : 0.6; // (the recording cranks for ~2 s before it fires)
+    if (on && since < crank + 0.6) target = since < crank ? 210 + Math.sin(since * 25) * 40 : 1450 - (since - crank) * 1150; // crank → catch → settle
     if (ext && on) rpm = ext.rpm; else rpm += ((on ? target : 0) - rpm) * Math.min(1, (target > rpm ? 8 : 3) / 60);
     const thr = ext ? ext.throttle : throttle;
-    node.port.postMessage({ target: Math.max(on ? 150 : 0, rpm), thr: since < 0.6 ? 0.15 : thr, on, cyl, snd, gain: on ? 1 : 0, limiter: rpm > RED - 60 && thr > 0.5 });
+    node.port.postMessage({ target: Math.max(on ? 150 : 0, rpm), thr: since < 0.6 ? 0.15 : thr, on, cyl, snd, gain: on && !starting && !useRec ? 1 : 0, limiter: rpm > RED - 60 && thr > 0.5 });
+    if (useRec) {
+      const n = recN, age = t - n.t0, ss = THREE.MathUtils.smoothstep;
+      const k = n.withStart ? ss(age, REC.start[1] - 1.0, REC.start[1] - 0.1) : 1;    // the loops come in as the start clip ends
+      const settle = n.withStart ? 1 - ss(age, REC.start[1], REC.start[1] + 4) : 0;      // cold-start fast idle, then it calms down
+      const loud = Math.max(thr, settle * 0.7), rate = Math.min(REC.maxRate, Math.max(0.5, rpm / REC.baseRpm));
+      n.on.src.playbackRate.setTargetAtTime(rate, t, 0.03); n.off.src.playbackRate.setTargetAtTime(rate, t, 0.03);
+      n.on.g.gain.setTargetAtTime(k * n.on.norm * (0.12 + 0.88 * loud), t, 0.06);
+      n.off.g.gain.setTargetAtTime(k * n.off.norm * (1 - 0.75 * loud), t, 0.06);
+      recLP.frequency.setTargetAtTime(n.st && age < REC.start[1] ? 6000 : 900 + 4200 * thr + rpm * 0.5, t, 0.05);
+    }
     listeners.forEach((f) => f({ on, rpm, throttle: thr, redline: RED }));
   }
+  let starting = false; // (between pressing start and the recording being ready: silent, then the start clip plays)
   return {
     start(opts = {}) {
       if (!(window.AudioContext || window.webkitAudioContext)) return false;
-      cyl = opts.cyl || 8; snd = opts.snd || snd; on = true; rpm = 0; throttle = 0;
-      ensure().then(() => { startT = ctx.currentTime; }).catch(() => { on = false; });
+      cyl = opts.cyl || 8; snd = opts.snd || snd; on = true; rpm = 0; throttle = 0; starting = true;
+      ensure().then(() => (mode === 'rec' ? Promise.race([loadRec().catch(() => null), new Promise((r) => setTimeout(r, 2500))]) : null))
+        .then(() => { starting = false; startT = ctx.currentTime; if (on && mode === 'rec' && rec) recPlay(true); }).catch(() => { on = false; starting = false; });
       if (!raf) tick();
       return true;
     },
-    stop() { on = false; listeners.forEach((f) => f({ on: false, rpm: 0, throttle: 0, redline: RED })); },
+    stop() { on = false; if (ctx) recStop(0.5); listeners.forEach((f) => f({ on: false, rpm: 0, throttle: 0, redline: RED })); },
+    // 'rec' (the recorded V8) or 'synth' (the original modelled engine) — switches live if the engine is running
+    setMode(m) {
+      mode = m === 'synth' ? 'synth' : 'rec'; if (!ctx || !on) return;
+      if (mode === 'synth') recStop(0.3); else loadRec().then(() => { if (on && mode === 'rec' && !recN) recPlay(false); }).catch(() => { /* stays on the modelled engine */ });
+    },
+    get mode() { return mode; },
     setThrottle(v) { throttle = Math.max(0, Math.min(1, v)); },
     setExternal(s) { ext = s; },
     setVolume(v) { vol = v; if (outG) outG.gain.setTargetAtTime(v, ctx.currentTime, 0.05); },
@@ -9487,9 +9869,9 @@ const WorldAudio = (() => {
 })();
 // Volume mixer: music / engine / environment / tires (saved in this browser)
 const Mixer = (() => {
-  const v = { music: 0.8, sub: 0.5, engine: 0.9, env: 0.6, tires: 0.8 }, subs = new Set();
+  const v = { music: 0.8, sub: 0.5, engine: 0.9, env: 0.6, tires: 0.8, engSnd: 'rec' }, subs = new Set(); // (engSnd: recorded V8 / 'synth' = the original engine sound)
   try { Object.assign(v, JSON.parse(localStorage.getItem('apex.mix') || '{}')); } catch (e) { /* storage blocked */ }
-  const apply = () => { MusicSys.setVol(v.music); MusicSys.setSub(v.sub); EngineAudio.setVolume(v.engine); WorldAudio.setVolumes(v.env, v.tires); };
+  const apply = () => { MusicSys.setVol(v.music); MusicSys.setSub(v.sub); EngineAudio.setVolume(v.engine); EngineAudio.setMode(v.engSnd); WorldAudio.setVolumes(v.env, v.tires); };
   apply();
   return { v, set(k, x) { v[k] = x; try { localStorage.setItem('apex.mix', JSON.stringify(v)); } catch (e) { /* ignore */ } apply(); subs.forEach((f) => f()); }, subscribe(f) { subs.add(f); return () => subs.delete(f); } };
 })();
@@ -9504,6 +9886,12 @@ function MixerPanel() {
           <span className="hud text-[11px] text-white/50 w-7 text-right">{Math.round(Mixer.v[k] * 100)}</span>
         </div>
       ))}
+      <div className="flex items-center gap-2 pt-1">
+        <Icon name="Volume2" size={13} className="text-white/55" /><span className="hud text-[12px] text-white/80 w-[78px]">Engine sound</span>
+        {[['rec', 'Recorded V8'], ['synth', 'Classic']].map(([id, l]) => (
+          <button key={id} onClick={() => Mixer.set('engSnd', id)} className={`flex-1 rounded-md border px-1.5 py-0.5 hud text-[11px] transition ${Mixer.v.engSnd === id ? 'border-amber-400 text-amber-300 bg-amber-400/10' : 'border-white/15 text-white/60 hover:text-white'}`}>{l}</button>
+        ))}
+      </div>
     </div>
   );
 }

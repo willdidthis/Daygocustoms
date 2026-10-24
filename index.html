@@ -912,6 +912,17 @@ function travelOf(b) {
 }
 // Damping ratio for the drive sim: shock quality + adjustable clickers (0 soft … 1 firm) (+ bypasses: see bypassFirm)
 const dampingOf = (b) => { const sh = SHOCKS[b.shock] || SHOCKS.stock; return Math.max(0.12, Math.min(0.85, 0.16 + sh.off * 0.38 + ((b.damping ?? 0.5) - 0.5) * (sh.price > 1000 ? 0.3 : 0.1))); };
+// Suspension tuning (Suspension menu): spring rate (any truck — coil / leaf rate), compression & rebound clickers (adjustable
+// shocks only) and hydraulic bump stops → what the drive sim uses: body bounce frequency, how hard a hit it takes before
+// bottoming (capAdj, m/s), how fast a wheel can follow whoops (soakAdj, m/s), and how much a hit throws the body back up
+const tuneOf = (b) => {
+  const adj = (SHOCKS[b.shock] || SHOCKS.stock).price > 1000, comp = adj ? b.damping ?? 0.5 : 0.5, reb = adj ? b.rebound ?? 0.5 : 0.5, spr = b.springRate ?? 0.5;
+  return { adj, comp, reb, spr, wn: 8.5 * (0.85 + 0.3 * spr), capAdj: (comp - 0.5) * 2 + (spr - 0.5) * 1.4, soakAdj: -(comp - 0.5) * 0.8 - (spr - 0.5) * 0.8, bounce: 1.2 - 0.5 * reb, kick: 1.25 - 0.5 * reb };
+};
+// how hard a landing / hit (closing speed, m/s) the suspension can take before it runs out of travel and bottoms: travel,
+// shock size & valving, bypasses, hydraulic bump stops and tuning. Stock ≈ 5 m/s (a ~1.3 m drop to flat), a long-travel
+// truck with bypasses & hydros ≈ 11+ (a ~6 m drop). Past it the truck bucks back up (drive sim, landings & bump stops).
+const landCapOf = (b, tv = travelOf(b)) => { const TU = tuneOf(b); return 1.8 + (tv.front + tv.rear) * 0.17 + (SHOCKS[b.shock] || SHOCKS.stock).off * 1.6 + bypassFirm(b) * 1.8 + (b.hydroBump && TU.adj ? 2.2 : 0) + TU.capAdj; };
 const bypassFirm = (b) => ((BYPASSES[b.bypassF] || BYPASSES.none).firm + (BYPASSES[b.bypassR] || BYPASSES.none).firm) / 2;
 // Exhaust: sound character for the synthesized V8 / V6 + tip style.
 const EXHAUSTS = {
@@ -1202,7 +1213,7 @@ function computePrice(b, v, dmg = []) {
   p += (EXHAUST_EXITS[b.exhaustExit] || EXHAUST_EXITS.stock).price + (EXHAUST_COLORS[b.exhaustColor] || EXHAUST_COLORS.stock).price + (INTERIOR_TRIMS[b.intTrim] || INTERIOR_TRIMS.cloth).price + (AUDIO_SYSTEMS[b.audio] || AUDIO_SYSTEMS.factory).price + (SUB_SETUPS[b.subs] || SUB_SETUPS.none).price + (DASH_TRIMS[b.dashTrim] || DASH_TRIMS.match).price + (FRONT_SUSP[b.frontSusp] || FRONT_SUSP.ifs).price + (SUNROOFS[b.sunroof] || SUNROOFS.none).price + (HEADLINERS[b.headliner] || HEADLINERS.oem).price + (STARLIGHTS[b.starlight] || STARLIGHTS.none).price + (BRAKE3[b.brake3] || BRAKE3.oem).price + (SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none).price + (INTAKES[b.intake] || INTAKES.stock).price + (SWAY_BARS[b.sway] || SWAY_BARS.stock).price;
   p += (TIRE_OPTIONS.find((t) => t.id === b.tire) || TIRE_OPTIONS[0]).price;
   p += (WHEEL_STYLES[b.wheelStyle] || WHEEL_STYLES.model).price + ((RIM_FINISHES[b.rimFinish] || {}).price || 0) * 4 + liftPrice(b.lift) + SHOCKS[b.shock].price + ENGINE_ACCENTS[b.engineAccent].price;
-  p += (UCA_KITS[b.uca] || UCA_KITS.stock).price + (LCA_KITS[b.lca] || LCA_KITS.stock).price + REAR_SPRINGS[b.rearSpring].price + (BYPASSES[b.bypassF] || BYPASSES.none).price + (BYPASSES[b.bypassR] || BYPASSES.none).price * 0.9 + (REAR_LINKS[b.rearLink] || REAR_LINKS.leaf).price + (b.spacerF ? 180 : 0) + (b.spacerR ? 180 : 0);
+  p += (UCA_KITS[b.uca] || UCA_KITS.stock).price + (LCA_KITS[b.lca] || LCA_KITS.stock).price + REAR_SPRINGS[b.rearSpring].price + (BYPASSES[b.bypassF] || BYPASSES.none).price + (BYPASSES[b.bypassR] || BYPASSES.none).price * 0.9 + (REAR_LINKS[b.rearLink] || REAR_LINKS.leaf).price + (b.spacerF ? 180 : 0) + (b.spacerR ? 180 : 0) + (b.straps ? 260 : 0) + (b.hydroBump && (SHOCKS[b.shock] || SHOCKS.stock).price > 1000 ? 900 : 0);
   p += (GRILLES[b.grille] || GRILLES.stock).price + (FIBERGLASS[b.fiberF] || FIBERGLASS.none).price + (FIBERGLASS[b.fiberR] || FIBERGLASS.none).price + (DIFFS[b.diff] || DIFFS.open).price;
   ['topper', 'bedRack', 'bedTent', 'roofRack', 'roofTent'].forEach((k) => { p += ((CARGO[k] || {})[b[k]] || { price: 0 }).price; });
   p += (TIRE_BRANDS[b.tireBrand] || TIRE_BRANDS.oem).price + (EXHAUSTS[b.exhaust] || EXHAUSTS.stock).price + ((b.cuts || []).length ? 150 + 10 * b.cuts.length : 0);
@@ -1685,6 +1696,7 @@ const ENVIRONMENTS = [
   { id: 'belfast_sunset_puresky', label: 'Rock Crawl · drivable', layout: 'rocks', rot: 0, height: 1.7, radius: 300, exposure: 1.0, fog: 0.004 },
   { id: 'kloppenheim_06_puresky', label: 'Urban Whoops (parking lot) · drivable', layout: 'whoops', rot: 0, height: 1.7, radius: 600, exposure: 1.0, fog: 0.004 },
   { id: 'backroads', hdri: 'kloofendal_48d_partly_cloudy_puresky', label: 'Backroads (long curvy two-lane) · drivable', layout: 'backroads', rot: 0, height: 1.7, radius: 1200, exposure: 1.0, fog: 0.0035 },
+  { id: 'prerunner', hdri: 'qwantani_puresky', label: 'Pre-Runner Jump Track (huge jumps, whoops, road gap) · drivable', layout: 'prerunner', rot: 0, height: 1.7, radius: 1200, exposure: 1.0, fog: 0.0022 },
   { id: 'drift', hdri: 'qwantani_afternoon_puresky', label: 'Drift Road (two-lane through the forest) · drivable', layout: 'drift', rot: 0, height: 1.7, radius: 900, exposure: 1.0, fog: 0.0035 },
 ];
 const hdriUrl = (id, q) => `https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/${q}/${id}_${q}.hdr`;
@@ -2944,6 +2956,9 @@ function buildOutdoor(renderer) {
       for (let i = 0; i < N; i++) { S[i].e = acc / (2 * W + 1); acc += raw[(i + W + 1) % N] - raw[(i - W + N) % N]; }
       for (let i = 0; i < N; i++) { const a = S[(i - 6 + N) % N], c = S[(i + 6) % N]; S[i].k = ((c.tx - a.tx) * S[i].tz * -1 + (c.tz - a.tz) * S[i].tx) / 12; } // signed curvature (1/m): + = bending toward +lateral
     }
+    // an optional height profile along the track (jumps, whoops…): at(s, |lateral|) → metres added; paved(x, z) for a crossing road
+    const PROF = C.buildProfile ? C.buildProfile(S, LEN) : null;
+    const profAt = (s, a) => (PROF ? PROF.at(((s % LEN) + LEN) % LEN, a) : 0);
     const nN = (NX + 1) * (NZ + 1), gH = new Float32Array(nN), gD = new Float32Array(nN).fill(1e9), gI = new Int32Array(nN).fill(-1);
     S.forEach((p, idx) => { // nearest road sample for every grid node within 60 m
       const R = 60, gi0 = Math.max(0, Math.floor((p.x - R - X0) / CC)), gi1 = Math.min(NX, Math.ceil((p.x + R - X0) / CC));
@@ -2972,14 +2987,18 @@ function buildOutdoor(renderer) {
       const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, v = fz - j, k = j * (NX + 1) + i;
       return (gH[k] * (1 - u) + gH[k + 1] * u) * (1 - v) + (gH[k + NX + 1] * (1 - u) + gH[k + NX + 2] * u) * v;
     };
-    const VERGE = RW + C.shoulder + 12; // (the exact ground ribbon reaches this far from the centreline)
+    const VERGE = RW + C.shoulder + (C.vergeW || 12); // (the exact ground ribbon reaches this far from the centreline)
     // drivable height: exact on and beside the road (smooth at any speed, and matching the ribbons), the terrain grid beyond
     // (the road, shoulder and verge ribbons are drawn a hair apart so they never flicker; the drivable height includes that
     // same lift, so the tires sit on the asphalt you see instead of a few centimetres into it)
     const LIFT = { road: 0.02, shoulder: 0.012, verge: 0.004 };
     const liftAt = (a) => (a < RW ? LIFT.road : a < RW + C.shoulder ? LIFT.shoulder : LIFT.verge);
-    const height = (x, z) => { const n = near(x, z); if (!n || Math.abs(n.l) > VERGE) return grid(x, z); const a = Math.abs(n.l); return section(n.p.e, a, hills(x, z)) + liftAt(a); };
-    const paved = (x, z) => { const n = near(x, z); return !!n && Math.abs(n.l) < RW + C.pavedExtra; };
+    // (the profile is read at the exact distance along the track — the nearest 1 m sample plus the offset along its tangent —
+    // or steep jump faces would come out as 1 m stair steps)
+    const heightBase = (x, z) => { const n = near(x, z); if (!n || Math.abs(n.l) > VERGE) return grid(x, z); const a = Math.abs(n.l);
+      return section(n.p.e, a, hills(x, z)) + liftAt(a) + profAt(n.p.s + (x - n.p.x) * n.p.tx + (z - n.p.z) * n.p.tz, a); };
+    const height = (x, z) => heightBase(x, z) + (PROF && PROF.field ? PROF.field(x, z) : 0); // (+ free-standing features off the track)
+    const paved = (x, z) => { if (C.loose) return !!(PROF && PROF.paved && PROF.paved(x, z)); const n = near(x, z); return !!n && Math.abs(n.l) < RW + C.pavedExtra; };
     {
       // terrain (sunk 0.5 m under the road corridor, which the exact ribbons cover)
       const geo = new THREE.PlaneGeometry(X1 - X0, Z1 - Z0, NX, NZ); geo.rotateX(-Math.PI / 2); geo.translate((X0 + X1) / 2, 0, (Z0 + Z1) / 2); meterUV(geo, X1 - X0, Z1 - Z0);
@@ -2994,9 +3013,9 @@ function buildOutdoor(renderer) {
         const m = flat(pg, farMat, -0.05, G, C.id + 'outer'); m.position.x = (x0 + x1) / 2; m.position.z = (z0 + z1) / 2;
       });
       // ribbons draped along the whole loop between two lateral offsets (closed: the last row joins the first)
-      const drape = (l0, l1, cols, lift, mat, step = 2, filter) => {
+      const drape = (l0, l1, cols, lift, mat, step = C.dstep || 2, filter) => {
         const pos = [], uv = [], idx = []; const rows = Math.floor(S.length / step);
-        for (let r = 0; r < rows; r++) { const q = S[r * step]; for (let c = 0; c <= cols; c++) { const l = l0 + ((l1 - l0) * c) / cols, x = q.x - q.tz * l, z = q.z + q.tx * l; pos.push(x, section(q.e, Math.abs(l), hills(x, z)) + lift, z); uv.push(q.s, l); } }
+        for (let r = 0; r < rows; r++) { const q = S[r * step]; for (let c = 0; c <= cols; c++) { const l = l0 + ((l1 - l0) * c) / cols, x = q.x - q.tz * l, z = q.z + q.tx * l; pos.push(x, section(q.e, Math.abs(l), hills(x, z)) + lift + profAt(q.s, Math.abs(l)), z); uv.push(q.s, l); } }
         for (let r = 0; r < rows; r++) { if (filter && !filter(S[r * step])) continue; const r2 = (r + 1) % rows; for (let c = 0; c < cols; c++) { const a = r * (cols + 1) + c, b2 = r2 * (cols + 1) + c; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } }
         const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
         const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; G.add(m); return m;
@@ -3004,10 +3023,11 @@ function buildOutdoor(renderer) {
       // the exact ground either side of the road (flush with the shoulders — no step, nothing hovering)
       drape(-VERGE, -(RW + C.shoulder) + 0.02, 14, LIFT.verge, floorMat); drape(RW + C.shoulder - 0.02, VERGE, 14, LIFT.verge, floorMat);
       if (C.shoulder > 0) drape(-RW - C.shoulder, RW + C.shoulder, 8, LIFT.shoulder, groundMat(C.shoulderSet, 2.2, { base: '#6b6155', key: C.id + 'shoulder', tint: 0.85, offset: -3 }));
-      drape(-RW, RW, Math.max(8, Math.round(RW * 2)), LIFT.road, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: C.id + 'road', tint: 0.9, offset: -5, wetness: 0.4 }), 1);
+      drape(-RW, RW, Math.max(8, Math.round(RW * 2)), LIFT.road, C.roadSet ? groundMat(C.roadSet, 3.4, { base: '#8a6a4a', key: C.id + 'road', tint: 0.95, offset: -5, wetness: 0.2 }) : groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: C.id + 'road', tint: 0.9, offset: -5, wetness: 0.4 }), 1);
       const paint = (l, w, color, filter) => drape(l - w / 2, l + w / 2, 1, LIFT.road + 0.008, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 1, filter);
       if (C.lines === 'twoLane') { paint(0.11, 0.1, 0xe8b10c); paint(-0.11, 0.1, 0xe8b10c); }
-      paint(RW - 0.2, 0.12, 0xf1f1ec); paint(-RW + 0.2, 0.12, 0xf1f1ec);
+      if (C.lines !== 'none') { paint(RW - 0.2, 0.12, 0xf1f1ec); paint(-RW + 0.2, 0.12, 0xf1f1ec); }
+      if (PROF && PROF.build) PROF.build(G, { heightBase, col0, S, LEN, near, bounds: { x0: X0, x1: X1, z0: Z0, z1: Z1 } }); // (the profile's own set dressing: a crossing road, field jumps, signs…)
       if (C.curbs) { // red / white rumble curbs along both edges through the bends
         const curbTex = canvasTex(64, 16, (x, w, h) => { for (let i = 0; i < 4; i++) { x.fillStyle = i % 2 ? '#f2f2ee' : '#c8191e'; x.fillRect((i * w) / 4, 0, w / 4, h); } });
         curbTex.wrapS = curbTex.wrapT = THREE.RepeatWrapping; curbTex.repeat.set(0.5, 1);
@@ -3056,6 +3076,7 @@ function buildOutdoor(renderer) {
         if (d < RW + C.treeGap) continue;
         if (tr() > 0.25 + 0.75 * Math.exp(-(d - RW - C.treeGap) / (C.treeFall || 45))) continue;
         if (peakAt(x, z) > 20 && tr() < 0.7) continue;
+        if (PROF && PROF.blocked && PROF.blocked(x, z)) continue; // (not on a field jump / the crossing road)
         (d < NEAR3 ? nearT : tSpots).push([x, z, d]); if (d < 45 + C.treeGap) col0.push([x, z, 0.3]);
       }
       // (a fir's lowest branches spread ~0.3 × its height, so firs only stand where they'd clear the lane; right at the edge
@@ -3075,7 +3096,7 @@ function buildOutdoor(renderer) {
         const rk = [], rq = mulberry32(C.seed + 9), edge = RW + C.shoulder;
         for (let n = 0; rk.length < C.rocks && n < 80000; n++) {
           const x = X0 + 10 + rq() * (X1 - X0 - 20), z = Z0 + 10 + rq() * (Z1 - Z0 - 20), nr = near(x, z), d = nr ? Math.abs(nr.l) : 999, t = rq();
-          if (d < edge + 0.45) continue;
+          if (d < edge + 0.45 || (PROF && PROF.blocked && PROF.blocked(x, z))) continue;
           let s;
           if (d < edge + 4) { if (t > 0.6) continue; s = 0.07 + Math.pow(rq(), 2) * 0.32; }
           else if (peakAt(x, z) > 9) s = 0.7 + Math.pow(rq(), 1.5) * 3.4;
@@ -3104,6 +3125,103 @@ function buildOutdoor(renderer) {
         return { x: p.x - p.tz * l + SX, z: p.z + p.tx * l + SZ, yaw: Math.atan2(-p.tz, p.tx) + (fwd ? 0 : Math.PI) }; },
     };
   }
+  // Pre-runner jump track: a wide dirt loop (long straights, sweeping ends) with full-size truck jumps — tabletops and gap
+  // booters with 4–9 m (13–30 ft) lips and 30–75 m (100–250 ft) gaps, one of them over a paved road, randomised whoop sections
+  // (small / medium / big, like the whoops map) between them — plus free-standing jumps scattered across the desert, some
+  // crossing the track. Every jump is a dedicated takeoff and a separate landing: a curved run-up (y = h·(t/L)²) to a lip
+  // that varies jump to jump (18° mellow … 34° steep), the gap, then a long landing ramp (~18° at the knuckle, easing out)
+  // so a jump hit at the posted speed lands on the slope. A sign at each run-up gives that takeoff speed.
+  const jumpTrack = (RW) => (S, LEN) => {
+    const r = mulberry32(4242), DR = Math.PI / 180, feats = [], tan = (d) => Math.tan(d * DR), G9 = 9.81;
+    // the lip speed (m/s) that lands a jump on the sweet spot of its landing: the trajectory the drive sim flies (forward
+    // speed u, upward u·sin(lip)·1.02 off the lip) through a point on the landing ramp
+    const idealU = (h, lip, X, ys) => X * Math.sqrt((0.5 * G9) / Math.max(0.5, h + 1.02 * X * Math.sin(lip * DR) - ys));
+    const booterShape = (h, gap, lip) => {
+      const Lu = (2 * h) / tan(lip), bf = h / tan(38), hl = h * 0.88, lb = hl / tan(38), Ll = (2 * hl) / tan(18), g = Math.max(gap, bf + lb + 4), k = Lu + g;
+      return { Lu, k, g, len: k + Ll + 12, h, lip, u: idealU(h, lip, g + 0.35 * Ll, hl * 0.65 ** 2), road0: Lu + bf, road1: k - lb,
+        y: (t) => (t < Lu ? h * (t / Lu) ** 2 : t < Lu + bf ? h * (1 - (t - Lu) / bf) : t < k - lb ? 0 : t < k ? hl * (1 - (k - t) / lb) : t < k + Ll ? hl * (1 - (t - k) / Ll) ** 2 : 0) };
+    };
+    const tableShape = (h, top, lip) => { const Lu = (2 * h) / tan(lip), Ll = (2 * h) / tan(18);
+      return { Lu, len: Lu + top + Ll + 12, h, lip, u: idealU(h, lip, top + 0.3 * Ll, h * 0.7 ** 2), y: (t) => (t < Lu ? h * (t / Lu) ** 2 : t < Lu + top ? h : t < Lu + top + Ll ? h * (1 - (t - Lu - top) / Ll) ** 2 : 0) }; };
+    const booter = (h, gap, lip = 28, road = false) => { const b = booterShape(h, gap, lip); return { ...b, lim: 1 / 400, jump: true, road: road ? (b.road0 + b.road1) / 2 : null }; };
+    const table = (h, top, lip = 24) => ({ ...tableShape(h, top, lip), lim: 1 / 400, jump: true });
+    const whoops = (len, scale = 1) => {
+      const bumps = []; let t = 0;
+      while (t < len - 9) { const w = 4 + r() * 5, pick = r(), a = Math.min(w * 0.2, (pick < 0.4 ? 0.25 + r() * 0.3 : pick < 0.8 ? 0.55 + r() * 0.4 : 0.95 + r() * 0.5) * scale); bumps.push([t, w, a]); t += w; }
+      return { len: t + 6, lim: 1 / 90, h: 1.5, y: (tt) => { for (const [b0, w, a] of bumps) if (tt >= b0 && tt < b0 + w) return a * 0.5 * (1 - Math.cos((2 * Math.PI * (tt - b0)) / w)); return 0; } };
+    };
+    const plan = [whoops(90), table(4, 18, 22), whoops(80, 1.1), booter(5, 34, 30), whoops(120, 1.2), booter(7, 48, 26, true), whoops(80), booter(9, 75, 32), whoops(100, 1.3),
+      table(5.5, 26, 20), whoops(70), booter(6.5, 52, 22), whoops(90, 1.2), whoops(120, 1.3), booter(8, 64, 34), whoops(70), booter(5.5, 42, 18), whoops(110, 1.2),
+      booter(7.5, 60, 28), whoops(90, 1.3), table(4.5, 20, 30), whoops(80)];
+    const straight = (s0, len, lim) => { for (let s = s0; s <= s0 + len; s += 2) if (Math.abs(S[((Math.floor(s) % S.length) + S.length) % S.length].k) > lim) return false; return true; };
+    let s = 70;
+    // (a jump gets a ~40 m straight run-up of its own after the whoops before it, to get set and up to speed)
+    for (const f of plan) { if (f.jump) s += 40; while (s + f.len < LEN - 60 && !straight(s - (f.jump ? 35 : 0), f.len, f.lim)) s += 8; if (s + f.len >= LEN - 60) continue; feats.push({ ...f, s0: s }); s += f.len + 10; }
+    const featAt = (s) => { for (const f of feats) if (s >= f.s0 && s < f.s0 + f.len) return f; return null; };
+    const roadF = feats.find((f) => f.road !== null && f.road !== undefined);
+    const road = roadF ? (() => { const q = S[Math.round(roadF.s0 + roadF.road) % S.length]; return { x: q.x, z: q.z, tx: q.tx, tz: q.tz, half: 3.7, len: 90 }; })() : null;
+    const onRoad = (x, z) => { if (!road) return false; const al = (x - road.x) * road.tx + (z - road.z) * road.tz, la = (x - road.x) * -road.tz + (z - road.z) * road.tx; return Math.abs(al) < road.half + 0.2 && Math.abs(la) < road.len; };
+    // free-standing jumps out in the desert (placed in build, once the track can be checked): each { x, z, dx, dz, W, ...shape }
+    const FJ = [];
+    const fjAt = (x, z) => { let y = 0; for (const j of FJ) { const px = x - j.x, pz = z - j.z, t = px * j.dx + pz * j.dz; if (t < 0 || t > j.len) continue; const w = Math.abs(-px * j.dz + pz * j.dx), yy = j.y(t); if (!yy || w > j.W + 4 + 1.6 * yy) continue; y = Math.max(y, yy * (1 - smt(j.W, j.W + 4 + 1.6 * yy, w))); } return y; };
+    const fjHit = (x, z, pad = 6) => FJ.some((j) => { const px = x - j.x, pz = z - j.z, t = px * j.dx + pz * j.dz, w = Math.abs(-px * j.dz + pz * j.dx); return t > -pad && t < j.len + pad && w < j.W + 16; });
+    const signTex = (mph) => canvasTex(128, 160, (x, w, h) => { x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#f2c200'; x.fillRect(5, 5, w - 10, h - 10); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 22px Arial, sans-serif'; x.fillText('TAKEOFF', 64, 38); x.font = 'bold 56px Arial Narrow, Arial, sans-serif'; x.fillText(String(mph), 64, 102); x.font = 'bold 22px Arial, sans-serif'; x.fillText('MPH', 64, 136); });
+    return {
+      // height added at distance s along the track and |lateral| a: the mound's full height across the track, its sides
+      // sloping away (wider for taller jumps) like a dozer-built berm
+      at: (s, a) => { const f = featAt(s); if (!f) return 0; const y = f.y(s - f.s0); if (!y) return 0; return y * (1 - smt(RW + 0.5, RW + 0.5 + 4 + 1.6 * y, a)); },
+      field: fjAt, blocked: (x, z) => fjHit(x, z, 10) || onRoad(x, z),
+      paved: onRoad,
+      build: (G, { heightBase, col0, near, bounds }) => {
+        const sign = (mph, x, z, faceYaw) => { const y = heightBase(x, z), pole = mk(new THREE.CylinderGeometry(0.04, 0.04, 2.4, 8), new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 })); pole.position.set(x, y + 1.2, z); G.add(pole);
+          const face = mk(new THREE.PlaneGeometry(0.8, 1.0), new THREE.MeshStandardMaterial({ map: signTex(mph), roughness: 0.45, side: THREE.DoubleSide })); face.position.set(x, y + 2.2, z); face.rotation.y = faceYaw; G.add(face); col0.push([x, z, 0.07]); };
+        // takeoff-speed signs on the track: right-hand side, ~30 m before each run-up, facing the oncoming truck
+        feats.forEach((f) => { if (!f.jump) return; const q = S[((Math.round(f.s0 - 30) % S.length) + S.length) % S.length], l = RW + 2; sign(Math.round((f.u * 2.237) / 5) * 5, q.x - q.tz * l, q.z + q.tx * l, Math.atan2(-q.tx, -q.tz)); });
+        // free-standing jumps: random spots & headings in the open desert — allowed to cross the plain track, never another jump,
+        // the road, a hill or the start
+        const fr = mulberry32(5150), kinds = [[5, 36, 30], [6, 48, 24], [7, 58, 32], [8, 70, 28], [4.5, 30, 20], [6.5, 52, 34], [9, 72, 26], [5.5, 44, 22], ['t', 4.5, 20], ['t', 6, 26], [7.5, 62, 18], [6, 40, 28], [8.5, 66, 30], ['t', 5, 16]];
+        const { x0, x1, z0, z1 } = bounds, p0 = S[0];
+        for (let n = 0, tries = 0; n < kinds.length && tries < 4000; tries++) {
+          const kd = kinds[n], sh = kd[0] === 't' ? tableShape(kd[1], kd[2], 24) : booterShape(kd[0], kd[1], kd[2]), a = fr() * Math.PI * 2, dx = Math.cos(a), dz = Math.sin(a);
+          const x = x0 + 90 + fr() * (x1 - x0 - 180), z = z0 + 90 + fr() * (z1 - z0 - 180);
+          if (Math.hypot(x - p0.x, z - p0.z) < 160 || fjHit(x + dx * sh.len / 2, z + dz * sh.len / 2, 40)) continue;
+          let ok = true;
+          for (let t = -40; t <= sh.len && ok; t += 8) for (const w of [-14, 0, 14]) { const px = x + dx * t - dz * w, pz = z + dz * t + dx * w;
+            if (heightBase(px, pz) > 0.3 || onRoad(px, pz)) { ok = false; break; } const nr = near(px, pz); if (nr && Math.abs(nr.l) < RW + 22 && featAt(nr.p.s)) { ok = false; break; } }
+          if (!ok) continue;
+          FJ.push({ x, z, dx, dz, W: 6, ...sh }); n++;
+        }
+        // their surfaces (dirt, drawn over the ground) and their takeoff signs
+        const fjMat = groundMat(GROUND_SETS.dirt, 3.4, { base: '#8a6a4a', key: 'prfield', tint: 0.95, offset: -7, wetness: 0.2 });
+        FJ.forEach((j) => {
+          const side = j.W + 4 + 1.6 * j.h, NL = Math.ceil(j.len), NW = 16, pos = [], uv = [], idx = [];
+          for (let i = 0; i <= NL; i++) for (let c = 0; c <= NW; c++) { const t = (j.len * i) / NL, w = -side + (2 * side * c) / NW, x = j.x + j.dx * t - j.dz * w, z = j.z + j.dz * t + j.dx * w; pos.push(x, heightBase(x, z) + fjAt(x, z) + 0.03, z); uv.push(t, w); }
+          for (let i = 0; i < NL; i++) for (let c = 0; c < NW; c++) { const a = i * (NW + 1) + c, b2 = a + NW + 1; idx.push(a, b2, a + 1, a + 1, b2, b2 + 1); }
+          const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
+          const m = mk(gg, fjMat); m.castShadow = false; m.receiveShadow = true; G.add(m);
+          sign(Math.round((j.u * 2.237) / 5) * 5, j.x - j.dx * 30 - j.dz * (j.W + 2), j.z - j.dz * 30 + j.dx * (j.W + 2), Math.atan2(-j.dx, -j.dz));
+        });
+        if (!road) return;
+        // the road the gap jump clears: a two-lane strip straight across the track's gap, centre & edge lines, stop signs
+        const height = (x, z) => heightBase(x, z);
+        const n = [-road.tz, road.tx], t = [road.tx, road.tz], NS = 90, pos = [], uv = [], idx = [];
+        for (let i = 0; i <= NS; i++) for (let j = 0; j <= 1; j++) { const la = -road.len + (2 * road.len * i) / NS, al = (j ? 1 : -1) * road.half, x = road.x + n[0] * la + t[0] * al, z = road.z + n[1] * la + t[1] * al; pos.push(x, height(x, z) + 0.035, z); uv.push(la, al); }
+        for (let i = 0; i < NS; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+        const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
+        const rm = mk(gg, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: 'prroad', tint: 0.9, offset: -8, wetness: 0.3 })); rm.castShadow = false; G.add(rm);
+        const line = (off, w, color) => { const lp = [], li = []; for (let i = 0; i <= NS; i++) for (let j = 0; j <= 1; j++) { const la = -road.len + (2 * road.len * i) / NS, al = off + (j ? 0.5 : -0.5) * w, x = road.x + n[0] * la + t[0] * al, z = road.z + n[1] * la + t[1] * al; lp.push(x, height(x, z) + 0.045, z); }
+          for (let i = 0; i < NS; i++) { const a = i * 2; li.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+          const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3)); lg.setIndex(li); lg.computeVertexNormals();
+          const lm = mk(lg, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -10, polygonOffsetUnits: -10 })); lm.castShadow = false; G.add(lm); };
+        line(0.11, 0.1, 0xe8b10c); line(-0.11, 0.1, 0xe8b10c); line(road.half - 0.2, 0.12, 0xf1f1ec); line(-road.half + 0.2, 0.12, 0xf1f1ec);
+        const stopTex = canvasTex(128, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#fff'; x.beginPath(); for (let i = 0; i < 8; i++) { const a = Math.PI / 8 + (i * Math.PI) / 4; x.lineTo(64 + Math.cos(a) * 62, 64 + Math.sin(a) * 62); } x.fill(); x.fillStyle = '#c4161c'; x.beginPath(); for (let i = 0; i < 8; i++) { const a = Math.PI / 8 + (i * Math.PI) / 4; x.lineTo(64 + Math.cos(a) * 56, 64 + Math.sin(a) * 56); } x.fill(); x.fillStyle = '#fff'; x.font = 'bold 34px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('STOP', 64, 66); });
+        const signM = new THREE.MeshStandardMaterial({ map: stopTex, alphaTest: 0.5, roughness: 0.4, side: THREE.DoubleSide }), poleM = new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 });
+        [[-1, 1], [1, -1]].forEach(([sl, sa]) => { const la = sl * (RW + 26), al = sa * (road.half + 1.2), x = road.x + n[0] * la + t[0] * al, z = road.z + n[1] * la + t[1] * al, y = height(x, z);
+          const pole = mk(new THREE.CylinderGeometry(0.035, 0.035, 2.3, 8), poleM); pole.position.set(x, y + 1.15, z); G.add(pole);
+          const face = mk(new THREE.PlaneGeometry(0.75, 0.75), signM); face.position.set(x, y + 2.1, z); face.rotation.y = Math.atan2(n[0], n[1]) * 1 + (sl > 0 ? Math.PI : 0); G.add(face); col0.push([x, z, 0.06]); });
+      },
+    };
+  };
   const BR = makeLoopMap({ id: 'backroads', box: [-820, 820, -640, 640], half: 3.6, nCtl: 64, sx: 1.08, sz: 0.82,
     radius: (a) => 560 + 62 * Math.sin(3 * a + 0.6) + 40 * Math.sin(5 * a + 2.1) + 26 * Math.sin(9 * a + 0.3) + 17 * Math.sin(14 * a + 1.2),
     hill: 1, gradeW: 70, ditch: true, flatTo: 4.5, shoulder: 1.3, shoulderSet: GROUND_SETS.gravel, pavedExtra: 0.35, lines: 'twoLane', curbs: false, posts: true, rails: true,
@@ -3118,6 +3236,13 @@ function buildOutdoor(renderer) {
     treeGap: 1.8, treeFall: 70, trees: 9000, near3D: 30, firShare: 0.68, seed: 777, lane: 1.9, groundSet: GROUND_SETS.grass, groundBase: '#5d6b3f', peaks: 16, peakH: 1, rocks: 2600,
     groundTint: [0.6, 0.76, 0.46], grass: { d: 0.95, per: 150, size: [0.3, 0.7], tint: (r) => { const v = 0.7 + r() * 0.5; return r() < 0.14 ? [0.42 * v, 0.38 * v, 0.17 * v] : [0.22 * v, 0.31 * v, 0.09 * v]; } } });
   const driftG = DT.group;
+  const PR = makeLoopMap({ id: 'prerunner', box: [-940, 940, -560, 560], half: 7, nCtl: 52, sx: 1.7, sz: 0.8,
+    radius: (a) => 430 + 14 * Math.sin(3 * a + 0.5),
+    hill: 0, gradeW: 40, ditch: false, flatTo: 6, shoulder: 0, pavedExtra: 0, lines: 'none', curbs: false, posts: false, rails: false, loose: true, dstep: 1, vergeW: 26,
+    roadSet: GROUND_SETS.dirt, buildProfile: jumpTrack(7), treeGap: 30, treeFall: 140, trees: 2400, near3D: 15, firShare: 0.25, seed: 911, lane: 0,
+    groundSet: GROUND_SETS.desert, groundBase: '#a88b66', peaks: 12, peakH: 1.3, rocks: 2600,
+    grass: { d: 0.25, per: 50, size: [0.2, 0.45], tint: (r) => { const v = 0.75 + r() * 0.4; return [0.42 * v, 0.36 * v, 0.2 * v]; } } });
+  const prG = PR.group;
 
   // knockable cones: tumble away from whatever hits them
   const knock =(x, z, r, vx, vz) => cones.forEach((c) => {
@@ -3155,8 +3280,8 @@ function buildOutdoor(renderer) {
     knock, stepCones, mudLevel,
     // every frame: wind for the grass, and the grass patch follows the camera
     tick: (dt, cam, driving) => { windT.value += dt; nearFadeU.value.set(driving ? 0.6 : 2, driving ? 2.2 : 6.5); grassFields.forEach((f) => { if (!f.parent.visible) return; f.parent.worldToLocal(camL.copy(cam)); f.update(camL.x, camL.z); }); },
-    heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK, backroads: BR.height, drift: DT.height },
-    backroads: BR, drift: DT,
+    heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK, backroads: BR.height, drift: DT.height, prerunner: PR.height },
+    backroads: BR, drift: DT, prerunner: PR,
     // the dock's front lip, sides and the tall end of the ramp's sides are walls from below: a point whose dock surface is
     // well above the truck pushes it back out through the nearest face (you drive off it, or up the ramp — not up the face)
     dockPush: (x, z, y) => {
@@ -3168,8 +3293,8 @@ function buildOutdoor(renderer) {
     whoopLane: (x, z) => { x -= WSX; const ln = laneOf(z); if (!ln || !ln.dirt) return false; const [a, b] = xs(ln); return x > a - 1 && x < b + 1; }, // (the concrete lanes count as pavement)
     group: g, leaves, tufts, roadside, park, forest, desert, desertHeight, trailHeight: (x, z) => trailHeight(x, z) + curbAt(x, z), trailPaved, trailBounds: { x0: TX0 + 8, x1: TX1 - 8, z0: TZ0 + 8, z1: TZ1 - 8 }, layoutId: () => layoutNow,
     setLayout: (layout) => {
-      layoutNow = layout; const dz = ['desert', 'lot', 'trail', 'jumps', 'mud', 'rocks', 'straight', 'whoops', 'backroads', 'drift'].includes(layout);
-      backG.visible = layout === 'backroads'; driftG.visible = layout === 'drift'; jumps.visible = layout === 'jumps'; mudG.visible = layout === 'mud'; rocksG.visible = layout === 'rocks'; straightG.visible = layout === 'straight'; whoopsG.visible = layout === 'whoops';
+      layoutNow = layout; const dz = ['desert', 'lot', 'trail', 'jumps', 'mud', 'rocks', 'straight', 'whoops', 'backroads', 'drift', 'prerunner'].includes(layout);
+      backG.visible = layout === 'backroads'; driftG.visible = layout === 'drift'; prG.visible = layout === 'prerunner'; jumps.visible = layout === 'jumps'; mudG.visible = layout === 'mud'; rocksG.visible = layout === 'rocks'; straightG.visible = layout === 'straight'; whoopsG.visible = layout === 'whoops';
       trail.visible = layout === 'trail'; lot.visible = layout === 'lot'; desert.visible = layout === 'desert'; roadside.visible = !dz && layout !== 'park'; park.visible = layout === 'park'; forest.visible = !dz && layout !== 'open';
       [vergeMesh, tufts, leaves, rocks].forEach((o) => { if (o) o.visible = !dz; });
     },
@@ -3177,6 +3302,34 @@ function buildOutdoor(renderer) {
   };
 }
 
+// Smooth-shade a mesh: each corner's normal becomes the (area-weighted) average of the faces meeting at that point whose own
+// normal is within `crease` degrees of this face's — gentle curves go smooth, real edges stay sharp. Works on indexed or
+// unindexed geometry (corners are matched by position, so split vertices still smooth).
+function smoothNormals(geo, crease = 50) {
+  const pos = geo.attributes.position; if (!pos) return;
+  const ix = geo.index, n = ix ? ix.count : pos.count, F = Math.floor(n / 3), cosC = Math.cos((crease * Math.PI) / 180);
+  const vi = (k) => (ix ? ix.getX(k) : k), fn = new Float32Array(F * 3), a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+  const key = (i) => `${Math.round(pos.getX(i) * 2e4)},${Math.round(pos.getY(i) * 2e4)},${Math.round(pos.getZ(i) * 2e4)}`, at = new Map();
+  for (let f = 0; f < F; f++) {
+    a.fromBufferAttribute(pos, vi(f * 3)); b.fromBufferAttribute(pos, vi(f * 3 + 1)); c.fromBufferAttribute(pos, vi(f * 3 + 2));
+    c.sub(b); b.sub(a); b.cross(c); fn.set([b.x, b.y, b.z], f * 3); // (unnormalised: area-weighted)
+    for (let j = 0; j < 3; j++) { const k = key(vi(f * 3 + j)); let l = at.get(k); if (!l) at.set(k, (l = [])); l.push(f); }
+  }
+  // per vertex (the index is kept — other code reads it): start from the faces that use this vertex, then take in every face
+  // meeting at the same point that bends less than the crease from that
+  const nf = (f) => { const x = fn[f * 3], y = fn[f * 3 + 1], z = fn[f * 3 + 2], l = Math.hypot(x, y, z) || 1; return [x / l, y / l, z / l]; };
+  const own = new Float32Array(pos.count * 3);
+  for (let k = 0; k < F * 3; k++) { const v = vi(k), f = Math.floor(k / 3); own[v * 3] += fn[f * 3]; own[v * 3 + 1] += fn[f * 3 + 1]; own[v * 3 + 2] += fn[f * 3 + 2]; }
+  const out = new Float32Array(pos.count * 3);
+  for (let v = 0; v < pos.count; v++) {
+    const l0 = Math.hypot(own[v * 3], own[v * 3 + 1], own[v * 3 + 2]); if (!l0) continue;
+    const ox = own[v * 3] / l0, oy = own[v * 3 + 1] / l0, oz = own[v * 3 + 2] / l0, list = at.get(key(v)) || [];
+    let sx = 0, sy = 0, sz = 0;
+    list.forEach((g) => { const [gx, gy, gz] = nf(g); if (gx * ox + gy * oy + gz * oz >= cosC) { sx += fn[g * 3]; sy += fn[g * 3 + 1]; sz += fn[g * 3 + 2]; } });
+    const l = Math.hypot(sx, sy, sz); if (l) out.set([sx / l, sy / l, sz / l], v * 3); else out.set([ox, oy, oz], v * 3);
+  }
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(out, 3));
+}
 // Merge non-indexed-compatible geometries (position/normal/uv) into one.
 function mergeGeos(geos) {
   const parts = geos.map((g) => (g.index ? g.toNonIndexed() : g));
@@ -3826,9 +3979,11 @@ function installPaintShader(m) {
         float gz = min(uTrimGlass.x + uTrimGlass.y * tr.y, uTrimGlass.x + uTrimGlass.y * uTrimGlass.z) - 0.025;
         // (outward-facing faces are only ever seen from outside — from inside they're back faces, handled above)
         bool outward = dot(tn, vec3(0.0, 0.0, sign(tr.z))) > 0.3;
-        bool inboard = abs(tr.z) < gz && tr.x < cowlX - 0.3 && !outward && !(tn.x < -0.4 && tr.x < cabRear + 0.25)
+        // (forward to the cowl below the sills — the kick panels / door hinge pillars in the footwells)
+        bool inboard = abs(tr.z) < gz && tr.x < cowlX - (tr.y < uTrimSill ? 0.02 : 0.3) && !outward && !(tn.x < -0.4 && tr.x < cabRear + 0.25)
           && !(tn.y > 0.5 && tr.y > uTrimSill + 0.12) && !(tn.x > 0.4 && tr.x > cowlX - 0.9);
-        bool backWall = tn.x > 0.5 && tr.x < cabRear + 0.4 && abs(tr.z) < uTrimMax.z - 0.25;
+        bool backWall = (tn.x > 0.5 && tr.x < cabRear + 0.4 && abs(tr.z) < uTrimMax.z - 0.25)
+          || (tn.x < -0.5 && tr.x > cowlX - 0.4 && tr.y < uTrimSill && abs(tr.z) < uTrimMax.z - 0.21); // (+ the door hinge pillars' rear faces by your knees)
         float trimMask = (inCab && (!gl_FrontFacing || facesIn || inboard || backWall)) ? 1.0 : 0.0;
         diffuseColor.rgb = mix(diffuseColor.rgb, tr.y > uTrimSill ? uTrim : uTrimLow, trimMask);
         if (trimMask > 0.5 && uTrimTexK > 0.0) { // the interior's own surface texture, projected along the face's axis
@@ -4444,6 +4599,11 @@ function buildExtras(M, P, b, info, gBox) {
       gl.name = 'moonroofGlass'; Object.assign(gl.userData, { base: gl.position.clone(), slide, drop: -0.01, dropBack: Math.min(-0.01, low - y - 0.003) }); // (glass top stays under the skin)
       put(gl, 'body');
     }
+    // firewall: the model's cab is open to the engine bay and front fenders at the outer ends of the dash (you could see out
+    // through the corner by your left knee). A dark wall at the cowl, floor to just under the windshield, closes it — from the
+    // cab it's the kick panels behind the dash ends, from the engine bay the firewall
+    { const fw = new THREE.Mesh(new THREE.PlaneGeometry(2 * (P.halfW - 0.035), P.cowlY - 0.06 - (P.rockerY + 0.04)), new THREE.MeshStandardMaterial({ color: 0x232427, roughness: 0.85, side: THREE.DoubleSide }));
+      fw.rotation.y = Math.PI / 2; fw.position.set(P.cowlX - 0.02, (P.cowlY - 0.06 + P.rockerY + 0.04) / 2, 0); fw.castShadow = false; put(fw, 'body'); }
     // headliner: our own fabric ceiling laid just under the roof skin (measured grid), with the moonroof opening left out
     if (LN) {
       const HL = HEADLINERS[b.headliner] || HEADLINERS.oem, SL = STARLIGHTS[b.starlight] || STARLIGHTS.none, IC = INTERIOR_COLORS[b.intColor] || {};
@@ -4601,7 +4761,13 @@ function buildExtras(M, P, b, info, gBox) {
   const topper = b.topper || 'none';
   // a topper / camper's cab end: ~1" (2.5 cm) clear of the cab's measured back face at every height it reaches — the same
   // gap the bed keeps (lean: how far its front face sets back from bottom to top, over its height h)
-  const cabClear = (h, lean = 0) => { let x = x0 - 0.05; (info.cabBack || []).forEach(([y, xb]) => { if (y <= rail + h + 0.03) x = Math.min(x, xb - 0.025 + lean * THREE.MathUtils.clamp((y - rail) / h, 0, 1)); }); return x; };
+  const cabClear = (h, lean = 0, gap = 0.025) => { let x = x0 - 0.05; (info.cabBack || []).forEach(([y, xb]) => { if (y <= rail + h + 0.03) x = Math.min(x, xb - gap + lean * THREE.MathUtils.clamp((y - rail) / h, 0, 1)); }); return x; };
+  // the cab's back face at height y (above the ground) and across z, from the measured grid (clamped at its edges) — or null
+  const cabAt = (y, z) => {
+    const S = info.cabSurf; if (!S || S.ys.length < 2) return null; const { ys, zs, x } = S, cl = THREE.MathUtils.clamp;
+    const fy = cl((y - ys[0]) / (ys[1] - ys[0]), 0, ys.length - 1.001), fz = cl((z - zs[0]) / (zs[1] - zs[0]), 0, zs.length - 1.001), i = Math.floor(fy), j = Math.floor(fz), u = fy - i, v = fz - j;
+    return (x[i][j] * (1 - v) + x[i][j + 1] * v) * (1 - u) + (x[i + 1][j] * (1 - v) + x[i + 1][j + 1] * v) * u;
+  };
   if (topper.startsWith('gfc')) { // Go Fast Campers-style platform camper: flat aluminium box at cab height, roof hinged at the cab end
     const x1g = info.x1 + 0.05, bwg = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012) - 0.012), h = info.roofTop - rail - 0.01;
     const x0 = cabClear(h); // (shadows the bed's cab end inside this block)
@@ -4626,23 +4792,34 @@ function buildExtras(M, P, b, info, gBox) {
     const x1 = info.x1 + 0.05, bw = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012)) - 0.045;
     const soft = topper.startsWith('softopper'), T = TOPPER_SHAPES[soft ? 'soft' : topper] || TOPPER_SHAPES['are-cx'];
     const rackMat0 = new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.5, metalness: 0.45 });
-    const h = info.roofTop - rail + T.dh, bwB = bw + T.flare, bwT = bw - T.tumble, r = T.r, x0 = cabClear(h, T.front);
+    const h = info.roofTop - rail + T.dh, bwB = bw + T.flare, bwT = bw - T.tumble, r = T.r, GAP = 0.015, x0 = cabClear(h, T.front, GAP);
     // cross-section (z, y above the rail): flared / tumbled-in sides, rounded shoulders, crowned top
     const sec = new THREE.Shape();
     sec.moveTo(-bwB, 0); sec.lineTo(bwB, 0); sec.quadraticCurveTo(bwB + T.bow, (h - r) * 0.55, bwT, h - r); sec.quadraticCurveTo(bwT, h, bwT - r, h);
     sec.quadraticCurveTo(0, h + T.crown, -(bwT - r), h); sec.quadraticCurveTo(-bwT, h, -bwT, h - r); sec.quadraticCurveTo(-bwB - T.bow, (h - r) * 0.55, -bwB, 0); sec.closePath();
-    const pts = sec.getPoints(10), xF = (y) => x0 - T.front * (y / h), xRr = (y) => x1 + T.rear * (y / h); // front & rear faces lean in at the top
+    // front & rear faces lean in at the top; the front follows the cab's back (its lean, and arching round its corners) ~1.5 cm off it
+    const xF = (y, z = 0) => { const c = cabAt(rail + y, z); return c === null ? x0 - T.front * (y / h) : Math.min(c - GAP, x0 + 0.15); };
+    const pts = sec.getPoints(10), xRr = (y) => x1 + T.rear * (y / h);
     const zSide = (y) => { const t = Math.min(1, y / (h - r)); return bwB + (bwT - bwB) * t + 2 * T.bow * t * (1 - t) + 0.007; }; // follows the bowed side
     const fabric = soft ? new THREE.MeshStandardMaterial({ color: topper === 'softopper-tan' ? 0xd8bf92 : 0x1c1d1f, roughness: 0.94, side: THREE.DoubleSide, map: extraTex('twill', 128, 128, (x, w, hh) => { x.fillStyle = '#c4c4c4'; x.fillRect(0, 0, w, hh); x.strokeStyle = '#9a9a9a'; for (let i = -128; i < 256; i += 4) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 128, 128); x.stroke(); } }, [12, 12]) })
       : finishPhys(b.topperColor || (zc.fiber ? zc.fiber.hex : b.color), FINISH_PBR[b.finish] ? b.finish : 'gloss'); // (the truck's own colour & finish, or the shell colour you pick)
     fabric.side = THREE.DoubleSide;
+    // a painted shell reflects like the body paint does (same environment strength as paintModel) — at the default it read
+    // flatter and lighter than the truck it's matched to
+    if (!soft) fabric.envMapIntensity = b.finish === 'matte' ? 0.8 : b.finish === 'metallic' ? 2.3 : b.finish === 'gloss' ? 1.9 : 1.2;
     { // skin: the section swept from the cab end to the rear, plus front & rear caps
       const pos = [], idx = [], NX = 10, n = pts.length;
-      for (let k = 0; k <= NX; k++) pts.forEach((p) => { const y = Math.max(0, p.y), x = xF(y) + (xRr(y) - xF(y)) * (k / NX); pos.push(x, rail + p.y, p.x); });
+      for (let k = 0; k <= NX; k++) pts.forEach((p) => { const y = Math.max(0, p.y), xf = xF(y, p.x), x = xf + (xRr(y) - xf) * (k / NX); pos.push(x, rail + p.y, p.x); });
       for (let k = 0; k < NX; k++) for (let i = 0; i < n - 1; i++) { const a = k * n + i, c = (k + 1) * n + i; idx.push(a, c, a + 1, a + 1, c, c + 1); }
       const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
       put(mk(geo, fabric), 'body');
-      [xF, xRr].forEach((xf) => { const cg = new THREE.ShapeGeometry(sec, 10), p = cg.attributes.position; for (let i = 0; i < p.count; i++) { const z = p.getX(i), y = p.getY(i); p.setXYZ(i, xf(Math.max(0, y)), rail + y, z); } cg.computeVertexNormals(); put(mk(cg, fabric), 'body'); });
+      { // front cap: rings from the middle out to the outline, so its face can bow to follow the cab (a flat fan can't)
+        const fp = [], fi = [], M = 6, cz = 0, cy = h * 0.45;
+        for (let i = 0; i < n; i++) for (let t = 0; t <= M; t++) { const z = cz + (pts[i].x - cz) * (t / M), y = cy + (pts[i].y - cy) * (t / M); fp.push(xF(Math.max(0, y), z), rail + y, z); }
+        for (let i = 0; i < n - 1; i++) for (let t = 0; t < M; t++) { const a = i * (M + 1) + t, c = (i + 1) * (M + 1) + t; fi.push(a, c, a + 1, a + 1, c, c + 1); }
+        const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.Float32BufferAttribute(fp, 3)); fg.setIndex(fi); fg.computeVertexNormals(); put(mk(fg, fabric), 'body');
+      }
+      { const cg = new THREE.ShapeGeometry(sec, 10), p = cg.attributes.position; for (let i = 0; i < p.count; i++) { const z = p.getX(i), y = p.getY(i); p.setXYZ(i, xRr(Math.max(0, y)), rail + y, z); } cg.computeVertexNormals(); put(mk(cg, fabric), 'body'); } // rear cap
     }
     const glass = new THREE.MeshPhysicalMaterial({ color: soft ? 0x2a3138 : 0x07080a, transparent: true, opacity: soft ? 0.62 : 0.95, roughness: 0.04, clearcoat: 1, envMapIntensity: soft ? 1.6 : 0.9, side: THREE.DoubleSide });
     const quad = (a, b2, c, d, mat) => { const gq = new THREE.BufferGeometry(); gq.setAttribute('position', new THREE.Float32BufferAttribute([...a, ...b2, ...c, ...d], 3)); gq.setIndex([0, 1, 2, 0, 2, 3]); gq.computeVertexNormals(); return put(mk(gq, mat), 'body'); };
@@ -4651,7 +4828,7 @@ function buildExtras(M, P, b, info, gBox) {
     const frameMat = new THREE.MeshStandardMaterial({ color: 0x0d0e10, roughness: 0.5, side: THREE.DoubleSide });
     // side windows (frameless dark glass on the fiberglass caps; the Softopper's roll-up vinyl windows are smaller)
     if (T.sideWin) [1, -1].forEach((s) => {
-      const [ya, yb] = T.sideWin, xa = x1 + T.rear * (yb / h) + 0.16, xb = x0 - T.front * (yb / h) - 0.12;
+      const [ya, yb] = T.sideWin, xa = x1 + T.rear * (yb / h) + 0.16, xb = Math.min(xF(h * ya, s * bwB), xF(h * yb, s * bwT)) - 0.12;
       if (!soft) sideQuad(xa - 0.025, xb + 0.025, h * ya - 0.025, h * yb + 0.025, 0.003, frameMat, s);
       sideQuad(xa, xb, h * ya, h * yb, 0.006, glass, s);
       if (T.split) { const xm = (xa + xb) / 2; sideQuad(xm - 0.014, xm + 0.014, h * ya, h * yb, 0.009, frameMat, s); } // two-pane slider divider
@@ -4669,7 +4846,7 @@ function buildExtras(M, P, b, info, gBox) {
       for (let t = 0.06; t < 0.98; t += 0.11) { const x = x1 + (x0 - x1) * t; [1, -1].forEach((s) => put(rbox(x - 0.012, x + 0.012, rail + 0.03, rail + 0.055, s * (bwB + 0.004) - 0.006, s * (bwB + 0.004) + 0.006, M.chrome, 0.004), 'body')); } // snaps
       [0.25, 0.75].forEach((t) => { const x = x1 + T.rear + (x0 - T.front - x1 - T.rear) * t; [1, -1].forEach((s) => put(rbox(x - 0.03, x + 0.03, rail + h - 0.07, rail + h - 0.02, s * (bwT + 0.004) - 0.005, s * (bwT + 0.004) + 0.005, M.boot, 0.004), 'body')); }); // strap buckles
     }
-    [1, -1].forEach((s) => put(rbox(x1 + 0.01, x0, rail - 0.012, rail + 0.022, s * (bwB + 0.006) - 0.012, s * (bwB + 0.006) + 0.012, M.boot, 0.006), 'body')); // base rail / clamp strip
+    [1, -1].forEach((s) => put(rbox(x1 + 0.01, xF(0, s * bwB), rail - 0.012, rail + 0.022, s * (bwB + 0.006) - 0.012, s * (bwB + 0.006) + 0.012, M.boot, 0.006), 'body')); // base rail / clamp strip
   }
   const rack = b.bedRack || 'none';
   let rackTop = null;
@@ -4881,7 +5058,37 @@ function buildChassis(M, P, opts) {
   const setPlate = (pm, a, b, c) => { const pa = pm.geometry.attributes.position; [a, b, c].forEach((v, i) => { pa.setXYZ(i, v.x, v.y + 0.028, v.z); pa.setXYZ(i + 3, v.x, v.y - 0.028, v.z); }); pa.needsUpdate = true; pm.geometry.computeVertexNormals(); };
   // shock mount on the lower arm: a welded clevis (two ears + through-bolt, bolt fore-aft) the shock eye drops into
   const clevis = () => { const c = new THREE.Group(); [-0.026, 0.026].forEach((dx) => { const p = mk(new THREE.BoxGeometry(0.008, 0.07, 0.056), M.frame); p.position.set(dx, 0.02, 0); c.add(p); }); const bolt = cylAxis(0.009, 0.074, M.chrome, 'x', 10); bolt.position.y = 0.03; c.add(bolt); tag(c, 'suspension'); links.add(c); return c; };
-  const front = [1, -1].map(() => ({ mounts: [clevis(), clevis()], plate: platedLCA(), lca: [L(0.017, M.frame), L(0.017, M.frame)], uca: [L(0.014, M.frame), L(0.014, M.frame)], lbj: ball(0.026, M.axle), ubj: ball(0.022, M.axle), knuckle: L(0.03, M.axle), hub: L(0.05, M.axle), cv: L(0.015, M.axle), boot: L(0.03, M.boot), tie: L(0.011, M.chrome), coil: null }));
+  const front = [1, -1].map(() => ({ mounts: [clevis(), clevis()], plate: platedLCA(), lca: [L(0.017, M.frame), L(0.017, M.frame)], uca: [L(0.014, M.frame), L(0.014, M.frame)], lbj: ball(0.026, M.axle), ubj: ball(0.022, M.axle), knuckle: L(0.03, M.axle), hub: L(0.05, M.axle), cv: L(0.0135, M.axle), boot: L(0.03, M.boot), tie: L(0.011, M.chrome), coil: null }));
+  // front CV half-shafts (4WD IFS): diff output → plunging inner joint, ribbed boot, shaft, ribbed boot, outer joint into the
+  // hub — every piece turns with its wheel (an 8-sided cup and a bolt head on each joint, so you can see it spin from under)
+  const bootGeo = (() => { const pts = []; for (let i = 0; i <= 18; i++) { const y = i / 18; pts.push(new THREE.Vector2(0.046 + (0.017 - 0.046) * y + 0.006 * Math.abs(Math.sin(y * Math.PI * 5)), y - 0.5)); } return new THREE.LatheGeometry(pts, 14); })();
+  const spinPart = (geo, mat, nub) => { const g = new THREE.Group(); g.add(mk(geo, mat)); if (nub) { const n = mk(new THREE.BoxGeometry(0.014, 0.5, 0.014), M.chrome); n.position.set(nub, 0, 0); g.add(n); } tag(g, 'suspension'); links.add(g); return g; };
+  const jointMat = new THREE.MeshStandardMaterial({ color: 0x6d7076, metalness: 0.8, roughness: 0.38, flatShading: true });
+  const cvParts = [1, -1].map(() => ({ cupIn: spinPart(new THREE.CylinderGeometry(0.05, 0.046, 1, 8), jointMat, 0.05), bootIn: spinPart(bootGeo, M.boot), bootOut: spinPart(bootGeo, M.boot), bell: spinPart(new THREE.CylinderGeometry(0.042, 0.054, 1, 8), jointMat, 0.052) }));
+  // limit straps (optional): heavy nylon from a frame tab down to the rear tube of each lower arm. Their length is set so they
+  // pull straight at full droop; anywhere above that they hang slack in a soft bow (rebuilt every frame)
+  const strapTex = (() => { const cv = document.createElement('canvas'); cv.width = 64; cv.height = 256; const x = cv.getContext('2d');
+    x.fillStyle = '#151618'; x.fillRect(0, 0, 64, 256); x.strokeStyle = '#3a3c40'; x.lineWidth = 2; x.setLineDash([5, 4]); [7, 57].forEach((px) => { x.beginPath(); x.moveTo(px, 0); x.lineTo(px, 256); x.stroke(); });
+    x.setLineDash([]); x.fillStyle = '#d8d8d2'; x.font = 'bold 15px Arial, sans-serif'; x.save(); x.translate(37, 128); x.rotate(-Math.PI / 2); x.textAlign = 'center'; x.fillText('LIMIT', 0, 0); x.restore();
+    const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t; })();
+  const strapMat = new THREE.MeshStandardMaterial({ map: strapTex, roughness: 0.95, side: THREE.DoubleSide }), SN = 14;
+  const straps = [1, -1].map(() => {
+    const geo = new THREE.BufferGeometry(), uv = []; for (let i = 0; i <= SN; i++) uv.push(0, i / SN, 1, i / SN);
+    const idx = []; for (let i = 0; i < SN; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array((SN + 1) * 6), 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx);
+    const m = mk(geo, strapMat); m.frustumCulled = false; tag(m, 'suspension'); links.add(m);
+    const tabs = [0, 1].map(() => { const t = mk(new THREE.BoxGeometry(0.05, 0.05, 0.012), M.frame); tag(t, 'suspension'); links.add(t); return t; });
+    return { m, tabs };
+  });
+  const _n = new THREE.Vector3(), _w = new THREE.Vector3(), _dir = new THREE.Vector3(), _p = new THREE.Vector3();
+  const placeStrap = (S2, a, b2, len) => { // ribbon from a to b2, bowed sideways when the gap is shorter than the strap
+    const dd = a.distanceTo(b2), slack = Math.max(0, len - dd), bow = Math.sqrt((3 * dd * slack) / 8);
+    _dir.subVectors(b2, a).normalize(); _n.set(0, 1, 0).cross(_dir); if (_n.lengthSq() < 1e-6) _n.set(1, 0, 0); _n.normalize(); if (_n.x < 0) _n.negate(); _w.crossVectors(_dir, _n).normalize();
+    const pa = S2.m.geometry.attributes.position;
+    for (let i = 0; i <= SN; i++) { const t = i / SN; _p.copy(a).lerp(b2, t).addScaledVector(_n, 4 * bow * t * (1 - t)); pa.setXYZ(i * 2, _p.x - _w.x * 0.024, _p.y - _w.y * 0.024, _p.z - _w.z * 0.024); pa.setXYZ(i * 2 + 1, _p.x + _w.x * 0.024, _p.y + _w.y * 0.024, _p.z + _w.z * 0.024); }
+    pa.needsUpdate = true; S2.m.geometry.computeVertexNormals();
+    S2.tabs[0].position.copy(a); S2.tabs[0].lookAt(b2); S2.tabs[1].position.copy(b2); S2.tabs[1].lookAt(a);
+  };
   // solid front axle swap (shown instead of the IFS): housing, diff (offset to the passenger side) + cover, knuckle balls & hubs,
   // links (lowers, uppers / radius arms), track bar, high-steer tie rod & drag link, and welded tabs joining every link /
   // shock end to the axle
@@ -5094,6 +5301,7 @@ function buildChassis(M, P, opts) {
   function update(st) {
     const B = (x, y, z) => st.body(V3(x, y, z));
     const midX = (P.xF + P.xR) / 2, fr = st.spots.filter((p) => p.x > midX), rr = st.spots.filter((p) => p.x <= midX);
+    if (frontMode !== 'ifs') { cvParts.forEach((c) => Object.values(c).forEach((o) => { o.visible = false; })); straps.forEach((S2) => { S2.m.visible = S2.tabs[0].visible = S2.tabs[1].visible = false; }); }
     if (frontMode === 'sas' && fr.length === 2) { // ---- solid front axle: one beam between the knuckles, tilting as it articulates
       const xF = fr[0].x, spP = fr.find((p) => p.s > 0), spD = fr.find((p) => p.s < 0), zK = spP.z - 0.12;
       const wyF = { 1: st.wyOf(spP), [-1]: st.wyOf(spD) }, wyFM = (wyF[1] + wyF[-1]) / 2;
@@ -5137,7 +5345,22 @@ function buildChassis(M, P, opts) {
       f.lbj.position.copy(lbj); f.ubj.position.copy(ubj); placeLink(f.knuckle, lbj, ubj);
       const hubIn = V3(sp.x, wy, s * (zk + 0.01)), hubOut = V3(sp.x, wy, s * (sp.z - 0.06 + (st.zOffF || 0)));
       placeLink(f.hub, hubIn, hubOut);
-      if (opts.fourWD) { const din = B(sp.x + 0.02, fy - 0.01, s * 0.17); placeLink(f.cv, din, hubIn); placeLink(f.boot, din.clone().lerp(hubIn, 0.12), din.clone().lerp(hubIn, 0.2)); f.cv.visible = f.boot.visible = true; } else f.cv.visible = f.boot.visible = false;
+      f.boot.visible = false; const cp = cvParts[s > 0 ? 0 : 1];
+      if (opts.fourWD) {
+        const din = B(sp.x + 0.02, fy - 0.01, s * 0.17), dir = hubIn.clone().sub(din).normalize(), at = (base, k) => base.clone().addScaledVector(dir, k);
+        const spin = st.spinOf ? st.spinOf(sp) * (s > 0 ? -1 : 1) : 0;
+        placeLink(f.cv, at(din, 0.1), at(hubIn, -0.07)); placeLink(cp.cupIn, din, at(din, 0.1)); placeLink(cp.bootIn, at(din, 0.09), at(din, 0.22));
+        placeLink(cp.bootOut, at(hubIn, -0.06), at(hubIn, -0.2)); placeLink(cp.bell, at(hubIn, -0.075), hubIn);
+        [f.cv, cp.cupIn, cp.bootIn, cp.bootOut, cp.bell].forEach((o) => { o.visible = true; o.rotateY(spin); });
+      } else [f.cv, cp.cupIn, cp.bootIn, cp.bootOut, cp.bell].forEach((o) => { o.visible = false; });
+      // limit strap: frame tab → the lower arm's rear tube, its length = that gap at full droop
+      const strap = straps[s > 0 ? 0 : 1], strapOn = !!st.straps;
+      strap.m.visible = strap.tabs[0].visible = strap.tabs[1].visible = strapOn;
+      if (strapOn) {
+        const tabF = B(sp.x - 0.27, fy + 0.2, s * 0.41), onArm = (lb) => lcaB.clone().lerp(lb, 0.55);
+        const wyD = wy - (st.suspOf ? st.suspOf(sp) : 0) - (st.droopF || 0.12), lbjD = V3(sp.x + 0.01, wyD - 0.14, s * (zk + 0.02));
+        placeStrap(strap, tabF, onArm(lbj), tabF.distanceTo(onArm(lbjD)) * 0.995);
+      }
       placeLink(f.tie, B(sp.x - 0.17, fy - 0.04, s * 0.32), V3(sp.x - 0.17, wy - 0.03, s * (zk - 0.01)));
       // shocks bolt into clevises welded on the lower arm: the coilover mid-arm, the bypass on the arm's front tube
       const low = lcaA.clone().lerp(lcaB, 0.5).lerp(lbj, 0.62), bpLow = lcaA.clone().lerp(lbj, 0.58);
@@ -5610,7 +5833,8 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
   const ZAXIS = new THREE.Vector3(0, 0, 1);
   const effStyle = (b) => (b.wheelStyle && b.wheelStyle !== 'model' && WHEEL_DESIGNS[b.wheelStyle] ? b.wheelStyle : WHEEL_DESIGNS[base.vehicle.factoryWheel] ? base.vehicle.factoryWheel : 'factory-alloy16');
   // The model's own wheels stay unless tire size / brand / wheel design change (or the model had none, is a stand-in, or we're driving).
-  const swapActive = () => !!(model && model.wheelFit && (model.wheelFit.synthetic || model.reference || drive.on || !ownWheels(build)));
+  let snapDriving = false; // (copying another player's truck: it's driving, so it gets the rolling wheels)
+  const swapActive = () => !!(model && model.wheelFit && (model.wheelFit.synthetic || model.reference || drive.on || snapDriving || !ownWheels(build)));
   // Body heave at each axle (m): bigger tires raise everything by the radius change; springs/spacers raise the body only.
   const axleDY = (front) => (swapActive() ? rig.wy - model.wheelFit.R : 0) + (front ? rig.lift : rig.liftR);
   const leafCount = (b) => ({ stock: 5, aal: 6, pack: 6 }[b.rearSpring] || 5);
@@ -5624,19 +5848,23 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
   function ensureCut(m) {
     if (!m || !m.isMaterial || m.userData.cutWrap === m.onBeforeCompile) return m;
     const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey ? String(m.customProgramCacheKey.call(m)) : '';
-    const wrap = function (sh, r) {
+    const wrap = cutWrapper(prev, cutU);
+    m.onBeforeCompile = wrap; m.userData.cutWrap = wrap; m.userData.cutPrev = prev; m.userData.cutPrevKey = prevKey; // (a multiplayer copy re-wraps it with its own cuts)
+    m.customProgramCacheKey = () => prevKey + '|cut';
+    m.needsUpdate = true;
+    return m;
+  }
+  // the cut shader around a material's own onBeforeCompile, reading the cut set U (this truck's: cutU; another player's: its own)
+  function cutWrapper(prev, U) {
+    return function (sh, r) {
       if (prev) prev.call(this, sh, r);
-      Object.assign(sh.uniforms, cutU);
+      Object.assign(sh.uniforms, U);
       sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform mat4 uCutMat; varying vec3 vCutP;')
         .replace('#include <begin_vertex>', '#include <begin_vertex>\nvCutP = (uCutMat * modelMatrix * vec4(transformed, 1.0)).xyz;');
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>\nuniform int uCutN; uniform vec4 uCuts[${MAX_CUTS}]; uniform int uBoxN; uniform vec3 uBoxMin[4]; uniform vec3 uBoxMax[4]; varying vec3 vCutP;`)
         .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\nfor (int ci = 0; ci < ${MAX_CUTS}; ci++) { if (ci >= uCutN) break; if (distance(vCutP, uCuts[ci].xyz) < uCuts[ci].w) discard; }
 for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCutP, uBoxMin[bi])) && all(lessThan(vCutP, uBoxMax[bi]))) discard; }`);
     };
-    m.onBeforeCompile = wrap; m.userData.cutWrap = wrap;
-    m.customProgramCacheKey = () => prevKey + '|cut';
-    m.needsUpdate = true;
-    return m;
   }
   const restMat = new THREE.Matrix4();
   // Cutaway (Suspension view): near-side wheel wells cut open like a service-manual drawing, near tires hidden
@@ -5765,7 +5993,8 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         const sp = P.spots.find((q) => q.x === wp.x) || { z: Math.abs(wp.z) }; // mirrored track: centres the model's own wheels too
         o.add(c.sub(cw)); o.z += Math.sign(wp.z) * ((wp.k[0] === 'F' ? rig.offF : rig.offR) + sp.z - Math.abs(wp.z)); pc.parent.worldToLocal(o); pc.position.copy(o);
       });
-      if (chassis) chassis.update({ body: (v) => { body(v); return v; }, wyOf, spots: P.spots, zOffF: rig.offF, zOffR: rig.offR, ltF: ((LCA_KITS[build.lca] || LCA_KITS.stock).track || 0) * INCH, leaves: leafCount(build) });
+      if (chassis) chassis.update({ body: (v) => { body(v); return v; }, wyOf, spots: P.spots, zOffF: rig.offF, zOffR: rig.offR, ltF: ((LCA_KITS[build.lca] || LCA_KITS.stock).track || 0) * INCH, leaves: leafCount(build),
+        straps: !!build.straps, droopF: travelOf(build).front * 0.55 * INCH, suspOf: (sp) => rig.susp[P.spots.indexOf(sp)] || 0, spinOf: (sp) => (drive.spinA ? drive.spinA[P.spots.indexOf(sp)] || 0 : 0) });
       updateCutMatrix(); updateWindowPlanes(); // (matrix first: the window clip planes ride on the fresh body matrix too)
     }
     wheels.forEach((w, i) => { w.position.y = rig.wy + (rig.susp[i] || 0); });
@@ -5904,7 +6133,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         wheelC = f.c; wheelN = f.n;
       }
     }
-    const onWheel = (c) => !wheelN || (c.distanceTo(wheelC) < 0.215 && Math.abs(V(0, 0, 0).subVectors(c, wheelC).dot(wheelN)) < 0.055);
+    // (out to 0.265 m: the rim's outer edge reaches ~0.25 — at 0.215 its top arc stayed behind as dash while the rest turned;
+    // the column shroud and cluster hood sit 6+ cm behind the rim's plane, so they still stay put)
+    const onWheel = (c) => { if (!wheelN) return true; const v = V(0, 0, 0).subVectors(c, wheelC), pd = v.dot(wheelN); return Math.abs(pd) < 0.05 && Math.sqrt(Math.max(0, v.lengthSq() - pd * pd)) < 0.265; };
     // headlamp lens outline per side (the clear parts in the headlamp area): the corner-lamp housing seen through it is lamp,
     // although it reaches further back than the usual headlamp box — it was being taken as engine (a dark patch where the hood
     // seemed to show through, driver side) or as fender liner (a black corner lamp, passenger side)
@@ -5912,6 +6143,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     model.parts.meshes.forEach((m) => { if (Array.isArray(m.material) || paintSet.has(m.material) || !(m.material.map || (m.material.transparent && !(m.material.metalness > 0.7)))) return; // (a lens, as lampMat sees one)
       const g = m.geometry, pa = g.attributes.position; if (!pa) return; m.updateMatrixWorld(true);
       for (let k = 0; k < pa.count; k++) { lv.fromBufferAttribute(pa, k).applyMatrix4(m.matrixWorld); const az = Math.abs(lv.z); if (lv.x > P.front - 0.55 && lv.y > P.hoodY - 0.45 && lv.y < P.hoodY - 0.04 && az > 0.4 && az < P.halfW + 0.08) lensBox[lv.z > 0 ? 1 : -1].expandByPoint(lv); } });
+    // top of the rear bumper's plastic step pad (the highest non-paint point across the bumper's middle)
+    let rbPadTop = P.rearBumperY + 0.27;
+    { let top = -1e9; model.parts.meshes.forEach((m) => { if (Array.isArray(m.material) || paintSet.has(m.material) || glassSet.has(m.material)) return; const pa = m.geometry.attributes.position; if (!pa) return; m.updateMatrixWorld(true);
+        for (let k = 0; k < pa.count; k++) { lv.fromBufferAttribute(pa, k).applyMatrix4(m.matrixWorld); if (lv.x < P.rear + 0.32 && Math.abs(lv.z) < 0.5 && lv.y < P.rearBumperY + 0.27 && lv.y > P.rearBumperY - 0.2) top = Math.max(top, lv.y); } });
+      if (top > -1e9) rbPadTop = top; }
     const behindCornerLens = (cx, cy, cz) => { const lb = lensBox[cz > 0 ? 1 : -1]; if (lb.isEmpty()) return false; const z0 = Math.min(Math.abs(lb.min.z), Math.abs(lb.max.z)), z1 = Math.max(Math.abs(lb.min.z), Math.abs(lb.max.z)), az = Math.abs(cz);
       return cx > lb.min.x - 0.22 && cx < lb.max.x && cy > lb.min.y - 0.04 && cy < lb.max.y + 0.01 && az > z0 + (z1 - z0) * 0.3 && az < z1 + 0.01; }; // (the outer part: the corner lamp)
     const hoodTopAt = (x) => { let best = null, bd = 1e9; hoodTops.forEach(([hx, hy]) => { if (hy !== null && Math.abs(hx - x) < bd) { bd = Math.abs(hx - x); best = hy; } }); return best === null ? P.hoodY : best; };
@@ -5927,7 +6163,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       if (!isP && !isG && !isChrome(mt) && cx < cabRear - 0.08 && cx > P.rear + 0.12 && az < P.halfW - 0.13 && cy > railY - (lumOf(mt) > 0.2 ? 0.55 : 0.2) && allY((y) => y < railY + 0.12) && Math.abs(normal().y) > (lumOf(mt) > 0.2 && cy < railY - 0.2 ? 0.7 : 0.85)) return 'bedCover'; // not the tailgate / taillights / rail caps (light-grey cover bits down on the floor go too)
       // the model's hood inner frame (bare grey panels just under the skin) lifts with the hood
       if (!isP && !isG && !isChrome(mt) && cx > P.cowlX && cx < P.front - 0.35 && [a, b, c].every((p) => Math.abs(p.z) < P.halfW - 0.2 && p.x > P.cowlX + 0.12 && p.x < P.front - 0.3 && p.y > hoodTopAt(p.x) - 0.1 && p.y < hoodTopAt(p.x) + 0.01)) return 'hoodInner'; // (only what hugs the skin)
-      if (steerMat && mt === steerMat && Math.abs(cx - steerC0.x) < 0.17 && Math.abs(cy - steerC0.y) < 0.25 && Math.abs(cz - steerC0.z) < 0.26 && onWheel(V(cx, cy, cz))) return 'steer'; // steering wheel rim + hub (rotates)
+      // steering wheel rim + hub (rotates): with the wheel's own centre & plane found, everything in its disc goes — the rim in
+      // the wheel's material anywhere in it, and any part (horn pad, emblem, spokes in another material) near the hub. Judged
+      // from the fitted centre, not the first guess, which used to leave part of the rim behind as dash.
+      if (steerMat && !isP && !isG && (wheelN ? onWheel(V(cx, cy, cz)) && (mt === steerMat || V(cx, cy, cz).distanceTo(wheelC) < 0.1)
+        : mt === steerMat && Math.abs(cx - steerC0.x) < 0.17 && Math.abs(cy - steerC0.y) < 0.25 && Math.abs(cz - steerC0.z) < 0.26)) return 'steer';
       // cabin interior (seats, door panels, console, dash): inside the cab, well inboard of the side glass / skin
       // (not the wheel-well liner where it reaches back under the cab's footprint — that was getting the interior colour)
       // (the door panels' tops run right out under the glass at the sill, so below the sill they may reach the glass line)
@@ -5968,7 +6208,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         if (!isP && (mt.map || lumOf(mt) > 0.7) && !isChrome(mt) && az > 0.5 && cy < P.bumperY + 0.3) return 'fogs';
         return cy < P.bumperY + 0.1 && !ctx.meshFront ? 'fbLower' : 'frontBumper';
       }
-      if (cx < P.rear + 0.32 && allY((y) => y < P.rearBumperY + 0.27)) return 'rearBumper';
+      if (cx < P.rear + 0.32 && allY((y) => y < P.rearBumperY + 0.27) && !(isP && cy > rbPadTop - 0.004)) return 'rearBumper'; // (painted skin above the step pad is the tailgate's lip, not bumper)
       // (the housing's inboard end, toward the door, sits inside halfW: dark plastic well outboard of the glass line is mirror too)
       if (cx > P.cowlX - 0.75 && cx < P.cowlX + 0.06 && cy > P.cowlY - 0.32 && cy < P.cowlY + 0.36 && (az > P.halfW + 0.015 || (!isP && az > Math.max(P.cowlZ, glassZ(cy)) + 0.05))) return normal().x < -0.6 ? 'mirrorGlass' : 'mirrors'; // the glass faces back and stays a mirror
       if (ctx.meshThin && !isP && az > P.halfW - 0.07 && cy > P.cowlY - 0.42 && cy < P.cowlY - 0.1) return 'handles';
@@ -6144,9 +6384,21 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const b3f = probe(V(cabRear - 1.2, b3Y - 0.05, 0), V(1, 0, 0), 2.5), b3 = { x: b3f && b3f.point.x < cabRear + 0.3 ? b3f.point.x : cabRear + 0.02, y: b3Y };
     // the cab's back face above the bed rails, height by height (its rearmost point across the width): it leans, and sits
     // well behind the roof's rear edge at the bottom — toppers & campers keep their gap to this, not to cabRear
-    const cabBack = []; for (let y = railY + 0.07; y < prof.roofTop - 0.01; y += 0.04) { // (from just over the bed's front rail cap)
-      let xb = Infinity; [0, 0.35, -0.35, 0.62, -0.62].forEach((z) => { const h = probe(V(cabRear - 1.2, y, z), V(1, 0, 0), 2); if (h && h.point.x > cabRear - 0.4 && h.object.userData.zone !== 'bedCover') xb = Math.min(xb, h.point.x); });
-      if (Number.isFinite(xb)) cabBack.push([y, xb]); }
+    // Also kept as a height × width grid (cabSurf), smoothed, so a topper's front can follow the cab's shape — its lean and
+    // the way its back wraps round at the corners — at a steady small gap
+    const cabBack = [], csY = [], csZ = [], csX = [];
+    for (let z = -0.9; z <= 0.9 + 1e-6; z += 0.15) csZ.push(z);
+    for (let y = railY + 0.07; y < prof.roofTop - 0.01; y += 0.05) { // (from just over the bed's front rail cap)
+      const row = csZ.map((z) => { const h = probe(V(cabRear - 1.2, y, z), V(1, 0, 0), 2); return h && h.point.x > cabRear - 0.4 && h.point.x < cabRear + 0.3 && h.object.userData.zone !== 'bedCover' ? h.point.x : NaN; });
+      const inner = row.filter((x, i) => !isNaN(x) && Math.abs(csZ[i]) < 0.65); if (inner.length) cabBack.push([y, Math.min(...inner)]);
+      if (row.some((x) => !isNaN(x))) { csY.push(y); csX.push(row); }
+    }
+    const cabSurf = csY.length ? (() => { // fill past the cab's sides with its edge, keep it within 12 cm of the row's rearmost point, smooth 3×3
+      const rows = csX.map((row) => { const lo = Math.min(...row.filter((x) => !isNaN(x))), out = row.slice();
+        for (let i = 0; i < out.length; i++) if (isNaN(out[i])) { let j = i; const dir = csZ[i] < 0 ? 1 : -1; while (isNaN(row[j]) && j >= 0 && j < row.length) j += dir; out[i] = row[j] ?? lo; }
+        return out.map((x) => Math.min(x, lo + 0.12)); });
+      const sm = rows.map((row, a) => row.map((_, b) => { let s = 0, n = 0; for (let da = -1; da <= 1; da++) for (let db = -1; db <= 1; db++) { const v = (rows[a + da] || [])[b + db]; if (v !== undefined) { s += v; n++; } } return s / n; }));
+      return { ys: csY, zs: csZ, x: sm }; })() : null;
     // rear cab floor (footwell) height, from the interior's lowest surfaces between the rear bench and the front seats
     let cabFloor = P.rockerY + 0.15; { const fv = V(0, 0, 0); let lo = Infinity; ((model.zones || {}).interior || []).forEach((m) => { const a = m.geometry.attributes.position, ix = m.geometry.index; if (!ix) return; m.updateMatrixWorld(true); for (let k = 0; k < ix.count; k += 3) { fv.fromBufferAttribute(a, ix.getX(k)).applyMatrix4(m.matrixWorld); if (fv.x > cabRear + 0.4 && fv.x < cabRear + 0.85 && Math.abs(fv.z) > 0.1 && Math.abs(fv.z) < 0.6) lo = Math.min(lo, fv.y); } }); if (lo < P.hoodY) cabFloor = lo; }
     // headlamp beam origins (front face, per side) from the headlight zone
@@ -6161,7 +6413,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const badgeAt = { tgY, lowY, low: [[backX(lowY, -0.45), -0.45], [backX(lowY, 0.42), 0.42]], tg: [[backX(tgY, -0.36), -0.36], [backX(tgY, 0.36), 0.36], [backX(tgY - 0.13, -0.36), -0.36], [backX(tgY - 0.13, 0.36), 0.36]],
       trd: { x: P.xR - P.R0 - 0.42, y: P.wheelY0 + 0.32, z: [1, -1].map((s) => skinZ(P.xR - P.R0 - 0.55, P.xR - P.R0 - 0.29, P.wheelY0 + 0.32, s, 0.03)) },
       sr5: { x: P.xF - P.R0 - 0.22, y: P.wheelY0 + 0.33, z: [1, -1].map((s) => skinZ(P.xF - P.R0 - 0.3, P.xF - P.R0 - 0.14, P.wheelY0 + 0.33, s, 0.02)) } };
-    model.bedInfo = { badgeAt, heads, cabFloor, b3, cabBack, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw };
+    model.bedInfo = { badgeAt, heads, cabFloor, b3, cabBack, cabSurf, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw };
     // grille opening: only the grille's own surface just under the hood's leading edge (not guard tubes or bumper bits out front)
     const gbx = new THREE.Box3();
     ((model.zones && model.zones.grille) || []).forEach((m) => { const gg = m.geometry, p = gg.attributes.position, ix = gg.index, n = ix ? ix.count : p.count; m.updateMatrixWorld(true); for (let i = 0; i < n; i++) { fv.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); if (fv.y > P.hoodY - 0.45) gbx.expandByPoint(fv); } });
@@ -6243,6 +6495,12 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       const zc = (b.zoneColors || {})[id] || ((id === 'frontBumper' || id === 'fbLower') && FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : null)
         || (id === 'rearBumper' && b.rearBumper === 'oemBlack' ? { hex: '#16171a', finish: 'satin' } : null) || (id === 'bumperCap' && (b.zoneColors || {}).frontBumper) // (the plastic cap on top of the bumper follows the bumper's colour once you pick one)
         || (id === 'liner' || id === 'bumperCap' ? { hex: '#141416', finish: id === 'liner' ? 'matte' : 'satin' } : null); // (bumper cap strip: black trim by default) the whole factory bumper keeps one color unless a part color is chosen; liners default black
+      if (id === 'rearBumper') { // factory rear bumper: the colour goes on the painted centre section (around the plate); the
+        // plastic step pad on top and the lower lip default to black plastic — or take the colour too with "whole bumper"
+        const isPaint = (bm) => model.paintMats.includes(bm) || !!(bm.userData && bm.userData.paintU), plastic = b.rearBumperAll && zc ? zc : { hex: '#18191b', finish: 'matte' };
+        (Z[id] || []).forEach((m) => setMat(m, (bm) => (isPaint(bm) ? (zc ? finishMat(bm, zc.hex, zc.finish) : bm) : finishMat(bm, plastic.hex, plastic.finish))));
+        return;
+      }
       (Z[id] || []).forEach((m) => setMat(m, (bm) => (zc ? finishMat(bm, zc.hex, zc.finish) : bm)));
     });
     (Z.mirrorGlass || []).forEach((m) => setMat(m, (bm) => finishMat(bm, '#cdd5dc', 'chrome')));
@@ -6281,7 +6539,10 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         if (zid === 'interior' && (fm.isMeshPhysicalMaterial || IT.sheen)) { const pm = toPhysical(fm); pm.sheen = 0; pm.clearcoat = IT.sheen || 0; pm.clearcoatRoughness = 0.55; /* leather: a faint satin top coat */ detail(pm, kindOf(zid), freqOf(kindOf(zid))); ensureCut(pm); pm.needsUpdate = true; zoneMatCache.set(key, pm); return pm; }
         detail(fm, kindOf(zid), freqOf(kindOf(zid))); ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm;
       }));
-      tone('interior', 1); tone('dash', 0.62); tone('steer', 0.55); }
+      tone('interior', 1); tone('dash', 0.62); tone('steer', 0.55);
+      // the cabin is low-poly with flat facets — seats, door panels and dash shaded in visible triangles. Smooth shading across
+      // gentle bends (hard edges over ~50° stay crisp), once per mesh
+      ['interior', 'dash', 'steer'].forEach((zid) => (Z[zid] || []).forEach((m) => { if (!m.userData.smoothN && m.geometry) { smoothNormals(m.geometry, 50); m.userData.smoothN = true; } })); }
     // engine bay (the model's untextured engine renders as chrome / bare grey): cast aluminium + black plastics & hoses, as on the 2UZ
     [...(Z.engine || []), ...(Z.cowl || [])].forEach((m) => setMat(m, (bm) => {
       const key = `${bm.uuid}|bay`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
@@ -7353,8 +7614,10 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   };
   window.addEventListener('keydown', onKey); window.addEventListener('keyup', onKey);
   // right-click drag while driving: look around the truck (stays until re-centered)
-  const camOrbit = { yaw: 0, pitch: 0, drag: null };
+  const camOrbit = { yaw: 0, pitch: 0, drag: null, zoom: 1 };
   renderer.domElement.addEventListener('contextmenu', (e) => { if (drive.on) e.preventDefault(); });
+  // scroll wheel while driving: the chase camera comes in closer / pulls back (kept when you re-centre the look-around)
+  renderer.domElement.addEventListener('wheel', (e) => { if (!drive.on || drive.cam === 3) return; e.preventDefault(); camOrbit.zoom = THREE.MathUtils.clamp(camOrbit.zoom * Math.exp(e.deltaY * 0.0012), 0.45, 2.6); }, { passive: false });
   renderer.domElement.addEventListener('pointerdown', (e) => { if (drive.on && e.button === 2) { camOrbit.drag = [e.clientX, e.clientY]; renderer.domElement.setPointerCapture(e.pointerId); } });
   renderer.domElement.addEventListener('pointermove', (e) => {
     if (!camOrbit.drag) return;
@@ -7426,9 +7689,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       [2.7, 1.75, 0, -1.75, -2.7].forEach((lx) => [-1.12, 1.12].forEach((lz) => { const w = outdoor.dockPush(d.x + lx * c + lz * s, d.z - lx * s + lz * c, d.y); if (w) { d.x += w[0]; d.z += w[1]; hit = true; } })); // dock faces
       return hit;
     } };
-    if (lay === 'backroads' || lay === 'drift') { // spawn in the right-hand lane (drift: on the centreline) at the start of the loop, pointed along the road
+    if (lay === 'backroads' || lay === 'drift' || lay === 'prerunner') { // spawn in the right-hand lane (drift: on the centreline) at the start of the loop, pointed along the road
       const BRd = outdoor[lay], B = BRd.bounds, p = BRd.path[0];
-      return { H: BRd.height, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : lay === 'drift' ? 0.7 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: lay === 'drift' ? [0.5, 0.48, 0.36] : [0.55, 0.47, 0.37], safe: BRd.safe,
+      return { H: BRd.height, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : lay === 'drift' ? 0.7 : lay === 'prerunner' ? 0.82 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: lay === 'drift' ? [0.5, 0.48, 0.36] : [0.55, 0.47, 0.37], safe: BRd.safe,
         start: { x: 0, z: 0, yaw: Math.atan2(-p.tz, p.tx) }, clamp: (d) => { // (the map's lane start is the world origin)
         let hit = false; const lim = (k, lo, hi) => { if (d[k] < lo) { d[k] = lo; hit = true; } if (d[k] > hi) { d[k] = hi; hit = true; } };
         lim('x', B.x0, B.x1); lim('z', B.z0, B.z1); return hit;
@@ -7470,9 +7733,59 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       else if (!on && mt.userData.side0 !== undefined) { mt.side = mt.userData.side0; delete mt.userData.side0; mt.needsUpdate = true; }
     }));
   }
-  // ---- Multiplayer: other players' trucks. Each is a copy of the truck model (lights stripped, their paint colour) with a
-  // name tag; poses arrive ~10×/s and are eased toward so they move smoothly. Ghosts for now: no collisions between trucks.
-  const remotes = new Map(); let tagsOn = true;
+  // ---- Multiplayer: other players' trucks, each built from THAT player's own build (every mod, colour, wheel, light…) with a
+  // name tag. Building one: their build is put on this truck for an instant (nothing is drawn in between), the truck is
+  // copied — with its own copies of every material, of the body geometry and of the cut-outs (fender trims, moonroof hole),
+  // so nothing is shared with this truck — and this truck's build goes straight back. Poses arrive ~10×/s with speed & turn
+  // rate: between updates each truck carries on along its path (no stop-start), its wheels roll with its speed and the
+  // fronts steer. Ghosts for now: no collisions between trucks.
+  const remotes = new Map(); let tagsOn = true, lastSnap = 0;
+  const restMatR = new THREE.Matrix4();
+  function cloneForRemote() {
+    truck.updateMatrixWorld(true);
+    const g2 = truck.clone(true), src = [], dst = [], map = new Map(), back = new Map(); truck.traverse((o) => src.push(o)); g2.traverse((o) => dst.push(o));
+    if (src.length !== dst.length) return null;
+    src.forEach((o, i) => { map.set(o, dst[i]); back.set(dst[i], o); });
+    const modelMeshes = new Set(model.parts.meshes), mats = new Map(), owned = [];
+    const RU = { uCutMat: { value: new THREE.Matrix4() }, uCutN: { value: cutU.uCutN.value }, uCuts: { value: cutU.uCuts.value.map((v) => v.clone()) }, // this truck's cut-outs, as they are now
+      uBoxN: { value: cutU.uBoxN.value }, uBoxMin: { value: cutU.uBoxMin.value.map((v) => v.clone()) }, uBoxMax: { value: cutU.uBoxMax.value.map((v) => v.clone()) } };
+    const bake = (m) => {
+      if (!m || !m.isMaterial) return m; if (mats.has(m)) return mats.get(m);
+      const ud = m.userData; m.userData = {}; const m2 = m.clone(); m.userData = ud; // (userData holds functions / live uniforms: not copied)
+      m2.clippingPlanes = null; // (window glass is clipped by planes placed on this truck)
+      if (ud.paintU) { // a fresh paint shader with the same values — and no cab-trim box (that one follows this truck)
+        m2.onBeforeCompile = () => {}; const U2 = installPaintShader(m2);
+        Object.entries(ud.paintU).forEach(([k, u]) => { if (k.startsWith('uTrim') || !U2[k]) return; const v = u.value; U2[k] = { value: v && (v.isColor || v.isVector3) ? v.clone() : v }; });
+        U2.uTrimMin = { value: new THREE.Vector3(1e6, 1e6, 1e6) }; U2.uTrimMax = { value: new THREE.Vector3(-1e6, -1e6, -1e6) };
+      }
+      if (ud.cutWrap) { const prev = ud.paintU ? m2.onBeforeCompile : ud.cutPrev, key = ud.paintU ? 'apex-paint' : (ud.cutPrevKey || ''); m2.onBeforeCompile = cutWrapper(prev, RU); m2.customProgramCacheKey = () => key + '|cut'; }
+      m2.needsUpdate = true; mats.set(m, m2); owned.push(m2); return m2;
+    };
+    const drop = [];
+    g2.traverse((o) => {
+      if (o.isLight || o.isPoints || o.isSprite) { drop.push(o); return; }
+      if (!o.isMesh) return;
+      const orig = back.get(o);
+      if (orig && modelMeshes.has(orig)) { o.geometry = o.geometry.clone(); owned.push(o.geometry); } // (the body reshapes in place with widebody / morphs)
+      o.material = Array.isArray(o.material) ? o.material.map(bake) : bake(o.material);
+    });
+    drop.forEach((o) => o.parent && o.parent.remove(o));
+    if (damageGroup && map.get(damageGroup)) map.get(damageGroup).visible = false;
+    const P = base.P;
+    return { g: g2, RU, owned, holder: map.get(model.holder), baseY: model.baseY, Rw: rig.wy || P.R0,
+      wheels: wheels.map((w, i) => ({ w: map.get(w), s: P.spots[i].s, front: isFrontSpot(P.spots[i]) })).filter((x) => x.w && x.w.visible) };
+  }
+  // put another player's build on this truck for an instant, copy it, put this truck's own build back
+  function snapshotTruck(rb) {
+    if (!model || !base.P) return null;
+    const mine = build, cut0 = cutaway;
+    const b = { ...DEFAULT_BUILD, ...rb, tod: mine.tod, weather: mine.weather }; // (time of day & weather are the world's, not theirs)
+    let out = null;
+    try { cutaway = false; snapDriving = true; applyBuild(b, {}, true); applyWindowsAt(winTarget); out = cloneForRemote(); }
+    finally { cutaway = cut0; snapDriving = false; applyBuild(mine, { xray }, true); }
+    return out;
+  }
+  function disposeRemoteTruck(r) { if (!r.g) return; scene.remove(r.g); (r.owned || []).forEach((x) => x.dispose && x.dispose()); r.g = null; }
   const tagSprite = (text) => {
     const cv = document.createElement('canvas'), x = cv.getContext('2d'); cv.width = 512; cv.height = 128;
     x.font = 'bold 54px Rajdhani, Arial, sans-serif'; const w = Math.min(500, x.measureText(text).width + 48);
@@ -7481,39 +7794,54 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding;
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })); sp.scale.set(2.6, 0.65, 1); sp.position.y = 2.9; sp.renderOrder = 10; return sp;
   };
-  function makeRemote(p) {
-    if (!model) return null;
-    const g2 = truck.clone(true), drop = [];
-    g2.traverse((o) => { if (o.isLight || o.isPoints || o === stars) drop.push(o); });
-    drop.forEach((o) => o.parent && o.parent.remove(o));
-    const paint = new THREE.MeshPhysicalMaterial({ color: p.color || '#8a8d91', metalness: 0.5, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.05 });
-    g2.traverse((o) => { if (!o.isMesh) return; const swap = (m) => (m && m.userData && m.userData.paintU ? paint : m); o.material = Array.isArray(o.material) ? o.material.map(swap) : swap(o.material); });
-    const tag = tagSprite(p.name || 'player'); tag.visible = tagsOn; g2.add(tag);
-    scene.add(g2); return { g: g2, tag, paint, name: p.name, color: p.color, pose: null };
-  }
-  function setRemotes(list) { // list: [{ id, name, color, x, y, z, yaw, pitch, roll }]
-    const seen = new Set();
+  // list: [{ id, name, x, y, z, yaw, pitch, roll, u (speed), steer, vx, vz (world velocity), r (turn rate), seq, bk, bj (their build) }]
+  function setRemotes(list) {
+    const seen = new Set(), now = performance.now();
     list.forEach((p) => {
       seen.add(p.id); let r = remotes.get(p.id);
-      if (!r) { r = makeRemote(p); if (!r) return; remotes.set(p.id, r); }
-      if (p.name !== r.name) { r.g.remove(r.tag); r.tag = tagSprite(p.name || 'player'); r.tag.visible = tagsOn; r.g.add(r.tag); r.name = p.name; }
-      if (p.color && p.color !== r.color) { r.paint.color.set(p.color); r.color = p.color; }
-      r.target = p; if (!r.pose) r.pose = { ...p };
+      if (!r) { r = { id: p.id, g: null, tag: null, name: null, pose: null, target: null, seq: null, want: null, wantBk: null, bk: null, first: now, spin: 0 }; remotes.set(p.id, r); }
+      if (p.bk && p.bk !== r.wantBk) { r.wantBk = p.bk; try { r.want = JSON.parse(p.bj); } catch (e) { r.want = null; } }
+      if (p.seq !== r.seq) { r.seq = p.seq; r.target = { ...p, recv: now }; delete r.target.bj; if (!r.pose) r.pose = { ...r.target }; }
+      r.name = p.name || 'player';
     });
-    remotes.forEach((r, id) => { if (!seen.has(id)) { scene.remove(r.g); remotes.delete(id); } });
+    remotes.forEach((r, id) => { if (!seen.has(id)) { disposeRemoteTruck(r); remotes.delete(id); } });
   }
+  const rqA = new THREE.Quaternion(), rqB = new THREE.Quaternion(), rqC = new THREE.Quaternion();
   function stepRemotes(dt) {
-    const k = 1 - Math.pow(0.002, dt), q = new THREE.Quaternion(), qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), qc = new THREE.Quaternion();
+    const now = performance.now(), k = 1 - Math.exp(-dt * 12);
     remotes.forEach((r) => {
-      const t = r.target, c = r.pose; if (!t || !c) return;
-      ['x', 'y', 'z', 'pitch', 'roll'].forEach((key) => { c[key] += ((t[key] || 0) - (c[key] || 0)) * k; });
-      let dy = (t.yaw || 0) - (c.yaw || 0); dy = Math.atan2(Math.sin(dy), Math.cos(dy)); c.yaw = (c.yaw || 0) + dy * k;
+      // (re)build its truck when its build changes — one at a time, at most every ~0.8 s (it takes a moment)
+      const wantBk = r.wantBk || (now - r.first > 2500 ? 'default' : null);
+      if (wantBk && wantBk !== r.bk && now - lastSnap > 800 && model) {
+        lastSnap = now; const snap = snapshotTruck(r.want || {});
+        if (snap) { disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, tag: null, tagName: null }); scene.add(r.g); }
+      }
+      if (!r.g || !r.target) return;
+      if (r.tagName !== r.name) { if (r.tag) r.g.remove(r.tag); r.tag = tagSprite(r.name); r.tag.visible = tagsOn; r.g.add(r.tag); r.tagName = r.name; }
+      // where it should be now: its last pose carried on by its velocity & turn rate (≤ 0.4 s ahead), eased toward
+      const t = r.target, c = r.pose, age = Math.min(0.4, (now - t.recv) / 1000);
+      const px = t.x + (t.vx || 0) * age, pz = t.z + (t.vz || 0) * age, pyaw = (t.yaw || 0) + (t.r || 0) * age;
+      if (Math.hypot(px - c.x, pz - c.z) > 12) Object.assign(c, { x: px, y: t.y, z: pz, yaw: pyaw }); // (teleported / reset: jump)
+      c.x += (px - c.x) * k; c.z += (pz - c.z) * k; c.y += ((t.y || 0) - c.y) * k;
+      ['pitch', 'roll', 'steer'].forEach((key) => { c[key] = (c[key] || 0) + ((t[key] || 0) - (c[key] || 0)) * k; });
+      let dy = pyaw - (c.yaw || 0); dy = Math.atan2(Math.sin(dy), Math.cos(dy)); c.yaw = (c.yaw || 0) + dy * k;
       r.g.position.set(c.x, c.y, c.z);
-      qa.setFromAxisAngle(YAX, c.yaw); qb.setFromAxisAngle(ZAXIS, c.pitch); qc.setFromAxisAngle(XAX, c.roll); q.copy(qa).multiply(qb).multiply(qc); r.g.quaternion.copy(q);
-      r.tag.quaternion.copy(q).invert(); // (the sprite faces the camera anyway; keep it upright)
+      rqA.setFromAxisAngle(YAX, c.yaw); rqB.setFromAxisAngle(ZAXIS, c.pitch); rqC.setFromAxisAngle(XAX, c.roll); r.g.quaternion.copy(rqA).multiply(rqB).multiply(rqC);
+      // wheels roll with its speed; the fronts steer
+      r.spin += ((t.u || 0) / Math.max(0.2, r.Rw)) * dt;
+      r.wheels.forEach((w) => { w.w.rotation.set(0, (w.s < 0 ? Math.PI : 0) + (w.front ? c.steer : 0), w.s > 0 ? -r.spin : r.spin); });
+      // its own cut-outs follow its body
+      r.g.updateMatrixWorld(true); const h = r.holder;
+      if (h) { restMatR.makeTranslation(h.position.x, r.baseY, h.position.z); r.RU.uCutMat.value.copy(h.matrixWorld).invert().premultiply(restMatR); }
     });
   }
-  const getPose = () => ({ x: truck.position.x, y: truck.position.y, z: truck.position.z, yaw: drive.on ? drive.yaw : 0, pitch: drive.on ? drive.pitch : 0, roll: drive.on ? drive.roll : 0, color: build.color, head: build.head || 'off' });
+  // this truck for the other players: pose + motion (so they can carry it on smoothly between updates)
+  let poseSeq = 0;
+  const getPose = () => {
+    const d = drive, on = d.on, yaw = on ? d.yaw : 0, u = on ? d.u : 0, vz = on ? d.vz : 0;
+    return { x: truck.position.x, y: truck.position.y, z: truck.position.z, yaw, pitch: on ? d.pitch : 0, roll: on ? d.roll : 0, u, steer: on ? d.steer || 0 : 0, r: on ? d.r || 0 : 0,
+      vx: Math.cos(yaw) * u + Math.sin(yaw) * vz, vz: -Math.sin(yaw) * u + Math.cos(yaw) * vz, seq: ++poseSeq };
+  };
   // reset: only once it's rolled over and come to rest (under ~2 mph). Back on its wheels where it is (same heading),
   // dropped from just above the ground, everything at rest
   const canReset = (d) => !!d.flipped && Math.hypot(d.u, d.vz) < 0.9;
@@ -7582,7 +7910,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     // tires: aggressive lugs give up a little grip on pavement and dig in on dirt; chop = wheels skipping over bumps the
     // suspension couldn't soak up (see below) — grip drops while they're off the ground
     const TB = TIRE_BRANDS[b.tireBrand] || TIRE_BRANDS.oem, lug = (TREADS[TB.tread] || TREADS.ht).lug || 0, muT = paved ? 1 - 0.06 * lug : 0.9 + 0.1 * lug;
-    const mu = A.mu(d.x, d.z) * 1.12 * (wth === 'rain' ? (paved ? 0.72 : 0.8) : wth === 'mud' ? (paved ? 0.78 : 0.55) : 1) * muT * (1 - 0.4 * (d.chop || 0));
+    const mu = A.mu(d.x, d.z) * 1.12 * (paved && wth === 'dry' ? 1.1 : 1) * (wth === 'rain' ? (paved ? 0.72 : 0.8) : wth === 'mud' ? (paved ? 0.78 : 0.55) : 1) * muT * (1 - 0.4 * (d.chop || 0));
     const steerMax = 0.62 / (1 + Math.abs(d.u) * 0.045);
     d.steer += (stIn * steerMax - d.steer) * Math.min(1, dt * 5);
     const Nf = Math.max(0.15 * m * g, (m * g * b_) / L - (m * d.ax * hcg) / L), Nr = Math.max(0.15 * m * g, (m * g * a_) / L + (m * d.ax * hcg) / L);
@@ -7607,7 +7935,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     let Fdem = 0; // (traction control may trim this below)
     const bind = fourWD && Math.abs((b.gearF || 4.1) - (b.gearR || 4.1)) > 0.01; // mismatched front / rear ratios fight each other in 4WD
     if (thr) Fdem = Fmax * cut * (bind ? 0.75 : 1);
-    if (rev && d.u < 0.8) Fdem = -Math.min(Fmax * 0.5, m * 3) * THREE.MathUtils.clamp((6.7 + d.u) / 2.5, 0, 1); // reverse: gentle (≤ 3 m/s²), tops out ~15 mph
+    if (rev && d.u < 0.8) Fdem = -Math.min(Fmax * 0.55, m * 4) * THREE.MathUtils.clamp((9.4 + d.u) / 2.5, 0, 1); // reverse: ≤ 4 m/s², tops out ~21 mph
     if (burn) Fdem = 0; // (all the torque goes into spinning the rears — see spinX below)
     const tcs = b.tcs !== false, slipR = Math.atan2(Math.abs(d.vz + d.r * b_), Math.max(1, Math.abs(d.u)));
     if (tcs) { if (Math.abs(Fdem) > tracLim * 0.97) Fdem = Math.sign(Fdem) * tracLim * 0.97; if (slipR > 0.1 && Fdem > 0) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.1) * 4, 0.25, 1); } // traction / stability control: no wheelspin, eases power when the rear steps out
@@ -7627,12 +7955,15 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const kF = sens(dN * SW.front, Nf / 2), kR = sens(dN * (1 - SW.front), Nr / 2);
     const sF = d.air ? 0 : 1, capF = mu * Nf * sF * (brake ? 0.75 : 1) * kF;
     // dry pavement: once it's already sideways at low speed the rear lets go a bit more easily (easy slow drifts), fading out by ~45 mph
-    const lowSlide = paved && wth === 'dry' && diff !== 'open' && (d.drift || 0) > 8 ? 1 - 0.16 * (1 - THREE.MathUtils.clamp(Math.abs(d.u) / 20, 0, 1)) : 1;
+    const lowSlide = paved && wth === 'dry' && diff !== 'open' && (d.drift || 0) > 8 ? 1 - 0.08 * (1 - THREE.MathUtils.clamp(Math.abs(d.u) / 20, 0, 1)) : 1;
+    // dry pavement: a real tire's grip peaks just before it lets go and falls off a little once it's sliding — so it takes
+    // more to break the rear loose (no more ice-rink feel), but once it's out the slide still holds and can be steered
+    const stick = paved && wth === 'dry' ? (Math.abs(Math.atan2(d.vz + d.r * b_, Math.max(0.6, Math.abs(d.u)))) < 0.12 ? 1.1 : 0.94) : 1;
     // wheelspin costs side grip only on the tires that are actually spinning: both with a locker, mostly both with an LSD,
     // just the light inside tire with an open diff (the loaded outside tire still holds the rear in line)
     const spinLoss = burn ? 0.12 : !spinning ? 1 : diff === 'open' ? 1 - 0.5 * (nLight / Math.max(1, Nr)) : diff === 'lsd' ? 0.6 : 0.5; // (burnout: rears spinning flat out hold almost nothing sideways)
-    const capR = Math.sqrt(Math.max(0, (mu * Nr * kR) ** 2 - (Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide;
-    const CF = 8.6, CR = 12.5; // softer front cornering stiffness → a gentle push at the limit until the rear is overloaded
+    const capR = Math.sqrt(Math.max(0, (mu * Nr * kR) ** 2 - (Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide * stick;
+    const CF = 8.6, CR = paved && wth === 'dry' ? 13.5 : 12.5; // softer front cornering stiffness → a gentle push at the limit until the rear is overloaded
     const Fyf = THREE.MathUtils.clamp(-CF * Nf * mu * af, -capF, capF), Fyr = THREE.MathUtils.clamp(-CR * Nr * mu * ar, -capR, capR);
     const roll = (A.roll + (A.sink ? A.sink(d.x, d.z) * 0.32 : 0)) * m * g * (Math.abs(u) > 0.1 ? Math.sign(u) : 0), drag = 0.24 * u * Math.abs(u);
     const Fb = (brake + hb) * (Math.abs(u) > 0.3 ? Math.sign(u) : 0);
@@ -7653,7 +7984,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       }
       d.ax = THREE.MathUtils.clamp(sumX / m, -9, 7);
     } else { d.r *= Math.pow(0.5, dt); d.ax = 0; }
-    d.u = THREE.MathUtils.clamp(d.u, -7.5, 62);
+    d.u = THREE.MathUtils.clamp(d.u, -10, 62);
     d.yaw += d.r * dt;
     d.x += (cy * d.u + sy * d.vz) * dt; d.z += (-sy * d.u + cy * d.vz) * dt;
     if (A.clamp(d)) { d.u *= -0.25; d.vz *= 0.3; d.r *= 0.4; handlers.current.onLand && handlers.current.onLand(6); }
@@ -7677,17 +8008,68 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     // --- vertical: sprung body on the suspension (spring-damper), airborne when the ground drops past full droop
     // ground vertical speed under the truck. The tires and sidewalls take the sharp edges, so the body only ever sees a
     // limited version of it — a whoop face at speed no longer turns straight into a launch.
-    const wn = 8.5, gY = d.prevT === null ? 0 : (targetY - d.prevT) / dt; d.prevT = targetY;
-    const gYc = THREE.MathUtils.clamp(gY, -3.5, 3.2);
+    const wn = tuneOf(b).wn, gY = d.prevT === null ? 0 : (targetY - d.prevT) / dt; d.prevT = targetY;
+    // a real ramp vs a bump: the ground's pitch under the truck, smoothed over ~0.3 s. Whoops and edges come and go faster
+    // than that (they average out to ~0); a jump's run-up or a landing slope is long enough to show. Along a real ramp the
+    // body may follow the ground as fast as the ramp really rises / falls at your speed — and leaves the lip with that speed
+    // (a 28° lip at 70 mph launches you ~15 m/s upward). Bumps keep the tight limits that stop small kickers launching you.
+    if (!d.air) d.rampA = (d.rampA || 0) + (pitchG - (d.rampA || 0)) * Math.min(1, dt / 0.3);
+    // (in the air it's 0: what the ground under you does there is the landing, not a ramp to follow)
+    const rampUp = d.air ? 0 : Math.abs(d.u) * Math.sin(Math.max(0, (d.rampA || 0) * Math.sign(d.u || 1))), rampDn = d.air ? 0 : Math.abs(d.u) * Math.sin(Math.max(0, -(d.rampA || 0) * Math.sign(d.u || 1)));
+    const gYc = THREE.MathUtils.clamp(gY, -3.5 - rampDn, 3.2 + rampUp);
     const gap = d.y - targetY, dAvg = (droop[0] + droop[1]) / 2, bAvg = (bump[0] + bump[1]) / 2;
     let landed = 0;
     if (gap > dAvg + 0.03 && (d.air || d.vy > gYc)) {
-      if (!d.air) { d.air = true; d.airT = 0; d.vy = Math.min(d.vy, 1.2 + Math.abs(d.u) * 0.11, 5.5); } // takeoff speed: set by the lip and your speed, never a random rocket
-      d.vy -= g * dt; d.vy *= Math.pow(0.9, dt); d.airT += dt;
+      // takeoff speed: set by the lip and your speed, never a random rocket. (The lip's own angle: the body's pitch as it
+      // leaves, but only ~8° past the smoothed ramp angle — so a whoop face can't pass for a ramp.)
+      // The ramp's own angle where the rear tires leave it (the last thing to push the truck up) counts too: the body's
+      // pitch lags a steep lip, and on a big jump that lost a third of the launch.
+      if (!d.air && d.bounceT > 0) { d.air = true; d.airT = 0; } // (a landing buck: it leaves with the speed the hit gave it)
+      else if (!d.air) { const rx = d.x + P.xR * cy, rz = d.z - P.xR * sy, sgn = Math.sign(d.u || 1), back = 1.4 * sgn, slopeR = Math.atan2(H(rx, rz) - H(rx - back * cy, rz + back * sy), 1.4);
+        // (how steep may it count? up to the smoothed ramp angle, or the average climb over the last 8 m behind the rear tires,
+        // + ~7°: a long run-up shows its real slope there; a whoop or kicker is too short to)
+        const s8 = Math.atan2(H(rx, rz) - H(rx - 8 * sgn * cy, rz + 8 * sgn * sy), 8);
+        // (off a real ramp it leaves with the ramp's own upward speed — the body, held back by its springs, was lagging it)
+        const lipA = Math.min(Math.max(d.pitch * sgn, slopeR), Math.max(0, (d.rampA || 0) * sgn, s8) + 0.12); d.air = true; d.airT = 0; d.vy = Math.max(Math.min(d.vy, 1.2 + Math.abs(d.u) * 0.11, 5.5), Math.abs(d.u) * Math.sin(Math.max(0, lipA)) * 1.02); }
+      d.vy -= g * dt; d.vy *= Math.pow(0.97, dt); d.airT += dt;
     }
-    else { if (d.air) { landed = Math.max(0, gYc - d.vy); d.air = false; d.maxAir = Math.max(d.maxAir, d.airT); } const zB = zeta + bypassFirm(b) * 3.5 * THREE.MathUtils.clamp(-gap / Math.max(0.02, bAvg), 0, 1); d.vy += (-wn * wn * gap - 2 * zB * wn * (d.vy - gYc)) * dt; } // bypasses: firmer deep in the stroke
+    // (touching down on a down-slope, the body may follow it straight away — a smooth landing. Coming down short onto the
+    // up-face of a landing (casing it) is a wall, not a ramp: it stops you dead instead of flicking you skyward)
+    else { if (d.air) { landed = Math.max(0, gYc - d.vy); d.air = false; d.maxAir = Math.max(d.maxAir, d.airT);
+        { // the landing hit, at touchdown (before the springs and tires take any of it): past what this suspension can take, the
+          // rest throws the truck back up — see landCapOf. Stock / short travel buck hard; long travel + bypasses + hydros eat it.
+          const relT = THREE.MathUtils.clamp(gY, -25, 3.2 + rampUp) - d.vy, over = relT - landCapOf(b, tv), TU = tuneOf(b);
+          if (over > 0 && !d.flipped) {
+            const face = pitchG * Math.sign(d.u || 1) > 0.3 ? 0.4 : 1; // (casing into an up-face: mostly a stop, less of a bounce)
+            d.vy = Math.min(gYc, 3.2) + Math.min(9, over * 1.1 * TU.bounce * face); landed = Math.max(landed, relT + over); d.bounceT = 0.15; // (the dampers don't get to soak this back up)
+            const pr = d.pitch - pitchG; d.pitchV = THREE.MathUtils.clamp(d.pitchV - Math.sign(pr || 0.01) * Math.min(0.9, over * 0.15), -1.1, 1.1);
+            d.rollV = THREE.MathUtils.clamp(d.rollV + (Math.random() - 0.5) * Math.min(0.5, over * 0.06), -0.6, 0.6); d.chop = 1;
+            if (!(d.lurchT > 0)) { d.lurch = (Math.random() < 0.5 ? -1 : 1) * Math.min(1.8, over * 0.25); d.lurchT = 0.35; }
+            d.air = true; d.airT = 0; // (straight back off the ground)
+          }
+        }
+        d.rampA = Math.min(0, pitchG * Math.sign(d.u || 1)) * Math.sign(d.u || 1);
+        if (pitchG * Math.sign(d.u || 1) > 0.3) { const k = THREE.MathUtils.clamp((pitchG * Math.sign(d.u || 1) - 0.3) * 1.5, 0, 0.7); d.u *= 1 - k; d.vz *= 1 - k * 0.5; landed += 6 * k; } } const zB = zeta + bypassFirm(b) * 3.5 * THREE.MathUtils.clamp(-gap / Math.max(0.02, bAvg), 0, 1); if (!(d.bounceT > 0)) d.vy += (-wn * wn * gap - 2 * zB * wn * (d.vy - gYc)) * dt; } // bypasses: firmer deep in the stroke
+    if (d.bounceT > 0) d.bounceT -= dt;
     d.y += d.vy * dt;
-    if (d.y < targetY - bAvg) { if (gY - d.vy > 2.5) landed = Math.max(landed, gY - d.vy); d.y = targetY - bAvg; d.vy = Math.max(d.vy, gYc * 0.6); } // bump stops (the hit goes into a buck, not a launch)
+    // bump stops. How hard a hit the suspension can take before it runs out (closing speed, m/s): travel, shock size / valving,
+    // bypasses, hydraulic bump stops and your tuning. Within that it soaks it up. Past it — a stock truck flat-landing a big
+    // jump, or casing a landing — the rest comes back as a buck off the bump stops: it bounces back up, and the end that hit
+    // first kicks up while the other slams (a hard bounce, not a rollover). Long travel + bypasses + hydro stops eat it.
+    if (d.y < targetY - bAvg) {
+      const gYl = THREE.MathUtils.clamp(gY, -25, 3.2 + rampUp), rel = gYl - d.vy, TU = tuneOf(b), landCap = landCapOf(b, tv);
+      if (rel > 2.5) landed = Math.max(landed, rel);
+      d.y = targetY - bAvg; d.vy = Math.max(d.vy, gYc * 0.6);
+      const over = rel - landCap;
+      if (over > 0 && !d.flipped) {
+        d.vy = gYc + Math.min(9, over * 0.85 * TU.bounce);
+        // (the end-to-end kick and the side rock are capped so a hard landing bucks and wallows but doesn't roll it)
+        const pr = d.pitch - pitchG; d.pitchV = THREE.MathUtils.clamp(d.pitchV - Math.sign(pr || 0.01) * Math.min(0.9, over * 0.15), -1.1, 1.1);
+        d.rollV = THREE.MathUtils.clamp(d.rollV + (Math.random() - 0.5) * Math.min(0.5, over * 0.06), -0.6, 0.6); d.chop = 1;
+        if (!(d.lurchT > 0)) { d.lurch = (Math.random() < 0.5 ? -1 : 1) * Math.min(1.8, over * 0.25); d.lurchT = 0.35; }
+        landed = Math.max(landed, rel + over);
+      }
+    }
     const ay = -(d.r * d.u), wp = 7.5, wr = 8.5 / Math.sqrt(SW.roll); d.ayPrev = ay;
     // which end is hanging (both its tires at full droop, last frame): with one end off the ground the body pivots on the
     // other axle under gravity instead of springing back — a kicked nose arcs up and falls, a kicked tail does the same
@@ -7703,7 +8085,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     } else if (!d.air) {
       d.pitchV += (-wp * wp * (d.pitch - (pitchG + d.ax * 0.007)) - 2 * zeta * wp * d.pitchV) * dt;   // squat / dive
       d.rollV += (-wr * wr * (d.roll - (rollG - ay * 0.0075 * SW.roll)) - 2 * Math.max(zeta, 0.35) * wr * d.rollV) * dt; // body roll (sway bars)
-    } else { d.pitchV += (-0.2 - d.pitch) * 0.3 * dt; d.pitchV *= Math.pow(0.85, dt); d.rollV *= Math.pow(0.8, dt); } // in the air: it keeps the spin it left with (a little air drag), nothing new
+    } else { // in the air: it keeps the spin it left with (a little air drag) and slowly noses over along its arc, like a real
+      // truck on a big jump; gas spins the tires up and lifts the nose, brake stops them and drops it (how drivers set up a landing)
+      const arc = Math.atan2(d.vy, Math.max(4, Math.abs(d.u))) * 0.65;
+      d.pitchV += ((arc - d.pitch) * 1.6 + (thr ? 0.25 : 0) - (rev ? 0.8 : 0)) * dt; d.pitchV *= Math.pow(0.35, dt); d.rollV *= Math.pow(0.8, dt);
+    }
     d.pitchV = THREE.MathUtils.clamp(d.pitchV, -2.6, 2.6); d.rollV = THREE.MathUtils.clamp(d.rollV, -3.2, 3.2); // (a rollover turns over once or twice, never a blender)
     d.pitch += d.pitchV * dt; d.roll += d.rollV * dt;
     // rolled over: it keeps turning the way it was rolling to the next face — side, roof, other side, or back on its wheels —
@@ -7731,7 +8117,10 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     // pitches, rolls, wanders and the tires skip (grip loss). Stock gets kicked around in whoops; long travel + bypasses glide.
     if (!d.air && d.rawPrev) {
       const SH = SHOCKS[b.shock] || SHOCKS.stock, byp = bypassFirm(b) > 0 ? 1 : 0;
-      const soak = (0.6 + (tv.front + tv.rear) * 0.11 + SH.off * 1.4 + byp * 1.6 + (b.rearLink === 'cant' ? 0.4 : 0)) * (isSAS(b) ? 0.85 : 1); // m/s of wheel speed it can take (cantilever rocker: a progressive rate; solid front axle: more unsprung weight)
+      const TU = tuneOf(b), soak = Math.max(0.8, (0.6 + (tv.front + tv.rear) * 0.11 + SH.off * 1.4 + byp * 1.6 + (b.rearLink === 'cant' ? 0.4 : 0)) * (isSAS(b) ? 0.85 : 1) + TU.soakAdj); // m/s of wheel speed it can take (cantilever rocker: a progressive rate; solid front axle: more unsprung weight)
+      // (short-travel trucks get thrown harder by what they can't soak up: a stock or 5100-shocked truck gets beaten up in
+      // whoops; a long-travel truck with bypasses floats over them)
+      const harsh = THREE.MathUtils.clamp(1.7 - soak * 0.18, 0.6, 1.35) * TU.kick;
       const tr = raw.map((v, i) => { const rate = (v - d.rawPrev[i]) / Math.max(dt, 1e-3), bottom = Math.max(0, v - bp(i)); return Math.max(0, Math.abs(rate) - soak) * 0.5 + bottom * 18; });
       const tF = avg(tr.filter((_, i) => fr[i])), tR = avg(tr.filter((_, i) => !fr[i])), tL = avg(tr.filter((_, i) => P.spots[i].s < 0)), tRt = avg(tr.filter((_, i) => P.spots[i].s > 0)), tA = (tF + tR) / 2;
       if (tA > 0.01) {
@@ -7739,9 +8128,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         // set by the hit, relative to the ground — it doesn't stack frame after frame). The first big whoop throws the nose
         // up, the rear axle hits the same face a beat later and kicks the tail — so it bucks end to end.
         const xF = P.xF, xR = P.xR, Lx = Math.max(1, xF - xR), k = Math.min(1, dt * 18);
-        const vFe = d.vy + d.pitchV * xF, vRe = d.vy + d.pitchV * xR, hF = Math.min(4.2, tF * 1.25), hR = Math.min(4.2, tR * 1.25);
+        const vFe = d.vy + d.pitchV * xF, vRe = d.vy + d.pitchV * xR, hF = Math.min(4.6, tF * 1.25 * harsh), hR = Math.min(4.6, tR * 1.25 * harsh);
         const nF = vFe - gYc < hF ? vFe + (gYc + hF - vFe) * k : vFe, nR = vRe - gYc < hR ? vRe + (gYc + hR - vRe) * k : vRe;
-        d.pitchV = (nF - nR) / Lx; d.vy = nF - d.pitchV * xF;
+        d.pitchV = THREE.MathUtils.clamp((nF - nR) / Lx, -1.4, 1.4); d.vy = nF - d.pitchV * xF; // (bucks end to end hard, without cartwheeling)
         d.rollV += THREE.MathUtils.clamp((tL - tRt) * 0.2, -0.5, 0.5) * k;
         // side to side: every big hit shoves the truck one way (a random side) — it darts, leans and wanders instead of
         // tracking straight. Stock gets shoved hard; long travel barely
@@ -7812,9 +8201,12 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       hb.vy = neck(hb.y, hb.vy, 70, -acc * 0.3); hb.y = THREE.MathUtils.clamp(hb.y + hb.vy * dt, -0.07, 0.05);
       hb.vz = neck(hb.z, hb.vz, 45, -(d.ayPrev || 0) * 0.35); hb.z = THREE.MathUtils.clamp(hb.z + hb.vz * dt, -0.07, 0.07);
       hb.vp = neck(hb.p, hb.vp, 60, -acc * 0.03 + (d.pitchV || 0) * 1.2); hb.p = THREE.MathUtils.clamp(hb.p + hb.vp * dt, -0.07, 0.07);
-      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), eye = c.add(V(-0.6, 0.33 + hb.y, hb.z).applyQuaternion(hq));
+      // (eye height: a seated adult's, a little above the old one. Looking round behind you, you lean forward and in toward the
+      // middle, as you would — otherwise the eye sat inside the headrest)
+      const yawL = THREE.MathUtils.clamp(camOrbit.yaw, -2.3, 2.3), lean = THREE.MathUtils.smoothstep(Math.abs(yawL), 0.9, 2.1);
+      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), inward = model.holder.worldToLocal(c.clone()).z < 0 ? 1 : -1, eye = c.add(V(-0.6 + 0.2 * lean, 0.41 + hb.y, hb.z + inward * 0.3 * lean).applyQuaternion(hq));
       camera.position.copy(eye);
-      const yawL = THREE.MathUtils.clamp(camOrbit.yaw, -2.3, 2.3), pitchL = THREE.MathUtils.clamp(camOrbit.pitch, -0.9, 1.35) - 0.1 + hb.p; // (far enough up to look out through the moonroof)
+      const pitchL = THREE.MathUtils.clamp(camOrbit.pitch, -0.9, 1.35) - 0.1 + hb.p; // (far enough up to look out through the moonroof)
       camera.quaternion.copy(hq).multiply(new THREE.Quaternion().setFromAxisAngle(YAX, -Math.PI / 2 + yawL)).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitchL));
       controls.target.copy(V(0, 0, -2).applyQuaternion(camera.quaternion).add(camera.position));
       if (camera.near !== 0.04) { camera.near = 0.04; }
@@ -7824,7 +8216,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (camera.near !== 0.1) { camera.near = 0.1; camera.updateProjectionMatrix(); }
     // chase camera (C cycles: chase / close / side / driver's seat)
     const cams = [[-8.6, 3.3], [-5.6, 2.2], [-0.5, 1.6, 6.5]], cm = cams[Math.min(d.cam, 2)];
-    const side = cm[2] || 0, fx = cy, fz = -sy, camP = V(d.x + fx * cm[0] + sy * side, d.y + cm[1], d.z + fz * cm[0] + cy * side);
+    const zm = camOrbit.zoom, side = (cm[2] || 0) * zm, back = cm[0] * zm, up = cm[1] * (0.5 + 0.5 * zm), fx = cy, fz = -sy, camP = V(d.x + fx * back + sy * side, d.y + up, d.z + fz * back + cy * side);
     if (camOrbit.yaw || camOrbit.pitch) { // right-drag look-around: swing the chase offset around the truck
       const off = camP.clone().sub(V(d.x, d.y, d.z)); off.applyAxisAngle(YAX, camOrbit.yaw);
       off.y = THREE.MathUtils.clamp(off.y + camOrbit.pitch * off.length(), 0.6, 9); camP.set(d.x + off.x, d.y + off.y, d.z + off.z);
@@ -7998,13 +8390,13 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     setPaintTolerance: (v) => { if (model) model.paintMats.forEach((m) => { if (m.userData.paintMode === 'keyed') m.userData.paintU.uTol.value = v; }); },
     setPickPaint: (on) => { pickPaint = !!on && !!model; el.style.cursor = pickPaint ? 'crosshair' : 'grab'; },
     modelInfo,
-    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit }), // console inspection
+    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, step: (dt) => drive.on && driveStep(dt) }), // console inspection
     startDrive, stopDrive, isDriving: () => drive.on, recenterCam, renderVariants, setCutaway,
     setCutMode: (on, r) => { cutMode = !!on && !!model; if (r) cutR = r; controls.enabled = !cutMode && !drive.on; el.style.cursor = cutMode ? 'crosshair' : 'grab'; },
     setEngine: (s) => { Object.assign(engine, s); },
     driveKey: (k, down) => { keys[k] = !!down; },
     setDriveCam: (i) => { drive.cam = i; recenterCam(); },
-    resetTruck, getPose, setRemotes, setTags: (on) => { tagsOn = on; remotes.forEach((r) => { r.tag.visible = on; }); },
+    resetTruck, getPose, getBuild: () => build, setRemotes, setTags: (on) => { tagsOn = on; remotes.forEach((r) => { if (r.tag) r.tag.visible = on; }); },
     setCamera: (pos, tgt) => { gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target); camera.position.set(...pos); controls.target.set(...tgt); controls.update(); },
     setWet: (on) => outdoor.setWet(on),
     setQuality: (q) => { post.on = q === 'cinematic' && !!post.composer; },
@@ -8985,14 +9377,20 @@ const Online = (() => {
     if (!meta) throw new Error('No session with that code.');
     await leave();
     st.session = { code, env: meta.env, host: meta.host, hostName: meta.hostName };
-    myRef = db.ref('sessions/' + code + '/players/' + st.user.uid); myRef.onDisconnect().remove();
+    myRef = db.ref('sessions/' + code + '/players/' + st.user.uid); myRef.onDisconnect().remove(); lastBj = null; // (send the build again in the new session)
     playersRef = db.ref('sessions/' + code + '/players'); playersRef.on('value', (s) => { st.players = s.val() || {}; emit(); });
     emit(); return st.session;
   }
   async function leave() { if (playersRef) playersRef.off(); playersRef = null; if (myRef) { await myRef.remove().catch(() => {}); myRef.onDisconnect().cancel(); } myRef = null; st.session = null; st.players = {}; emit(); }
-  function publish(pose) { // ~10 updates a second
+  // ~10 updates a second: the pose (merged in, so the build stays), plus the whole build — as one JSON string, only when it
+  // changes — so everyone sees your truck exactly as you've built it. (Huge strings, like an uploaded image, are left out.)
+  let lastBj = null, bkN = 0;
+  const lean = (v) => (typeof v === 'string' ? (v.length > 4000 ? undefined : v) : Array.isArray(v) ? v.map(lean) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, lean(x)])) : v);
+  function publish(pose, build) {
     if (!myRef) return; const now = performance.now(); if (now - lastPush < 95) return; lastPush = now;
-    myRef.set({ ...pose, name: st.profile ? st.profile.username : 'player', t: fb.database.ServerValue.TIMESTAMP }).catch(() => {});
+    const msg = { ...pose, name: st.profile ? st.profile.username : 'player', t: fb.database.ServerValue.TIMESTAMP };
+    if (build) { const bj = JSON.stringify(lean(build)); if (bj !== lastBj) { lastBj = bj; msg.bj = bj; msg.bk = Date.now().toString(36) + '-' + ++bkN; } }
+    myRef.update(msg).catch(() => {});
   }
   return { state: st, subscribe: (f) => { subs.add(f); return () => subs.delete(f); }, start, signUp, signIn, signOut, savePresets, host, join, leave, publish };
 })();
@@ -9701,46 +10099,93 @@ const EngineAudio = (() => {
   let ctx = null, node = null, ready = null, on = false, rpm = 0, throttle = 0, ext = null, cyl = 8, snd = EXHAUSTS.stock.snd, raf = 0, startT = 0, listeners = [], outG = null, vol = 0.9;
   const IDLE = 720, RED = 6200;
   // ---- Recorded V8 ('rec', the default): sounds/v8-start-rev.mp3 — a cold start and fast idle, mic right at the tailpipe.
-  // Cut into a start clip and two seamless loops: the calm idle (off throttle) and the loud, rough stretch just after it fires
-  // (on throttle). Both are re-pitched with rpm and cross-faded by throttle, and a low-pass opens up as you press the pedal.
-  // The mic-in-the-pipe loudness is tamed: each piece normalised, the clipped top end rolled off, then the compressor.
+  // The start clip plays as recorded. After that it's GRANULAR: the idle recording is cut into its individual exhaust pulses
+  // (one per cylinder firing), and each time a cylinder fires at the current rpm the next recorded pulse is played — so the
+  // exhaust's own tone stays put and only the firing rate climbs, the way a real engine revs (speeding the whole recording
+  // up just made it whine). Two pulse sets: the calm idle (off throttle) and the loud, rough stretch right after it fires
+  // (on throttle), blended by throttle. Below the recorded idle speed the pulses are stretched a little (a deeper idle).
+  // The mic-in-the-pipe loudness is tamed: normalised, the clipped top end rolled off, then the compressor.
   // 'synth' is the original modelled engine (kept as the alternative, and the fallback if the file can't load).
-  const REC = { url: 'sounds/v8-start-rev.mp3', start: [0, 3.4], crank: 2.05, onLoop: [3.0, 9.0], offLoop: [14.0, 22.0], baseRpm: 900, maxRate: 5 };
-  let mode = 'rec', rec = null, recLoad = null, recN = null, recLP = null, mixIn = null;
+  const GRAIN = `
+  class ApexGrain extends AudioWorkletProcessor {
+    constructor() {
+      super();
+      Object.assign(this, { rpm: 900, target: 900, thr: 0, mix: 0, g: 0, gain: 0, ph: 0, k: 0, on: false, limiter: false, lay: null, recRpm: 1100, voices: [] });
+      this.port.onmessage = (e) => { const d = e.data; if (d.layers) { this.lay = d.layers; this.recRpm = d.recRpm; } else Object.assign(this, d); };
+    }
+    process(inputs, outputs) {
+      const out = outputs[0], L = out[0], R = out[1] || out[0], sr = sampleRate, lay = this.lay;
+      for (let i = 0; i < L.length; i++) {
+        this.rpm += (this.target - this.rpm) * 0.0009; this.g += (this.gain - this.g) * 0.0006; this.mix += (this.thr - this.mix) * 0.0005;
+        const I = (sr * 15) / Math.max(250, this.rpm); // samples between firings (a V8 fires 4 times a revolution)
+        if (++this.ph >= I) {
+          this.ph -= I; this.k++;
+          if (lay && this.on && this.g > 1e-4 && !(this.limiter && this.k % 3 === 0)) { // (the rev limiter drops sparks)
+            const r = Math.min(1.1, Math.max(0.6, this.rpm / this.recRpm)), len = 2 * I; // Hann window 2 firings long → overlaps sum flat
+            for (let li = 0; li < 2; li++) { const P = lay[li].P, j = this.k % (P.length - 2);
+              this.voices.push({ li, buf: lay[li].x, pos: P[j] - 0.3 * len * r, r, t: 0, len, amp: 0.9 + Math.random() * 0.2 }); }
+          }
+        }
+        let a = 0, b = 0;
+        for (let v = this.voices.length - 1; v >= 0; v--) {
+          const o = this.voices[v], s = o.pos + o.t * o.r, i0 = Math.floor(s), f = s - i0, buf = o.buf;
+          const x = i0 >= 0 && i0 + 1 < buf.length ? buf[i0] + (buf[i0 + 1] - buf[i0]) * f : 0, w = 0.5 - 0.5 * Math.cos((2 * Math.PI * o.t) / o.len);
+          if (o.li) b += x * w * o.amp; else a += x * w * o.amp;
+          if (++o.t >= o.len) this.voices.splice(v, 1);
+        }
+        const v = (a * (1 - this.mix) + b * this.mix) * this.g;
+        L[i] = v; R[i] = v;
+      }
+      return true;
+    }
+  }
+  registerProcessor('apex-grain', ApexGrain);`;
+  const REC = { url: 'sounds/v8-start-rev.mp3', start: [0, 3.4], crank: 2.05, onLoop: [3.0, 9.0], offLoop: [14.0, 22.0] };
+  let mode = 'rec', rec = null, recLoad = null, recN = null, recLP = null, mixIn = null, gnode = null;
+  // one section → mono samples (normalised) + the sample index of every exhaust pulse, and the rpm it was recorded at
+  const pulsesOf = (buf, [a, b]) => {
+    const sr = buf.sampleRate, i0 = Math.round(a * sr), n = Math.min(Math.round((b - a) * sr), buf.length - i0), x = new Float32Array(n), ch = buf.numberOfChannels;
+    for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) x[i] += d[i0 + i] / ch; }
+    let ss = 0; for (let i = 0; i < n; i++) ss += x[i] * x[i]; const nrm = 0.11 / Math.max(1e-4, Math.sqrt(ss / n)); for (let i = 0; i < n; i++) x[i] *= nrm;
+    const lp = new Float32Array(n), kf = 1 - Math.exp((-2 * Math.PI * 250) / sr); let acc = 0, mx = 0, mn = 0;
+    for (let i = 0; i < n; i++) { acc += (x[i] - acc) * kf; lp[i] = acc; mx = Math.max(mx, acc); mn = Math.min(mn, acc); }
+    if (-mn > mx) for (let i = 0; i < n; i++) lp[i] = -lp[i]; // (pulse polarity)
+    // firing period: autocorrelation of the low-passed signal (decimated), 30–200 firings a second
+    const D = 8, m = Math.min(Math.floor(n / D), Math.round(sr / D)), y = new Float32Array(m); for (let i = 0; i < m; i++) y[i] = lp[i * D];
+    let best = -Infinity, lag = Math.round(sr / D / 75);
+    for (let l = Math.round(sr / D / 200); l <= Math.round(sr / D / 30); l++) { let s = 0; for (let i = 0; i + l < m; i++) s += y[i] * y[i + l]; if (s > best) { best = s; lag = l; } }
+    const T = lag * D, P = [], peak = (lo, hi) => { let bi = lo; for (let i = lo; i < hi && i < n; i++) if (lp[i] > lp[bi]) bi = i; return bi; };
+    for (let p = peak(T, 2 * T); p + 1.3 * T < n; p = peak(Math.round(p + 0.75 * T), Math.round(p + 1.25 * T))) P.push(p);
+    return { x, P: Int32Array.from(P), rpm: (sr / T) * 15 };
+  };
   const loadRec = () => recLoad || (recLoad = fetch(REC.url).then((r) => { if (!r.ok) throw new Error('no engine recording'); return r.arrayBuffer(); })
     .then((ab) => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej))).then((buf) => {
       const sr = buf.sampleRate, ch = buf.numberOfChannels;
-      const cut = ([a, b], loop) => { // loop: the last 0.3 s is cross-faded over the start, so the end runs straight into the beginning
-        const i0 = Math.round(a * sr), n = Math.min(Math.round((b - a) * sr), buf.length - i0), X = Math.round(0.3 * sr), len = loop ? n - X : n, out = ctx.createBuffer(2, len, sr);
-        let ss = 0;
-        for (let c = 0; c < 2; c++) {
-          const src = buf.getChannelData(Math.min(c, ch - 1)), dst = out.getChannelData(c);
-          for (let i = 0; i < len; i++) dst[i] = src[i0 + i];
-          if (loop) for (let i = 0; i < X; i++) { const t = i / X; dst[i] = src[i0 + i] * Math.sqrt(t) + src[i0 + n - X + i] * Math.sqrt(1 - t); }
-          else for (let i = Math.max(0, len - Math.round(0.6 * sr)); i < len; i++) dst[i] *= (len - i) / (0.6 * sr); // the start clip fades as the loops come in
-          for (let i = 0; i < len; i += 7) ss += dst[i] * dst[i];
-        }
-        return { buf: out, norm: 0.11 / Math.max(1e-4, Math.sqrt(ss / (2 * len / 7))) }; // → about the same loudness as the modelled engine
-      };
-      rec = { start: cut(REC.start, false), on: cut(REC.onLoop, true), off: cut(REC.offLoop, true) };
-      return rec;
+      const i0 = Math.round(REC.start[0] * sr), len = Math.round((REC.start[1] - REC.start[0]) * sr), st = ctx.createBuffer(2, len, sr); let ss = 0;
+      for (let c = 0; c < 2; c++) { const src = buf.getChannelData(Math.min(c, ch - 1)), dst = st.getChannelData(c);
+        for (let i = 0; i < len; i++) { dst[i] = src[i0 + i] * (i > len - 0.6 * sr ? (len - i) / (0.6 * sr) : 1); if (i % 7 === 0) ss += dst[i] * dst[i]; } } // (fades as the pulses take over)
+      const off = pulsesOf(buf, REC.offLoop), onL = pulsesOf(buf, REC.onLoop);
+      rec = { start: { buf: st, norm: 0.11 / Math.max(1e-4, Math.sqrt(ss / ((2 * len) / 7))) }, recRpm: off.rpm, layers: [{ x: off.x, P: off.P }, { x: onL.x, P: onL.P }] };
+      sendLayers(); return rec;
     }));
+  const sendLayers = () => { if (gnode && rec && rec.layers && !rec.sent) { rec.sent = true; gnode.port.postMessage({ layers: rec.layers, recRpm: rec.recRpm }); } };
   const recStop = (fade = 0.4) => {
-    if (!recN) return; const t = ctx.currentTime, n = recN; recN = null;
-    [n.on, n.off, n.st].forEach((v) => { if (!v) return; v.g.gain.cancelScheduledValues(t); v.g.gain.setTargetAtTime(0, t, fade / 4); try { v.src.stop(t + fade); } catch (e) { /* already stopped */ } });
+    if (gnode) gnode.port.postMessage({ gain: 0 });
+    if (!recN) return; const t = ctx.currentTime, v = recN.st; recN = null;
+    if (v) { v.g.gain.cancelScheduledValues(t); v.g.gain.setTargetAtTime(0, t, fade / 4); try { v.src.stop(t + fade); } catch (e) { /* already stopped */ } }
   };
-  const recPlay = (withStart) => { // loops (and the start clip) — the gains / pitch are driven from tick()
+  const recPlay = (withStart) => { // the start clip (optional); the pulse engine is driven from tick()
     if (!rec || !mixIn) return; recStop(0.1);
-    const voice = (p, loop) => { const src = ctx.createBufferSource(), g = ctx.createGain(); src.buffer = p.buf; src.loop = loop; g.gain.value = 0; src.connect(g); g.connect(recLP); src.start(); return { src, g, norm: p.norm }; };
-    recN = { on: voice(rec.on, true), off: voice(rec.off, true), st: withStart ? voice(rec.start, false) : null, t0: ctx.currentTime, withStart };
-    if (recN.st) recN.st.g.gain.value = rec.start.norm * 0.9;
+    let st = null;
+    if (withStart) { const src = ctx.createBufferSource(), g = ctx.createGain(); src.buffer = rec.start.buf; g.gain.value = rec.start.norm * 0.9; src.connect(g); g.connect(recLP); src.start(); st = { src, g }; }
+    recN = { st, t0: ctx.currentTime, withStart };
   };
   // Browsers only allow AudioWorklet on secure pages (https:// or localhost). On a plain http:// page the same engine model
   // runs in a ScriptProcessor on the main thread instead — a little more CPU, same sound.
-  function fallbackNode() {
+  function fallbackNode(code = WORKLET) {
     const port = { onmessage: null }; let proc = null;
     class Base { constructor() { this.port = port; } }
-    new Function('AudioWorkletProcessor', 'registerProcessor', 'sampleRate', WORKLET)(Base, (name, C) => { proc = new C(); }, ctx.sampleRate);
+    new Function('AudioWorkletProcessor', 'registerProcessor', 'sampleRate', code)(Base, (name, C) => { proc = new C(); }, ctx.sampleRate);
     const sp = ctx.createScriptProcessor(1024, 0, 2);
     sp.onaudioprocess = (e) => { proc.process([], [[e.outputBuffer.getChannelData(0), e.outputBuffer.getChannelData(1)]]); };
     sp.port = { postMessage: (data) => port.onmessage && port.onmessage({ data }) };
@@ -9750,16 +10195,17 @@ const EngineAudio = (() => {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
     if (!ready) ready = (ctx.audioWorklet && window.AudioWorkletNode
-      ? ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }))).then(() => new AudioWorkletNode(ctx, 'apex-engine', { outputChannelCount: [2] }))
-      : Promise.resolve().then(fallbackNode)).then((n) => {
-      node = n;
+      ? ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET + GRAIN], { type: 'application/javascript' })))
+        .then(() => [new AudioWorkletNode(ctx, 'apex-engine', { outputChannelCount: [2] }), new AudioWorkletNode(ctx, 'apex-grain', { outputChannelCount: [2] })])
+      : Promise.resolve().then(() => [fallbackNode(WORKLET), fallbackNode(GRAIN)])).then(([n, gn]) => {
+      node = n; gnode = gn;
       const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 3;
       const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 90; body.gain.value = 7; body.Q.value = 0.7;
       outG = ctx.createGain(); outG.gain.value = vol; node.connect(body); body.connect(comp); comp.connect(outG); outG.connect(ctx.destination); // outG: engine volume (mixer)
       // recorded engine: voices → low-pass (opens with throttle) → a high-shelf cut (the clipped fizz) → the same compressor
       recLP = ctx.createBiquadFilter(); recLP.type = 'lowpass'; recLP.frequency.value = 1400; recLP.Q.value = 0.5;
       const shelf = ctx.createBiquadFilter(); shelf.type = 'highshelf'; shelf.frequency.value = 3000; shelf.gain.value = -9;
-      recLP.connect(shelf); shelf.connect(comp); mixIn = comp;
+      recLP.connect(shelf); shelf.connect(comp); mixIn = comp; gnode.connect(recLP); sendLayers();
     });
     return ready;
   }
@@ -9775,13 +10221,12 @@ const EngineAudio = (() => {
     node.port.postMessage({ target: Math.max(on ? 150 : 0, rpm), thr: since < 0.6 ? 0.15 : thr, on, cyl, snd, gain: on && !starting && !useRec ? 1 : 0, limiter: rpm > RED - 60 && thr > 0.5 });
     if (useRec) {
       const n = recN, age = t - n.t0, ss = THREE.MathUtils.smoothstep;
-      const k = n.withStart ? ss(age, REC.start[1] - 1.0, REC.start[1] - 0.1) : 1;    // the loops come in as the start clip ends
+      const k = n.withStart ? ss(age, REC.start[1] - 1.0, REC.start[1] - 0.1) : 1;    // the pulses take over as the start clip ends
       const settle = n.withStart ? 1 - ss(age, REC.start[1], REC.start[1] + 4) : 0;      // cold-start fast idle, then it calms down
-      const loud = Math.max(thr, settle * 0.7), rate = Math.min(REC.maxRate, Math.max(0.5, rpm / REC.baseRpm));
-      n.on.src.playbackRate.setTargetAtTime(rate, t, 0.03); n.off.src.playbackRate.setTargetAtTime(rate, t, 0.03);
-      n.on.g.gain.setTargetAtTime(k * n.on.norm * (0.12 + 0.88 * loud), t, 0.06);
-      n.off.g.gain.setTargetAtTime(k * n.off.norm * (1 - 0.75 * loud), t, 0.06);
-      recLP.frequency.setTargetAtTime(n.st && age < REC.start[1] ? 6000 : 900 + 4200 * thr + rpm * 0.5, t, 0.05);
+      const loud = Math.max(thr, settle * 0.7), rr = Math.min(1, rpm / RED);
+      // louder with throttle and revs (a lifted pedal at speed is a quieter, muffled burble)
+      gnode.port.postMessage({ target: Math.max(300, rpm), thr: loud, on, gain: k * (0.55 + 0.45 * loud) * (0.8 + 0.5 * rr), limiter: rpm > RED - 60 && thr > 0.5 });
+      recLP.frequency.setTargetAtTime(n.st && age < REC.start[1] ? 6000 : 700 + 3800 * thr + rpm * 0.7, t, 0.05);
     }
     listeners.forEach((f) => f({ on, rpm, throttle: thr, redline: RED }));
   }
@@ -10069,7 +10514,7 @@ function App() {
   useEffect(() => {
     if (!on.session) { stageRef.current && stageRef.current.setRemotes([]); return; }
     if (on.session.env && on.session.env !== envId && ENVIRONMENTS.some((e) => e.id === on.session.env)) setEnvId(on.session.env);
-    const me = on.user && on.user.uid, iv = setInterval(() => { const st = stageRef.current; if (st) Online.publish(st.getPose()); }, 100);
+    const me = on.user && on.user.uid, iv = setInterval(() => { const st = stageRef.current; if (st) Online.publish(st.getPose(), st.getBuild()); }, 100);
     return () => clearInterval(iv);
   }, [on.session && on.session.code]);
   useEffect(() => {
@@ -10708,13 +11153,24 @@ function App() {
       { kind: 'header', label: 'Shocks & Coilovers · by body diameter' },
       ...Object.entries(SHOCKS).map(([id, s]) => ({ kind: 'item', icon: 'Gauge', label: `${s.brand} ${s.label}`, price: s.price, installed: applied.shock === id, patch: { shock: id },
         desc: `${s.desc} Body ⌀ ${s.dia.toFixed(2)}" (${Math.round(s.dia * 25.4)} mm) · ${s.res === 'none' ? 'no reservoir' : `${s.res} reservoir`}. Price: front pair (est.).` })),
-      ...((SHOCKS[applied.shock] || SHOCKS.stock).price > 1000 ? [{ kind: 'custom', render: () => (
-        <div>
-          <div className="flex justify-between items-baseline"><span className="hud text-[14px] font-semibold">Compression / rebound clickers</span><span className="hud text-[15px] font-bold text-amber-300">{(applied.damping ?? 0.5) < 0.34 ? 'Soft' : (applied.damping ?? 0.5) > 0.66 ? 'Firm' : 'Medium'}</span></div>
-          <input type="range" min="0" max="1" step="0.05" value={applied.damping ?? 0.5} onChange={(e) => applyPatch({ damping: +e.target.value })} className="hud-range mt-2" />
-          <div className="text-[11px] text-white/45 mt-1">Adjustable-valving shocks: soft soaks up whoops, firm resists bottoming on big landings (felt in Drive).</div>
-        </div>
-      ) }] : []),
+      { kind: 'header', label: 'Suspension Tuning' },
+      { kind: 'custom', render: () => { // spring rate on any truck; compression / rebound clickers & hydraulic bump stops need adjustable (>$1000) shocks
+        const adj = (SHOCKS[applied.shock] || SHOCKS.stock).price > 1000;
+        const word = (v, lo, mid, hi) => (v < 0.34 ? lo : v > 0.66 ? hi : mid);
+        const slider = (key, label, lo, mid, hi, note, on = true) => (
+          <div className={`mb-2.5 ${on ? '' : 'opacity-40 pointer-events-none'}`}>
+            <div className="flex justify-between items-baseline"><span className="hud text-[13px] font-semibold">{label}</span><span className="hud text-[13px] font-bold text-amber-300">{word(applied[key] ?? 0.5, lo, mid, hi)}</span></div>
+            <input type="range" min="0" max="1" step="0.05" value={applied[key] ?? 0.5} onChange={(e) => applyPatch({ [key]: +e.target.value })} className="hud-range mt-1" />
+            <div className="text-[10.5px] text-white/45">{note}</div>
+          </div>);
+        return (
+          <div>
+            {slider('springRate', 'Spring rate', 'Soft', 'Medium', 'Stiff', 'Soft: plush over whoops, but bottoms out sooner on big landings. Stiff: resists bottoming, rides harsher.')}
+            {slider('damping', 'Compression (clickers)', 'Soft', 'Medium', 'Firm', adj ? 'Firm resists bottoming on jumps; soft lets the wheels follow whoops.' : 'Fixed valving — fit adjustable coilovers (over $1000) to tune compression.', adj)}
+            {slider('rebound', 'Rebound (clickers)', 'Fast', 'Medium', 'Slow', adj ? 'Slow rebound stops hits throwing the truck back up (less buck); too slow and it packs down in whoops.' : 'Fixed valving — needs adjustable coilovers.', adj)}
+            <label className={`flex items-center gap-2 hud text-[12.5px] ${adj ? '' : 'opacity-40 pointer-events-none'}`}><input type="checkbox" checked={!!applied.hydroBump} onChange={(e) => applyPatch({ hydroBump: e.target.checked })} className="accent-amber-400" />Hydraulic bump stops (+$900) — take the last hit of a big landing</label>
+          </div>);
+      } },
       { kind: 'custom', render: () => { const tr = travelOf(effective); return (
         <div className="grid grid-cols-3 gap-2 text-center">
           {[['Front travel', `${tr.front.toFixed(1)}"`], ['Rear travel', `${tr.rear.toFixed(1)}"`], ['Damping', `${Math.round(dampingOf(effective) * 100)}%`]].map(([k, v]) => (
@@ -10728,6 +11184,7 @@ function App() {
       ...(isSAS(applied) ? [] : Object.entries(UCA_KITS)).map(([id, k]) => ({ kind: 'item', icon: 'Wrench', label: k.brand ? `${k.brand} ${k.label}` : k.label, price: k.price, installed: (applied.uca || 'stock') === id, patch: { uca: id }, desc: k.desc })),
       ...(isSAS(applied) ? [] : [{ kind: 'header', label: 'Lower Control Arms / Long Travel' }]),
       ...(isSAS(applied) ? [] : Object.entries(LCA_KITS)).map(([id, k]) => ({ kind: 'item', icon: 'Wrench', label: k.brand ? `${k.brand} ${k.label}` : k.label, price: k.price, installed: (applied.lca || 'stock') === id, patch: { lca: id }, desc: `${k.desc}${k.travel ? ` → ${travelOf({ ...applied, lca: id }).front.toFixed(1)}" front travel with your shocks.` : ''}` })),
+      ...(isSAS(applied) ? [] : [{ kind: 'item', icon: 'Link', label: 'Limit straps (lower arms → frame)', price: 260, installed: !!applied.straps, patch: { straps: !applied.straps }, desc: 'Heavy nylon limit straps from frame tabs to the lower control arms: they hang slack at ride height and pull tight at full droop in the air, so the coilovers never top out. Standard on long-travel prerunners.' }]),
       { kind: 'header', label: 'Front Bypass Shocks' },
       ...Object.entries(BYPASSES).map(([id, k]) => ({ kind: 'item', icon: 'Gauge', label: k.brand ? `${k.brand} ${k.label}` : k.label, price: k.price, installed: (applied.bypassF || 'none') === id, patch: { bypassF: id }, desc: k.desc || 'Coilovers only.' })),
       { kind: 'header', label: 'Rear Suspension' },
@@ -10791,7 +11248,7 @@ function App() {
       ...Object.entries(REAR_BUMPERS).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: f.label, price: f.price, installed: (applied.rearBumper || 'stock') === id, patch: { rearBumper: id }, desc: f.desc })),
       { kind: 'custom', render: () => ( // rear bumper colour (factory or aftermarket)
         <div>
-          <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Rear bumper color</div>
+          <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Rear bumper color{['stock', 'oemBlack'].includes(applied.rearBumper || 'stock') ? ' · center section' : ''}</div>
           <div className="flex flex-wrap gap-1.5">
             <button onClick={() => { const zc = { ...(applied.zoneColors || {}) }; delete zc.rearBumper; applyPatch({ zoneColors: zc }); }} className={`px-2 h-7 rounded border hud text-[11px] font-bold ${!(applied.zoneColors || {}).rearBumper ? 'border-amber-400 text-amber-200 bg-white/10' : 'border-white/15 text-white/70'}`}>DEFAULT</button>
             {[['#d9dcdf', 'chrome', 'Chrome'], ['#16171a', 'satin', 'Satin black'], ['#1a1b1d', 'matte', 'Textured black'], [applied.color, applied.finish === 'matte' ? 'matte' : 'gloss', 'Body color'], ['#8b8e8c', 'satin', 'Grey'], ['#c4ab7d', 'satin', 'Tan'], ['#e8eaec', 'gloss', 'White']].map(([hex, finish, n]) => {
@@ -10799,6 +11256,9 @@ function App() {
               return <button key={n} title={n} onClick={() => applyPatch({ zoneColors: { ...(applied.zoneColors || {}), rearBumper: { hex, finish } } })} className={`w-7 h-7 rounded-full ring-1 ${sel ? 'ring-2 ring-amber-400' : 'ring-white/25'}`} style={{ background: finish === 'chrome' ? 'linear-gradient(135deg,#fff,#8e9196 60%,#fff)' : hex }} />;
             })}
           </div>
+          {['stock', 'oemBlack'].includes(applied.rearBumper || 'stock') && (
+            <label className="flex items-center gap-2 mt-2 hud text-[12px] text-white/75"><input type="checkbox" checked={!!applied.rearBumperAll} onChange={(e) => applyPatch({ rearBumperAll: e.target.checked })} className="accent-amber-400" />Whole bumper one color (otherwise the step pad on top and the lower lip stay black plastic)</label>
+          )}
         </div>
       ) },
       { kind: 'header', label: 'License Plate' },

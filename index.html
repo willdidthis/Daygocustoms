@@ -58,6 +58,8 @@
 
 <!-- Lucide icons (React UMD build) -->
 <script src="https://unpkg.com/lucide-react@0.344.0/dist/umd/lucide-react.min.js"></script>
+<!-- online accounts + multiplayer settings (Firebase web config; null = off) -->
+<script src="firebase-config.js" onerror="window.FIREBASE_CONFIG = null"></script>
 
 <style>
   /* accent themes (rgb triplets). Default: Pacific — a cool San Diego ocean cyan */
@@ -89,10 +91,17 @@
   .pulse { animation: pulseGlow 1.6s ease-in-out infinite; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
   .fade-up { animation: fadeUp .25s ease-out both; }
+  /* photo mode (P): every menu / HUD element hidden, just the 3D view — the canvas opts back in (visibility inherits) */
+  body.photo-mode #root * { visibility: hidden !important; }
+  body.photo-mode #root canvas { visibility: visible !important; }
+  #photo-hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 99; padding: 6px 14px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font: 600 12px Rajdhani, sans-serif; letter-spacing: .14em; pointer-events: none; transition: opacity 1.2s ease 1.6s; }
+  body:not(.photo-mode) #photo-hint { display: none; }
+  body.photo-mode.photo-quiet #photo-hint { opacity: 0; }
 </style>
 </head>
 <body>
 <div id="root"></div>
+<div id="photo-hint">PHOTO MODE · DRAG TO FRAME · P OR ESC TO EXIT</div>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -710,8 +719,11 @@ const FRONT_BUMPERS = {
   winch:   { label: 'Full-width winch bumper', price: 2300, lbs: 165, dx: 1, dy: 0.5, desc: 'Heavy plate bumper with a 10,000 lb winch, hawse fairlead and shackle mounts. Adds weight over the front axle.' },
 };
 const REAR_BUMPERS = {
-  stock:   { label: 'Factory rear bumper', price: 0, lbs: 0, dx: 0, dy: 0, desc: 'Stock chrome step bumper.' },
-  hc:      { label: 'High-clearance plate bumper', price: 1350, lbs: 75, dx: -3, dy: 5, desc: 'Plate center section with 2" receiver and corners swept up behind the tires.' },
+  stock:   { label: 'Factory rear bumper (chrome)', price: 0, lbs: 0, dx: 0, dy: 0, desc: 'Stock chrome step bumper with the black step pads and license plate notch.' },
+  oemBlack: { label: 'Factory rear bumper (black)', price: 280, lbs: 0, dx: 0, dy: 0, desc: 'The factory step bumper in satin black (the base-model look) — or pick any color below.' },
+  hc:      { label: 'High-clearance plate bumper', price: 1350, lbs: 75, dx: -3, dy: 5, desc: 'Plate center section with 2" receiver and corners swept up behind the tires (Mercenary-style).' },
+  hooke:   { label: 'Steel bumper with LED cube lights', price: 980, lbs: 90, dx: 0, dy: 1, desc: 'Full-width square steel bumper with two flush LED cube lights, a center license plate and 2" receiver (Hooke Road style).' },
+  slim:    { label: 'Low-profile slim steel bumper', price: 249, lbs: 40, dx: -1, dy: 2, desc: 'Thin, flat steel bumper tucked tight under the tailgate — the clean pre-runner look (like the Drew\'s Fab OG WIY).' },
   prerunner: { label: 'Pre-runner tube bumper + bed cut', price: 1900, lbs: 55, dx: -6, dy: 7, bedCut: true, desc: 'The lower bed corners behind the rear tires are cut off and a 1.75" DOM tube bumper wraps the cut: side tubes along the cut line, a swept lower bar, uprights to the tailgate and a receiver.' },
   tube:    { label: 'Double-tube rear bumper', price: 1250, lbs: 60, dx: -2, dy: 2.5, desc: 'Two 1.75" round tubes (upper bar + step tube) that wrap around the bed corners, a flat step between them, center receiver plate and D-ring tabs.' },
   step:    { label: 'Flat steel step bumper', price: 900, lbs: 95, dx: 0, dy: 1, desc: 'Full-width square-edge steel bumper with 2" receiver and D-rings.' },
@@ -916,6 +928,14 @@ const EXHAUST_EXITS = {
   bed:     { label: 'Bedside exit — passenger, single tip', price: 320, desc: 'Pipe climbs behind the cab and exits a hole cut in the bedside just ahead of the rear wheel, trimmed with a bolted round flange — classic pre-runner exit.' },
   bedD:    { label: 'Bedside exit — driver side, single tip', price: 380, desc: 'Same bolted bedside exit, crossed over to the driver side.' },
   sideDual: { label: 'Dual side exits — both sides, ahead of the rear tires', price: 780, desc: 'True duals split to both sides: two tips side by side dumping just ahead of each rear tire.' },
+  // dual tips on ONE side, out the side under the truck (never through the bed): ahead of the rear tire, further forward
+  // under the cab (at the rocker), or behind the rear tire
+  dualFP: { label: 'Dual side exit — passenger, ahead of the rear tire', price: 420, desc: 'Two tips side by side on the passenger side, dumping just in front of the rear tire.' },
+  dualFD: { label: 'Dual side exit — driver, ahead of the rear tire', price: 460, desc: 'Two tips side by side on the driver side, just in front of the rear tire.' },
+  dualCP: { label: 'Dual side exit — passenger, under the cab', price: 420, desc: 'Two tips poking out under the rocker below the rear door — the pipe never goes near the bed.' },
+  dualCD: { label: 'Dual side exit — driver, under the cab', price: 460, desc: 'Two tips out under the driver-side rocker, below the rear door.' },
+  dualRP: { label: 'Dual side exit — passenger, behind the rear tire', price: 440, desc: 'Over the axle as stock, then two tips out the passenger side just behind the rear tire.' },
+  dualRD: { label: 'Dual side exit — driver, behind the rear tire', price: 480, desc: 'Over the axle and out the driver side behind the rear tire, two tips side by side.' },
   bedDual: { label: 'Bedside exit — passenger, dual tips', price: 520, desc: 'Two tips side by side through one oval bolted flange in the bedside, ahead of the rear wheel.' },
   bedTear: { label: 'Bedside exit — passenger, teardrop flange', price: 360, desc: 'Single tip through a bare-aluminium teardrop flange (pointing toward the cab), ahead of the rear wheel — desert-truck style.' },
   quarter: { label: 'Rear-quarter exit — low, behind the rear tire', price: 300, desc: 'Pipe runs over the axle as stock, then turns out through a small bolted flange low in the bed corner, between the rear wheel and the bumper.' },
@@ -960,6 +980,27 @@ const SUNROOFS = {
   closed: { label: 'Power moonroof', price: 950, desc: 'Glass panel over the front seats (Limited option). Open / close it below or from the drive HUD (Windows); it takes the window tint.' },
   open:   { label: 'Power moonroof (open)', price: 950, hidden: true, desc: 'Older saves: installed and open.' },
 };
+// tileable greyscale detail for the cabin surfaces (projected in metres — see the interior tone in applyZones)
+const interiorDetailCache = new Map();
+function interiorDetailTex(kind) {
+  if (interiorDetailCache.has(kind)) return interiorDetailCache.get(kind);
+  const N = 256, cv = document.createElement('canvas'); cv.width = cv.height = N; const x = cv.getContext('2d'), r = mulberry32(kind.length * 977 + 13);
+  x.fillStyle = '#808080'; x.fillRect(0, 0, N, N);
+  const blot = (cnt, rmin, rmax, a) => { for (let i = 0; i < cnt; i++) { const cx = r() * N, cy = r() * N, rr = rmin + r() * (rmax - rmin), v = Math.round(128 + (r() - 0.5) * 255 * a); x.fillStyle = `rgb(${v},${v},${v})`; for (const ox of [-N, 0, N]) for (const oy of [-N, 0, N]) { x.beginPath(); x.arc(cx + ox, cy + oy, rr, 0, Math.PI * 2); x.fill(); } } };
+  if (kind === 'weave') { // over-under cloth weave
+    for (let j = 0; j < N; j += 8) for (let i = 0; i < N; i += 8) { const over = ((i + j) / 8) % 2; x.fillStyle = over ? '#9a9a9a' : '#626262'; x.fillRect(i, j, 8, 8); x.fillStyle = over ? '#b0b0b0' : '#7a7a7a'; x.fillRect(i + (over ? 1 : 3), j + (over ? 3 : 1), over ? 6 : 2, over ? 2 : 6); }
+    blot(500, 0.5, 1.5, 0.35);
+  } else if (kind === 'grain' || kind === 'vinylGrain') { // pebbled hide / vinyl grain: tight random cells with dark creases
+    blot(kind === 'grain' ? 2200 : 1400, 2, kind === 'grain' ? 5 : 4, 0.5); x.globalAlpha = 0.5; blot(900, 0.6, 1.4, 0.9); x.globalAlpha = 1;
+  } else if (kind === 'perf') { // leather grain + a grid of perforation holes
+    blot(2000, 2, 5, 0.45); x.fillStyle = '#1e1e1e'; for (let j = 8; j < N; j += 16) for (let i = 8 + ((j / 16) % 2) * 8; i < N; i += 16) { x.beginPath(); x.arc(i, j, 2.2, 0, Math.PI * 2); x.fill(); }
+  } else if (kind === 'nap') { // suede: soft directional nap
+    for (let i = 0; i < 6000; i++) { const v = Math.round(128 + (r() - 0.5) * 70); x.strokeStyle = `rgba(${v},${v},${v},0.5)`; const px = r() * N, py = r() * N; x.beginPath(); x.moveTo(px, py); x.lineTo(px + 3 + r() * 4, py + 1); x.stroke(); }
+  } else { // stipple: fine molded-plastic texture
+    blot(3500, 0.8, 2.2, 0.45);
+  }
+  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; interiorDetailCache.set(kind, t); return t;
+}
 const SUN_HL = 0.27, SUN_HW = 0.47; // moonroof opening half-length (fore-aft) / half-width — wider than it is long
 const STAR_T = { value: 0 }; // shared clock for the starlight twinkle
 // Headliner (the fabric ceiling under the roof) — color / material. Factory follows the interior color.
@@ -986,6 +1027,8 @@ function headlinerHex(b) {
 const TRIM_COL = { value: new THREE.Color('#b3ada3') }; // shared by every paint material: the inside face of the body shell
 // …only inside the cab (the bed walls' inner faces stay paint): world → truck rest space, and the cab box in rest space
 const TRIM_MAT = { value: new THREE.Matrix4() }, TRIM_MIN = { value: new THREE.Vector3(1e6, 1e6, 1e6) }, TRIM_MAX = { value: new THREE.Vector3(-1e6, -1e6, -1e6) };
+// below the window sills the inside of the door skins take the interior colour (door panels), above it the trim colour
+const TRIM_SILL = { value: 1e6 }, TRIM_LOW = { value: new THREE.Color('#aaa397') };
 // Starlight headliner: fiber-optic "stars" through the headliner (they twinkle). cols = the mix of star colors.
 const STARLIGHTS = {
   none:  { label: 'No starlight', price: 0, desc: 'Plain headliner.' },
@@ -1114,7 +1157,7 @@ const ENGINE_ACCENTS = {
 };
 const DEFAULT_BUILD = {
   color: '#a3141b', finish: 'metallic', wrap: 'none', tint: 50, tintWs: 0, // Sunfire Red Pearl (3K4)
-  tire: 'stock', tireBrand: 'oem', wheelStyle: 'model', rimFinish: 'matte', offsetF: 'oe', offsetR: 'oe', spacerF: 0, spacerR: 0, exhaustColor: 'stock', intTrim: 'cloth', intColor: 'stock', brake3: 'oem', brake3On: true, audio: 'factory', subs: 'none', dashTrim: 'match', sunroof: 'none', sunroofOpen: false, headliner: 'oem', starlight: 'none', head: 'off', fogsOn: false, badges: {}, decal: null, frontSusp: 'ifs',
+  tire: 'stock', tireBrand: 'oem', wheelStyle: 'model', rimFinish: 'matte', offsetF: 'oe', offsetR: 'oe', spacerF: 0, spacerR: 0, exhaustColor: 'stock', intTrim: 'cloth', intColor: 'stock', brake3: 'oem', brake3On: true, audio: 'factory', subs: 'none', dashTrim: 'match', sunroof: 'none', sunroofOpen: false, headliner: 'oem', plate: 'texas', plateText: 'DGC 4124', plateFront: false, starlight: 'none', head: 'off', fogsOn: false, badges: {}, decal: null, frontSusp: 'ifs',
   lift: 0, liftR: null, shock: 'stock', uca: 'stock', lca: 'stock', rearSpring: 'stock', bypassF: 'none', bypassR: 'none', rearLink: 'leaf', exhaust: 'stock', steps: 'stock',
   windows: { fl: 0, fr: 0, rl: 0, rr: 0, rear: 0 }, cuts: [], grille: 'stock', fiberF: 'none', fiberR: 'none', antenna: 'stock', diff: 'open', damping: 0.5,
   bedCover: 'model', topper: 'none', bedRack: 'none', bedTent: 'none', roofRack: 'none', roofTent: 'none', tentOpen: false,
@@ -1639,6 +1682,7 @@ const ENVIRONMENTS = [
   { id: 'belfast_sunset_puresky', label: 'Rock Crawl · drivable', layout: 'rocks', rot: 0, height: 1.7, radius: 300, exposure: 1.0, fog: 0.004 },
   { id: 'kloppenheim_06_puresky', label: 'Urban Whoops (parking lot) · drivable', layout: 'whoops', rot: 0, height: 1.7, radius: 600, exposure: 1.0, fog: 0.004 },
   { id: 'backroads', hdri: 'kloofendal_48d_partly_cloudy_puresky', label: 'Backroads (long curvy two-lane) · drivable', layout: 'backroads', rot: 0, height: 1.7, radius: 1200, exposure: 1.0, fog: 0.0035 },
+  { id: 'drift', hdri: 'qwantani_afternoon_puresky', label: 'Drift Track (wide, curvy, through the trees) · drivable', layout: 'drift', rot: 0, height: 1.7, radius: 900, exposure: 1.0, fog: 0.0035 },
 ];
 const hdriUrl = (id, q) => `https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/${q}/${id}_${q}.hdr`;
 const PH_TEX = (id, map, res = '1k') => `https://dl.polyhaven.org/file/ph-assets/Textures/jpg/${res}/${id}/${id}_${map}_${res}.jpg`;
@@ -2642,147 +2686,174 @@ function buildOutdoor(renderer) {
     const tl = []; const tr6 = mulberry32(66); for (let i = 0; i < 90; i++) { const a = tr6() * Math.PI * 2, r = 320 + tr6() * 90; tl.push([Math.cos(a) * r, 0, Math.sin(a) * r]); } treeRing(whoopsG, tl, 61);
   }
 
-  // ======================= Backroads: a long, curvy two-lane country road =======================
-  // A ~4.6 km closed loop of two-lane blacktop through rolling, wooded hills: double-yellow centre line, white edge lines,
-  // gravel shoulders and a ditch, white reflector posts, curve-warning signs and guardrail on the tight bends, and forest
-  // right up to the trees' drip line. A loop on purpose — traffic (sedans etc.) can circulate on it later: BR.path is the
-  // centreline (x, z, tangent, elevation every metre) and BR.lane is ±1.8 m (right lane of travel = +lateral).
-  const backG = new THREE.Group(); backG.visible = false; backG.userData.noScan = true; g.add(backG);
-  mapCol.backroads = [];
-  const BX0 = -820, BX1 = 820, BZ0 = -640, BZ1 = 640, BC = 4, BNX /* (spans divide evenly by the cell) */ = (BX1 - BX0) / BC, BNZ = (BZ1 - BZ0) / BC, BRW = 3.6;
-  const brCtl = []; for (let i = 0; i < 64; i++) { const a = 1.5 * Math.PI + (i / 64) * Math.PI * 2, r = /* (starts at the bottom of the loop, heading +x) */ 560 + 62 * Math.sin(3 * a + 0.6) + 40 * Math.sin(5 * a + 2.1) + 26 * Math.sin(9 * a + 0.3) + 17 * Math.sin(14 * a + 1.2); brCtl.push(new THREE.Vector3(Math.cos(a) * r * 1.08, 0, Math.sin(a) * r * 0.82)); }
-  const brc = new THREE.CatmullRomCurve3(brCtl, true, 'centripetal'), BLEN = brc.getLength();
-  // rolling hills, easing to flat at the map's edges so the forest floor meets the far ground without a step
-  const brHills = (x, z) => (9 * Math.sin(x * 0.0061 + 0.4) * Math.sin(z * 0.0072 + 1.1) + 4.5 * Math.sin(x * 0.0137 - z * 0.0109 + 2.3) + 1.6 * Math.sin(x * 0.031 + z * 0.027))
-    * (1 - smt(BX1 - 70, BX1 - 8, Math.abs(x))) * (1 - smt(BZ1 - 70, BZ1 - 8, Math.abs(z)));
-  const brS = []; for (let s = 0; s < BLEN; s += 1) { const u = s / BLEN, p = brc.getPointAt(u), t = brc.getTangentAt(u); brS.push({ x: p.x, z: p.z, tx: t.x, tz: t.z, s, e: brHills(p.x, p.z) }); }
-  { // the road's own grade: the hills along the path, averaged over ±70 m so climbs and dips stay gentle (≤ ~7 %)
-    const N = brS.length, raw = brS.map((p) => p.e), W = 70;
-    let acc = 0; for (let i = -W; i <= W; i++) acc += raw[(i + N) % N];
-    for (let i = 0; i < N; i++) { brS[i].e = acc / (2 * W + 1); acc += raw[(i + W + 1) % N] - raw[(i - W + N) % N]; }
-    for (let i = 0; i < N; i++) { const a = brS[(i - 6 + N) % N], c = brS[(i + 6) % N]; brS[i].k = ((c.tx - a.tx) * brS[i].tz * -1 + (c.tz - a.tz) * brS[i].tx) / 12; } // signed curvature (1/m): + = bending toward +lateral
-  }
-  const bN = (BNX + 1) * (BNZ + 1), bH = new Float32Array(bN), bD = new Float32Array(bN).fill(1e9), bI = new Int32Array(bN).fill(-1);
-  brS.forEach((p, idx) => { // nearest road sample for every grid node within 60 m
-    const R = 60, gi0 = Math.max(0, Math.floor((p.x - R - BX0) / BC)), gi1 = Math.min(BNX, Math.ceil((p.x + R - BX0) / BC));
-    const gj0 = Math.max(0, Math.floor((p.z - R - BZ0) / BC)), gj1 = Math.min(BNZ, Math.ceil((p.z + R - BZ0) / BC));
-    for (let gj = gj0; gj <= gj1; gj++) for (let gi = gi0; gi <= gi1; gi++) {
-      const dx = BX0 + gi * BC - p.x, dz = BZ0 + gj * BC - p.z, d2 = dx * dx + dz * dz, k = gj * (BNX + 1) + gi;
-      if (d2 < bD[k]) { bD[k] = d2; bI[k] = idx; }
+  // ======================= loop-road maps: Backroads + the Drift Track =======================
+  // makeLoopMap builds a closed loop of road through wooded hills. Backroads: a ~4.6 km two-lane country road (double-yellow
+  // centre line, white edge lines, gravel shoulders and a ditch, reflector posts, curve signs & guardrail on the tight bends,
+  // forest right up to the ditch). Drift Track: a shorter, wider (12 m) loop of flowing tight bends — no guardrails or posts,
+  // red / white curbs on the bends, wide grass run-off and the trees set well back. Both are loops so traffic can circulate
+  // on them later: <map>.path is the centreline (x, z, tangent, elevation every metre), .lane the lane offset.
+  // The road sits flush with the ground: an exact ground ribbon runs 12 m out from the road edges (the coarse terrain grid
+  // is sunk under it so it can never poke through or leave a step where the road looks like it's hovering).
+  function makeLoopMap(C) {
+    const G = new THREE.Group(); G.visible = false; G.userData.noScan = true; g.add(G);
+    const col0 = (mapCol[C.id] = []);
+    const [X0, X1, Z0, Z1] = C.box, CC = 4, NX = (X1 - X0) / CC, NZ = (Z1 - Z0) / CC, RW = C.half;
+    const ctl = []; for (let i = 0; i < C.nCtl; i++) { const a = 1.5 * Math.PI + (i / C.nCtl) * Math.PI * 2, r = C.radius(a); ctl.push(new THREE.Vector3(Math.cos(a) * r * C.sx, 0, Math.sin(a) * r * C.sz)); } // (starts at the bottom of the loop, heading +x)
+    const crv = new THREE.CatmullRomCurve3(ctl, true, 'centripetal'), LEN = crv.getLength();
+    // rolling hills, easing to flat at the map's edges so the ground meets the far ground without a step
+    const hills = (x, z) => C.hill * (9 * Math.sin(x * 0.0061 + 0.4) * Math.sin(z * 0.0072 + 1.1) + 4.5 * Math.sin(x * 0.0137 - z * 0.0109 + 2.3) + 1.6 * Math.sin(x * 0.031 + z * 0.027))
+      * (1 - smt(X1 - 70, X1 - 8, Math.abs(x))) * (1 - smt(Z1 - 70, Z1 - 8, Math.abs(z)));
+    const S = []; for (let s = 0; s < LEN; s += 1) { const u = s / LEN, p = crv.getPointAt(u), t = crv.getTangentAt(u); S.push({ x: p.x, z: p.z, tx: t.x, tz: t.z, s, e: hills(p.x, p.z) }); }
+    { // the road's own grade: the hills along the path averaged over ±W m so climbs and dips stay gentle
+      const N = S.length, raw = S.map((p) => p.e), W = C.gradeW;
+      let acc = 0; for (let i = -W; i <= W; i++) acc += raw[(i + N) % N];
+      for (let i = 0; i < N; i++) { S[i].e = acc / (2 * W + 1); acc += raw[(i + W + 1) % N] - raw[(i - W + N) % N]; }
+      for (let i = 0; i < N; i++) { const a = S[(i - 6 + N) % N], c = S[(i + 6) % N]; S[i].k = ((c.tx - a.tx) * S[i].tz * -1 + (c.tz - a.tz) * S[i].tx) / 12; } // signed curvature (1/m): + = bending toward +lateral
     }
-  });
-  // road cross-section: flat lanes with a hint of crown, shoulders, a shallow ditch, then blend into the hills
-  const brSection = (e, a, hill) => { let h = e - 0.025 * Math.min(1, (a / BRW) ** 2); h -= 0.55 * Math.exp(-((a - (BRW + 3.4)) ** 2) / (2 * 0.9 ** 2)); return h + (hill - e) * smt(BRW + 4.5, BRW + 22, a); };
-  const brNear = (x, z) => { // nearest centreline sample (refined around the grid's guess) → { p, s, l } or null off the corridor
-    const gi = Math.round((x - BX0) / BC), gj = Math.round((z - BZ0) / BC); if (gi < 0 || gj < 0 || gi > BNX || gj > BNZ) return null;
-    let idx = bI[gj * (BNX + 1) + gi]; if (idx < 0) return null;
-    const N = brS.length, d2 = (i) => { const q = brS[(i + N) % N]; return (x - q.x) ** 2 + (z - q.z) ** 2; };
-    for (let step = 4; step >= 1; step >>= 1) { while (d2(idx + step) < d2(idx)) idx += step; while (d2(idx - step) < d2(idx)) idx -= step; }
-    const p = brS[(idx + N) % N]; return { p, l: (x - p.x) * -p.tz + (z - p.z) * p.tx };
-  };
-  for (let gj = 0; gj <= BNZ; gj++) for (let gi = 0; gi <= BNX; gi++) {
-    const k = gj * (BNX + 1) + gi, x = BX0 + gi * BC, z = BZ0 + gj * BC, hill = brHills(x, z);
-    if (bI[k] < 0) { bH[k] = hill; continue; }
-    const p = brS[bI[k]], l = (x - p.x) * -p.tz + (z - p.z) * p.tx; bH[k] = brSection(p.e, Math.abs(l), hill);
-  }
-  const brGrid = (x, z) => {
-    const fx = THREE.MathUtils.clamp((x - BX0) / BC, 0, BNX - 0.001), fz = THREE.MathUtils.clamp((z - BZ0) / BC, 0, BNZ - 0.001);
-    const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, v = fz - j, k = j * (BNX + 1) + i;
-    return (bH[k] * (1 - u) + bH[k + 1] * u) * (1 - v) + (bH[k + BNX + 1] * (1 - u) + bH[k + BNX + 2] * u) * v;
-  };
-  // drivable height: exact on and beside the road (smooth at any speed), the terrain grid beyond
-  const backroadsHeight = (x, z) => { const n = brNear(x, z); if (!n || Math.abs(n.l) > BRW + 9) return brGrid(x, z); return brSection(n.p.e, Math.abs(n.l), brHills(x, z)); };
-  const backroadsPaved = (x, z) => { const n = brNear(x, z); return !!n && Math.abs(n.l) < BRW + 0.35; };
-  {
-    // rolling forest floor (sunk a hair under the road corridor so the draped road never gets poked through)
-    const geo = new THREE.PlaneGeometry(BX1 - BX0, BZ1 - BZ0, BNX, BNZ); geo.rotateX(-Math.PI / 2); geo.translate((BX0 + BX1) / 2, 0, (BZ0 + BZ1) / 2); meterUV(geo, BX1 - BX0, BZ1 - BZ0);
-    // (nodes under the road and shoulders drop 0.45 m: the 4 m grid interpolates across the crown / ditch and would otherwise
-    // poke up through the asphalt between nodes)
-    const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - BZ0) / BC) * (BNX + 1) + Math.round((x - BX0) / BC), n = bI[k] >= 0 ? brNear(x, z) : null; p.setY(i, bH[k] - (n && Math.abs(n.l) < BRW + 3 ? 0.45 : 0.02)); }
-    geo.computeVertexNormals();
-    const tm = mk(geo, groundMat(GROUND_SETS.forest, 3.2, { base: '#4e3d2a', wetness: 0.25, key: 'brfloor', tint: 0.8, offset: 0 })); tm.castShadow = false; tm.receiveShadow = true; backG.add(tm);
-    // the far ground past the map's edge: a frame around the map only (a single big sheet floated over every valley and dip
-    // below its height — you drove through it going downhill from the start)
-    const farMat = groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: 'brouter', wetness: 0.3, tint: 0.7, offset: 2 }), FR = 1500;
-    [[BX0 - FR, BX0, BZ0 - FR, BZ1 + FR], [BX1, BX1 + FR, BZ0 - FR, BZ1 + FR], [BX0, BX1, BZ0 - FR, BZ0], [BX0, BX1, BZ1, BZ1 + FR]].forEach(([x0, x1, z0, z1]) => {
-      const pg = new THREE.PlaneGeometry(x1 - x0, z1 - z0); meterUV(pg, x1 - x0, z1 - z0);
-      const m = flat(pg, farMat, -0.05, backG, 'brouter'); m.position.x = (x0 + x1) / 2; m.position.z = (z0 + z1) / 2;
-    });
-    // ribbons draped along the whole loop between two lateral offsets (closed: the last row joins the first)
-    const drape = (l0, l1, cols, lift, mat, step = 2) => {
-      const pos = [], uv = [], idx = []; const rows = Math.floor(brS.length / step);
-      for (let r = 0; r < rows; r++) { const q = brS[r * step]; for (let c = 0; c <= cols; c++) { const l = l0 + ((l1 - l0) * c) / cols, x = q.x - q.tz * l, z = q.z + q.tx * l; pos.push(x, brSection(q.e, Math.abs(l), brHills(x, z)) + lift, z); uv.push(q.s, l); } }
-      for (let r = 0; r < rows; r++) { const r2 = (r + 1) % rows; for (let c = 0; c < cols; c++) { const a = r * (cols + 1) + c, b2 = r2 * (cols + 1) + c; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } }
-      const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
-      const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; backG.add(m); return m;
-    };
-    drape(-BRW - 1.3, BRW + 1.3, 8, 0.03, groundMat(GROUND_SETS.gravel, 2.2, { base: '#6b6155', key: 'brshoulder', tint: 0.85, offset: -3 }));
-    drape(-BRW, BRW, 8, 0.05, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: 'brroad', tint: 0.9, offset: -5, wetness: 0.4 }));
-    const paint = (l, w, color, dashed) => {
-      const m = drape(l - w / 2, l + w / 2, 1, 0.062, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 2);
-      return m;
-    };
-    paint(0.11, 0.1, 0xe8b10c); paint(-0.11, 0.1, 0xe8b10c); paint(BRW - 0.2, 0.12, 0xf1f1ec); paint(-BRW + 0.2, 0.12, 0xf1f1ec);
-    // white reflector posts every 40 m both sides (their amber / white reflectors catch the headlights at night)
-    const postGeo = new THREE.BoxGeometry(0.08, 1.1, 0.12), refGeo = new THREE.BoxGeometry(0.01, 0.16, 0.08);
-    const nP = Math.floor(brS.length / 40) * 2, posts = new THREE.InstancedMesh(postGeo, new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: 0.6 }), nP), refl = new THREE.InstancedMesh(refGeo, new THREE.MeshStandardMaterial({ color: 0xffd28a, emissive: 0xffb84a, emissiveIntensity: 0.35, roughness: 0.2 }), nP);
-    let pi = 0;
-    for (let s = 0; s + 40 <= brS.length; s += 40) [1, -1].forEach((sd) => {
-      const q = brS[s], l = sd * (BRW + 1.7), x = q.x - q.tz * l, z = q.z + q.tx * l, y = backroadsHeight(x, z), ry = Math.atan2(-q.tz, q.tx);
-      o.position.set(x, y + 0.55, z); o.rotation.set(0, ry, 0); o.scale.set(1, 1, 1); o.updateMatrix(); posts.setMatrixAt(pi, o.matrix);
-      o.position.set(x - q.tx * 0.045 * sd, y + 0.92, z - q.tz * 0.045 * sd); o.updateMatrix(); refl.setMatrixAt(pi, o.matrix); pi++;
-      mapCol.backroads.push([x, z, 0.08]);
-    });
-    posts.count = refl.count = pi; posts.userData.noScan = refl.userData.noScan = true; backG.add(posts, refl);
-    // tight bends (radius under ~150 m): a yellow curve-warning sign 90 m before, and W-beam guardrail on the outside
-    const signTex = (dir) => canvasTex(128, 128, (x, w, h) => { x.fillStyle = '#00000000'; x.clearRect(0, 0, w, h); x.save(); x.translate(64, 64); x.rotate(Math.PI / 4); x.fillStyle = '#111'; x.fillRect(-44, -44, 88, 88); x.fillStyle = '#f5c400'; x.fillRect(-40, -40, 80, 80); x.restore(); x.strokeStyle = '#111'; x.lineWidth = 9; x.lineCap = 'round'; x.beginPath(); x.moveTo(64, 100); x.lineTo(64, 66); x.quadraticCurveTo(64, 44, 64 + dir * 22, 40); x.stroke(); x.fillStyle = '#111'; x.beginPath(); x.moveTo(64 + dir * 34, 38); x.lineTo(64 + dir * 16, 26); x.lineTo(64 + dir * 18, 52); x.fill(); });
-    const signMats = { 1: new THREE.MeshStandardMaterial({ map: signTex(1), transparent: true, alphaTest: 0.4, roughness: 0.4 }), [-1]: new THREE.MeshStandardMaterial({ map: signTex(-1), transparent: true, alphaTest: 0.4, roughness: 0.4 }) };
-    const railM = new THREE.MeshStandardMaterial({ color: 0xb9bec4, metalness: 0.75, roughness: 0.35 }), postM = new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 });
-    const railSegs = [], railPosts = []; let inBend = false, lastSign = -1e9;
-    for (let s = 0; s < brS.length; s++) {
-      const q = brS[s], tight = Math.abs(q.k) > 1 / 150;
-      if (tight && !inBend && s - lastSign > 200) { // sign before the bend, on the right-hand side of travel, facing oncoming you
-        const qs = brS[(s - 90 + brS.length) % brS.length], l = BRW + 2.1, x = qs.x - qs.tz * l, z = qs.z + qs.tx * l, y = backroadsHeight(x, z), dir = q.k > 0 ? 1 : -1; // (k > 0 bends right: the sign's right is the road's +lateral side)
-        const pole = mk(new THREE.CylinderGeometry(0.035, 0.035, 2.2, 8), postM); pole.position.set(x, y + 1.1, z); backG.add(pole);
-        const face = mk(new THREE.PlaneGeometry(0.9, 0.9), signMats[dir]); face.position.set(x, y + 2.05, z); face.rotation.y = Math.atan2(-qs.tz, qs.tx) + Math.PI / 2 + Math.PI; backG.add(face);
-        mapCol.backroads.push([x, z, 0.06]); lastSign = s;
+    const nN = (NX + 1) * (NZ + 1), gH = new Float32Array(nN), gD = new Float32Array(nN).fill(1e9), gI = new Int32Array(nN).fill(-1);
+    S.forEach((p, idx) => { // nearest road sample for every grid node within 60 m
+      const R = 60, gi0 = Math.max(0, Math.floor((p.x - R - X0) / CC)), gi1 = Math.min(NX, Math.ceil((p.x + R - X0) / CC));
+      const gj0 = Math.max(0, Math.floor((p.z - R - Z0) / CC)), gj1 = Math.min(NZ, Math.ceil((p.z + R - Z0) / CC));
+      for (let gj = gj0; gj <= gj1; gj++) for (let gi = gi0; gi <= gi1; gi++) {
+        const dx = X0 + gi * CC - p.x, dz = Z0 + gj * CC - p.z, d2 = dx * dx + dz * dz, k = gj * (NX + 1) + gi;
+        if (d2 < gD[k]) { gD[k] = d2; gI[k] = idx; }
       }
-      inBend = tight;
-      if (tight && s % 4 === 0) { const sd = q.k > 0 ? -1 : 1, l = sd * (BRW + 1.2), x = q.x - q.tz * l, z = q.z + q.tx * l; railSegs.push([x, z, backroadsHeight(x, z), Math.atan2(-q.tz, q.tx)]); if (s % 8 === 0) railPosts.push([x - q.tz * sd * 0.12, z + q.tx * sd * 0.12, backroadsHeight(x, z)]); mapCol.backroads.push([x, z, 0.2]); }
-    }
-    const railI = new THREE.InstancedMesh(new THREE.BoxGeometry(4.1, 0.32, 0.05), railM, Math.max(1, railSegs.length)), postI = new THREE.InstancedMesh(new THREE.BoxGeometry(0.08, 0.75, 0.12), postM, Math.max(1, railPosts.length));
-    railSegs.forEach(([x, z, y, ry], i) => { o.position.set(x, y + 0.6, z); o.rotation.set(0, ry, 0); o.scale.set(1, 1, 1); o.updateMatrix(); railI.setMatrixAt(i, o.matrix); });
-    railPosts.forEach(([x, z, y], i) => { o.position.set(x, y + 0.37, z); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); postI.setMatrixAt(i, o.matrix); });
-    railI.count = railSegs.length; postI.count = railPosts.length; railI.castShadow = true; railI.userData.noScan = postI.userData.noScan = true; backG.add(railI, postI);
-    // forest: thick along the road (trees start just past the ditch), thinning further out; trunks near the road are solid
-    const tSpots = [], tr = mulberry32(1203);
-    for (let n = 0; tSpots.length < 7000 && n < 200000; n++) {
-      const x = BX0 + 8 + tr() * (BX1 - BX0 - 16), z = BZ0 + 8 + tr() * (BZ1 - BZ0 - 16), nr = brNear(x, z), d = nr ? Math.abs(nr.l) : 999;
-      if (d < BRW + 6.5) continue;
-      if (tr() > 0.25 + 0.75 * Math.exp(-(d - BRW - 6.5) / 45)) continue;
-      tSpots.push([x, z]); if (d < 45) mapCol.backroads.push([x, z, 0.32]);
-    }
-    let ti = 0;
-    kinds.forEach((kd, ki) => {
-      const n = ki === kinds.length - 1 ? tSpots.length - ti : Math.round(tSpots.length * kd.share);
-      const im = new THREE.InstancedMesh(cardGeo, new THREE.MeshStandardMaterial({ map: kd.tex, alphaTest: 0.42, side: THREE.DoubleSide, roughness: 1, metalness: 0, envMapIntensity: 0.55 }), Math.max(1, n));
-      for (let i = 0; i < n; i++, ti++) {
-        const [x, z] = tSpots[ti], hh = kd.h[0] + tr() * (kd.h[1] - kd.h[0]);
-        o.position.set(x, brGrid(x, z) - 0.05, z); o.rotation.set(0, tr() * Math.PI, 0); o.scale.set(hh * kd.wr, hh, hh * kd.wr); o.updateMatrix(); im.setMatrixAt(i, o.matrix);
-        col.setScalar(0.7 + tr() * 0.38); im.setColorAt(i, col);
-      }
-      im.count = n; im.userData.noScan = true; backG.add(im);
     });
+    // cross-section: flat road (a hint of crown), shoulders, optional ditch, then a long blend into the hills
+    const section = (e, a, hill) => { let h = e - 0.025 * Math.min(1, (a / RW) ** 2); if (C.ditch) h -= 0.55 * Math.exp(-((a - (RW + 3.4)) ** 2) / (2 * 0.9 ** 2)); return h + (hill - e) * smt(RW + C.flatTo, RW + C.flatTo + 18, a); };
+    const near = (x, z) => { // nearest centreline sample (refined around the grid's guess) → { p, l } or null off the corridor
+      const gi = Math.round((x - X0) / CC), gj = Math.round((z - Z0) / CC); if (gi < 0 || gj < 0 || gi > NX || gj > NZ) return null;
+      let idx = gI[gj * (NX + 1) + gi]; if (idx < 0) return null;
+      const N = S.length, d2 = (i) => { const q = S[(i + N) % N]; return (x - q.x) ** 2 + (z - q.z) ** 2; };
+      for (let step = 4; step >= 1; step >>= 1) { while (d2(idx + step) < d2(idx)) idx += step; while (d2(idx - step) < d2(idx)) idx -= step; }
+      const p = S[((idx % N) + N) % N]; return { p, l: (x - p.x) * -p.tz + (z - p.z) * p.tx };
+    };
+    for (let gj = 0; gj <= NZ; gj++) for (let gi = 0; gi <= NX; gi++) {
+      const k = gj * (NX + 1) + gi, x = X0 + gi * CC, z = Z0 + gj * CC, hill = hills(x, z);
+      if (gI[k] < 0) { gH[k] = hill; continue; }
+      const p = S[gI[k]], l = (x - p.x) * -p.tz + (z - p.z) * p.tx; gH[k] = section(p.e, Math.abs(l), hill);
+    }
+    const grid = (x, z) => {
+      const fx = THREE.MathUtils.clamp((x - X0) / CC, 0, NX - 0.001), fz = THREE.MathUtils.clamp((z - Z0) / CC, 0, NZ - 0.001);
+      const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, v = fz - j, k = j * (NX + 1) + i;
+      return (gH[k] * (1 - u) + gH[k + 1] * u) * (1 - v) + (gH[k + NX + 1] * (1 - u) + gH[k + NX + 2] * u) * v;
+    };
+    const VERGE = RW + C.shoulder + 12; // (the exact ground ribbon reaches this far from the centreline)
+    // drivable height: exact on and beside the road (smooth at any speed, and matching the ribbons), the terrain grid beyond
+    const height = (x, z) => { const n = near(x, z); if (!n || Math.abs(n.l) > VERGE) return grid(x, z); return section(n.p.e, Math.abs(n.l), hills(x, z)); };
+    const paved = (x, z) => { const n = near(x, z); return !!n && Math.abs(n.l) < RW + C.pavedExtra; };
+    {
+      // terrain (sunk 0.5 m under the road corridor, which the exact ribbons cover)
+      const geo = new THREE.PlaneGeometry(X1 - X0, Z1 - Z0, NX, NZ); geo.rotateX(-Math.PI / 2); geo.translate((X0 + X1) / 2, 0, (Z0 + Z1) / 2); meterUV(geo, X1 - X0, Z1 - Z0);
+      const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - Z0) / CC) * (NX + 1) + Math.round((x - X0) / CC), n = gI[k] >= 0 ? near(x, z) : null; p.setY(i, gH[k] - (n && Math.abs(n.l) < VERGE - 4 ? 0.5 : 0.02)); }
+      geo.computeVertexNormals();
+      const floorMat = groundMat(C.groundSet, 3.2, { base: C.groundBase, wetness: 0.25, key: C.id + 'floor', tint: 0.8, offset: 0 });
+      const tm = mk(geo, floorMat); tm.castShadow = false; tm.receiveShadow = true; G.add(tm);
+      // the far ground past the map's edge: a frame around the map only
+      const farMat = groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: C.id + 'outer', wetness: 0.3, tint: 0.7, offset: 2 }), FR = 1500;
+      [[X0 - FR, X0, Z0 - FR, Z1 + FR], [X1, X1 + FR, Z0 - FR, Z1 + FR], [X0, X1, Z0 - FR, Z0], [X0, X1, Z1, Z1 + FR]].forEach(([x0, x1, z0, z1]) => {
+        const pg = new THREE.PlaneGeometry(x1 - x0, z1 - z0); meterUV(pg, x1 - x0, z1 - z0);
+        const m = flat(pg, farMat, -0.05, G, C.id + 'outer'); m.position.x = (x0 + x1) / 2; m.position.z = (z0 + z1) / 2;
+      });
+      // ribbons draped along the whole loop between two lateral offsets (closed: the last row joins the first)
+      const drape = (l0, l1, cols, lift, mat, step = 2, filter) => {
+        const pos = [], uv = [], idx = []; const rows = Math.floor(S.length / step);
+        for (let r = 0; r < rows; r++) { const q = S[r * step]; for (let c = 0; c <= cols; c++) { const l = l0 + ((l1 - l0) * c) / cols, x = q.x - q.tz * l, z = q.z + q.tx * l; pos.push(x, section(q.e, Math.abs(l), hills(x, z)) + lift, z); uv.push(q.s, l); } }
+        for (let r = 0; r < rows; r++) { if (filter && !filter(S[r * step])) continue; const r2 = (r + 1) % rows; for (let c = 0; c < cols; c++) { const a = r * (cols + 1) + c, b2 = r2 * (cols + 1) + c; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } }
+        const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
+        const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; G.add(m); return m;
+      };
+      // the exact ground either side of the road (flush with the shoulders — no step, nothing hovering)
+      drape(-VERGE, -(RW + C.shoulder) + 0.02, 14, 0.015, floorMat); drape(RW + C.shoulder - 0.02, VERGE, 14, 0.015, floorMat);
+      if (C.shoulder > 0) drape(-RW - C.shoulder, RW + C.shoulder, 8, 0.03, groundMat(C.shoulderSet, 2.2, { base: '#6b6155', key: C.id + 'shoulder', tint: 0.85, offset: -3 }));
+      drape(-RW, RW, Math.max(8, Math.round(RW * 2)), 0.05, groundMat(GROUND_SETS.road, 3.2, { base: '#36373a', key: C.id + 'road', tint: 0.9, offset: -5, wetness: 0.4 }));
+      const paint = (l, w, color, filter) => drape(l - w / 2, l + w / 2, 1, 0.062, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 2, filter);
+      if (C.lines === 'twoLane') { paint(0.11, 0.1, 0xe8b10c); paint(-0.11, 0.1, 0xe8b10c); }
+      paint(RW - 0.2, 0.12, 0xf1f1ec); paint(-RW + 0.2, 0.12, 0xf1f1ec);
+      if (C.curbs) { // red / white rumble curbs along both edges through the bends
+        const curbTex = canvasTex(64, 16, (x, w, h) => { for (let i = 0; i < 4; i++) { x.fillStyle = i % 2 ? '#f2f2ee' : '#c8191e'; x.fillRect((i * w) / 4, 0, w / 4, h); } });
+        curbTex.wrapS = curbTex.wrapT = THREE.RepeatWrapping; curbTex.repeat.set(0.5, 1);
+        const curbM = new THREE.MeshStandardMaterial({ map: curbTex, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6 });
+        const inBend = (q) => Math.abs(q.k) > 1 / 110;
+        drape(RW - 0.05, RW + 0.95, 1, 0.07, curbM, 2, inBend); drape(-RW - 0.95, -RW + 0.05, 1, 0.07, curbM, 2, inBend);
+      }
+      if (C.posts) { // white reflector posts every 40 m both sides (their reflectors catch the headlights at night)
+        const postGeo = new THREE.BoxGeometry(0.08, 1.1, 0.12), refGeo = new THREE.BoxGeometry(0.01, 0.16, 0.08);
+        const nP = Math.floor(S.length / 40) * 2, posts = new THREE.InstancedMesh(postGeo, new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: 0.6 }), nP), refl = new THREE.InstancedMesh(refGeo, new THREE.MeshStandardMaterial({ color: 0xffd28a, emissive: 0xffb84a, emissiveIntensity: 0.35, roughness: 0.2 }), nP);
+        let pi = 0;
+        for (let s = 0; s + 40 <= S.length; s += 40) [1, -1].forEach((sd) => {
+          const q = S[s], l = sd * (RW + 1.7), x = q.x - q.tz * l, z = q.z + q.tx * l, y = height(x, z), ry = Math.atan2(-q.tz, q.tx);
+          o.position.set(x, y + 0.55, z); o.rotation.set(0, ry, 0); o.scale.set(1, 1, 1); o.updateMatrix(); posts.setMatrixAt(pi, o.matrix);
+          o.position.set(x - q.tx * 0.045 * sd, y + 0.92, z - q.tz * 0.045 * sd); o.updateMatrix(); refl.setMatrixAt(pi, o.matrix); pi++;
+          col0.push([x, z, 0.08]);
+        });
+        posts.count = refl.count = pi; posts.userData.noScan = refl.userData.noScan = true; G.add(posts, refl);
+      }
+      if (C.rails) { // tight bends (radius under ~150 m): a yellow curve-warning sign 90 m before, and W-beam guardrail on the outside
+        const signTex = (dir) => canvasTex(128, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.save(); x.translate(64, 64); x.rotate(Math.PI / 4); x.fillStyle = '#111'; x.fillRect(-44, -44, 88, 88); x.fillStyle = '#f5c400'; x.fillRect(-40, -40, 80, 80); x.restore(); x.strokeStyle = '#111'; x.lineWidth = 9; x.lineCap = 'round'; x.beginPath(); x.moveTo(64, 100); x.lineTo(64, 66); x.quadraticCurveTo(64, 44, 64 + dir * 22, 40); x.stroke(); x.fillStyle = '#111'; x.beginPath(); x.moveTo(64 + dir * 34, 38); x.lineTo(64 + dir * 16, 26); x.lineTo(64 + dir * 18, 52); x.fill(); });
+        const signMats = { 1: new THREE.MeshStandardMaterial({ map: signTex(1), transparent: true, alphaTest: 0.4, roughness: 0.4 }), [-1]: new THREE.MeshStandardMaterial({ map: signTex(-1), transparent: true, alphaTest: 0.4, roughness: 0.4 }) };
+        const railM = new THREE.MeshStandardMaterial({ color: 0xb9bec4, metalness: 0.75, roughness: 0.35 }), postM = new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 });
+        const railSegs = [], railPosts = []; let inB = false, lastSign = -1e9;
+        for (let s = 0; s < S.length; s++) {
+          const q = S[s], tight = Math.abs(q.k) > 1 / 150;
+          if (tight && !inB && s - lastSign > 200) { // sign before the bend, on the right-hand side of travel, facing oncoming you
+            const qs = S[(s - 90 + S.length) % S.length], l = RW + 2.1, x = qs.x - qs.tz * l, z = qs.z + qs.tx * l, y = height(x, z), dir = q.k > 0 ? 1 : -1; // (k > 0 bends right: the sign's right is the road's +lateral side)
+            const pole = mk(new THREE.CylinderGeometry(0.035, 0.035, 2.2, 8), postM); pole.position.set(x, y + 1.1, z); G.add(pole);
+            const face = mk(new THREE.PlaneGeometry(0.9, 0.9), signMats[dir]); face.position.set(x, y + 2.05, z); face.rotation.y = Math.atan2(-qs.tz, qs.tx) + Math.PI / 2 + Math.PI; G.add(face);
+            col0.push([x, z, 0.06]); lastSign = s;
+          }
+          inB = tight;
+          if (tight && s % 4 === 0) { const sd = q.k > 0 ? -1 : 1, l = sd * (RW + 1.2), x = q.x - q.tz * l, z = q.z + q.tx * l; railSegs.push([x, z, height(x, z), Math.atan2(-q.tz, q.tx)]); if (s % 8 === 0) railPosts.push([x - q.tz * sd * 0.12, z + q.tx * sd * 0.12, height(x, z)]); col0.push([x, z, 0.2]); }
+        }
+        const railI = new THREE.InstancedMesh(new THREE.BoxGeometry(4.1, 0.32, 0.05), railM, Math.max(1, railSegs.length)), postI = new THREE.InstancedMesh(new THREE.BoxGeometry(0.08, 0.75, 0.12), postM, Math.max(1, railPosts.length));
+        railSegs.forEach(([x, z, y, ry], i) => { o.position.set(x, y + 0.6, z); o.rotation.set(0, ry, 0); o.scale.set(1, 1, 1); o.updateMatrix(); railI.setMatrixAt(i, o.matrix); });
+        railPosts.forEach(([x, z, y], i) => { o.position.set(x, y + 0.37, z); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); postI.setMatrixAt(i, o.matrix); });
+        railI.count = railSegs.length; postI.count = railPosts.length; railI.castShadow = true; railI.userData.noScan = postI.userData.noScan = true; G.add(railI, postI);
+      }
+      // forest: from C.treeGap past the road edge, densest near the road and thinning out; trunks near the road are solid
+      const tSpots = [], tr = mulberry32(C.seed);
+      for (let n = 0; tSpots.length < C.trees && n < 200000; n++) {
+        const x = X0 + 8 + tr() * (X1 - X0 - 16), z = Z0 + 8 + tr() * (Z1 - Z0 - 16), nr = near(x, z), d = nr ? Math.abs(nr.l) : 999;
+        if (d < RW + C.treeGap) continue;
+        if (tr() > 0.25 + 0.75 * Math.exp(-(d - RW - C.treeGap) / 45)) continue;
+        tSpots.push([x, z]); if (d < 45 + C.treeGap) col0.push([x, z, 0.32]);
+      }
+      let ti = 0;
+      kinds.forEach((kd, ki) => {
+        const n = ki === kinds.length - 1 ? tSpots.length - ti : Math.round(tSpots.length * kd.share);
+        const im = new THREE.InstancedMesh(cardGeo, new THREE.MeshStandardMaterial({ map: kd.tex, alphaTest: 0.42, side: THREE.DoubleSide, roughness: 1, metalness: 0, envMapIntensity: 0.55 }), Math.max(1, n));
+        for (let i = 0; i < n; i++, ti++) {
+          const [x, z] = tSpots[ti], hh = kd.h[0] + tr() * (kd.h[1] - kd.h[0]);
+          o.position.set(x, height(x, z) - 0.05, z); o.rotation.set(0, tr() * Math.PI, 0); o.scale.set(hh * kd.wr, hh, hh * kd.wr); o.updateMatrix(); im.setMatrixAt(i, o.matrix);
+          col.setScalar(0.7 + tr() * 0.38); im.setColorAt(i, col);
+        }
+        im.count = n; im.userData.noScan = true; G.add(im);
+      });
+    }
+    // the whole map is shifted so the start of the right-hand lane sits where the truck is shown (world origin, on the road)
+    const p0 = S[0], LO = C.lane, SX = -(p0.x - p0.tz * LO), SZ = -(p0.z + p0.tx * LO), SY = -section(p0.e, LO, hills(p0.x - p0.tz * LO, p0.z + p0.tx * LO));
+    G.position.set(SX, SY, SZ);
+    col0.forEach((c) => { c[0] += SX; c[1] += SZ; });
+    return {
+      group: G, path: S, length: LEN, lane: LO, roadHalf: RW, offset: { x: SX, y: SY, z: SZ }, near: (x, z) => near(x - SX, z - SZ),
+      height: (x, z) => height(x - SX, z - SZ) + SY, paved: (x, z) => paved(x - SX, z - SZ),
+      bounds: { x0: X0 + 6 + SX, x1: X1 - 6 + SX, z0: Z0 + 6 + SZ, z1: Z1 - 6 + SZ },
+      // reset spot: the nearest lane for the way you're facing (world coords)
+      safe: (x, z, yaw) => { const n = near(x - SX, z - SZ); if (!n) return null; const p = n.p, fwd = Math.cos(yaw) * p.tx - Math.sin(yaw) * p.tz >= 0, l = fwd ? LO : -LO;
+        return { x: p.x - p.tz * l + SX, z: p.z + p.tx * l + SZ, yaw: Math.atan2(-p.tz, p.tx) + (fwd ? 0 : Math.PI) }; },
+    };
   }
-  // the whole map is shifted so the start of the right-hand lane sits where the truck is shown (world origin, on the road):
-  // BSX / BSY / BSZ = map → world offset
-  const p0 = brS[0], BSX = -(p0.x - p0.tz * 1.8), BSZ = -(p0.z + p0.tx * 1.8), BSY = -brSection(p0.e, 1.8, brHills(p0.x - p0.tz * 1.8, p0.z + p0.tx * 1.8));
-  backG.position.set(BSX, BSY, BSZ);
-  mapCol.backroads.forEach((c) => { c[0] += BSX; c[1] += BSZ; });
-  const BR = { path: brS, length: BLEN, lane: 1.8, roadHalf: BRW, offset: { x: BSX, y: BSY, z: BSZ }, near: (x, z) => brNear(x - BSX, z - BSZ),
-    // reset spot: the nearest right-hand lane for the way you're facing (world coords)
-    safe: (x, z, yaw) => { const n = brNear(x - BSX, z - BSZ); if (!n) return null; const p = n.p, fwd = Math.cos(yaw) * p.tx - Math.sin(yaw) * p.tz >= 0, l = fwd ? 1.8 : -1.8;
-      return { x: p.x - p.tz * l + BSX, z: p.z + p.tx * l + BSZ, yaw: Math.atan2(-p.tz, p.tx) + (fwd ? 0 : Math.PI) }; } };
+  const BR = makeLoopMap({ id: 'backroads', box: [-820, 820, -640, 640], half: 3.6, nCtl: 64, sx: 1.08, sz: 0.82,
+    radius: (a) => 560 + 62 * Math.sin(3 * a + 0.6) + 40 * Math.sin(5 * a + 2.1) + 26 * Math.sin(9 * a + 0.3) + 17 * Math.sin(14 * a + 1.2),
+    hill: 1, gradeW: 70, ditch: true, flatTo: 4.5, shoulder: 1.3, shoulderSet: GROUND_SETS.gravel, pavedExtra: 0.35, lines: 'twoLane', curbs: false, posts: true, rails: true,
+    treeGap: 6.5, trees: 7000, seed: 1203, lane: 1.8, groundSet: GROUND_SETS.forest, groundBase: '#4e3d2a' });
+  const backG = BR.group;
+  // Drift Track: 12 m wide, flowing tight bends (radius ~35–70 m), gentle hills, wide grass run-off, no rails or posts
+  const DT = makeLoopMap({ id: 'drift', box: [-420, 420, -340, 340], half: 6, nCtl: 56, sx: 1.12, sz: 0.86,
+    radius: (a) => 255 + 34 * Math.sin(3 * a + 0.4) + 28 * Math.sin(5 * a + 1.3) + 20 * Math.sin(7 * a + 2.2) + 12 * Math.sin(11 * a + 0.7),
+    hill: 0.35, gradeW: 90, ditch: false, flatTo: 9, shoulder: 0, shoulderSet: GROUND_SETS.gravel, pavedExtra: 0.9, lines: 'track', curbs: true, posts: false, rails: false,
+    treeGap: 24, trees: 4200, seed: 777, lane: 0, groundSet: GROUND_SETS.grass, groundBase: '#5d6b3f' });
+  const driftG = DT.group;
 
   // knockable cones: tumble away from whatever hits them
   const knock =(x, z, r, vx, vz) => cones.forEach((c) => {
@@ -2817,8 +2888,8 @@ function buildOutdoor(renderer) {
   return {
     collide,
     knock, stepCones, mudLevel,
-    heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK, backroads: (x, z) => backroadsHeight(x - BSX, z - BSZ) + BSY },
-    backroads: { ...BR, paved: (x, z) => backroadsPaved(x - BSX, z - BSZ), bounds: { x0: BX0 + 6 + BSX, x1: BX1 - 6 + BSX, z0: BZ0 + 6 + BSZ, z1: BZ1 - 6 + BSZ } },
+    heights: { jumps: jumpsHeight, mud: mudHeight, rocks: rocksHeight, whoops: (x, z) => whoopH(x - WSX, z) + dockH(x - WSX, z) - DOCK, backroads: BR.height, drift: DT.height },
+    backroads: BR, drift: DT,
     // the dock's front lip, sides and the tall end of the ramp's sides are walls from below: a point whose dock surface is
     // well above the truck pushes it back out through the nearest face (you drive off it, or up the ramp — not up the face)
     dockPush: (x, z, y) => {
@@ -2830,8 +2901,8 @@ function buildOutdoor(renderer) {
     whoopLane: (x, z) => { x -= WSX; const ln = laneOf(z); if (!ln || !ln.dirt) return false; const [a, b] = xs(ln); return x > a - 1 && x < b + 1; }, // (the concrete lanes count as pavement)
     group: g, leaves, tufts, roadside, park, forest, desert, desertHeight, trailHeight: (x, z) => trailHeight(x, z) + curbAt(x, z), trailPaved, trailBounds: { x0: TX0 + 8, x1: TX1 - 8, z0: TZ0 + 8, z1: TZ1 - 8 }, layoutId: () => layoutNow,
     setLayout: (layout) => {
-      layoutNow = layout; const dz = ['desert', 'lot', 'trail', 'jumps', 'mud', 'rocks', 'straight', 'whoops', 'backroads'].includes(layout);
-      backG.visible = layout === 'backroads'; jumps.visible = layout === 'jumps'; mudG.visible = layout === 'mud'; rocksG.visible = layout === 'rocks'; straightG.visible = layout === 'straight'; whoopsG.visible = layout === 'whoops';
+      layoutNow = layout; const dz = ['desert', 'lot', 'trail', 'jumps', 'mud', 'rocks', 'straight', 'whoops', 'backroads', 'drift'].includes(layout);
+      backG.visible = layout === 'backroads'; driftG.visible = layout === 'drift'; jumps.visible = layout === 'jumps'; mudG.visible = layout === 'mud'; rocksG.visible = layout === 'rocks'; straightG.visible = layout === 'straight'; whoopsG.visible = layout === 'whoops';
       trail.visible = layout === 'trail'; lot.visible = layout === 'lot'; desert.visible = layout === 'desert'; roadside.visible = !dz && layout !== 'park'; park.visible = layout === 'park'; forest.visible = !dz && layout !== 'open';
       [vergeMesh, tufts, leaves, rocks].forEach((o) => { if (o) o.visible = !dz; });
     },
@@ -3012,7 +3083,8 @@ function buildWheel(M, spec) {
   if (d.steel) { const dish = mk(new THREE.CylinderGeometry(rimR * 0.97, rimR * 0.7, 0.05, 48, 1, true), M.rim); dish.rotation.x = Math.PI / 2; dish.position.z = zf - 0.04; g.add(dish); }
   const lip = mk(new THREE.TorusGeometry(rimR + 0.01, d.steel ? 0.007 : 0.012, 8, 56), M.rim); lip.position.z = zf; g.add(lip);
   if (d.bead === 'true' || d.bead === 'sim') {
-    const ring = mk(new THREE.RingGeometry(rimR * (d.bead === 'true' ? 0.82 : 0.88), rimR + 0.024, 56), d.bead === 'true' ? M.rim : M.rimAccent); ring.position.z = zf + 0.004; g.add(ring);
+    const beadM = spec.beadColor ? new THREE.MeshStandardMaterial({ color: spec.beadColor, metalness: 0.55, roughness: 0.3 }) : d.bead === 'true' ? M.rim : M.rimAccent; // (beadlock ring colour, when picked)
+    const ring = mk(new THREE.RingGeometry(rimR * (d.bead === 'true' ? 0.82 : 0.88), rimR + 0.024, 56), beadM); ring.position.z = zf + 0.004; g.add(ring);
     const nb = d.bead === 'true' ? 24 : 16;
     const boltGeo = new THREE.CylinderGeometry(0.0055, 0.0055, 0.012, 6); boltGeo.rotateX(Math.PI / 2);
     const bolts = new THREE.InstancedMesh(boltGeo, M.chrome, nb);
@@ -3020,7 +3092,7 @@ function buildWheel(M, spec) {
     g.add(bolts);
   }
   const cz = -(d.conc || 0);
-  if (d.bead === 'ring') { const ring = mk(new THREE.RingGeometry(rimR * 0.86, rimR + 0.02, 56), M.spacer); ring.position.z = zf + 0.003; g.add(ring); } // machined simulated-beadlock ring
+  if (d.bead === 'ring') { const ring = mk(new THREE.RingGeometry(rimR * 0.86, rimR + 0.02, 56), spec.beadColor ? new THREE.MeshStandardMaterial({ color: spec.beadColor, metalness: 0.55, roughness: 0.3 }) : M.spacer); ring.position.z = zf + 0.003; g.add(ring); } // machined simulated-beadlock ring
   const hub = cylAxis(rimR * 0.34, 0.05, M.rim, 'z', 32); hub.position.z = zf - 0.05 + cz; g.add(hub);
   const cap = cylAxis(rimR * (d.steel ? 0.22 : 0.15), 0.02, d.steel ? M.chrome : M.rimAccent, 'z', 24); cap.position.z = zf - 0.02 + cz; g.add(cap);
   const logo = mk(new THREE.CircleGeometry(rimR * (d.steel ? 0.2 : 0.14), 32), wheelLogoMat(d.logo)); logo.position.z = zf - 0.0095 + cz; g.add(logo);
@@ -3448,7 +3520,7 @@ function installPaintShader(m) {
     uTarget: { value: new THREE.Color(1, 0, 0) }, uWrap: { value: null }, uWrapOn: { value: 0 }, uWrapScale: { value: 0.55 }, uWrapOrigin: { value: new THREE.Vector3() },
     uRough: { value: 0.3 }, uMetal: { value: 0 }, uCoat: { value: 1 }, uCoatRough: { value: 0.05 },
     uOrigCoat: { value: m.clearcoat || 0 }, uOrigCoatRough: { value: m.clearcoatRoughness || 0 },
-    uTrim: TRIM_COL, uTrimMat: TRIM_MAT, uTrimMin: TRIM_MIN, uTrimMax: TRIM_MAX,
+    uTrim: TRIM_COL, uTrimMat: TRIM_MAT, uTrimMin: TRIM_MIN, uTrimMax: TRIM_MAX, uTrimSill: TRIM_SILL, uTrimLow: TRIM_LOW,
   };
   m.clearcoat = Math.max(m.clearcoat || 0, 1e-3); // keep USE_CLEARCOAT compiled; the shader mixes the real value per pixel
   m.onBeforeCompile = (sh) => {
@@ -3459,7 +3531,7 @@ function installPaintShader(m) {
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
         uniform float uPaintOn, uKeyLum, uTol, uWrapOn, uWrapScale, uRough, uMetal, uCoat, uCoatRough, uOrigCoat, uOrigCoatRough;
-        uniform vec3 uKey, uTarget, uWrapOrigin, uTrim, uTrimMin, uTrimMax; uniform mat4 uTrimMat; uniform sampler2D uWrap; varying vec3 vPW; varying vec3 vPN;
+        uniform vec3 uKey, uTarget, uWrapOrigin, uTrim, uTrimMin, uTrimMax, uTrimLow; uniform float uTrimSill; uniform mat4 uTrimMat; uniform sampler2D uWrap; varying vec3 vPW; varying vec3 vPN;
         vec2 apexChroma(vec3 c, float l) { return vec2(c.r - c.g, (c.r + c.g) * 0.5 - c.b) / max(l, 0.03); }
         vec3 apexTri() { vec3 n = pow(abs(normalize(vPN)), vec3(4.0)); n /= (n.x + n.y + n.z); vec3 p = (vPW - uWrapOrigin) * uWrapScale;
           return texture2D(uWrap, p.yz).rgb * n.x + texture2D(uWrap, p.xz).rgb * n.y + texture2D(uWrap, p.xy).rgb * n.z; }`)
@@ -3478,9 +3550,9 @@ function installPaintShader(m) {
         // from the roof — nothing on the outside of the truck faces that way, so only the inside changes
         vec3 tr = (uTrimMat * vec4(vPW, 1.0)).xyz, tn = normalize(mat3(uTrimMat) * normalize(vPN)) * (gl_FrontFacing ? 1.0 : -1.0);
         bool inCab = all(greaterThan(tr, uTrimMin)) && all(lessThan(tr, uTrimMax));
-        bool facesIn = tr.y > uTrimMin.y + 0.0 && (dot(tn, vec3(0.0, 0.0, -sign(tr.z))) > 0.35 || tn.y < -0.5) && abs(tr.z) < uTrimMax.z - 0.22;
+        bool facesIn = tr.y > uTrimMin.y + 0.0 && (dot(tn, vec3(0.0, 0.0, -sign(tr.z))) > 0.35 || (tn.y < -0.5 && tr.y > uTrimSill)) && abs(tr.z) < uTrimMax.z - 0.22;
         float trimMask = (inCab && (!gl_FrontFacing || facesIn)) ? 1.0 : 0.0;
-        diffuseColor.rgb = mix(diffuseColor.rgb, uTrim, trimMask);`)
+        diffuseColor.rgb = mix(diffuseColor.rgb, tr.y > uTrimSill ? uTrim : uTrimLow, trimMask);`)
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(mix(roughnessFactor, uRough, paintMask), 0.9, trimMask);')
       .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(mix(metalnessFactor, uMetal, paintMask), 0.0, trimMask);')
       .replace('#include <lights_physical_fragment>', `#include <lights_physical_fragment>
@@ -3607,37 +3679,94 @@ function buildBumpers(M, P, b) {
     const fl = beam([x1, yl, 0], [x2, yl + 0.02, 0], 0.78, 0.007, M.skid); put(fl);
     for (let i = -1; i <= 1; i++) { const h = cylAxis(0.035, 0.009, M.boot, 'y', 18); h.position.set((x1 + x2) / 2, yl - 0.001, i * 0.22); put(h); } // drain / access holes
   }
-  if (rt !== 'stock') {
-    const R = P.rear + 0.03, rb = P.rearBumperY;
+  if (rt !== 'stock' && rt !== 'oemBlack') { // (the factory bumper, chrome or black, is the model's own)
+    const R = P.rear + 0.03, rb = P.rearBumperY, rzc = (b.zoneColors || {}).rearBumper;
+    const rbM = rzc ? finishPhys(rzc.hex, rzc.finish === 'chrome' ? 'metallic' : rzc.finish || 'satin') : M.steel; // (rear bumper colour, if picked)
+    if (rzc && rzc.finish === 'chrome') { rbM.metalness = 1; rbM.roughness = 0.06; }
+    if (rt === 'slim') { // low-profile: one thin flat steel bar right under the tailgate, ends turned in toward the bed, receiver below
+      const yb = rb + 0.12, yt = rb + 0.27, Z = Wz - 0.02;
+      put(rbox(R - 0.02, R + 0.12, yb, yt, -Z, Z, rbM, 0.006));
+      [1, -1].forEach((s) => put(rbox(R + 0.1, R + 0.32, yb + 0.02, yt - 0.01, s * Z - 0.03, s * Z + 0.0, rbM, 0.005))); // end caps
+      put(rbox(R + 0.02, R + 0.14, yb - 0.004, yb + 0.002, -Z + 0.06, Z - 0.06, M.boot, 0.002)); // underside lip
+    }
+    if (rt === 'hooke') { // the square steel bumper below, plus two flush LED cube lights in its face
+      [1, -1].forEach((s) => {
+        put(rbox(R - 0.035, R - 0.01, rb + 0.12, rb + 0.21, s * 0.62 - 0.05, s * 0.62 + 0.05, M.boot, 0.008));
+        put(rbox(R - 0.04, R - 0.032, rb + 0.13, rb + 0.2, s * 0.62 - 0.04, s * 0.62 + 0.04, new THREE.MeshStandardMaterial({ color: 0xf2f5ff, emissive: 0xffffff, emissiveIntensity: 0.25, roughness: 0.15 }), 0.006));
+      });
+    }
+    if (rt !== 'slim') {
     if (rt === 'prerunner') { // wraps the bed cut: side tubes along the cut line → swept lower bar, uprights to the tailgate
       const T = 0.022, yb = rb + 0.09, yc = P.wheelY0 + 0.16, xc = P.xR - P.R0 - 0.08, Z = Wz + 0.02;
       [1, -1].forEach((s) => {
-        put(tubeMesh([[xc, yc, s * (Z - 0.06)], [xc - 0.05, yc + 0.002, s * Z], [R + 0.18, yc, s * Z], [R + 0.04, yc - 0.04, s * (Z - 0.04)], [R - 0.02, yb + 0.04, s * 0.84 * Wz], [R - 0.05, yb + 0.02, s * 0.5 * Wz]], T, M.steel, 40));
-        put(tubeMesh([[R - 0.04, yb + 0.03, s * 0.36], [R - 0.03, rb + 0.31, s * 0.36], [R + 0.02, rb + 0.33, s * 0.36]], T * 0.85, M.steel, 12)); // upright to the tailgate
-        put(tubeMesh([[R + 0.12, yc - 0.01, s * Z], [R + 0.3, yb + 0.02, s * (Z - 0.25)]], T * 0.8, M.steel, 6)); // gusset brace to the frame
+        put(tubeMesh([[xc, yc, s * (Z - 0.06)], [xc - 0.05, yc + 0.002, s * Z], [R + 0.18, yc, s * Z], [R + 0.04, yc - 0.04, s * (Z - 0.04)], [R - 0.02, yb + 0.04, s * 0.84 * Wz], [R - 0.05, yb + 0.02, s * 0.5 * Wz]], T, rbM, 40));
+        put(tubeMesh([[R - 0.04, yb + 0.03, s * 0.36], [R - 0.03, rb + 0.31, s * 0.36], [R + 0.02, rb + 0.33, s * 0.36]], T * 0.85, rbM, 12)); // upright to the tailgate
+        put(tubeMesh([[R + 0.12, yc - 0.01, s * Z], [R + 0.3, yb + 0.02, s * (Z - 0.25)]], T * 0.8, rbM, 6)); // gusset brace to the frame
       });
-      put(tubeMesh([[R - 0.05, yb + 0.02, -0.5 * Wz], [R - 0.07, yb + 0.025, 0], [R - 0.05, yb + 0.02, 0.5 * Wz]], T, M.steel, 12));
-      put(loftMesh(plateProfile(R, 0.2, yb - 0.04, yb + 0.06, -0.3, -1), plateProfile(R, 0.2, yb - 0.04, yb + 0.06, 0.3, -1), M.steel)); // receiver plate
+      put(tubeMesh([[R - 0.05, yb + 0.02, -0.5 * Wz], [R - 0.07, yb + 0.025, 0], [R - 0.05, yb + 0.02, 0.5 * Wz]], T, rbM, 12));
+      put(loftMesh(plateProfile(R, 0.2, yb - 0.04, yb + 0.06, -0.3, -1), plateProfile(R, 0.2, yb - 0.04, yb + 0.06, 0.3, -1), rbM)); // receiver plate
     } else if (rt === 'tube') { // double-tube: an upper bar and a lower step tube, both wrapping round the bed corners, flat step between
       const T = 0.023, yU = rb + 0.2, yL = rb + 0.05, Z = Wz + 0.02;
       const wrap = (y, xo) => [[R + 0.26, y, -Z + 0.02], [R + 0.08, y, -Z], [R - xo, y, -Z + 0.14], [R - xo, y, Z - 0.14], [R + 0.08, y, Z], [R + 0.26, y, Z - 0.02]];
-      put(tubeMesh(wrap(yU, 0.02), T, M.steel, 48)); put(tubeMesh(wrap(yL, 0.07), T, M.steel, 48));
-      [-1, 1].forEach((s) => { put(tubeMesh([[R + 0.04, yL, s * (Z - 0.06)], [R + 0.03, yU, s * (Z - 0.06)]], T * 0.9, M.steel, 4)); [0.32, 0.62].forEach((zz) => put(tubeMesh([[R - 0.07, yL, s * zz], [R - 0.02, yU, s * zz]], T * 0.8, M.steel, 4))); });
-      put(rbox(R - 0.06, R + 0.06, yU - 0.035, yU - 0.02, -Z + 0.18, Z - 0.18, M.steel, 0.004)); // flat step between the tubes
-      put(rbox(R - 0.05, R + 0.18, yL - 0.06, yU + 0.02, -0.26, 0.26, M.steel, 0.008)); // center receiver plate
+      put(tubeMesh(wrap(yU, 0.02), T, rbM, 48)); put(tubeMesh(wrap(yL, 0.07), T, rbM, 48));
+      [-1, 1].forEach((s) => { put(tubeMesh([[R + 0.04, yL, s * (Z - 0.06)], [R + 0.03, yU, s * (Z - 0.06)]], T * 0.9, rbM, 4)); [0.32, 0.62].forEach((zz) => put(tubeMesh([[R - 0.07, yL, s * zz], [R - 0.02, yU, s * zz]], T * 0.8, rbM, 4))); });
+      put(rbox(R - 0.06, R + 0.06, yU - 0.035, yU - 0.02, -Z + 0.18, Z - 0.18, rbM, 0.004)); // flat step between the tubes
+      put(rbox(R - 0.05, R + 0.18, yL - 0.06, yU + 0.02, -0.26, 0.26, rbM, 0.008)); // center receiver plate
     } else {
-      const step = rt === 'step', yb = rb + (step ? 0.02 : 0.08), yt = rb + (step ? 0.27 : 0.3), c = step ? Wz : 0.46;
-      put(loftMesh(plateProfile(R, 0.3, yb, yt, -c, -1), plateProfile(R, 0.3, yb, yt, c, -1), M.steel));
-      if (!step) [1, -1].forEach((s) => put(loftMesh(plateProfile(R, 0.3, yb, yt, s * c, -1), plateProfile(R + 0.3, 0.18, P.wheelY0 + 0.2, yt + 0.01, s * Wz, -1), M.steel)));
-      else put(rbox(R + 0.02, R + 0.22, yt - 0.002, yt + 0.006, -0.5, 0.5, M.diamond, 0.003)); // diamond-plate step pad
+      const step = rt === 'step' || rt === 'hooke', yb = rb + (step ? 0.02 : 0.08), yt = rb + (step ? 0.27 : 0.3), c = step ? Wz : 0.46;
+      put(loftMesh(plateProfile(R, 0.3, yb, yt, -c, -1), plateProfile(R, 0.3, yb, yt, c, -1), rbM));
+      if (!step) [1, -1].forEach((s) => put(loftMesh(plateProfile(R, 0.3, yb, yt, s * c, -1), plateProfile(R + 0.3, 0.18, P.wheelY0 + 0.2, yt + 0.01, s * Wz, -1), rbM)));
+      else if (rt === 'step') put(rbox(R + 0.02, R + 0.22, yt - 0.002, yt + 0.006, -0.5, 0.5, M.diamond, 0.003)); // diamond-plate step pad
+    }
     }
     // 2" receiver + D-rings
     const ry = rb + 0.05;
-    put(rbox(R - 0.03, R + 0.3, ry - 0.03, ry + 0.03, -0.03, 0.03, M.steel, 0.004));
+    put(rbox(R - 0.03, R + 0.3, ry - 0.03, ry + 0.03, -0.03, 0.03, rbM, 0.004));
     put(rbox(R - 0.032, R - 0.026, ry - 0.022, ry + 0.022, -0.022, 0.022, M.boot, 0.002));
     [1, -1].forEach((s) => put(dRing(M, R + 0.02, rb + 0.24, s * 0.4, -1)));
   }
+  // license plates: rear in the factory bumper's centre notch (or on the face of a steel bumper), optional front on the
+  // factory bumper. 12" × 6" US plate in a thin black frame.
+  const PL = PLATES[b.plate] || PLATES.none;
+  if (PL.draw) {
+    const tex = plateTex(b.plate, b.plateText || 'DGC 4124'), face = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.4, metalness: 0.15 });
+    const plate = (x, y, dir) => { // dir −1: facing back, +1: facing forward
+      const gp = new THREE.Group(); gp.position.set(x, y, 0); gp.rotation.y = dir < 0 ? -Math.PI / 2 : Math.PI / 2;
+      const fr = mk(new THREE.BoxGeometry(0.325, 0.172, 0.008), M.boot); fr.position.z = -0.004; gp.add(fr);
+      const p = mk(new THREE.PlaneGeometry(0.305, 0.152), face); p.position.z = 0.0015; gp.add(p);
+      put(gp);
+    };
+    const R = P.rear + 0.03, rb = P.rearBumperY;
+    if (rt === 'stock' || rt === 'oemBlack') plate(P.rear + 0.075, rb + 0.15, -1);
+    else plate(R - 0.035, rb + (rt === 'prerunner' ? 0.2 : rt === 'tube' ? 0.125 : rt === 'slim' ? 0.195 : 0.15), -1);
+    if (b.plateFront && FB.factory && P.bumperFace) plate(P.bumperFace.x + 0.012, P.bumperFace.y - 0.02, 1);
+  }
   return { group: g, anchors };
+}
+// license plate styles — simplified state-style plates (not replicas): background, top banner, text colours, motto
+const PLATES = {
+  none:       { label: 'No license plate', price: 0 },
+  texas:      { label: 'Texas-style plate', price: 0, draw: { bg: ['#f7f7f2', '#eef0f2'], top: 'TEXAS', topC: '#1b1b1b', txt: '#111', motto: 'THE LONE STAR STATE', star: true } },
+  california: { label: 'California-style plate', price: 0, draw: { bg: ['#fbfbfb', '#f1f3f6'], top: 'California', topC: '#c4161c', script: true, txt: '#16246b', motto: 'DMV.CA.GOV' } },
+  kentucky:   { label: 'Kentucky-style plate', price: 0, draw: { bg: ['#ffffff', '#e6eef8'], top: 'KENTUCKY', topC: '#ffffff', band: '#1d3f8f', txt: '#1d3f8f', motto: 'UNBRIDLED SPIRIT' } },
+  florida:    { label: 'Florida-style plate', price: 0, draw: { bg: ['#ffffff', '#f4f7ef'], top: 'FLORIDA', topC: '#1f6b34', txt: '#1f6b34', motto: 'SUNSHINE STATE', orange: true } },
+  arizona:    { label: 'Arizona-style plate', price: 0, draw: { bg: ['#f4d9a6', '#d97f3e'], top: 'ARIZONA', topC: '#6b1d1d', txt: '#6b1d1d', motto: 'GRAND CANYON STATE' } },
+};
+const plateTexCache = new Map();
+function plateTex(style, text) {
+  const key = style + '|' + text; if (plateTexCache.has(key)) return plateTexCache.get(key);
+  const D = (PLATES[style] || PLATES.texas).draw, cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const x = cv.getContext('2d');
+  const gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, D.bg[0]); gr.addColorStop(1, D.bg[1]); x.fillStyle = gr; x.fillRect(0, 0, 512, 256);
+  if (D.band) { x.fillStyle = D.band; x.fillRect(0, 0, 512, 54); }
+  if (D.orange) { x.fillStyle = '#f08a24'; x.beginPath(); x.arc(256, 128, 34, 0, Math.PI * 2); x.globalAlpha = 0.25; x.fill(); x.globalAlpha = 1; }
+  x.strokeStyle = 'rgba(0,0,0,0.35)'; x.lineWidth = 6; x.strokeRect(6, 6, 500, 244);
+  [[40, 30], [472, 30], [40, 226], [472, 226]].forEach(([bx, by]) => { x.fillStyle = 'rgba(0,0,0,0.25)'; x.beginPath(); x.arc(bx, by, 9, 0, Math.PI * 2); x.fill(); }); // bolt holes
+  x.textAlign = 'center'; x.fillStyle = D.topC; x.font = D.script ? 'italic bold 46px "Brush Script MT", Georgia, serif' : 'bold 38px Arial, sans-serif'; x.fillText(D.top, 256, D.script ? 56 : 44);
+  if (D.star) { x.fillStyle = '#1b1b1b'; x.font = '30px Arial'; x.fillText('★', 106, 44); }
+  x.fillStyle = D.txt; x.font = 'bold 112px "Arial Narrow", Arial, sans-serif'; const t = String(text).slice(0, 8).toUpperCase(); let w = x.measureText(t).width;
+  x.save(); x.translate(256, 178); if (w > 440) x.scale(440 / w, 1); x.fillText(t, 0, 0); x.restore();
+  x.fillStyle = D.topC === '#ffffff' ? D.txt : D.topC; x.font = 'bold 22px Arial, sans-serif'; x.fillText(D.motto, 256, 232);
+  const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4; plateTexCache.set(key, tex); return tex;
 }
 
 // Aux lights placed like the real installs: ditch lights on hood-hinge brackets beside the windshield, bar on roof mounts,
@@ -4060,7 +4189,7 @@ function buildExtras(M, P, b, info, gBox) {
           const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); g2.setIndex(ix); g2.computeVertexNormals();
           const mm = mk(g2, trimM); mm.castShadow = false; put(mm, 'body');
         };
-        const ys = GL.ys, yT = GL.yTop, top = yT + 0.045, zIn = (zg) => zg - 0.03, linerAt = (x, z) => { const y = yAt(x, z); return isNaN(y) ? null : y - LIN; };
+        const ys = GL.ys, yT = GL.yTop, top = yT + 0.015, /* (pillar tops tuck under the roof rail — any higher pokes out where the roof curves down at the corners) */ zIn = (zg) => zg - 0.03, linerAt = (x, z) => { const y = yAt(x, z); return isNaN(y) ? null : y - LIN; };
         const cabR = info.cabRear + 0.005, xFrontTop = GL.front[5][1];
         [-1, 1].forEach((s) => {
           // roof rail: along the side, from the cab's back wall to the windshield header
@@ -4076,12 +4205,13 @@ function buildExtras(M, P, b, info, gBox) {
           // A pillar: along the front door glass's front edge, angling in toward the windshield (bands where that edge runs
           // back as it climbs — the lowest one is cut short by the mirror sail)
           const ai = ys.map((y, i) => i).filter((i) => i === 5 || GL.front[i][1] >= GL.front[i + 1][1] - 0.02);
-          if (ai.length > 1) strip([...ai.map((i) => [GL.front[i][1] - 0.01, ys[i], s * zIn(GL.front[i][2])]), [xFrontTop - 0.01, top, s * zIn(GL.front[5][2])]], [...ai.map((i) => [GL.front[i][1] + 0.1, ys[i], s * (GL.front[i][2] - 0.1)]), [xFrontTop + 0.07, top, s * (GL.front[5][2] - 0.1)]]);
+          // (angled straight inward and a touch back — never forward, where the windshield is)
+          if (ai.length > 1) strip([...ai.map((i) => [GL.front[i][1] - 0.01, ys[i], s * zIn(GL.front[i][2])]), [xFrontTop - 0.01, top, s * zIn(GL.front[5][2])]], [...ai.map((i) => [GL.front[i][1] - 0.03, ys[i], s * (GL.front[i][2] - 0.11)]), [xFrontTop - 0.04, top, s * (GL.front[5][2] - 0.11)]]);
         });
         // headers: liner front / back edge down to the top of the windshield / back glass
         const zs = []; for (let z = -zL; z <= zL + 1e-6; z += 0.05) zs.push(z);
         const hdr = (xl, xg) => { const A = [], B = []; zs.forEach((z) => { const yl = linerAt(xl, z); if (yl === null) return; A.push([xl, yl, z]); B.push([xg, yT - 0.02, z]); }); if (A.length > 1) strip(A, B); };
-        hdr(LN.x1 - 0.001, xFrontTop + 0.02); hdr(LN.x0 + 0.001, cabR);
+        hdr(LN.x1 - 0.001, Math.min(xFrontTop - 0.04, LN.x1 + 0.06)); hdr(LN.x0 + 0.001, cabR); // (front header stops just behind the windshield's top edge)
       }
       // starlight: fiber-optic points just under the liner, each with its own size / color / twinkle phase
       if (SL.n && idx.length) {
@@ -4201,9 +4331,12 @@ function buildExtras(M, P, b, info, gBox) {
       put(loftMesh([[x1g + 0.02, rail + h - 0.03, -bwg + 0.01], [tipX, tipY - 0.03, -bwg + 0.01], [tipX + 0.01, tipY - 0.03, -bwg + 0.02]], [[x1g + 0.02, rail + h - 0.03, bwg - 0.01], [tipX, tipY - 0.03, bwg - 0.01], [tipX + 0.01, tipY - 0.03, bwg - 0.02]], fab), 'body');
     }
   }
+  const x0g = x0; // (the bed's cab end)
   if (topper !== 'none' && !topper.startsWith('gfc')) {
     // the shell sits on the bed rails: inside their outer edge, and its rear stops on top of the closed tailgate (no overhang)
-    const x1 = info.x1 + 0.05, bw = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012) - 0.012);
+    // (a 5 cm gap to the cab — it used to touch / poke into the cab's back — and the base sits ON the bed rails, centred on
+    // their tops, instead of out at their outer edge)
+    const x1 = info.x1 + 0.05, x0 = x0g - 0.05, bw = Math.min(info.halfW, (info.railHalf || info.halfW + 0.012)) - 0.045;
     const soft = topper.startsWith('softopper'), T = TOPPER_SHAPES[soft ? 'soft' : topper] || TOPPER_SHAPES['are-cx'];
     const rackMat0 = new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.5, metalness: 0.45 });
     const h = info.roofTop - rail + T.dh, bwB = bw + T.flare, bwT = bw - T.tumble, r = T.r;
@@ -4214,7 +4347,7 @@ function buildExtras(M, P, b, info, gBox) {
     const pts = sec.getPoints(10), xF = (y) => x0 - T.front * (y / h), xRr = (y) => x1 + T.rear * (y / h); // front & rear faces lean in at the top
     const zSide = (y) => { const t = Math.min(1, y / (h - r)); return bwB + (bwT - bwB) * t + 2 * T.bow * t * (1 - t) + 0.007; }; // follows the bowed side
     const fabric = soft ? new THREE.MeshStandardMaterial({ color: topper === 'softopper-tan' ? 0xd8bf92 : 0x1c1d1f, roughness: 0.94, side: THREE.DoubleSide, map: extraTex('twill', 128, 128, (x, w, hh) => { x.fillStyle = '#c4c4c4'; x.fillRect(0, 0, w, hh); x.strokeStyle = '#9a9a9a'; for (let i = -128; i < 256; i += 4) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 128, 128); x.stroke(); } }, [12, 12]) })
-      : finishPhys(zc.fiber ? zc.fiber.hex : b.color, b.finish === 'matte' ? 'matte' : 'gloss');
+      : finishPhys(b.topperColor || (zc.fiber ? zc.fiber.hex : b.color), FINISH_PBR[b.finish] ? b.finish : 'gloss'); // (the truck's own colour & finish, or the shell colour you pick)
     fabric.side = THREE.DoubleSide;
     { // skin: the section swept from the cab end to the rear, plus front & rear caps
       const pos = [], idx = [], NX = 10, n = pts.length;
@@ -4446,7 +4579,7 @@ function buildChassis(M, P, opts) {
   addF(rbox(P.xR + 0.45, P.xR + 1.15, fy - 0.02, fy + 0.2, 0.08, 0.4, M.frame, 0.03)); // fuel tank
   // front: coilover towers & arm brackets
   [1, -1].forEach((s) => {
-    addF(rbox(P.xF - 0.08, P.xF + 0.08, fy + 0.44, fy + 0.56, s * 0.39, s * 0.53, M.frame, 0.02));
+    addF(rbox(P.xF - 0.08, P.xF + 0.08, fy + 0.44, fy + 0.56, s * 0.45, s * 0.59, M.frame, 0.02)); // (coil towers 6 cm outboard: the coilovers clear the engine's heads / manifolds)
     [P.xF + 0.2, P.xF - 0.22].forEach((x) => addF(rbox(x - 0.035, x + 0.035, fy - 0.14, fy - 0.05, s * 0.31, s * 0.39, M.frame, 0.008))); // LCA pivot brackets (just at the two pivots, tucked under the frame)
     addF(rbox(P.xR + 0.62, P.xR + 0.76, fy + 0.0, ry + 0.07, s * 0.49, s * 0.55, M.frame, 0.01)); // leaf hanger
     addF(rbox(P.xR - 0.74, P.xR - 0.62, ry + 0.05, ry + 0.13, s * 0.49, s * 0.55, M.frame, 0.01)); // shackle hanger
@@ -4519,7 +4652,7 @@ function buildChassis(M, P, opts) {
     // coilovers / bypasses need tall mounts (link conversions or rear bypasses)
     if (cage) { frame.remove(cage); cage.traverse((o) => o.geometry && o.geometry.dispose()); cage = null; }
     cage = new THREE.Group(); tag(cage, 'suspension');
-    if (BF.tubes) [1, -1].forEach((s) => { cage.add(rbox(P.xF + 0.09, P.xF + 0.21, fy + 0.5, fy + 0.62, s * 0.4, s * 0.55, M.frame, 0.012)); cage.add(beam([P.xF + 0.15, fy + 0.56, s * 0.4], [P.xF + 0.05, fy + 0.5, s * 0.46], 0.03, 0.03, M.frame)); });
+    if (BF.tubes) [1, -1].forEach((s) => { cage.add(rbox(P.xF + 0.09, P.xF + 0.21, fy + 0.5, fy + 0.62, s * 0.46, s * 0.61, M.frame, 0.012)); cage.add(beam([P.xF + 0.15, fy + 0.56, s * 0.46], [P.xF + 0.05, fy + 0.5, s * 0.52], 0.03, 0.03, M.frame)); });
     cageM = null;
     if (link !== 'cant' && (link !== 'leaf' || BR.tubes)) { // (the cantilever lays its shocks along the frame: no cage)
       // Dirt King-style bed cage: one hoop across the bed over the axle — its legs drop through the bed floor (inboard of the
@@ -4604,6 +4737,16 @@ function buildChassis(M, P, opts) {
         mkTip([ex0 + dx, fy - 0.03, zs * (zO - 0.12)], zs * Math.PI / 2, false, 0.04);
       }));
       tip.add(rbox(0.1, 0.75, fy - 0.08, fy + 0.07, 0.24, 0.42, pipeM, 0.03)); // second muffler for the other bank
+    } else if (/^dual[FCR][PD]$/.test(exit)) { // dual tips on one side: ahead of the rear tire (F), under the cab (C) or behind it (R)
+      const zs = exit.endsWith('D') ? -1 : 1, where = exit[4], zT = zs * (zO - 0.12);
+      const ex0 = where === 'F' ? P.xR + P.R0 + 0.4 : where === 'C' ? P.xR + P.R0 + 1.05 : P.xR - P.R0 - 0.28;
+      [0, -0.11].forEach((dx, k) => {
+        const x = ex0 + dx, y = fy - 0.03 + k * 0.004, zi = zs * (0.3 + k * 0.04);
+        const route = where === 'R'
+          ? [...head.map(([hx, hy, hz]) => [hx, hy, hz + k * 0.04]), [P.xR + 0.25, fy + 0.22, -0.36 + k * 0.04], [P.xR - 0.3, fy + 0.2, zs * 0.3], [x + 0.2, y, zs * 0.55], [x, y, zs * (zO - 0.1)]] // (over the axle like stock)
+          : [[0.75, fy - 0.01, zi], [Math.max(x + 0.5, P.xR + 1.2), fy - 0.03, zs * (0.32 + k * 0.05)], [x + 0.18, y, zs * 0.62], [x, y, zs * (zO - 0.1)]];
+        tip.add(tubeMesh(route, T, pipeM, 28)); mkTip([x, y, zT], zs * Math.PI / 2, false, 0.04);
+      });
     } else if (exit === 'side' || exit === 'sideD') { // passenger side (+z), or the driver side (−z; the steering wheel is on −z)
       const zs = exit === 'sideD' ? -1 : 1, end = [P.xR + P.R0 + 0.3, fy - 0.03, zs * zO];
       tip.add(tubeMesh([[0.75, fy - 0.01, -0.32], [P.xR + 1.2, fy - 0.03, zs * 0.3], [P.xR + P.R0 + 0.45, fy - 0.02, zs * 0.62], [end[0] + 0.1, end[1], zs * (zO - 0.1)]], T, pipeM, 24));
@@ -4693,8 +4836,8 @@ function buildChassis(M, P, opts) {
       // coilovers on pads atop the tubes up to the factory towers; bypasses on tabs ahead of the tube to the bypass towers
       [1, -1].forEach((s, i) => {
         const f = front[i], pad = axP(s * 0.5, -0.04, 0.07);
-        if (f.coil) { tab(axP(s * 0.5), pad); orientCoilTo(f.coil, pad, B(fr[0].x - 0.01, fy + 0.5, s * 0.46)); }
-        const bp = bypF[i]; if (bp) { const bl = axP(s * 0.47, 0.13, 0.05); tab(axP(s * 0.47), bl); orientCoilTo(bp, B(fr[0].x + 0.15, fy + 0.53, s * 0.47), bl); }
+        if (f.coil) { tab(axP(s * 0.5), pad); orientCoilTo(f.coil, pad, B(fr[0].x - 0.01, fy + 0.5, s * 0.52)); }
+        const bp = bypF[i]; if (bp) { const bl = axP(s * 0.47, 0.13, 0.05); tab(axP(s * 0.47), bl); orientCoilTo(bp, B(fr[0].x + 0.15, fy + 0.53, s * 0.53), bl); }
       });
       if (rear.fshaft) placeLink(rear.fshaft, B(P.xF - 1.3, fy + 0.04, 0.03), axP(0.16, -0.14, 0.0)); // front driveshaft to the diff
     }
@@ -4712,10 +4855,10 @@ function buildChassis(M, P, opts) {
       // shocks bolt into clevises welded on the lower arm: the coilover mid-arm, the bypass on the arm's front tube
       const low = lcaA.clone().lerp(lcaB, 0.5).lerp(lbj, 0.62), bpLow = lcaA.clone().lerp(lbj, 0.58);
       f.mounts[0].position.copy(low); low.y += 0.03;
-      if (f.coil) orientCoilTo(f.coil, low, B(sp.x - 0.01, fy + 0.5, s * 0.46));
+      if (f.coil) orientCoilTo(f.coil, low, B(sp.x - 0.01, fy + 0.5, s * 0.52));
       const bp = bypF[s > 0 ? 0 : 1];
       f.mounts[1].visible = !!bp; f.mounts[1].position.copy(bpLow); bpLow.y += 0.03;
-      if (bp) orientCoilTo(bp, B(sp.x + 0.15, fy + 0.53, s * 0.47), bpLow); // body up on the tower, shaft down to the arm
+      if (bp) orientCoilTo(bp, B(sp.x + 0.15, fy + 0.53, s * 0.53), bpLow); // body up on the tower, shaft down to the arm
     });
     if (rr.length) {
       const xR = rr[0].x, zA = rr[0].z - 0.1;
@@ -4782,7 +4925,9 @@ function buildChassis(M, P, opts) {
         rs.plate.position.set(xR, by, z);
         [[-0.05, -0.035], [-0.05, 0.035], [0.05, -0.035], [0.05, 0.035]].forEach(([dx, dz], k) => placeLink(rs.ubolts[k], V3(xR + dx, wy + 0.045, z + dz), V3(xR + dx, by, z + dz)));
         const c = rear.shocks[i];
-        if (c) orientCoilTo(c, V3(xR + s * 0.12, wy - 0.07, s * 0.46), B(xR + s * 0.26, fy + 0.34, s * 0.42));
+        // lower eye on an ear off the U-bolt plate under the axle (staggered fore / aft side to side, like the factory) — it used
+        // to float 12 cm off the axle
+        if (c) { const lo = V3(xR + s * 0.07, by - 0.02, z - s * 0.05); tab(2, V3(xR, by, z), lo); orientCoilTo(c, lo, B(xR + s * 0.22, fy + 0.34, s * 0.42)); }
       });
     }
   }
@@ -5101,26 +5246,50 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
   // rear lamps: the taillight lenses glow (running lights with the headlights, bright on the brake), a red wash on the
   // ground behind under braking, and two white LED reverse lamps hidden low in the taillights — you see their light on the
   // ground and whatever's behind, not the bulbs. Made once (constant light count → no shader recompiles), switched by level.
-  const rearL = { rev: [], red: null };
+  // The light comes from bulbs inside each taillight: a red brake / tail bulb in the middle of the lamp and a white reverse
+  // bulb low in it, each with its light source right at the bulb (a red point light lighting the chrome bowl and the ground,
+  // a white spot aimed back and down). Lamp positions are measured from the model's taillight lenses.
+  const rearL = { g: new THREE.Group(), rev: [], red: [], bulbB: [], bulbR: [] };
   {
-    for (let i = 0; i < 2; i++) { const l = new THREE.SpotLight(0xf4f7ff, 0, 16, 0.95, 0.75, 1.4); l.castShadow = false; truck.add(l); truck.add(l.target); rearL.rev.push(l); }
-    rearL.red = new THREE.PointLight(0xff1a0a, 0, 5, 1.6); truck.add(rearL.red);
+    const bb = new THREE.SphereGeometry(0.017, 12, 8);
+    for (let i = 0; i < 2; i++) {
+      const l = new THREE.SpotLight(0xf4f7ff, 0, 16, 0.95, 0.75, 1.4); l.castShadow = false; rearL.g.add(l, l.target); rearL.rev.push(l);
+      const p = new THREE.PointLight(0xff1a0a, 0, 4, 1.6); rearL.g.add(p); rearL.red.push(p);
+      const b1 = new THREE.Mesh(bb, new THREE.MeshStandardMaterial({ color: 0x2a0000, emissive: 0xff2a10, emissiveIntensity: 0, roughness: 0.3 })); rearL.g.add(b1); rearL.bulbB.push(b1);
+      const b2 = new THREE.Mesh(bb, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, emissive: 0xf4f7ff, emissiveIntensity: 0, roughness: 0.3 })); rearL.g.add(b2); rearL.bulbR.push(b2);
+    }
+    rearL.g.userData.noScan = true; truck.add(rearL.g);
   }
-  function placeRearLamps() { // at the bottom of each taillight, aimed back and down
-    const P = base.P; if (!P) return; const x = P.rear + 0.06, y = (P.rearBumperY || 0.7) + 0.33 + (rig.liftR || 0);
-    rearL.rev.forEach((l, i) => { const z = (i ? 1 : -1) * (P.halfW - 0.2); l.position.set(x, y, z); l.target.position.set(x - 6, 0, z * 1.4); });
-    rearL.red.position.set(x - 0.4, y + 0.1, 0);
+  function placeRearLamps() {
+    if (!model || !model.zones) return;
+    const h = model.holder;
+    if (rearL.g.parent !== h) { h.add(rearL.g); } // (rides with the body: lift, pitch, roll)
+    rearL.g.position.set(-h.position.x, -model.baseY, -h.position.z);
+    if (!model.tailSpots) { // each red lens (rest space): centre + bottom
+      h.updateWorldMatrix(true, true); const off = V(h.position.x, model.baseY, h.position.z);
+      model.tailSpots = (model.zones.taillights || []).filter((m) => { const mt = m.userData.baseMat || m.material; return !Array.isArray(mt) && mt.transparent; }).map((m) => {
+        const box = new THREE.Box3().setFromObject(m), toR = (p) => h.worldToLocal(p.clone()).add(off), a = toR(box.min), c = toR(box.max);
+        return { x: Math.max(a.x, c.x), cy: (a.y + c.y) / 2, y0: Math.min(a.y, c.y), z: (a.z + c.z) / 2 };
+      }).sort((p, q) => p.z - q.z).slice(0, 2);
+    }
+    model.tailSpots.forEach((t, i) => {
+      const xi = t.x - 0.07; // a few cm inside the lens
+      rearL.bulbB[i].position.set(xi, t.cy + 0.04, t.z); rearL.red[i].position.set(xi - 0.02, t.cy + 0.04, t.z);
+      rearL.bulbR[i].position.set(xi, t.y0 + 0.09, t.z); rearL.rev[i].position.set(xi + 0.02, t.y0 + 0.09, t.z); rearL.rev[i].target.position.set(xi - 6, t.y0 - 1.2, t.z * 1.3);
+    });
   }
   let rearState = { brake: false, rev: false };
   function setRearLamps(brake, rev) {
     rearState = { brake, rev }; placeRearLamps();
     const k = TOD.lightK, head = (build.head || 'off') !== 'off';
     rearL.rev.forEach((l) => { l.intensity = rev ? 7 * k : 0; });
-    rearL.red.intensity = brake ? 1.4 * k : 0;
+    rearL.red.forEach((l) => { l.intensity = (brake ? 0.9 : head ? 0.25 : 0) * k; });
+    rearL.bulbB.forEach((b) => { b.material.emissiveIntensity = (brake ? 7 : head ? 2 : 0) * k; });
+    rearL.bulbR.forEach((b) => { b.material.emissiveIntensity = rev ? 8 * k : 0; });
     if (!model || !model.zones) return;
     (model.zones.taillights || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
       if (!mt || !mt.emissive || mt.metalness > 0.7 || !mt.color || !(mt.color.r > mt.color.g * 1.6 && mt.color.r > 0.2)) return; // (just the red lens)
-      mt.emissive.setHex(0xff1408); mt.emissiveIntensity = (brake ? 1.9 : head ? 0.5 : 0) * k;
+      mt.emissive.setHex(0xff1408); mt.emissiveIntensity = (brake ? 0.9 : head ? 0.3 : 0) * k; // (the lens glows from the bulb behind it)
     }));
   }
   function padLights() {
@@ -5206,7 +5375,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const bi = model.bedInfo, P = base.P; // the cab box: behind the cowl, ahead of the cab's back wall, rocker to roof
     // (bottom: the window sills when measured — the inward-facing rule must not reach the door panels / rockers below)
     const sill = bi && bi.dash && bi.dash.glass ? bi.dash.glass.ys[0] - 0.06 : P ? P.rockerY + 0.15 : 0;
-    if (bi && P) { TRIM_MIN.value.set(bi.cabRear - 0.06, sill, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); }
+    if (bi && P) { TRIM_MIN.value.set(bi.cabRear - 0.06, P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
   }
   function setCuts(cuts = []) {
     const n = Math.min(MAX_CUTS, cuts.length); cutU.uCutN.value = n;
@@ -5316,7 +5485,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   function rebuildWheels(t, style, R, b) {
     wheels.forEach((w) => { truck.remove(w); w.traverse((o) => { if (o.geometry && !o.geometry.userData.shared) o.geometry.dispose(); }); });
     wheels = [];
-    const spec = { R, w: t.width * INCH, rimR: (t.rim / 2) * INCH + 0.012, style, tireBrand: b.tireBrand };
+    const spec = { R, w: t.width * INCH, rimR: (t.rim / 2) * INCH + 0.012, style, tireBrand: b.tireBrand, beadColor: b.beadColor };
     base.P.spots.forEach((sp) => {
       const { x, s, z } = sp, off = offOf(sp); // offset & spacers just push the wheel outboard (no visible spacer disc)
       const w = buildWheel(M, spec);
@@ -5419,6 +5588,27 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     model.parts.meshes.forEach((m) => { if (m.isSkinnedMesh || m.isInstancedMesh || Array.isArray(m.material) || paintSet.has(m.material) || glassSet.has(m.material)) return; const g = m.geometry, pa = g.attributes.position, ix = g.index; if (!pa) return; const n = ix ? ix.count : pa.count;
       for (let k = 0; k < n; k += 3) { sv.fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(m.matrixWorld); if (Math.abs(sv.x - steerC0.x) < 0.07 && Math.abs(sv.y - steerC0.y) < 0.14 && Math.abs(sv.z - steerC0.z) < 0.14) steerCount.set(m.material, (steerCount.get(m.material) || 0) + 1); } });
     let steerMat = null, steerBest = 30; steerCount.forEach((c, mt) => { if (c > steerBest) { steerBest = c; steerMat = mt; } });
+    // that material also covers the column shroud and part of the dash — so find the wheel itself: its centre and the plane
+    // of the rim (the rim is a thin ring: its plane is the two big spreads of the nearby points). Only what lies inside the
+    // rim radius and close to that plane turns with the wheel; the rest stays put as dash.
+    let wheelC = steerC0.clone(), wheelN = null;
+    if (steerMat) {
+      const wp = []; model.parts.meshes.forEach((m) => { if (m.material !== steerMat) return; const g = m.geometry, pa = g.attributes.position, ix = g.index, n = ix ? ix.count : pa.count; for (let k = 0; k < n; k++) { const p = V(0, 0, 0).fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(m.matrixWorld); if (p.distanceTo(steerC0) < 0.3) wp.push(p); } });
+      const fit = (pts) => { // centre + plane normal (smallest spread) by power iteration on the covariance
+        const c = pts.reduce((a, p) => a.add(p), V(0, 0, 0)).multiplyScalar(1 / pts.length), C = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        pts.forEach((p) => { const d = [p.x - c.x, p.y - c.y, p.z - c.z]; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) C[i * 3 + j] += d[i] * d[j]; });
+        const mul = (M, v) => V(M[0] * v.x + M[1] * v.y + M[2] * v.z, M[3] * v.x + M[4] * v.y + M[5] * v.z, M[6] * v.x + M[7] * v.y + M[8] * v.z);
+        const top = (M) => { let v = V(0.3, 0.6, 0.7); for (let i = 0; i < 40; i++) v = mul(M, v).normalize(); return v; };
+        const e1 = top(C), l1 = mul(C, e1).dot(e1), C2 = C.map((x, k) => x - l1 * [e1.x, e1.y, e1.z][Math.floor(k / 3)] * [e1.x, e1.y, e1.z][k % 3]), e2 = top(C2);
+        return { c, n: V(0, 0, 0).crossVectors(e1, e2).normalize() };
+      };
+      if (wp.length > 60) {
+        let f = fit(wp.filter((p) => p.distanceTo(steerC0) < 0.22));
+        for (let it = 0; it < 2; it++) { const ring = wp.filter((p) => p.distanceTo(f.c) < 0.23 && Math.abs(V(0, 0, 0).subVectors(p, f.c).dot(f.n)) < 0.06); if (ring.length > 40) f = fit(ring); }
+        wheelC = f.c; wheelN = f.n;
+      }
+    }
+    const onWheel = (c) => !wheelN || (c.distanceTo(wheelC) < 0.215 && Math.abs(V(0, 0, 0).subVectors(c, wheelC).dot(wheelN)) < 0.055);
     const hoodTopAt = (x) => { let best = null, bd = 1e9; hoodTops.forEach(([hx, hy]) => { if (hy !== null && Math.abs(hx - x) < bd) { bd = Math.abs(hx - x); best = hy; } }); return best === null ? P.hoodY : best; };
     function zoneOf(mt, ctx) {
       const cx = (a.x + b.x + c.x) / 3, cy = (a.y + b.y + c.y) / 3, cz = (a.z + b.z + c.z) / 3, az = Math.abs(cz);
@@ -5432,9 +5622,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       if (!isP && !isG && !isChrome(mt) && cx < cabRear - 0.08 && cx > P.rear + 0.12 && az < P.halfW - 0.13 && cy > railY - (lumOf(mt) > 0.2 ? 0.55 : 0.2) && allY((y) => y < railY + 0.12) && Math.abs(normal().y) > (lumOf(mt) > 0.2 && cy < railY - 0.2 ? 0.7 : 0.85)) return 'bedCover'; // not the tailgate / taillights / rail caps (light-grey cover bits down on the floor go too)
       // the model's hood inner frame (bare grey panels just under the skin) lifts with the hood
       if (!isP && !isG && !isChrome(mt) && cx > P.cowlX && cx < P.front - 0.35 && [a, b, c].every((p) => Math.abs(p.z) < P.halfW - 0.2 && p.x > P.cowlX + 0.12 && p.x < P.front - 0.3 && p.y > hoodTopAt(p.x) - 0.1 && p.y < hoodTopAt(p.x) + 0.01)) return 'hoodInner'; // (only what hugs the skin)
-      if (steerMat && mt === steerMat && Math.abs(cx - steerC0.x) < 0.17 && Math.abs(cy - steerC0.y) < 0.25 && Math.abs(cz - steerC0.z) < 0.26) return 'steer'; // steering wheel (rotates)
+      if (steerMat && mt === steerMat && Math.abs(cx - steerC0.x) < 0.17 && Math.abs(cy - steerC0.y) < 0.25 && Math.abs(cz - steerC0.z) < 0.26 && onWheel(V(cx, cy, cz))) return 'steer'; // steering wheel rim + hub (rotates)
       // cabin interior (seats, door panels, console, dash): inside the cab, well inboard of the side glass / skin
-      if (!isP && !isG && cx > cabRear + 0.03 && cx < P.cowlX - 0.02 && cy > P.rockerY + 0.1 && cy < prof.roofTop - 0.02 && az < Math.min(glassZ(cy) - 0.06, P.halfW - 0.06)) return cx > steerC0.x - 0.07 && cy > P.rockerY + 0.35 ? 'dash' : 'interior';
+      // (not the wheel-well liner where it reaches back under the cab's footprint — that was getting the interior colour)
+      if (!isP && !isG && cx > cabRear + 0.03 && cx < P.cowlX - 0.02 && cy > P.rockerY + 0.1 && cy < prof.roofTop - 0.02 && az < Math.min(glassZ(cy) - 0.06, P.halfW - 0.06)
+        && !arches.some((w) => Math.hypot(cx - w.x, cy - P.wheelY0) < P.R0 + 0.4 && az > 0.38)) return cx > steerC0.x - 0.07 && cy > P.rockerY + 0.35 ? 'dash' : 'interior';
       // the cowl panel under the windshield (black plastic on the real truck)
       if (!isP && !isG && !isChrome(mt) && cx > P.cowlX - 0.2 && cx < P.cowlX + 0.16 && cy > P.hoodY - 0.12 && cy < P.cowlY + 0.08 && az < P.halfW - 0.12) return 'cowl';
       // the engine & everything else under the hood (behind the radiator support, below the hood skin)
@@ -5682,15 +5874,27 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   function lampMat(bm, kind, opt) {
     opt = opt || 'oem';
     if (kind === 'tail' && opt === 'oem') return bm;
+    // the lamp's reflector bowl: the model's light-grey / "chrome" parts inside the headlight (not the bulbs, not the dark housing)
+    const lumB = bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0;
+    const reflector = (kind === 'head' && !isLens(bm) && !/^sphere/i.test(bm.name || '') && (/chrome/i.test(bm.name || '') || lumB > 0.25))
+      || (kind === 'tail' && !bm.transparent && /chrome/i.test(bm.name || '')); // (the taillight's inner bowl too — it was matte grey and read white through the lens)
+    if (reflector && opt !== 'black' && opt !== 'dark') {
+      const rk = `${bm.uuid}|${kind}|reflector`; if (zoneMatCache.has(rk)) return zoneMatCache.get(rk);
+      const rm = new THREE.MeshStandardMaterial({ color: 0xe9ecef, metalness: 1, roughness: 0.08, envMapIntensity: 1.5, side: bm.side }); ensureCut(rm); zoneMatCache.set(rk, rm); return rm; // polished chrome reflector
+    }
+    if (kind === 'tail' && opt === 'oem') return bm;
     if (kind === 'head' && opt === 'oem' && !isLens(bm)) return bm;
     const key = `${bm.uuid}|${kind}|${opt}`;
     if (zoneMatCache.has(key)) return zoneMatCache.get(key);
     let m;
     if (kind === 'head') {
       if (isLens(bm)) {
-        // polycarbonate lens: clear but visibly glossy (reflections + slight blue tint) over the chrome reflector
-        const tint = { oem: [0xeaf2ff, 0.26], light: [0x2a2d31, 0.55], dark: [0x0b0c0e, 0.86], black: [0xeaf2ff, 0.26], amber: [0xffc21a, 0.48] }[opt] || [0xeaf2ff, 0.26];
-        m = new THREE.MeshPhysicalMaterial({ color: tint[0], transparent: true, opacity: tint[1], roughness: 0.02, metalness: 0.04, clearcoat: 1, clearcoatRoughness: 0.01, specularIntensity: 1, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 2.8 });
+        // polycarbonate lens: water-clear (you see the reflector and bulb straight through it), just a glossy sheen on top
+        const tint = { oem: [0xf6f9ff, 0.08], light: [0x2a2d31, 0.55], dark: [0x0b0c0e, 0.86], black: [0xf6f9ff, 0.08], amber: [0xffc21a, 0.42] }[opt] || [0xf6f9ff, 0.08];
+        m = new THREE.MeshPhysicalMaterial({ color: tint[0], transparent: true, opacity: tint[1], roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.01, specularIntensity: 1, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 1.3 });
+      } else if (reflector && opt !== 'black') {
+        // the reflector bowl behind the lens: polished, mirror-like chrome (it was flat matte grey, which read as white)
+        m = new THREE.MeshStandardMaterial({ color: 0xe9ecef, metalness: 1, roughness: 0.08, envMapIntensity: 1.5, side: bm.side });
       } else {
         m = bm.clone();
         if (opt === 'black') { m.color.setHex(0x0b0b0c); if ('metalness' in m) { m.metalness = 0.45; m.roughness = 0.32; } }
@@ -5699,7 +5903,8 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       m = bm.clone(); const tr = m.transparent;
       if (opt === 'smoke') { m.color.lerp(new THREE.Color(0x200303), 0.6); if (tr) m.opacity = Math.max(m.opacity, 0.75); }
       else if (opt === 'dark') { m.color.setHex(0x0a0303); if (tr) m.opacity = 0.9; }
-      else if (opt === 'clear') { m.color.setHex(0xe8e8ea); if (tr) m.opacity = 0.35; else if ('metalness' in m) { m.metalness = 0.9; m.roughness = 0.08; } }
+      else if (opt === 'clear') { // water-clear lens: you see the chrome reflector and the bulbs through it
+        if (tr) { m.color.setHex(0xf4f6f8); m.opacity = 0.1; m.depthWrite = false; if ('roughness' in m) { m.roughness = 0.02; m.metalness = 0; } } else if ('metalness' in m) { m.color.setHex(0xe8e8ea); m.metalness = 0.9; m.roughness = 0.08; } }
     }
     ensureCut(m); m.needsUpdate = true; zoneMatCache.set(key, m); return m;
   }
@@ -5707,7 +5912,14 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const Z = model.zones || {}, FB = FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock;
     const show = (id, on) => (Z[id] || []).forEach((m) => { m.visible = on; });
     show('guard', FB === FRONT_BUMPERS.stock); show('guardMount', FB === FRONT_BUMPERS.stock); show('bumperCap', !!FB.factory); show('frontBumper', !!FB.factory); show('fbLower', !!FB.factory); show('fogs', !!FB.factory && (b.fog || 'none') === 'none');
-    show('rearBumper', (b.rearBumper || 'stock') === 'stock');
+    // small bumper bits the model files with the headlights (a chrome bracket, the strip along the bumper top) — they sit
+    // below the lamps and belong to the factory bumper: gone with an aftermarket one
+    if (!model.fbBits) {
+      const lens = (Z.headlights || []).filter((m) => { const mt = m.userData.baseMat || m.material; return !Array.isArray(mt) && isLens(mt); }), lb = lens.length ? Math.min(...lens.map((m) => new THREE.Box3().setFromObject(m).min.y)) : -1e9;
+      model.fbBits = (Z.headlights || []).filter((m) => new THREE.Box3().setFromObject(m).max.y < lb - 0.005);
+    }
+    model.fbBits.forEach((m) => { m.visible = !!FB.factory; });
+    show('rearBumper', ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'));
     show('steps', b.steps !== 'removed'); show('oemStrut', false); show('antenna', b.antenna !== 'removed');
     show('bedCover', b.bedCover !== 'open' && (b.bedTent || 'none') === 'none');
     show('grille', (b.grille || 'stock') === 'stock');
@@ -5717,6 +5929,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const setMat = (m, fn) => { const bm = m.userData.baseMat; m.material = Array.isArray(bm) ? bm.map(fn) : fn(bm); };
     PAINT_ZONES.forEach(({ id }) => {
       const zc = (b.zoneColors || {})[id] || ((id === 'frontBumper' || id === 'fbLower') && FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : null)
+        || (id === 'rearBumper' && b.rearBumper === 'oemBlack' ? { hex: '#16171a', finish: 'satin' } : null) || (id === 'bumperCap' && (b.zoneColors || {}).frontBumper) // (the plastic cap on top of the bumper follows the bumper's colour once you pick one)
         || (id === 'liner' || id === 'bumperCap' ? { hex: '#141416', finish: id === 'liner' ? 'matte' : 'satin' } : null); // (bumper cap strip: black trim by default) the whole factory bumper keeps one color unless a part color is chosen; liners default black
       (Z[id] || []).forEach((m) => setMat(m, (bm) => (zc ? finishMat(bm, zc.hex, zc.finish) : bm)));
     });
@@ -5726,6 +5939,26 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     { const IT = INTERIOR_TRIMS[b.intTrim] || INTERIOR_TRIMS.cloth, IC = INTERIOR_COLORS[b.intColor] || INTERIOR_COLORS.stock;
       // (the dash & wheel are a darker shade of the same color — two-tone, like the factory oak / gray interiors; no fabric
       // texture: the model's cabin has no UVs to map one)
+      // surface detail: the cabin has no UVs, so the material's texture (cloth weave, leather grain, perforation, suede nap,
+      // stippled dash plastic) is projected from the truck's own rest-space position (vCutP, metres — it rides with the
+      // truck, no swimming) along whichever axis the surface faces. It modulates colour and roughness: real-looking, cheap.
+      const detail = (mt, kind, freq) => {
+        const prev = mt.onBeforeCompile, tex = interiorDetailTex(kind);
+        mt.onBeforeCompile = function (sh, r) {
+          if (prev) prev.call(this, sh, r);
+          sh.uniforms.uDetail = { value: tex }; sh.uniforms.uDFreq = { value: freq };
+          sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D uDetail; uniform float uDFreq;')
+            .replace('#include <map_fragment>', `#include <map_fragment>
+              vec3 dN = abs(normalize(cross(dFdx(vCutP), dFdy(vCutP)))); dN = pow(dN, vec3(4.0)); dN /= (dN.x + dN.y + dN.z + 1e-5);
+              vec3 dq = vCutP * uDFreq;
+              float dTx = texture2D(uDetail, dq.yz).r * dN.x + texture2D(uDetail, dq.xz).r * dN.y + texture2D(uDetail, dq.xy).r * dN.z;
+              diffuseColor.rgb *= 0.68 + 0.64 * dTx;`)
+            .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor + (0.5 - dTx) * 0.18, 0.04, 1.0);');
+        };
+        const pk = mt.customProgramCacheKey ? String(mt.customProgramCacheKey.call(mt)) : ''; mt.customProgramCacheKey = () => pk + '|det-' + kind;
+        return mt;
+      };
+      const kindOf = (zid) => (zid === 'interior' ? IT.tex || 'vinylGrain' : 'stipple'), freqOf = (kind) => ({ weave: 11, grain: 3.6, perf: 3.2, nap: 5, vinylGrain: 4.5, stipple: 3.5 }[kind] || 4); // (repeats per metre: weave threads ~3 mm, leather pebbles 3–6 mm)
       const tone = (zid, k) => (Z[zid] || []).forEach((m) => setMat(m, (bm) => {
         const lum = bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0;
         if (lum < 0.25 && b.intColor !== 'black') return bm;
@@ -5733,8 +5966,8 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         const fm = bm.clone();
         if (lum >= 0.25) { fm.color.set(IC.hex || '#aaa397').multiplyScalar(k); fm.roughness = zid === 'interior' ? IT.rough : 0.7; fm.metalness = 0; fm.map = null; }
         else fm.color.multiplyScalar(0.5);
-        if (zid === 'interior' && (fm.isMeshPhysicalMaterial || IT.sheen)) { const pm = toPhysical(fm); pm.sheen = 0; pm.clearcoat = IT.sheen || 0; pm.clearcoatRoughness = 0.55; /* leather: a faint satin top coat */ ensureCut(pm); pm.needsUpdate = true; zoneMatCache.set(key, pm); return pm; }
-        ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm;
+        if (zid === 'interior' && (fm.isMeshPhysicalMaterial || IT.sheen)) { const pm = toPhysical(fm); pm.sheen = 0; pm.clearcoat = IT.sheen || 0; pm.clearcoatRoughness = 0.55; /* leather: a faint satin top coat */ detail(pm, kindOf(zid), freqOf(kindOf(zid))); ensureCut(pm); pm.needsUpdate = true; zoneMatCache.set(key, pm); return pm; }
+        detail(fm, kindOf(zid), freqOf(kindOf(zid))); ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm;
       }));
       tone('interior', 1); tone('dash', 0.62); tone('steer', 0.55); }
     // engine bay (the model's untextured engine renders as chrome / bare grey): cast aluminium + black plastics & hoses, as on the 2UZ
@@ -5767,6 +6000,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     build = b;
     const P = base.P; if (!P) return;
     TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
+    TRIM_LOW.value.set((INTERIOR_COLORS[b.intColor] || INTERIOR_COLORS.stock).hex).multiplyScalar(0.8); // (door skins below the sill: the door-panel colour)
     if ((b.tod ?? null) !== TOD.hour) applyTimeOfDay(b.tod ?? null); // (time of day lives in the build, so presets keep it)
     if (model) { paintModel(b); tintModel(b.tint, b.tintWs || 0); engineModel(b.engineAccent); if (model.zones) { applyZones(b); applyBulge(b); } }
     const style = effStyle(b);
@@ -5776,7 +6010,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const modelR = model && model.wheelFit && !model.wheelFit.synthetic && !model.reference ? model.wheelFit.R : null;
     rig.wy = b.tire === 'stock' && modelR ? modelR : (t.dia / 2) * INCH;
     rig.offF = wheelShiftIn(b, 'F') * INCH; rig.offR = wheelShiftIn(b, 'R') * INCH;
-    const key = `${t.dia}|${t.width}|${t.rim}|${style}|${b.tireBrand}|${rig.wy.toFixed(4)}|${rig.offF.toFixed(4)}|${rig.offR.toFixed(4)}|${b.spacerF}|${b.spacerR}|${P.spots.map((s) => s.x.toFixed(3) + s.z.toFixed(3)).join()}`;
+    const key = `${t.dia}|${t.width}|${t.rim}|${style}|${b.tireBrand}|${b.beadColor || ''}|${rig.wy.toFixed(4)}|${rig.offF.toFixed(4)}|${rig.offR.toFixed(4)}|${b.spacerF}|${b.spacerR}|${P.spots.map((s) => s.x.toFixed(3) + s.z.toFixed(3)).join()}`;
     if (key !== wheelKey) { wheelKey = key; rebuildWheels(t, style, rig.wy, b); }
     const swap = swapActive();
     wheels.forEach((w, i) => { w.visible = swap && !(cutaway && P.spots[i].s > 0); });
@@ -5792,7 +6026,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
           exitQ: bi && bi.qZ ? { x: bi.qX, y: bi.qY, z: bi.qZ.map((z, i) => z + (model.bulgeAt ? Math.abs((model.bulgeAt(bi.qX, bi.qY, (i ? -1 : 1) * z) || [0, 0, 0])[2]) : 0)) } : null });
     }
     if (model && acc) {
-      const bk = [b.frontBumper, b.rearBumper, b.skid].join('|');
+      const bk = [b.frontBumper, b.rearBumper, b.skid, JSON.stringify((b.zoneColors || {}).rearBumper || null), b.plate, b.plateText, b.plateFront].join('|');
       if (bk !== bumpersKey || !bumpers) {
         bumpersKey = bk;
         if (bumpers) { model.holder.remove(bumpers.group); bumpers.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
@@ -5801,7 +6035,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         model.holder.add(bumpers.group);
         lightsKey = '';
       }
-      const ek = JSON.stringify([b.grille, b.grilleLetters, b.bugShield, (b.zoneColors || {}).grille, (b.zoneColors || {}).fiber, b.fiberF, b.fiberR, b.color, b.finish, b.bedCover, b.topper, b.bedRack, b.bedTent, b.roofRack, b.roofTent, b.tentOpen, b.subs, b.intColor, b.dashTrim, b.sunroof, b.headliner, b.starlight, b.badges, b.oem, b.decal && [b.decal.id, b.decal.where, b.decal.size]]);
+      const ek = JSON.stringify([b.grille, b.grilleLetters, b.bugShield, (b.zoneColors || {}).grille, (b.zoneColors || {}).fiber, b.fiberF, b.fiberR, b.color, b.finish, b.bedCover, b.topper, b.topperColor, b.bedRack, b.bedTent, b.roofRack, b.roofTent, b.tentOpen, b.subs, b.intColor, b.dashTrim, b.sunroof, b.headliner, b.starlight, b.badges, b.oem, b.decal && [b.decal.id, b.decal.where, b.decal.size]]);
       if (ek !== extrasKey || !extras) {
         extrasKey = ek;
         if (extras) { model.holder.remove(extras.group); extras.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
@@ -5833,7 +6067,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (instant) { rig.lift = target; rig.liftR = targetR; updateRig(); }
     else { updateRig(); gsap.to(rig, { lift: target, liftR: targetR, duration: 0.7, ease: 'power2.out', onUpdate: updateRig }); }
     if (acc) { const vis = (l, on) => l.forEach((o) => { o.visible = on; }); vis(acc.reg.flares, false); /* (bolt-on flares retired) */ vis(acc.reg.sliders, b.sliders); }
-    if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory; model.bumpers.front.forEach((m) => { m.visible = !!fs; }); model.bumpers.rear.forEach((m) => { m.visible = (b.rearBumper || 'stock') === 'stock'; }); }
+    if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory; model.bumpers.front.forEach((m) => { m.visible = !!fs; }); model.bumpers.rear.forEach((m) => { m.visible = ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'); }); }
     if (model) { applyWindows(b); setCuts([...trimCuts(b), ...(b.cuts || [])]); }
     refreshBoxes();
     if (TOD.envK !== 1) envScale(TOD.envK); // (freshly built parts take the time of day's light too)
@@ -6868,9 +7102,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       [2.7, 1.75, 0, -1.75, -2.7].forEach((lx) => [-1.12, 1.12].forEach((lz) => { const w = outdoor.dockPush(d.x + lx * c + lz * s, d.z - lx * s + lz * c, d.y); if (w) { d.x += w[0]; d.z += w[1]; hit = true; } })); // dock faces
       return hit;
     } };
-    if (lay === 'backroads') { // spawn in the right-hand lane at the start of the loop, pointed along the road
-      const BRd = outdoor.backroads, B = BRd.bounds, p = BRd.path[0];
-      return { H: outdoor.heights.backroads, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: [0.55, 0.47, 0.37], safe: BRd.safe,
+    if (lay === 'backroads' || lay === 'drift') { // spawn in the right-hand lane (drift: on the centreline) at the start of the loop, pointed along the road
+      const BRd = outdoor[lay], B = BRd.bounds, p = BRd.path[0];
+      return { H: BRd.height, mu: (x, z) => (BRd.paved(x, z) ? 1.0 : lay === 'drift' ? 0.7 : 0.76), loose: (x, z) => !BRd.paved(x, z), roll: 0.022, dust: lay === 'drift' ? [0.5, 0.48, 0.36] : [0.55, 0.47, 0.37], safe: BRd.safe,
         start: { x: 0, z: 0, yaw: Math.atan2(-p.tz, p.tx) }, clamp: (d) => { // (the map's lane start is the world origin)
         let hit = false; const lim = (k, lo, hi) => { if (d[k] < lo) { d[k] = lo; hit = true; } if (d[k] > hi) { d[k] = hi; hit = true; } };
         lim('x', B.x0, B.x1); lim('z', B.z0, B.z1); return hit;
@@ -6912,6 +7146,50 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       else if (!on && mt.userData.side0 !== undefined) { mt.side = mt.userData.side0; delete mt.userData.side0; mt.needsUpdate = true; }
     }));
   }
+  // ---- Multiplayer: other players' trucks. Each is a copy of the truck model (lights stripped, their paint colour) with a
+  // name tag; poses arrive ~10×/s and are eased toward so they move smoothly. Ghosts for now: no collisions between trucks.
+  const remotes = new Map(); let tagsOn = true;
+  const tagSprite = (text) => {
+    const cv = document.createElement('canvas'), x = cv.getContext('2d'); cv.width = 512; cv.height = 128;
+    x.font = 'bold 54px Rajdhani, Arial, sans-serif'; const w = Math.min(500, x.measureText(text).width + 48);
+    x.fillStyle = 'rgba(8,10,14,0.72)'; x.beginPath(); x.roundRect ? x.roundRect((512 - w) / 2, 22, w, 84, 20) : x.rect((512 - w) / 2, 22, w, 84); x.fill();
+    x.fillStyle = '#ffffff'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text.length > 22 ? text.slice(0, 21) + '…' : text, 256, 66);
+    const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })); sp.scale.set(2.6, 0.65, 1); sp.position.y = 2.9; sp.renderOrder = 10; return sp;
+  };
+  function makeRemote(p) {
+    if (!model) return null;
+    const g2 = truck.clone(true), drop = [];
+    g2.traverse((o) => { if (o.isLight || o.isPoints || o === stars) drop.push(o); });
+    drop.forEach((o) => o.parent && o.parent.remove(o));
+    const paint = new THREE.MeshPhysicalMaterial({ color: p.color || '#8a8d91', metalness: 0.5, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.05 });
+    g2.traverse((o) => { if (!o.isMesh) return; const swap = (m) => (m && m.userData && m.userData.paintU ? paint : m); o.material = Array.isArray(o.material) ? o.material.map(swap) : swap(o.material); });
+    const tag = tagSprite(p.name || 'player'); tag.visible = tagsOn; g2.add(tag);
+    scene.add(g2); return { g: g2, tag, paint, name: p.name, color: p.color, pose: null };
+  }
+  function setRemotes(list) { // list: [{ id, name, color, x, y, z, yaw, pitch, roll }]
+    const seen = new Set();
+    list.forEach((p) => {
+      seen.add(p.id); let r = remotes.get(p.id);
+      if (!r) { r = makeRemote(p); if (!r) return; remotes.set(p.id, r); }
+      if (p.name !== r.name) { r.g.remove(r.tag); r.tag = tagSprite(p.name || 'player'); r.tag.visible = tagsOn; r.g.add(r.tag); r.name = p.name; }
+      if (p.color && p.color !== r.color) { r.paint.color.set(p.color); r.color = p.color; }
+      r.target = p; if (!r.pose) r.pose = { ...p };
+    });
+    remotes.forEach((r, id) => { if (!seen.has(id)) { scene.remove(r.g); remotes.delete(id); } });
+  }
+  function stepRemotes(dt) {
+    const k = 1 - Math.pow(0.002, dt), q = new THREE.Quaternion(), qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), qc = new THREE.Quaternion();
+    remotes.forEach((r) => {
+      const t = r.target, c = r.pose; if (!t || !c) return;
+      ['x', 'y', 'z', 'pitch', 'roll'].forEach((key) => { c[key] += ((t[key] || 0) - (c[key] || 0)) * k; });
+      let dy = (t.yaw || 0) - (c.yaw || 0); dy = Math.atan2(Math.sin(dy), Math.cos(dy)); c.yaw = (c.yaw || 0) + dy * k;
+      r.g.position.set(c.x, c.y, c.z);
+      qa.setFromAxisAngle(YAX, c.yaw); qb.setFromAxisAngle(ZAXIS, c.pitch); qc.setFromAxisAngle(XAX, c.roll); q.copy(qa).multiply(qb).multiply(qc); r.g.quaternion.copy(q);
+      r.tag.quaternion.copy(q).invert(); // (the sprite faces the camera anyway; keep it upright)
+    });
+  }
+  const getPose = () => ({ x: truck.position.x, y: truck.position.y, z: truck.position.z, yaw: drive.on ? drive.yaw : 0, pitch: drive.on ? drive.pitch : 0, roll: drive.on ? drive.roll : 0, color: build.color, head: build.head || 'off' });
   // reset: only once it's rolled over and come to rest (under ~2 mph). Back on its wheels where it is (same heading),
   // dropped from just above the ground, everything at rest
   const canReset = (d) => !!d.flipped && Math.hypot(d.u, d.vz) < 0.9;
@@ -7363,7 +7641,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (drive.on) driveStep(dt); else controls.update();
     if (dust.visible) updateDust(dt);
     if (rain.visible) updateRain(dt);
-    stepWindows(dt);
+    stepWindows(dt); if (remotes.size) stepRemotes(dt);
     updateSteerWheel(); updateMusic();
     { const now = performance.now(); // reflection capture: when scheduled, or after driving ~25 m (at most every 1.5 s)
       if ((envCap.due.length && now > envCap.due[0]) || (drive.on && now - envCap.last > 1500 && truck.position.distanceTo(envCap.at) > 25)) { envCap.due = envCap.due.filter((t) => t > now); captureEnv(); } }
@@ -7402,7 +7680,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     setEngine: (s) => { Object.assign(engine, s); },
     driveKey: (k, down) => { keys[k] = !!down; },
     setDriveCam: (i) => { drive.cam = i; recenterCam(); },
-    resetTruck,
+    resetTruck, getPose, setRemotes, setTags: (on) => { tagsOn = on; remotes.forEach((r) => { r.tag.visible = on; }); },
     setCamera: (pos, tgt) => { gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target); camera.position.set(...pos); controls.target.set(...tgt); controls.update(); },
     setWet: (on) => outdoor.setWet(on),
     setQuality: (q) => { post.on = q === 'cinematic' && !!post.composer; },
@@ -8330,28 +8608,177 @@ function TimeOfDayControl({ value, onChange }) {
   );
 }
 function useAccount() { const [, bump] = useState(0); useEffect(() => Accounts.subscribe(() => bump((n) => n + 1)), []); return Accounts.current(); }
+// ---- Online (Firebase, when firebase-config.js is filled in): real accounts with passwords, usernames nobody else can take,
+// presets synced across devices, and multiplayer sessions you invite people to with a code / link. Firebase Auth keeps the
+// passwords (they never touch this code's storage); the Realtime Database holds profiles, presets and live positions.
+const Online = (() => {
+  const enabled = !!window.FIREBASE_CONFIG;
+  const st = { enabled, ready: !enabled, user: null, profile: null, presets: null, err: '', session: null, players: {} };
+  const subs = new Set(), emit = () => subs.forEach((f) => f());
+  let fb = null, auth = null, db = null, myRef = null, playersRef = null, presetsRef = null, lastPush = 0, starting = null;
+  const load = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.appendChild(s); });
+  const sha = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((x) => x.toString(16).padStart(2, '0')).join('');
+  const code6 = (pre, n) => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; return pre + [...crypto.getRandomValues(new Uint8Array(n))].map((x) => A[x % A.length]).join(''); };
+  const friendly = (e) => { const c = (e && e.code) || ''; return { 'auth/email-already-in-use': 'An account already uses that email — sign in instead.', 'auth/invalid-email': 'That email address isn’t valid.', 'auth/weak-password': 'Password needs at least 6 characters.', 'auth/wrong-password': 'Wrong email or password.', 'auth/invalid-credential': 'Wrong email or password.', 'auth/user-not-found': 'No account with that email.', 'auth/too-many-requests': 'Too many tries — wait a minute and try again.', 'PERMISSION_DENIED': 'The database refused that (check the rules).' }[c] || (e && e.message) || String(e); };
+  function start() {
+    if (!enabled || starting) return starting; const V = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    starting = (async () => {
+      try {
+        await load(V + 'firebase-app-compat.js'); await load(V + 'firebase-auth-compat.js'); await load(V + 'firebase-database-compat.js');
+        fb = window.firebase; fb.initializeApp(window.FIREBASE_CONFIG); auth = fb.auth(); db = fb.database();
+        auth.onAuthStateChanged(async (u) => {
+          st.user = u; st.profile = null; st.presets = null; if (presetsRef) { presetsRef.off(); presetsRef = null; }
+          if (u) {
+            try { st.profile = (await db.ref('profiles/' + u.uid).get()).val(); } catch (e) { st.err = friendly(e); }
+            presetsRef = db.ref('users/' + u.uid + '/presets'); presetsRef.on('value', (s) => { st.presets = s.val() || []; emit(); });
+          } else leave();
+          st.ready = true; emit();
+        });
+      } catch (e) { st.err = 'Online features couldn’t start: ' + friendly(e); st.ready = true; emit(); }
+    })();
+    return starting;
+  }
+  async function signUp(email, password, username) {
+    const name = String(username); if (!name.trim().length) throw new Error('Pick a username.');
+    const h = await sha(name.trim().toLowerCase()); // (the key is a hash, so a username can be literally anything)
+    if ((await db.ref('usernames/' + h).get()).exists()) throw new Error('That username is taken.');
+    const cred = await auth.createUserWithEmailAndPassword(email.trim(), password).catch((e) => { throw new Error(friendly(e)); });
+    const uid = cred.user.uid, tx = await db.ref('usernames/' + h).transaction((cur) => (cur === null ? { uid, name } : undefined));
+    if (!tx.committed) { await cred.user.delete().catch(() => {}); throw new Error('That username was just taken — pick another.'); }
+    const profile = { username: name, id: code6('DGC-', 4) + '-' + code6('', 4), created: Date.now() };
+    await db.ref('profiles/' + uid).set(profile); st.profile = profile; emit();
+  }
+  const signIn = (email, password) => auth.signInWithEmailAndPassword(email.trim(), password).catch((e) => { throw new Error(friendly(e)); });
+  async function signOut() { await leave(); await auth.signOut(); }
+  const savePresets = (list) => db.ref('users/' + st.user.uid + '/presets').set(list);
+  // ---- sessions: the host makes a code; anyone signed in joins with it (or the invite link); everyone's pose streams in
+  async function host(env) {
+    const code = code6('', 6); await db.ref('sessions/' + code + '/meta').set({ host: st.user.uid, hostName: st.profile ? st.profile.username : 'host', env, created: Date.now() });
+    return join(code);
+  }
+  async function join(code) {
+    code = String(code).trim().toUpperCase(); const meta = (await db.ref('sessions/' + code + '/meta').get()).val();
+    if (!meta) throw new Error('No session with that code.');
+    await leave();
+    st.session = { code, env: meta.env, host: meta.host, hostName: meta.hostName };
+    myRef = db.ref('sessions/' + code + '/players/' + st.user.uid); myRef.onDisconnect().remove();
+    playersRef = db.ref('sessions/' + code + '/players'); playersRef.on('value', (s) => { st.players = s.val() || {}; emit(); });
+    emit(); return st.session;
+  }
+  async function leave() { if (playersRef) playersRef.off(); playersRef = null; if (myRef) { await myRef.remove().catch(() => {}); myRef.onDisconnect().cancel(); } myRef = null; st.session = null; st.players = {}; emit(); }
+  function publish(pose) { // ~10 updates a second
+    if (!myRef) return; const now = performance.now(); if (now - lastPush < 95) return; lastPush = now;
+    myRef.set({ ...pose, name: st.profile ? st.profile.username : 'player', t: fb.database.ServerValue.TIMESTAMP }).catch(() => {});
+  }
+  return { state: st, subscribe: (f) => { subs.add(f); return () => subs.delete(f); }, start, signUp, signIn, signOut, savePresets, host, join, leave, publish };
+})();
+function useOnline() { const [, bump] = useState(0); useEffect(() => { Online.start(); return Online.subscribe(() => bump((n) => n + 1)); }, []); return Online.state; }
 // Account + saved presets: create an account with just an email (you get your own account ID), then save the current build
 // under any name you like, and load / update / rename / delete them later
-function AccountModal({ open, onClose, build, onLoad }) {
-  const acct = useAccount();
-  const [email, setEmail] = useState(''), [msg, setMsg] = useState(null), [name, setName] = useState(''), [edit, setEdit] = useState(null), [del, setDel] = useState(null), [copied, setCopied] = useState(false);
+// Multiplayer: host a session (you get a code + invite link) or join one with a code; everyone in it sees each other's
+// trucks with name tags (N toggles them). You need an online account; joining puts you on the host's map.
+function MultiplayerModal({ open, onClose, envId, tagsOn, setTagsOn, openAccount }) {
+  const on = useOnline();
+  const [code, setCode] = useState(() => { const m = /[?&]join=([A-Za-z0-9]+)/.exec(location.search); return m ? m[1].toUpperCase() : ''; }), [busy, setBusy] = useState(false), [msg, setMsg] = useState(null), [copied, setCopied] = useState('');
   if (!open) return null;
-  const list = Accounts.presets(acct);
-  const store = (next, ok) => { try { Accounts.savePresets(acct, next); setMsg(ok ? { ok } : null); return true; } catch (e) { setMsg({ err: 'Couldn’t save — this browser’s storage is full or blocked. Deleting a preset with a custom decal frees the most room.' }); return false; } };
+  const link = on.session ? `${location.origin}${location.pathname}?join=${on.session.code}` : '';
+  const copy = (t, w) => { try { navigator.clipboard.writeText(t); setCopied(w); setTimeout(() => setCopied(''), 1500); } catch (e) { /* ignore */ } };
+  const run = async (fn) => { setBusy(true); setMsg(null); try { await fn(); } catch (e) { setMsg({ err: e.message || String(e) }); } setBusy(false); };
+  const pill = 'rounded-full px-4 py-2 hud text-[12px] font-bold tracking-wider uppercase';
+  const players = Object.entries(on.players || {});
+  return (
+    <ModalShell title="MULTI" accent="PLAYER" sub="Invite people to your session and drive together" onClose={onClose}>
+      {!on.enabled ? (
+        <div className="rounded-lg border border-amber-400/30 bg-amber-400/[0.06] p-4 text-[13px] text-white/80 leading-relaxed max-w-xl">
+          Multiplayer needs the site's online service (Firebase), which isn't switched on yet. Once it is, you'll sign in with your account here, host a session and send friends a code or link.
+        </div>
+      ) : !on.ready ? <div className="text-[13px] text-white/60">Connecting…</div>
+      : !(on.user && on.profile) ? (
+        <div className="max-w-md space-y-3">
+          <div className="text-[13px] text-white/75">You need an account (with a password and username) to play multiplayer.</div>
+          <button onClick={openAccount} className={`${pill} bg-amber-400 text-black`}>Sign in / Create account</button>
+        </div>
+      ) : on.session ? (
+        <div className="space-y-4 max-w-xl">
+          <div className="rounded-lg border border-emerald-400/30 bg-emerald-400/[0.05] p-4">
+            <div className="hud text-[12px] tracking-[0.2em] uppercase text-white/55">Session code</div>
+            <div className="flex items-center gap-3 mt-1"><span className="hud text-[34px] font-bold tracking-[0.25em] text-emerald-300">{on.session.code}</span>
+              <button onClick={() => copy(on.session.code, 'code')} className="text-white/60 hover:text-white text-[12px]">{copied === 'code' ? 'copied' : 'copy code'}</button></div>
+            <div className="text-[12px] text-white/55 mt-2 break-all">Invite link: <span className="text-white/85">{link}</span> <button onClick={() => copy(link, 'link')} className="ml-1 text-amber-300 hover:text-amber-200">{copied === 'link' ? 'copied' : 'copy link'}</button></div>
+            <div className="text-[11.5px] text-white/45 mt-2">Hosted by {on.session.hostName || 'host'} · map: {(ENVIRONMENTS.find((e) => e.id === on.session.env) || {}).label || on.session.env}</div>
+          </div>
+          <div>
+            <div className="hud text-[12px] tracking-[0.2em] uppercase text-white/55 mb-1.5">In this session ({players.length})</div>
+            <div className="space-y-1">{players.map(([id, p]) => (
+              <div key={id} className="flex items-center gap-2 rounded border border-white/10 bg-white/[0.03] px-3 py-1.5">
+                <span className="w-3 h-3 rounded-full" style={{ background: p.color || '#888' }} /><span className="text-[13.5px] text-white break-all">{p.name}</span>{id === on.user.uid && <span className="text-[11px] text-white/40">(you)</span>}{id === on.session.host && <span className="text-[11px] text-amber-300">host</span>}
+              </div>))}</div>
+          </div>
+          <label className="flex items-center gap-2 text-[13px] text-white/75 cursor-pointer"><input type="checkbox" checked={tagsOn} onChange={(e) => setTagsOn(e.target.checked)} className="accent-amber-400" />Show usernames above trucks (N)</label>
+          <button disabled={busy} onClick={() => run(() => Online.leave())} className={`${pill} border border-white/20 text-white/75`}>Leave session</button>
+          <div className="text-[11.5px] text-white/40">Other trucks are "ghosts" for now (you drive through each other) and show in their paint color.</div>
+        </div>
+      ) : (
+        <div className="space-y-5 max-w-xl">
+          <div>
+            <div className="text-[13px] text-white/75 mb-2">Signed in as <b>{on.profile.username}</b>. Start a session on this map and send people the code or link:</div>
+            <button disabled={busy} onClick={() => run(() => Online.host(envId))} className={`${pill} bg-amber-400 text-black disabled:opacity-50`}>Host a session</button>
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); run(() => Online.join(code)); }}>
+            <div className="hud text-[12px] tracking-[0.2em] uppercase text-white/55 mb-1">Join with a code</div>
+            <div className="flex gap-2"><input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="w-40 bg-black/40 border border-white/15 rounded px-3 py-2 text-[18px] tracking-[0.25em] text-white uppercase" />
+              <button disabled={busy || code.length < 6} className={`${pill} border border-amber-400 text-amber-300 disabled:opacity-40`}>Join</button></div>
+          </form>
+          {msg && msg.err && <div className="text-red-300 text-[12.5px]">{msg.err}</div>}
+        </div>
+      )}
+    </ModalShell>
+  );
+}
+function AccountModal({ open, onClose, build, onLoad }) {
+  const localAcct = useAccount(), on = useOnline(), online = on.enabled;
+  const [email, setEmail] = useState(''), [pw, setPw] = useState(''), [uname, setUname] = useState(''), [mode, setMode] = useState('signin'), [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null), [name, setName] = useState(''), [edit, setEdit] = useState(null), [del, setDel] = useState(null), [copied, setCopied] = useState(false);
+  if (!open) return null;
+  // online: Firebase account (password, unique username, presets synced to every device); offline: this browser only
+  const acct = online ? (on.user ? { email: on.user.email, id: on.profile ? on.profile.id : '…', username: on.profile ? on.profile.username : '' } : null) : localAcct;
+  const list = online ? on.presets || [] : Accounts.presets(acct);
+  const store = async (next, ok) => {
+    try { if (online) await Online.savePresets(next); else Accounts.savePresets(acct, next); setMsg(ok ? { ok } : null); return true; }
+    catch (e) { setMsg({ err: online ? `Couldn’t save — ${e.message || e}` : 'Couldn’t save — this browser’s storage is full or blocked. Deleting a preset with a custom decal frees the most room.' }); return false; }
+  };
   const snapshot = () => JSON.parse(JSON.stringify(build));
-  const saveNew = () => { const nm = name.length ? name : `Build ${list.length + 1}`; if (store([{ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: nm, build: snapshot(), saved: Date.now() }, ...list], `Saved “${nm}”.`)) setName(''); };
+  const saveNew = async () => { const nm = name.length ? name : `Build ${list.length + 1}`; if (await store([{ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: nm, build: snapshot(), saved: Date.now() }, ...list], `Saved “${nm}”.`)) setName(''); };
   const when = (t) => new Date(t).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   const pill = 'rounded-full px-3 py-1 hud text-[11px] font-bold tracking-wider uppercase border';
+  const inp = 'w-full bg-black/40 border border-white/15 rounded px-3 py-2 text-[14px] text-white';
+  const submitOnline = async (e) => {
+    e.preventDefault(); setBusy(true); setMsg(null);
+    try { if (mode === 'create') { await Online.signUp(email, pw, uname); setMsg({ ok: 'Account created — welcome!' }); } else { await Online.signIn(email, pw); setMsg({ ok: 'Signed in.' }); } setPw(''); }
+    catch (err) { setMsg({ err: err.message || String(err) }); }
+    setBusy(false);
+  };
   return (
-    <ModalShell title="MY" accent="ACCOUNT" sub={acct ? 'Your account & saved builds' : 'Create an account to save your builds'} onClose={onClose}>
-      {!acct ? (
+    <ModalShell title="MY" accent="ACCOUNT" sub={acct ? 'Your account & saved builds' : online ? 'Sign in or create an account (needed for multiplayer)' : 'Create an account to save your builds'} onClose={onClose}>
+      {!acct && online ? (
+        !on.ready ? <div className="text-[13px] text-white/60">Connecting…</div> : (
+        <form onSubmit={submitOnline} className="max-w-md space-y-2.5">
+          <div className="flex gap-1">{[['signin', 'Sign in'], ['create', 'Create account']].map(([m, l]) => <button type="button" key={m} onClick={() => { setMode(m); setMsg(null); }} className={`flex-1 rounded py-1.5 hud text-[12px] font-bold border ${mode === m ? 'bg-amber-400 text-black border-amber-400' : 'border-white/15 text-white/70'}`}>{l}</button>)}</div>
+          {mode === 'create' && <div><label className="hud text-[11px] tracking-[0.2em] uppercase text-white/55">Username (anything you like — it's yours once taken)</label><input value={uname} onChange={(e) => setUname(e.target.value)} className={inp} /></div>}
+          <div><label className="hud text-[11px] tracking-[0.2em] uppercase text-white/55">Email</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inp} /></div>
+          <div><label className="hud text-[11px] tracking-[0.2em] uppercase text-white/55">Password</label><input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder={mode === 'create' ? 'At least 6 characters' : ''} className={inp} /></div>
+          <button disabled={busy} className="w-full rounded py-2 hud font-bold text-[13px] bg-amber-400 text-black disabled:opacity-50">{busy ? 'Working…' : mode === 'create' ? 'Create account' : 'Sign in'}</button>
+          {(msg && msg.err) || on.err ? <div className="text-red-300 text-[12.5px]">{(msg && msg.err) || on.err}</div> : null}
+          <div className="text-[11.5px] text-white/40 leading-snug">You get your own account ID. Passwords are handled by Firebase sign-in — the game never stores them.</div>
+        </form>)
+      ) : !acct ? (
         <form onSubmit={(e) => { e.preventDefault(); if (!Accounts.validEmail(email)) { setMsg({ err: 'Enter a valid email address.' }); return; } try { const r = Accounts.signIn(email); setEmail(''); setMsg({ ok: r.created ? `Account created — your ID is ${r.acct.id}.` : `Welcome back — signed in as ${r.acct.email}.` }); } catch (err) { setMsg({ err: 'Couldn’t create the account — this browser is blocking storage.' }); } }} className="max-w-md">
           <label className="hud text-[12px] tracking-[0.2em] uppercase text-white/55">Email</label>
           <div className="flex gap-2 mt-1.5">
             <input type="email" autoFocus value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="flex-1 bg-black/40 border border-white/15 rounded px-3 py-2 text-[14px] text-white" />
             <button className="rounded px-4 hud font-bold text-[13px] bg-amber-400 text-black">Create / Sign in</button>
           </div>
-          <div className="text-[12px] text-white/45 mt-2 leading-snug">Just an email for now — no password. You’ll get your own account ID. Accounts and saved builds are kept in this browser on this device.</div>
+          <div className="text-[12px] text-white/45 mt-2 leading-snug">Browser-only accounts for now (online accounts with passwords and multiplayer switch on once the site's online service is set up). You’ll get your own account ID; builds are kept in this browser.</div>
           {msg && msg.err && <div className="text-red-300 text-[12.5px] mt-1.5">{msg.err}</div>}
         </form>
       ) : (
@@ -8359,11 +8786,11 @@ function AccountModal({ open, onClose, build, onLoad }) {
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 flex flex-wrap items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-amber-300"><Icon name="User" size={18} /></div>
             <div className="flex-1 min-w-0">
-              <div className="text-[14px] text-white truncate">{acct.email}</div>
+              <div className="text-[14px] text-white truncate">{acct.username ? <><b>{acct.username}</b> <span className="text-white/45">· {acct.email}</span></> : acct.email}</div>
               <div className="hud text-[12px] text-white/55">Account ID <span className="text-amber-300 font-bold tracking-wider">{acct.id}</span>
                 <button onClick={() => { try { navigator.clipboard.writeText(acct.id); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch (e) { /* ignore */ } }} className="ml-2 text-white/50 hover:text-white">{copied ? 'copied' : 'copy'}</button></div>
             </div>
-            <button onClick={() => { Accounts.signOut(); setMsg(null); }} className={`${pill} border-white/20 text-white/70 hover:text-white`}>Sign out</button>
+            <button onClick={() => { if (online) Online.signOut(); else Accounts.signOut(); setMsg(null); }} className={`${pill} border-white/20 text-white/70 hover:text-white`}>Sign out</button>
           </div>
           <form onSubmit={(e) => { e.preventDefault(); saveNew(); }}>
             <label className="hud text-[12px] tracking-[0.2em] uppercase text-white/55">Save the current build as a preset</label>
@@ -8395,7 +8822,7 @@ function AccountModal({ open, onClose, build, onLoad }) {
               ))}
             </div>
           </div>
-          <div className="text-[11.5px] text-white/40 leading-snug">Saved in this browser on this device. Clearing your browser data removes them.</div>
+          <div className="text-[11.5px] text-white/40 leading-snug">{online ? 'Saved to your account — they show up wherever you sign in.' : 'Saved in this browser on this device. Clearing your browser data removes them.'}</div>
         </div>
       )}
     </ModalShell>
@@ -9119,7 +9546,9 @@ function App() {
   const [hudPop, setHudPop] = useState(null); // drive HUD pop-up panel: lights / windows / audio / volume / drive
   const [mixOpen, setMixOpen] = useState(false); // header volume mixer
   const [devOpen, setDevOpen] = useState(false), [decalOpen, setDecalOpen] = useState(false); // developer panel / custom decal
-  const [accountOpen, setAccountOpen] = useState(false), account = useAccount(); // account & saved presets
+  const [accountOpen, setAccountOpen] = useState(false), localAccount = useAccount(), on = useOnline(); // account & saved presets
+  const account = on.enabled ? (on.user && on.profile ? { email: on.user.email, id: on.profile.id, username: on.profile.username } : null) : localAccount;
+  const [mpOpen, setMpOpen] = useState(() => /[?&]join=/.test(location.search)), [tagsOn, setTagsOn] = useState(true); // multiplayer panel / name tags
   const [devUnlocked, setDevUnlocked] = useState(() => { try { return localStorage.getItem('apex.dev') === '1'; } catch (e) { return false; } });
   useEffect(() => { const kd = (e) => { if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'l') { e.preventDefault(); setDevOpen(true); } }; window.addEventListener('keydown', kd); return () => window.removeEventListener('keydown', kd); }, []);
   useEffect(() => { // L cycles the headlights while driving: off → low → high
@@ -9248,6 +9677,38 @@ function App() {
     if (st.startDrive()) setDriving(true);
   }, [vehicle.engine, effective.exhaust, effective.supercharger, effective.intake]);
   const stopDrive = useCallback(() => { stageRef.current && stageRef.current.stopDrive(); setDriving(false); setDriveHud(null); EngineAudio.setExternal(null); }, []);
+  // multiplayer: while in a session, send this truck's pose ~10×/s and draw everyone else's; joining puts you on the host's map
+  useEffect(() => {
+    if (!on.session) { stageRef.current && stageRef.current.setRemotes([]); return; }
+    if (on.session.env && on.session.env !== envId && ENVIRONMENTS.some((e) => e.id === on.session.env)) setEnvId(on.session.env);
+    const me = on.user && on.user.uid, iv = setInterval(() => { const st = stageRef.current; if (st) Online.publish(st.getPose()); }, 100);
+    return () => clearInterval(iv);
+  }, [on.session && on.session.code]);
+  useEffect(() => {
+    const st = stageRef.current; if (!st || !on.session) return;
+    const me = on.user && on.user.uid, now = Date.now();
+    st.setRemotes(Object.entries(on.players || {}).filter(([id, p]) => id !== me && p && (!p.t || now - p.t < 15000)).map(([id, p]) => ({ id, ...p })));
+  }, [on.players]);
+  useEffect(() => { stageRef.current && stageRef.current.setTags(tagsOn); }, [tagsOn]);
+  useEffect(() => {
+    const k = (e) => { if ((e.target.tagName || '').match(/input|select|textarea/i)) return; if (e.key === 'n' || e.key === 'N') setTagsOn((v) => !v); };
+    window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k);
+  }, []);
+  // photo mode: P (or the camera button) hides every menu & HUD element; P / Esc brings them back. Works parked or driving.
+  const [photoMode, setPhotoMode] = useState(false);
+  useEffect(() => {
+    document.body.classList.toggle('photo-mode', photoMode); document.body.classList.remove('photo-quiet');
+    let t; if (photoMode) t = setTimeout(() => document.body.classList.add('photo-quiet'), 50); // (the exit hint fades after a moment)
+    return () => clearTimeout(t);
+  }, [photoMode]);
+  useEffect(() => {
+    const k = (e) => {
+      if ((e.target.tagName || '').match(/input|select|textarea/i)) return;
+      if (e.key === 'p' || e.key === 'P') { e.preventDefault(); setPhotoMode((v) => !v); }
+      else if (e.key === 'Escape' && photoMode) { e.preventDefault(); e.stopImmediatePropagation(); setPhotoMode(false); }
+    };
+    window.addEventListener('keydown', k, true); return () => window.removeEventListener('keydown', k, true);
+  }, [photoMode]);
   useEffect(() => {
     if (!driving) return;
     const k = (e) => { if (e.key === 'Escape') { e.preventDefault(); stopDrive(); } };
@@ -9817,6 +10278,12 @@ function App() {
       ]),
       { kind: 'header', label: 'Wheel Finish' },
       ...Object.entries(RIM_FINISHES).map(([id, r]) => ({ kind: 'item', label: r.label, swatch: r.swatch, price: r.price, installed: applied.rimFinish === id, patch: { rimFinish: id }, desc: 'Applies to aftermarket wheels (factory wheels keep their factory finish).' })),
+      ...((WHEEL_DESIGNS[applied.wheelStyle] || {}).bead ? [{ kind: 'header', label: 'Beadlock Ring Color' }, { kind: 'custom', render: () => (
+        <div className="flex flex-wrap gap-1.5">
+          <button onClick={() => applyPatch({ beadColor: null })} className={`px-2 h-7 rounded border hud text-[11px] font-bold ${!applied.beadColor ? 'border-amber-400 text-amber-200 bg-white/10' : 'border-white/15 text-white/70'}`}>MATCH WHEEL</button>
+          {[['#111214', 'Black'], ['#c9ccd0', 'Machined'], ['#b8892f', 'Bronze'], ['#c41e1e', 'Red'], ['#1f4fa3', 'Blue'], ['#e0661b', 'Orange'], ['#8dbb2f', 'Lime'], ['#d4b11a', 'Gold'], ['#e8eaec', 'White']].map(([hex, n]) => <button key={hex} title={n} onClick={() => applyPatch({ beadColor: hex })} className={`w-7 h-7 rounded-full ring-1 ${applied.beadColor === hex ? 'ring-2 ring-amber-400' : 'ring-white/25'}`} style={{ background: hex }} />)}
+        </div>
+      ) }] : []),
       { kind: 'header', label: 'Offset & Spacers · front and rear separately' },
       offRow('offsetF', 'Front wheel offset'), offRow('offsetR', 'Rear wheel offset'),
       spacerRow('spacerF', 'Front hub-centric spacers'), spacerRow('spacerR', 'Rear hub-centric spacers'),
@@ -9934,6 +10401,27 @@ function App() {
       { kind: 'item', icon: 'Shield', label: 'Front skid plate (3/16" steel)', price: 450, installed: applied.skid || !FB.factory, patch: { skid: !applied.skid }, desc: !FB.factory ? 'Included with the steel bumper.' : 'Protects the oil pan, steering rack and front diff.' },
       { kind: 'header', label: 'Rear Bumper' },
       ...Object.entries(REAR_BUMPERS).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: f.label, price: f.price, installed: (applied.rearBumper || 'stock') === id, patch: { rearBumper: id }, desc: f.desc })),
+      { kind: 'custom', render: () => ( // rear bumper colour (factory or aftermarket)
+        <div>
+          <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Rear bumper color</div>
+          <div className="flex flex-wrap gap-1.5">
+            <button onClick={() => { const zc = { ...(applied.zoneColors || {}) }; delete zc.rearBumper; applyPatch({ zoneColors: zc }); }} className={`px-2 h-7 rounded border hud text-[11px] font-bold ${!(applied.zoneColors || {}).rearBumper ? 'border-amber-400 text-amber-200 bg-white/10' : 'border-white/15 text-white/70'}`}>DEFAULT</button>
+            {[['#d9dcdf', 'chrome', 'Chrome'], ['#16171a', 'satin', 'Satin black'], ['#1a1b1d', 'matte', 'Textured black'], [applied.color, applied.finish === 'matte' ? 'matte' : 'gloss', 'Body color'], ['#8b8e8c', 'satin', 'Grey'], ['#c4ab7d', 'satin', 'Tan'], ['#e8eaec', 'gloss', 'White']].map(([hex, finish, n]) => {
+              const cur = (applied.zoneColors || {}).rearBumper, sel = cur && cur.hex === hex && cur.finish === finish;
+              return <button key={n} title={n} onClick={() => applyPatch({ zoneColors: { ...(applied.zoneColors || {}), rearBumper: { hex, finish } } })} className={`w-7 h-7 rounded-full ring-1 ${sel ? 'ring-2 ring-amber-400' : 'ring-white/25'}`} style={{ background: finish === 'chrome' ? 'linear-gradient(135deg,#fff,#8e9196 60%,#fff)' : hex }} />;
+            })}
+          </div>
+        </div>
+      ) },
+      { kind: 'header', label: 'License Plate' },
+      ...Object.entries(PLATES).map(([id, p]) => ({ kind: 'item', icon: 'RectangleHorizontal', label: p.label, price: p.price, installed: (applied.plate || 'none') === id, patch: { plate: id }, desc: id === 'none' ? 'No plate.' : 'Mounted in the rear bumper\'s center notch (or on the face of a steel bumper).' })),
+      ...((applied.plate || 'none') !== 'none' ? [{ kind: 'custom', render: () => (
+        <div>
+          <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1">Plate number</div>
+          <input defaultValue={applied.plateText || 'DGC 4124'} maxLength={8} onChange={(e) => applyPatch({ plateText: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded px-3 py-1.5 text-[15px] text-white tracking-widest uppercase" />
+          <label className="flex items-center gap-2 mt-2 text-[12.5px] text-white/75 cursor-pointer"><input type="checkbox" checked={!!applied.plateFront} onChange={(e) => applyPatch({ plateFront: e.target.checked })} className="accent-amber-400" />Front plate too (factory bumpers)</label>
+        </div>
+      ) }] : []),
       { kind: 'header', label: 'Grille' },
       ...Object.entries(GRILLES).map(([id, gr]) => ({ kind: 'item', icon: 'Grid3x3', label: gr.label, price: gr.price, installed: (applied.grille || 'stock') === id, patch: { grille: id }, desc: `${gr.desc} Grille color: Paint › Individual Parts › Grille.` })),
       ...(GRILLES[applied.grille] && GRILLES[applied.grille].letters ? [{ kind: 'custom', render: () => (
@@ -9995,6 +10483,15 @@ function App() {
     items = [
       ...group('bedCover', 'Bed Cover', 'PanelTop'),
       ...group('topper', 'Toppers & Shells', 'Truck'),
+      ...(['rebel', 'rebel-bars', 'are-cx', 'are-cx-bars', 'leer'].includes(applied.topper) ? [{ kind: 'custom', render: () => ( // hard-shell colour: matched to the truck, or your pick
+        <div>
+          <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Shell color</div>
+          <div className="flex flex-wrap gap-1.5">
+            <button onClick={() => applyPatch({ topperColor: null })} className={`px-2 h-7 rounded border hud text-[11px] font-bold ${!applied.topperColor ? 'border-amber-400 text-amber-200 bg-white/10' : 'border-white/15 text-white/70'}`}>MATCH TRUCK</button>
+            {PAINT_COLORS.map((c) => <button key={c.hex} title={c.name} onClick={() => applyPatch({ topperColor: c.hex })} className={`w-7 h-7 rounded-full ring-1 ${applied.topperColor === c.hex ? 'ring-2 ring-amber-400' : 'ring-white/25'}`} style={{ background: c.hex }} />)}
+          </div>
+        </div>
+      ) }] : []),
       ...group('bedRack', 'Bed Racks', 'Grid3x3'),
       ...group('bedTent', 'Bed Tent', 'Tent'),
       ...group('roofRack', 'Roof Racks', 'Grid3x3'),
@@ -10124,6 +10621,9 @@ function App() {
               </div>
             )}
           </div>
+          <button onClick={() => setMpOpen(true)} title={on.session ? `In session ${on.session.code} · ${Object.keys(on.players || {}).length} driver(s)` : 'Multiplayer — invite people to your session'} className={`h-10 rounded-full glass-panel border flex items-center gap-1.5 px-3 transition ${on.session ? 'border-emerald-400/60 text-emerald-300' : 'border-white/10 text-white/80 hover:text-white'}`}><Icon name="Users" size={17} /><span className="hidden md:inline hud text-[12px] font-bold tracking-wider">{on.session ? `${Object.keys(on.players || {}).length} ONLINE` : 'MULTIPLAYER'}</span></button>
+          <button onClick={() => setPhotoMode(true)} title="Photo mode (P) — hide all menus & HUD" className="w-10 h-10 rounded-full glass-panel border border-white/10 text-white/80 hover:text-white flex items-center justify-center"><Icon name="Camera" size={17} /></button>
+          <button onClick={() => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { /* not allowed here */ } }} title="Full screen" className="w-10 h-10 rounded-full glass-panel border border-white/10 text-white/80 hover:text-white flex items-center justify-center"><Icon name="Maximize" size={17} /></button>
           <button onClick={() => setAccountOpen(true)} title={account ? `${account.email} · ${account.id}` : 'Create account / save builds'} className={`h-10 rounded-full glass-panel border flex items-center gap-1.5 px-3 transition ${account ? 'border-amber-400/60 text-amber-300' : 'border-white/10 text-white/80 hover:text-white'}`}><Icon name="UserCircle" size={17} /><span className="hidden md:inline hud text-[12px] font-bold tracking-wider">{account ? 'MY BUILDS' : 'SIGN UP'}</span></button>
           <button onClick={() => setScanModal(true)} disabled={scan.phase === 'running'} className="flex items-center gap-2 rounded-full bg-amber-400 text-black px-4 py-2 hud font-bold text-[14px] tracking-wider uppercase hover:bg-amber-300 transition shadow-lg shadow-amber-500/20 disabled:opacity-50">
             <Icon name="ScanLine" size={16} /><span className="hidden sm:inline">Scan / Import</span>
@@ -10300,7 +10800,7 @@ function App() {
             </div>
             <div className="relative h-1.5 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${driveHud ? Math.min(100, (driveHud.rpm / 6200) * 100) : 0}%` }} /></div>
             {driveHud && (driveHud.drift > 12 || driveHud.spinning) && <div className="mt-1.5 flex gap-1.5">{driveHud.drift > 12 && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-amber-400 text-black hud tracking-wider">DRIFT {Math.round(driveHud.drift)}°</span>}{driveHud.spinning && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-red-500 text-white hud tracking-wider">WHEELSPIN · {driveHud.diff === 'open' ? 'OPEN DIFF' : driveHud.diff === 'lsd' ? 'LSD' : 'LOCKED'}</span>}</div>}
-            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · hold R reset · Esc exit</div>
+            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · hold R reset · P photo mode · Esc exit</div>
            </div>
             <div className="flex gap-1 mt-2.5">
               {[['lights', 'Lightbulb', 'Lights'], ['windows', 'PanelTop', 'Windows'], ['audio', 'Music', 'Audio'], ['volume', 'Volume2', 'Volume'], ['drive', 'Settings2', 'Drive']].map(([id, ic, l]) => (
@@ -10368,6 +10868,7 @@ function App() {
 
       <VehicleModal open={vehicleModal} initialTab={vehicleTab} onClose={() => { setVehicleModal(false); setVehicleTab('catalog'); }} vehicle={vehicle} onApply={loadVehicle} customModel={customModel}
         onImportModel={(f) => startImport(f, 'stock')} onRotateModel={rotateModel} onClearModel={removeModel} onTogglePaint={toggleModelPaint} />
+      <MultiplayerModal open={mpOpen} onClose={() => { setMpOpen(false); if (/[?&]join=/.test(location.search)) history.replaceState(null, '', location.pathname); }} envId={envId} tagsOn={tagsOn} setTagsOn={setTagsOn} openAccount={() => { setMpOpen(false); setAccountOpen(true); }} />
       <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} build={applied} onLoad={(b) => { setApplied({ ...DEFAULT_BUILD, ...b }); setPreview(null); }} />
       <DevModal open={devOpen} onClose={() => setDevOpen(false)} unlocked={devUnlocked} onUnlock={() => { setDevUnlocked(true); try { localStorage.setItem('apex.dev', '1'); } catch (e) { /* ignore */ } }} onLock={() => { setDevUnlocked(false); applyPatch({ badges: {} }); try { localStorage.removeItem('apex.dev'); } catch (e) { /* ignore */ } }} />
       <DecalModal open={decalOpen} onClose={() => setDecalOpen(false)} current={applied.decal} onApply={(d) => applyPatch({ decal: d })} />

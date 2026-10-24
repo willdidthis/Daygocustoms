@@ -1,0 +1,62 @@
+[
+ {
+  "file": "fir_sapling_medium_a_0.png",
+  "kind": "conifer",
+  "aspect": 0.5651,
+  "heightM": 8.83
+ },
+ {
+  "file": "fir_sapling_medium_a_130.png",
+  "kind": "conifer",
+  "aspect": 0.8211,
+  "heightM": 8.83
+ },
+ {
+  "file": "fir_sapling_medium_b_0.png",
+  "kind": "conifer",
+  "aspect": 0.5476,
+  "heightM": 7.8
+ },
+ {
+  "file": "fir_sapling_medium_b_130.png",
+  "kind": "conifer",
+  "aspect": 0.7409,
+  "heightM": 7.8
+ },
+ {
+  "file": "fir_sapling_medium_c_0.png",
+  "kind": "conifer",
+  "aspect": 0.7291,
+  "heightM": 5.91
+ },
+ {
+  "file": "fir_sapling_medium_c_130.png",
+  "kind": "conifer",
+  "aspect": 0.9891,
+  "heightM": 5.91
+ },
+ {
+  "file": "island_tree_02_a_0.png",
+  "kind": "hardwood",
+  "aspect": 1.2352,
+  "heightM": 3.41
+ },
+ {
+  "file": "island_tree_02_a_130.png",
+  "kind": "hardwood",
+  "aspect": 1.688,
+  "heightM": 3.41
+ },
+ {
+  "file": "tree_small_02_a_0.png",
+  "kind": "hardwood",
+  "aspect": 0.6401,
+  "heightM": 4.56
+ },
+ {
+  "file": "tree_small_02_a_130.png",
+  "kind": "hardwood",
+  "aspect": 1.1331,
+  "heightM": 4.56
+ }
+]

@@ -50,7 +50,8 @@ window.__sheet = async (name, list, W = 640, H = 400) => {
 // apply a build patch on top of the stock build and settle it instantly (tweens don't run while the page is hidden)
 window.__build = async (patch, base) => {
   apexApp.setApplied({ ...(base || DEFAULT_BUILD), tod: null, ...patch }); await new Promise((r) => setTimeout(r, 1500));
-  apexStage.applyBuild(apexStage.getBuild(), {}, true); const d = apexStage._debug(); if (d.winAt) d.winAt();
+  apexStage.applyBuild(apexStage._debug().build, {}, true); // (getBuild() is the multiplayer copy: no badges / decal)
+  const d = apexStage._debug(); if (d.winAt) d.winAt();
   await new Promise((r) => setTimeout(r, 300)); return Object.keys(patch).length;
 };
 // drive-sim test bench (page hidden so only these steps run): teleport onto a stretch of ground, hold a speed, step the physics
@@ -104,6 +105,32 @@ window.__perf = () => {
   ['w', 'a'].forEach((k) => apexStage.driveKey(k, false)); out.peakLatG = +(pk / 9.81).toFixed(2); out.rollMax = +(rMax * 57.3).toFixed(1); out.flipped = dr.flipped;
   return out;
 };
+// landing test on the flat lot: drop from h metres (wheels hanging) rolling at `speed` m/s, step 4 s and measure the landing:
+// peak compression (in, worst corner), bottom-outs (past full bump), rebound overshoot above the final ride height (cm),
+// bounces (body heave swings > 1.5 cm after touchdown), settle time (s, body within 1 cm and slow), peak body g
+window.__drop = (h = 1.2, speed = 8) => {
+  const d = apexStage._debug(), dr = d.drive, dt = 1 / 60, b = d.build, tv = travelOf(b), INCH_ = 0.0254;
+  const bpF = tv.front * bumpShare(tv.front) * INCH_, bpR = tv.rear * bumpShare(tv.rear) * INCH_;
+  Object.assign(dr, { x: -95, z: -100, yaw: 0, u: speed, vz: 0, r: 0, y: -100, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, ws: null, air: false, flipped: false, steer: 0, chop: 0, lurchT: 0, gear: 2, manual: false, shiftT: 0 });
+  d.step(dt); const y0 = dr.y; dr.y = y0 + h; dr.vy = 0; dr.ws.forEach((w) => { w.u = -0.05; w.du = 0; });
+  const ys = [], N = 240; let land = -1, uPk = 0, bott = 0, wasB = false, gPk = 0, vyPrev = 0;
+  for (let i = 0; i < N; i++) {
+    apexStage.driveKey('w', dr.u < speed - 0.3); d.step(dt); ys.push(dr.y);
+    if (land < 0 && i > 2 && !dr.air) land = i;
+    if (land >= 0) { gPk = Math.max(gPk, Math.abs(dr.vy - vyPrev) / dt / 9.81);
+      let isB = false; dr.ws.forEach((w, k) => { const front = d.P.spots[k].x > (d.P.xF + d.P.xR) / 2; uPk = Math.max(uPk, w.u / (front ? bpF : bpR)); if (w.u > (front ? bpF : bpR)) isB = true; }); if (isB && !wasB) bott++; wasB = isB; }
+    vyPrev = dr.vy;
+  }
+  apexStage.driveKey('w', false);
+  const rest = ys.slice(-30).reduce((a, v) => a + v, 0) / 30, after = ys.slice(Math.max(0, land));
+  let over = 0, swings = 0, ext = 0, settle = null; const minI = after.indexOf(Math.min(...after));
+  after.forEach((y, i) => { if (i > minI) over = Math.max(over, y - rest); });
+  for (let i = 1; i < after.length - 1; i++) { const a = after[i] - rest; if ((after[i] - after[i - 1]) * (after[i + 1] - after[i]) < 0 && Math.abs(a - ext) > 0.015) { swings++; ext = a; } }
+  for (let i = after.length - 1; i >= 0; i--) if (Math.abs(after[i] - rest) > 0.01) { settle = +((i + 1) / 60).toFixed(2); break; }
+  return { compPct: Math.round(uPk * 100), bottoms: bott, overCm: +(over * 100).toFixed(1), swings, settle, gPk: +gPk.toFixed(1), flipped: dr.flipped };
+};
+window.DT = [0.6, 1.2, 2.0, 3.0];
+window.__drops = async (builds = SB, hs = DT) => { const out = []; for (const [name, patch] of Object.entries(builds)) { await __setBuild(patch); out.push(name.padEnd(9) + hs.map((h) => { const r = __drop(h); return `${h}m: ${r.compPct}%${r.bottoms ? ' BOT' + r.bottoms : ''} +${r.overCm}cm sw${r.swings} ${r.settle}s ${r.gPk}g`; }).join(' | ')); } return out.join('\n'); };
 window.__setBuild = async (patch) => { apexApp.setApplied({ ...DEFAULT_BUILD, tod: null, ...patch }); await new Promise((r) => setTimeout(r, 1200)); apexStage.applyBuild(apexStage.getBuild(), {}, true); return apexStage.getBuild().shock; };
 try { window.TB = window.TB || JSON.parse(sessionStorage.getItem('__TB') || 'null'); } catch (e) { /* none saved */ }
 window.__devReady = true;

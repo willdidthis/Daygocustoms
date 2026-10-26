@@ -53,5 +53,57 @@ window.__build = async (patch, base) => {
   apexStage.applyBuild(apexStage.getBuild(), {}, true); const d = apexStage._debug(); if (d.winAt) d.winAt();
   await new Promise((r) => setTimeout(r, 300)); return Object.keys(patch).length;
 };
+// drive-sim test bench (page hidden so only these steps run): teleport onto a stretch of ground, hold a speed, step the physics
+// and measure what reaches the body. o: { x, z, yaw, speed, secs, steer (-1…1), steerAt (s) }
+window.__run = (o) => {
+  const d = apexStage._debug(), dr = d.drive, P = d.P, b = d.build, dt = 1 / 60, tv = travelOf(b), INCH_ = 0.0254;
+  const bpF = tv.front * bumpShare(tv.front) * INCH_, bpR = tv.rear * bumpShare(tv.rear) * INCH_;
+  Object.assign(dr, { x: o.x, z: o.z, yaw: o.yaw || 0, u: o.speed, vz: 0, r: 0, y: -100, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, ws: null, air: false, flipped: false, airT: 0, maxAir: 0, steer: 0, chop: 0, lurchT: 0, gear: o.gear ?? 3, manual: false, shiftT: 0 });
+  const N = Math.round((o.secs || 8) / dt); let a2 = 0, n = 0, pMax = 0, rMax = 0, air = 0, bott = 0, wasB = false, vs = 0, flipT = -1, uMin = [9, 9, 9, 9], uMax = [-9, -9, -9, -9], vyPrev = 0, pv2 = 0, rv2 = 0, bodyHits = 0;
+  for (let i = 0; i < N; i++) {
+    const t = i * dt;
+    apexStage.driveKey('w', dr.u < o.speed - 0.3); apexStage.driveKey('s', false);
+    let st = o.steer && t >= (o.steerAt || 0) && t < (o.steerAt || 0) + (o.steerFor || 99) ? o.steer : 0;
+    if (!o.steer && o.keep !== false) { // lane keeping: head back toward the lane's centre line (+yaw turns toward −z)
+      const want = Math.max(-0.25, Math.min(0.25, -0.12 * (o.z - dr.z))), e = want - dr.yaw - dr.steer * 0.6;
+      st = e > 0.03 ? 1 : e < -0.03 ? -1 : 0;
+    }
+    apexStage.driveKey('a', st > 0); apexStage.driveKey('d', st < 0);
+    d.step(dt);
+    if (o.trace && i % (o.trace) === 0) (window.__trace = window.__trace || []).push([+t.toFixed(2), +dr.x.toFixed(1), +(dr.z - o.z).toFixed(2), +(dr.u * 3.6).toFixed(0), +(dr.yaw * 57.3).toFixed(0), +(dr.roll * 57.3).toFixed(0), +(dr.pitch * 57.3).toFixed(0), dr.air ? 'A' : '', dr.flipped ? 'F' : '']);
+    if (dr.flipped) { if (flipT < 0) flipT = t; continue; }
+    if (i > 30) { const a = (dr.vy - vyPrev) / dt; a2 += a * a; pv2 += dr.pitchV * dr.pitchV; rv2 += dr.rollV * dr.rollV; n++; }
+    vyPrev = dr.vy; pMax = Math.max(pMax, Math.abs(dr.pitch)); rMax = Math.max(rMax, Math.abs(dr.roll)); if (dr.air) air++; vs += dr.u;
+    let isB = false; (dr.ws || []).forEach((w, k) => { const front = d.P.spots[k].x > (d.P.xF + d.P.xR) / 2; if (w.u > (front ? bpF : bpR)) isB = true; uMin[k] = Math.min(uMin[k], w.u); uMax[k] = Math.max(uMax[k], w.u); });
+    if (isB && !wasB) bott++; wasB = isB;
+  }
+  ['w', 'a', 'd', 's'].forEach((k) => apexStage.driveKey(k, false));
+  const r = (v, k = 1) => +v.toFixed(k);
+  return { aRms: r(Math.sqrt(a2 / Math.max(1, n))), pitchMax: r(pMax * 57.3), rollMax: r(rMax * 57.3), pvRms: r(Math.sqrt(pv2 / Math.max(1, n)), 2), rvRms: r(Math.sqrt(rv2 / Math.max(1, n)), 2), airPct: r((100 * air) / N), bottoms: bott,
+    travelIn: uMax.map((m, k) => r((m - uMin[k]) / INCH_)), vAvg: r((vs / N) * 3.6), flipAt: flipT < 0 ? null : r(flipT), endZ: r(dr.z - o.z, 2), travelF: r(tv.front), travelR: r(tv.rear) };
+};
+window.SB = { stock: {}, bilstein: { shock: 'bilstein-5100', lift: 3 }, mid: { shock: 'king-25', uca: 'tc-uca', lift: 3, bumpStop: 'fox20' }, lt: { lift: 6, shock: 'king-30', uca: 'camburg-uca', lca: 'lt4', bypassF: 'b35-5', bypassR: 'b35-5', rearLink: 'trailing', bumpStop: 'king25' } };
+window.WT = [{ label: 'med40', x: 80, z: 0, speed: 11.1, secs: 12 }, { label: 'med60', x: 80, z: 0, speed: 16.7, secs: 9 }, { label: 'med80', x: 80, z: 0, speed: 22.2, secs: 7 }, { label: 'big40', x: 80, z: -14, speed: 11.1, secs: 12 }, { label: 'big60', x: 80, z: -14, speed: 16.7, secs: 9 }, { label: 'rand60', x: -70, z: -46, speed: 16.7, secs: 14 }];
+window.TT = [{ label: 'turn70', x: -100, z: -110, speed: 19.4, secs: 4, steer: 1, steerAt: 0.5, keep: false }, { label: 'slal70', x: -100, z: -110, speed: 19.4, secs: 4, steer: 1, steerAt: 0.5, steerFor: 0.7, keep: false }];
+window.__matrix = async (tests, builds = SB) => { const out = []; for (const [name, patch] of Object.entries(builds)) { await __setBuild(patch); for (const t of tests) out.push([name, t.label, __run(t)]); } return out; };
+window.__fmt = (res) => res.map(([n, l, r]) => `${n.padEnd(8)} ${l.padEnd(7)} a=${String(r.aRms).padEnd(5)} p=${String(r.pitchMax).padEnd(5)} r=${String(r.rollMax).padEnd(5)} pv=${r.pvRms} air=${r.airPct}% bot=${r.bottoms} v=${r.vAvg} flip=${r.flipAt} trav=${r.travelIn.join('/')} dz=${r.endZ}`).join('\n');
+// whoops map + a truck in drive mode, ready for __run / __matrix
+window.__bench = async (make = 'Doyoda', model = 'Dundra', gen = '1st Gen') => { await apexStage.setEnvironment('kloppenheim_06_puresky', '2k'); await __load(make, model, gen); await __setBuild({}); apexApp.startDrive(); await new Promise((r) => setTimeout(r, 2500)); return apexStage.isDriving(); };
+// performance on the flat lot: 0–60 mph, quarter-mile-ish top speed after 20 s, 60–0 braking distance, and the steady lateral
+// g on a full-lock circle at ~50 mph
+window.__perf = () => {
+  const d = apexStage._debug(), dr = d.drive, dt = 1 / 60, out = {};
+  const reset = (u = 0, x = -95, z = -100, yaw = 0) => Object.assign(dr, { x, z, yaw, u, vz: 0, r: 0, y: -100, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, ws: null, air: false, flipped: false, steer: 0, chop: 0, lurchT: 0, gear: u > 20 ? 4 : 0, manual: false, shiftT: 0, spinX: 0 });
+  reset(); let t = 0; apexStage.driveKey('w', true);
+  for (let i = 0; i < 720; i++) { d.step(dt); t += dt; if (!out.zeroTo60 && Math.hypot(dr.u, dr.vz) * 2.237 >= 60) out.zeroTo60 = +t.toFixed(2); if (!out.zeroTo100 && dr.u * 2.237 >= 100) out.zeroTo100 = +t.toFixed(2); }
+  out.mph12s = +(dr.u * 2.237).toFixed(0); apexStage.driveKey('w', false);
+  reset(26.8); apexStage.driveKey('s', true); let x0 = dr.x, i = 0;
+  for (; i < 600 && dr.u > 0.3; i++) d.step(dt); out.brake60 = +((dr.x - x0) * 3.281).toFixed(0) + ' ft'; out.brakeT = +(i / 60).toFixed(2); apexStage.driveKey('s', false);
+  // full lock from 50 mph: the peak sideways g the tires reach (and the body roll / whether it tips)
+  reset(22.4, 330, 150); let pk = 0, rMax = 0; for (let j = 0; j < 150; j++) { apexStage.driveKey('w', dr.u < 22.4); apexStage.driveKey('a', true); d.step(dt); pk = Math.max(pk, Math.abs(dr.r * dr.u)); rMax = Math.max(rMax, Math.abs(dr.roll)); }
+  ['w', 'a'].forEach((k) => apexStage.driveKey(k, false)); out.peakLatG = +(pk / 9.81).toFixed(2); out.rollMax = +(rMax * 57.3).toFixed(1); out.flipped = dr.flipped;
+  return out;
+};
+window.__setBuild = async (patch) => { apexApp.setApplied({ ...DEFAULT_BUILD, tod: null, ...patch }); await new Promise((r) => setTimeout(r, 1200)); apexStage.applyBuild(apexStage.getBuild(), {}, true); return apexStage.getBuild().shock; };
 try { window.TB = window.TB || JSON.parse(sessionStorage.getItem('__TB') || 'null'); } catch (e) { /* none saved */ }
 window.__devReady = true;

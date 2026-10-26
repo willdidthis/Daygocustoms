@@ -200,7 +200,7 @@
         <svg class="art" viewBox="0 0 300 130" aria-hidden="true"><path fill="currentColor" d="M8 92 L8 58 L136 58 L141 24 Q143 17 151 17 L197 17 Q204 17 208 23 L228 52 L284 56 Q293 57 293 65 L293 88 Q293 92 289 92 Z" /><path fill="#0b0f17" opacity=".8" d="M150 25 L176 25 L176 50 L147 50 Z M182 25 L198 25 Q202 25 204 29 L218 50 L182 50 Z" /><circle cx="62" cy="96" r="25" fill="currentColor" /><circle cx="62" cy="96" r="12" fill="#0b0f17" /><circle cx="240" cy="96" r="25" fill="currentColor" /><circle cx="240" cy="96" r="12" fill="#0b0f17" /></svg>
         <div class="kick">The 3D garage</div>
         <h2>Daygo Customs 3D</h2>
-        <p>Build your dream truck — the Doyoda Dundra or three generations of the Dord D-D50 (paint, lifts, long travel, wheels, lights, interior) — then take it to the dunes, the drift lot or the jump track with friends.</p>
+        <p>Build your dream truck — the Doyoda Dundra or three generations of the Dord D-D50 (paint, lifts, long travel, wheels, lights, interior) — or a 416 hp Dexus ISD sports sedan on coilovers, then take it to the dunes, the drift lot or the jump track with friends.</p>
         <div class="chips"><span>Customize</span><span>Off-road</span><span>Multiplayer</span></div>
         <div class="go">Enter the garage <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
       </button>
@@ -361,8 +361,12 @@ const CATALOG = {
   },
   Dexus: {
     ISD: [
-      { gen: '2nd Gen', years: [2008, 2014], body: 'sedan', fs: 'ifs', dims: [108.3, 183.5, 71.5, 55.7], trims: [
-        ['Sport Sedan', '5.0L V8', 416, 371, '225/40R19', 5.1, 15, 19, 13, 3780, 'RWD'],
+      { gen: '2nd Gen', years: [2008, 2014], body: 'sedan', fs: 'ifs', dims: [108.3, 183.5, 71.5, 55.7], wheel: 'dexus-oem', trims: [
+        ['Sport Sedan', '5.0L V8 (2UR-GSE)', 416, 371, '225/40R19', 5.1, 15, 19, 13, 3780, 'RWD'],
+      ], colors: [ // the real car's palette (on-screen colors are approximations)
+        { name: 'Ultrasonic Blue Mica', hex: '#1f3f8f', metallic: true }, { name: 'Starfire Pearl', hex: '#ecebe4', metallic: true }, { name: 'Obsidian', hex: '#0c0d10' },
+        { name: 'Liquid Platinum', hex: '#b9babd', metallic: true }, { name: 'Mercury Metallic', hex: '#8d9095', metallic: true }, { name: 'Smoky Granite Mica', hex: '#4b4c50', metallic: true },
+        { name: 'Matador Red Mica', hex: '#7c1018', metallic: true }, { name: 'Ultra White', hex: '#f4f4f2' },
       ] },
     ],
   },
@@ -766,6 +770,7 @@ function makeVehicle(make, model, genIdx, year, trimIdx, cfg) {
     clearance, approach, departure, breakover, curb, drive: drive || '4x4',
     body: gen.body, fs: gen.fs, spare: !!gen.spare, wb, len, wid, hgt, cab: gen.cab || null,
     stockDia: tp.dia, stockWidth: tp.width, stockRim: tp.rim,
+    ...(gen.wheel ? { factoryWheel: gen.wheel } : {}), ...(gen.colors ? { colors: gen.colors } : {}),
   };
 }
 // One stored 3D model per vehicle generation (custom-spec vehicles key on their names).
@@ -789,13 +794,16 @@ const LINEUP = [
   { type: 'truck', make: 'Dord', model: 'D-D50', blurb: "America's full-size workhorse — three generations, from the 5.0 V8 Crew Cab to the 720 hp Daptor R.",
     gens: [{ gen: '12th Gen', label: '12th Gen', years: '2009–2014', note: 'Crew Cab · lifted on 35s' }, { gen: '13th Gen', label: '13th Gen', years: '2015–2020', note: 'Super Cab' },
       { gen: '13th Gen Daptor', label: '13th Gen Daptor', years: '2017–2020', note: 'Crew Cab · desert runner / Pursuit' }, { gen: '14th Gen', label: '14th Gen Daptor', years: '2021–2024', note: 'Crew Cab · Daptor R' }] },
-  { type: 'sedan', make: 'Dexus', model: 'ISD', blurb: 'V8 sports sedan. Drive it now — mods are coming in a later update.', locked: true,
-    gens: [{ gen: '2nd Gen', label: '2nd Gen', years: '2008–2014', note: '5.0 V8 · drive only for now' }] },
+  { type: 'sedan', make: 'Dexus', model: 'ISD', blurb: '416 hp V8 sports sedan: superchargers, coilovers, camber, BBS / HRE / Volk wheels and more.',
+    gens: [{ gen: '2nd Gen', label: '2nd Gen', years: '2008–2014', note: '5.0 V8 · 8-speed · RWD' }] },
 ];
 // the vehicle a lineup generation opens with (its first catalog trim, latest year)
 const lineupVehicle = (make, model, gen) => { const gens = CATALOG[make][model], gi = Math.max(0, gens.findIndex((g) => g.gen === gen)); return makeVehicle(make, model, gi, gens[gi].years[1], 0, make === 'Doyoda' ? { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' } : undefined); };
 const lineupOf = (v) => LINEUP.find((e) => v && e.make === v.make && e.model === v.model) || null;
 const isLocked = (v) => !!(lineupOf(v) && lineupOf(v).locked); // (drive-only for now: no customizing)
+// a car (sedan) rather than a truck: its own build, menus (no lift / armor / bed / fab) and driving (see the stage's DRIVELINES)
+const isCarV = (v) => !!v && v.body === 'sedan';
+const CAR_CATS = ['factory', 'engine', 'wheels', 'suspension', 'paint', 'interior', 'lights', 'character'];
 // stock 3D model per generation (url relative to the page). prof: see prepModel
 const STOCK_MODELS = {
   'Doyoda|Dundra|1st Gen': { url: 'car.glb', ident: { cab: 'double' } },
@@ -830,7 +838,10 @@ const STOCK_MODELS = {
     // the maker's name: grille letters, tailgate letters & badges, the bedside lettering graphic
     badges: /SM_Bumper_F.*\| RaptorGrille_F$|SK_Trunk.*\| Logo_D$|SM_Fender_B.*\| Logo$/, fillBadges: /SK_Trunk.*\| RaptorGrille_F$/,
     cut: [{ node: /SM_Bumper_F/, mat: /^Exhaust$/, min: [-0.565, 0.995, 2.845], max: [0.565, 1.095, 3.2], unit: 0.01, badge: true }] } },
-  'Dexus|ISD|2nd Gen': { url: 'models/dexus-isd.glb', ident: {}, prof: { car: true, detailed: true, paint: /^Vehicle_Exterior_mm_ext$/, paintTol: 1.3, badges: /mm_badges/ } }, // (badge decals: grille, trunk, bumpers; every material is "Exterior", only _ext is the paint)
+  'Dexus|ISD|2nd Gen': { url: 'models/dexus-isd.glb', ident: {}, prof: { car: true, detailed: true, paint: /^Vehicle_Exterior_mm_ext$/, paintTol: 1.3,
+    // the badge sheet also holds the grille mesh, reflectors and a sensor plate: only its logos go (L emblem front & rear, the
+    // trunk lettering, the fender emblems) — back in developer mode
+    uvCut: [{ mat: /^Vehicle_Exterior_mm_badges$/, size: 256, rects: [[0, 100, 94, 160], [0, 218, 256, 256], [8, 160, 186, 216]] }] } }, // (every material is "Exterior", only _ext is the paint)
 };
 const stockModelFor = (v) => STOCK_MODELS[vehicleKey(v)] || null;
 // what the header & menus call a vehicle
@@ -975,6 +986,19 @@ const WHEEL_STYLES = {
   'raceline-802':    { label: '802 Ascent — split 10-spoke', brand: 'Raceline', price: 1596, desc: 'Ten thin split spokes, street-truck look. Gloss Black.' },
   'raceline-963':    { label: '963 Omega — mesh sim beadlock', brand: 'Raceline', price: 1196, desc: 'Lattice mesh face inside a simulated beadlock ring. Satin Black or Machined.' },
   'raceline-801':    { label: '801 Catalyst — twin 5-spoke sim beadlock', brand: 'Raceline', price: 1596, desc: 'Five pairs of spokes with a bolted ring. Bronze or Satin Black.' },
+  // sedan wheels (car: true — offered on cars only; the size follows the tire you pick)
+  'dexus-oem':       { car: true, factory: true, label: 'Factory forged split 5-spoke', brand: 'Dexus factory', price: 0, desc: 'The factory forged wheel design, fitted when you change the tire size or line.' },
+  'bbs-lm':          { car: true, label: 'LM — 2-piece cross-spoke mesh', brand: 'BBS', price: 5200, desc: 'The classic: forged cross-spoke mesh center bolted into a polished step lip.' },
+  'bbs-chr':         { car: true, label: 'CH-R — split 5-spoke', brand: 'BBS', price: 2600, desc: 'Flow-formed split 5-spoke with a little concave and a rim-protector lip.' },
+  'hre-p101':        { car: true, label: 'P101 — forged 10-spoke, deep concave', brand: 'HRE', price: 7200, desc: 'Monoblock forged 10-spoke with a deep concave face.' },
+  'hre-ff04':        { car: true, label: 'FF04 — split 5-spoke flow-form', brand: 'HRE', price: 2400, desc: 'Flow-formed split 5-spoke, concave profile.' },
+  'volk-te37':       { car: true, label: 'Volk Racing TE37 Saga — forged 6-spoke', brand: 'RAYS', price: 3600, desc: 'The legendary forged 6-spoke: light, stiff, timeless.' },
+  'gram-57dr':       { car: true, label: 'Gram Lights 57DR — split 6-spoke', brand: 'RAYS', price: 1500, desc: 'Cast split 6-spoke with a concave face — track-day staple.' },
+  'work-s1':         { car: true, label: 'Meister S1 — 3-piece 5-spoke, deep lip', brand: 'WORK', price: 4800, desc: 'Three-piece wheel with fat 5 spokes set deep behind a polished step lip.' },
+  'vossen-hf5':      { car: true, label: 'HF-5 — hybrid-forged split 5-spoke', brand: 'Vossen', price: 2200, desc: 'Split 5-spoke with a deep concave face.' },
+  'enkei-rpf1':      { car: true, label: 'RPF1 — twin 5-spoke', brand: 'Enkei', price: 1350, desc: 'The lightweight twin 5-spoke racing wheel.' },
+  'advan-rgd2':      { car: true, label: 'Racing RG-D2 — 10-spoke', brand: 'Advan', price: 2100, desc: 'Thin 5-pair spokes with a concave face.' },
+  'rotiform-blq':    { car: true, label: 'BLQ — 12-spoke mesh', brand: 'Rotiform', price: 1900, desc: 'Euro mesh design, cast monoblock.' },
 };
 const RIM_FINISHES = {
   matte:    { label: 'Matte Black',     price: 0, swatch: '#151517' },
@@ -1121,7 +1145,7 @@ const SPACERS = [0, 1, 1.25, 1.5, 2, 2.5, 3];
 const offsetMM = (id) => (WHEEL_OFFSETS.find((o) => o.id === id) || WHEEL_OFFSETS[0]).mm;
 const ownWheels = (b) => b.wheelStyle === 'model' && b.tire === 'stock' && (b.tireBrand || 'oem') === 'oem';
 // Outward shift of the tire centre vs. the factory wheel (in), per axle: offset (not on the model's own wheels) + spacers + long-travel width.
-const wheelShiftIn = (b, axle = 'F') => (ownWheels(b) ? 0 : (OE_OFFSET_MM - offsetMM(axle === 'F' ? b.offsetF : b.offsetR)) / 25.4)
+const wheelShiftIn = (b, axle = 'F') => (ownWheels(b) ? 0 : ((b.car ? CAR_OE_OFFSET_MM : OE_OFFSET_MM) - offsetMM((axle === 'F' ? b.offsetF : b.offsetR) || (b.car ? 'c45' : 'oe'))) / 25.4)
   + ((axle === 'F' ? b.spacerF : b.spacerR) || 0) + (axle === 'F' ? (isSAS(b) ? (FRONT_SUSP[b.frontSusp] || {}).track || 0 : (LCA_KITS[b.lca] || LCA_KITS.stock).track || 0) : 0);
 // Real tire lines — tread pattern / sidewall lettering are modeled after each design.
 const TIRE_BRANDS = {
@@ -1294,8 +1318,13 @@ function travelOf(b) {
   const FS = FRONT_SUSP[b.frontSusp] || FRONT_SUSP.ifs;
   return { front: FS.sas ? 11 + FS.travel + shockT + bF.travel : 8 + uca.droop + lca.travel + shockT + bF.travel, rear: 9 + leafT + rl.travel + shockT * 0.6 + bR.travel };
 }
-// Damping ratio for the drive sim: shock quality + adjustable clickers (0 soft … 1 firm) (+ bypasses: see bypassFirm)
-const dampingOf = (b) => { const sh = SHOCKS[b.shock] || SHOCKS.stock; return Math.max(0.12, Math.min(0.85, 0.16 + sh.off * 0.38 + ((b.damping ?? 0.5) - 0.5) * (sh.price > 1000 ? 0.3 : 0.1))); };
+// Damping ratio for the drive sim: shock quality + adjustable clickers (0 soft … 1 firm) (+ bypasses: see bypassFirm). A race
+// shock's edge is control, not stiffness: more low-speed damping (the body settles after a hit) and an earlier blow-off at
+// high shaft speed (see the drive sim's damp) — not a harder ride.
+const dampingOf = (b) => { const sh = SHOCKS[b.shock] || SHOCKS.stock; return Math.max(0.12, Math.min(0.75, 0.18 + sh.off * 0.25 + ((b.damping ?? 0.5) - 0.5) * (sh.price > 1000 ? 0.26 : 0.1))); };
+// share of a corner's travel that's up-travel (compression) from ride height: a factory truck sits a little under the middle;
+// long travel is set up with more up-travel to soak whoops and landings (desert trucks run ~60 / 40)
+const bumpShare = (travelIn) => 0.45 + 0.15 * Math.min(1, Math.max(0, (travelIn - 9) / 12));
 // Suspension tuning (Suspension menu): spring rate (any truck — coil / leaf rate), compression & rebound clickers (adjustable
 // shocks only) and hydraulic bump stops → what the drive sim uses: body bounce frequency, how hard a hit it takes before
 // bottoming (capAdj, m/s), how fast a wheel can follow whoops (soakAdj, m/s), and how much a hit throws the body back up
@@ -1480,6 +1509,80 @@ const INTAKES = {
   snorkel: { label: 'Raised snorkel + pre-filter', price: 650, hp: 0, roar: 0.7, desc: 'A-pillar snorkel: whooshing intake you hear in the cab, cleaner air in dust.' },
 };
 const engineBoost = (b) => { const s = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, i = INTAKES[b.intake] || INTAKES.stock; return { hp: s.hp + i.hp, tq: s.tq + i.hp * 0.8 }; };
+
+/* =====================================================================
+   SEDAN PARTS — the Dexus ISD (a car body) gets its own parts: entries flagged car: true are offered only on cars, and the
+   truck menus skip them. Gains and prices are estimates; wheel / tire names are the real products the shapes approximate.
+   ===================================================================== */
+// forced induction & breathing for the 5.0 V8 (RR Racing sells a Rotrex kit for the real car, rated 625 hp at the crank)
+Object.assign(SUPERCHARGERS, {
+  rotrex: { car: true, brand: 'RR Racing-style', label: 'Rotrex centrifugal supercharger kit', price: 9900, hp: 205, tq: 130, whine: 'centri', desc: 'Traction-drive Rotrex blower with an air-to-air intercooler — around 600 hp from the 5.0 V8. Boost builds with rpm, and the whistle climbs with it toward redline.' },
+  tvs:    { car: true, brand: 'Harrop-style', label: 'TVS1900 roots supercharger (intercooled)', price: 8600, hp: 150, tq: 160, whine: 'roots', desc: 'Eaton TVS1900 rotors in a custom manifold between the banks, water-to-air intercooled: a wall of torque everywhere and the classic blower whine.' },
+});
+Object.assign(INTAKES, {
+  'car-cai': { car: true, label: 'Dual cold-air intake (open cone filters)', price: 480, hp: 9, roar: 0.6, desc: 'Two open cones pulling from the fender wells — the V8\'s induction howl gets loud under throttle.' },
+  'car-box': { car: true, label: 'Carbon airbox + high-flow filters', price: 760, hp: 6, roar: 0.3, desc: 'Sealed carbon box with panel filters: a little more power, a deeper intake note.' },
+});
+Object.assign(EXHAUSTS, {
+  'car-catback':  { car: true, brand: 'Joe Z-style', label: 'Quad-tip stainless cat-back', price: 1650, tip: 'stock', snd: { vol: 0.95, cut: 1450, rasp: 0.42, burble: 0.32, pops: 0.25, howl: 1 }, desc: 'Straight-through mufflers to the four stacked tips: louder, sharper and it crackles on the overrun.' },
+  'car-valved':   { car: true, label: 'Valved titanium cat-back', price: 3400, tip: 'stock', snd: { vol: 1.05, cut: 1700, rasp: 0.5, burble: 0.28, pops: 0.3, howl: 1.05 }, desc: 'Lightweight titanium with exhaust valves that open up past 3,000 rpm — quiet cruising, a race car on full throttle.' },
+  'car-straight': { car: true, label: 'Test pipes + straight-through (cat delete)', price: 950, tip: 'stock', snd: { vol: 1.25, cut: 2100, rasp: 0.75, burble: 0.4, pops: 0.55, howl: 1.1 }, desc: 'Cats out, no mufflers: brutally loud and raspy — off-road / track use only.' },
+});
+// the factory 5.0 V8's voice: a smooth, high-revving cross-plane V8 with a hard-edged induction howl when the second intake
+// port opens (~3,600 rpm) — quad exhaust tips, not much burble at idle
+const CAR_STOCK_SND = { vol: 0.75, cut: 1150, rasp: 0.3, burble: 0.22, pops: 0.12, howl: 0.9 };
+// summer / track / all-season / drift tires (grip: dry pavement × · wet: rain × · dirt: loose ground ×)
+Object.assign(TIRE_BRANDS, {
+  'car-oe':  { car: true, label: 'Factory summer performance tires', price: 0, tread: 'perf', grip: 1, wet: 0.9, dirt: 0.7, desc: 'The OE summer tires: sharp and sticky on dry pavement, so-so in the rain and lost on dirt.' },
+  ps4s:      { car: true, brand: 'Michelin', label: 'Pilot Sport 4S', price: 1380, tread: 'perf', text: 'MICHELIN   PILOT SPORT 4S', grip: 1.07, wet: 0.98, dirt: 0.72, desc: 'Max-performance summer tire: big dry grip that still works in the wet.' },
+  re71rs:    { car: true, brand: 'Bridgestone', label: 'Potenza RE-71RS (extreme summer)', price: 1180, tread: 'semi2', text: 'BRIDGESTONE   POTENZA RE-71RS', grip: 1.13, wet: 0.82, dirt: 0.66, desc: 'Extreme-performance street tire: near-track grip, sketchy when it rains.' },
+  r888r:     { car: true, brand: 'Toyo', label: 'Proxes R888R (DOT semi-slick)', price: 1260, tread: 'semi', text: 'TOYO TIRES   PROXES R888R', grip: 1.2, wet: 0.6, dirt: 0.58, desc: 'Street-legal track tire: two grooves and mostly slick — the most grip there is, nothing in the rain.' },
+  dws06:     { car: true, brand: 'Continental', label: 'ExtremeContact DWS06 Plus (all-season)', price: 980, tread: 'allseason', text: 'CONTINENTAL   EXTREMECONTACT DWS06 PLUS', grip: 0.93, wet: 1.02, dirt: 0.84, desc: 'Ultra-high-performance all-season: less dry grip, the best in the rain and on dirt roads.' },
+  rt615k:    { car: true, brand: 'Falken', label: 'Azenis RT615K+ (drift / autocross)', price: 760, tread: 'perf2', text: 'FALKEN   AZENIS RT615K+', grip: 1.03, wet: 0.84, dirt: 0.7, slide: true, desc: 'The drift-day favorite: plenty of grip, and it breaks loose progressively and holds a slide.' },
+});
+// a car build's tire line ('oem' on a car = its factory summer tires)
+const tireBrandOf = (b) => (b.car && (b.tireBrand || 'oem') === 'oem' ? TIRE_BRANDS['car-oe'] : TIRE_BRANDS[b.tireBrand] || TIRE_BRANDS.oem);
+const tireBrandId = (b) => (b.car && (b.tireBrand || 'oem') === 'oem' ? 'car-oe' : b.tireBrand);
+// sedan tire sizes (one size all round; the factory fitment is staggered 225/40R19 front, 255/35R19 rear)
+const CAR_TIRES = [
+  { id: 'stock', size: null, price: 0, desc: 'Factory staggered 225/40R19 front / 255/35R19 rear on the forged 19" wheels.' },
+  { id: 'c225-40-19', size: '225/40R19', price: 1150, desc: 'The factory front size all round: light, quick steering.' },
+  { id: 'c245-35-19', size: '245/35R19', price: 1260, desc: 'A little wider than stock up front — more grip, same diameter.' },
+  { id: 'c255-35-19', size: '255/35R19', price: 1320, desc: 'The factory rear size all round: square setup, more front grip.' },
+  { id: 'c265-35-19', size: '265/35R19', price: 1400, desc: 'Wide 19s — needs some negative offset / a little camber to fill the arches cleanly.' },
+  { id: 'c275-30-19', size: '275/30R19', price: 1480, desc: 'Widest 19 that fits: big contact patch, a bit of stretch on a 9.5" wheel.' },
+  { id: 'c245-40-18', size: '245/40R18', price: 1040, desc: 'Down to 18s: more sidewall, lighter wheels — the track-day size.' },
+  { id: 'c265-35-18', size: '265/35R18', price: 1180, desc: 'Wide 18 track setup: lots of grip, a touch softer turn-in.' },
+  { id: 'c285-35-18', size: '285/35R18', price: 1320, desc: 'Time-attack width: maximum rubber, may need fender rolling.' },
+  { id: 'c245-30-20', size: '245/30R20', price: 1480, desc: '20" plus-one: thin sidewall, sharpest response, harshest ride.' },
+  { id: 'c255-35-20', size: '255/35R20', price: 1560, desc: '20s with a little more sidewall — the show-car stance.' },
+  { id: 'c275-30-20', size: '275/30R20', price: 1640, desc: 'Wide 20s, low profile: fills the arches when it\'s lowered.' },
+];
+// sedan wheel offsets (factory +45) and thin hub-centric spacers (in: 5 / 10 / 15 / 20 / 25 mm)
+WHEEL_OFFSETS.push(...[[45, '+45 (factory)'], [40, '+40'], [35, '+35'], [30, '+30'], [25, '+25'], [15, '+15']].map(([mm, label]) => ({ id: `c${mm}`, mm, label, price: 0, car: true })));
+const CAR_OE_OFFSET_MM = 45, CAR_SPACERS = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
+// static camber (degrees of negative camber): a few degrees helps the outside tire in a corner; past ~3.5° it costs grip
+// and straight-line braking — the stance look
+const CAMBER_OPTS = [0, 1, 2, 3, 4, 6, 9];
+const camberRad = (b, front) => (((front ? b.camberF : b.camberR) || 0) * Math.PI) / 180;
+const camberGrip = (deg) => { const c = Math.abs(deg || 0); return { lat: 1 + 0.035 * Math.min(c, 3) - 0.045 * Math.max(0, c - 3.5), lon: 1 - 0.018 * c }; };
+// sedan suspension: ride frequency (rad/s), damping ratio, wheel travel front / rear (in), roll gain, how low it goes (in)
+const CAR_SUSP = {
+  stock:      { label: 'Factory sport suspension', price: 0, wn: 11, zeta: 0.32, travel: [4.6, 5.2], roll: 1, lower: [0, 0], desc: 'Firm factory sport springs and dampers — composed on the road, some body roll at the limit.' },
+  springs:    { brand: 'Eibach', label: 'Pro-Kit lowering springs', price: 380, wn: 12.4, zeta: 0.32, travel: [3.9, 4.4], roll: 0.88, lower: [1.1, 1.1], desc: 'About 1.1" lower on the factory dampers: less roll and a better stance, a little busier over bumps.' },
+  'bc-br':    { brand: 'BC Racing', label: 'BR Series coilovers', price: 1195, wn: 14, zeta: 0.36, travel: [3.8, 4.2], roll: 0.78, lower: [0.5, 2.5], adj: true, desc: 'Height-adjustable monotube coilovers with 30-way damping: a big step up in body control.' },
+  'tein-flexz': { brand: 'TEIN', label: 'Flex Z coilovers', price: 1050, wn: 13.2, zeta: 0.34, travel: [4, 4.4], roll: 0.82, lower: [0.4, 2.2], adj: true, desc: 'Comfort-leaning adjustable coilovers: lower and flatter without beating you up.' },
+  'kw-v3':    { brand: 'KW', label: 'Variant 3 coilovers', price: 2750, wn: 13.6, zeta: 0.42, travel: [4.1, 4.5], roll: 0.74, lower: [0.6, 2.2], adj: true, desc: 'Separate rebound & compression adjustment, stainless bodies — sharp and controlled, still civil on the street.' },
+  'ohlins-rt': { brand: 'Öhlins', label: 'Road & Track coilovers (DFV)', price: 3300, wn: 13.2, zeta: 0.46, travel: [4.3, 4.7], roll: 0.72, lower: [0.5, 2], adj: true, desc: 'Dual Flow Valve dampers: the best body control here and it still breathes over bumps.' },
+  'bilstein-b16': { brand: 'Bilstein', label: 'B16 PSS10 coilovers', price: 2450, wn: 13.8, zeta: 0.4, travel: [4, 4.4], roll: 0.75, lower: [0.6, 2], adj: true, desc: 'German monotube coilovers with 10-way damping — a great all-rounder.' },
+  air:        { brand: 'Air Lift Performance', label: '3P air suspension (bagged)', price: 3600, wn: 11.5, zeta: 0.36, travel: [4.2, 4.6], roll: 0.85, lower: [0.5, 4], adj: true, desc: 'Air struts on a 3-gallon tank: drive it at a usable height, air it out to sit on the ground when you park.' },
+};
+const carSuspOf = (b) => CAR_SUSP[b.carSusp] || CAR_SUSP.stock;
+const carLowerOf = (b) => { const s = carSuspOf(b); return s.adj ? Math.min(s.lower[1], Math.max(s.lower[0], b.lower || 0)) : s.lower[0]; };
+// sway bars on a car (same build key as the trucks', its own labels)
+const CAR_SWAY = { stock: { label: 'Factory front & rear sway bars', price: 0 }, heavy: { label: 'Whiteline adjustable front & rear sway bars', price: 620 }, none: { label: 'Rear sway bar removed', price: 0 } };
+// grille finishes (the Paint › Individual Parts grille color, as quick presets)
+const CAR_GRILLES = [[null, 'Factory finish'], [{ hex: '#0b0b0d', finish: 'gloss' }, 'Gloss black'], [{ hex: '#141517', finish: 'matte' }, 'Satin black'], [{ hex: '#d9dcdf', finish: 'chrome' }, 'Chrome'], [{ hex: '#2a2b2e', finish: 'metallic' }, 'Dark graphite']];
 // Lighting kits — product names / shapes from Baja Designs and Diode Dynamics catalogs; prices are estimates.
 // leds: emitter layout. lens: 'clear' | 'amber' (Baja amber lens) | 'yellow' (DD selective yellow). backlight: DD SS-series halo.
 const LIGHT_KITS = {
@@ -1589,6 +1692,15 @@ const DEFAULT_BUILD = {
   headlights: 'oem', taillights: 'oem', zoneColors: {},
   engineAccent: 'red', repairDamage: false,
 };
+// a car's starting build: factory everything, the car's own keys (cars and trucks keep separate builds — see loadVehicle)
+const CAR_DEFAULT_BUILD = { ...DEFAULT_BUILD, car: true, color: '#1f3f8f', finish: 'metallic', plate: 'none', tire: 'stock', tireBrand: 'oem', wheelStyle: 'model', rimFinish: 'silver', offsetF: 'c45', offsetR: 'c45', spacerF: 0, spacerR: 0,
+  diff: 'lsd', carSusp: 'stock', lower: 0, camberF: 0, camberR: 0, sway: 'stock', xfer: '2h', exhaust: 'stock', intake: 'stock', supercharger: 'none', intTrim: 'leather', intColor: 'stock' };
+// the parts a car can't wear (truck lift, armor, bed & roof gear, off-road lights, cutting): neutral on a car build
+const CAR_NEUTRAL = { liftR: null, shock: 'stock', uca: 'stock', lca: 'stock', rearSpring: 'stock', bypassF: 'none', bypassR: 'none', rearLink: 'leaf', frontSusp: 'ifs', bumpStop: 'rubber', hydroBump: false, straps: false,
+  steps: 'stock', grille: 'stock', fiberF: 'none', fiberR: 'none', trimF: 'none', trimR: 'none', cuts: [], frontBumper: 'stock', rearBumper: 'stock', skid: false, sliders: false, flares: false, bedCut: false, bmc: false,
+  cage: 'none', bedStyle: 'stock', bedSpare: 'none', bedCover: 'model', topper: 'none', bedRack: 'none', bedTent: 'none', roofRack: 'none', roofTent: 'none', tentOpen: false, ditch: 'none', roofBar: 'none', bumperBar: 'none',
+  fog: 'none', hoop: 'none', rackSide: 'none', rackRear: 'none', raptorLights: 0, exhaustExit: 'stock', roofAntenna: 'none', brake3: 'oem', bugShield: false, badges: {}, plate: 'none', xfer: '2h', gearF: null, gearR: null };
+const carBuild = (b) => ({ ...b, ...CAR_NEUTRAL, car: true, lift: -carLowerOf(b), liftR: -carLowerOf(b) }); // (a car drops evenly front & rear)
 const PHOTO_ANGLES = [
   { id: 'front', label: 'Front' }, { id: 'front34', label: 'Front ¾' }, { id: 'driver', label: 'Driver Side' },
   { id: 'passenger', label: 'Passenger Side' }, { id: 'rear34', label: 'Rear ¾' }, { id: 'rear', label: 'Rear' },
@@ -1603,7 +1715,7 @@ const lightGroupsOf = (b) => [
 const kitOf = (group, id) => LIGHT_KITS[group].find((k) => k.id === id) || LIGHT_KITS[group][0];
 
 function tireSpec(id, v) {
-  const opt = TIRE_OPTIONS.find((t) => t.id === id) || TIRE_OPTIONS[0];
+  const opt = TIRE_OPTIONS.find((t) => t.id === id) || CAR_TIRES.find((t) => t.id === id) || TIRE_OPTIONS[0];
   const size = opt.size || v.tire;
   return { ...parseTire(size), size, aftermarket: !!opt.size };
 }
@@ -1619,12 +1731,14 @@ function computePrice(b, v, dmg = []) {
   if (b.bugShield) p += 120;
   if ((b.gearF || 4.1) !== 4.1) p += 1650; if ((b.gearR || 4.1) !== 4.1) p += 1650; // regear (ring & pinion + install) per axle
   p += (EXHAUST_EXITS[b.exhaustExit] || EXHAUST_EXITS.stock).price + (EXHAUST_COLORS[b.exhaustColor] || EXHAUST_COLORS.stock).price + (INTERIOR_TRIMS[b.intTrim] || INTERIOR_TRIMS.cloth).price + (AUDIO_SYSTEMS[b.audio] || AUDIO_SYSTEMS.factory).price + (SUB_SETUPS[b.subs] || SUB_SETUPS.none).price + (DASH_TRIMS[b.dashTrim] || DASH_TRIMS.match).price + (FRONT_SUSP[b.frontSusp] || FRONT_SUSP.ifs).price + (SUNROOFS[b.sunroof] || SUNROOFS.none).price + (ROOF_ANTENNAS[b.roofAntenna] || ROOF_ANTENNAS.none).price + (HEADLINERS[b.headliner] || HEADLINERS.oem).price + (STARLIGHTS[b.starlight] || STARLIGHTS.none).price + (BRAKE3[b.brake3] || BRAKE3.oem).price + (SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none).price + (INTAKES[b.intake] || INTAKES.stock).price + (SWAY_BARS[b.sway] || SWAY_BARS.stock).price;
-  p += (TIRE_OPTIONS.find((t) => t.id === b.tire) || TIRE_OPTIONS[0]).price;
+  p += (TIRE_OPTIONS.find((t) => t.id === b.tire) || CAR_TIRES.find((t) => t.id === b.tire) || TIRE_OPTIONS[0]).price;
+  if (b.car) p += carSuspOf(b).price + (b.camberF || b.camberR ? 180 : 0) + (b.diff === 'locker' ? 120 : 0) - (SWAY_BARS[b.sway] || SWAY_BARS.stock).price + (CAR_SWAY[b.sway] || CAR_SWAY.stock).price
+    - (b.intTrim === 'leather' ? INTERIOR_TRIMS.leather.price : 0); // (a car: coilovers, alignment, its own sway-bar prices; leather is its factory trim)
   p += (WHEEL_STYLES[b.wheelStyle] || WHEEL_STYLES.model).price + ((RIM_FINISHES[b.rimFinish] || {}).price || 0) * 4 + liftPrice(b.lift) + SHOCKS[b.shock].price + ENGINE_ACCENTS[b.engineAccent].price;
   p += (UCA_KITS[b.uca] || UCA_KITS.stock).price + (LCA_KITS[b.lca] || LCA_KITS.stock).price + REAR_SPRINGS[b.rearSpring].price + (BYPASSES[b.bypassF] || BYPASSES.none).price + (BYPASSES[b.bypassR] || BYPASSES.none).price * 0.9 + (REAR_LINKS[b.rearLink] || REAR_LINKS.leaf).price + (b.spacerF ? 180 : 0) + (b.spacerR ? 180 : 0) + (b.straps ? 260 : 0) + BUMP_STOPS[bumpStopOf(b)].price + (RES_MOUNTS[b.resMount] || RES_MOUNTS.tower).price * ((SHOCKS[b.shock] || SHOCKS.stock).res === 'remote' ? 1 : 0);
-  p += (GRILLES[b.grille] || GRILLES.stock).price + (FIBERGLASS[b.fiberF] || FIBERGLASS.none).price + (FIBERGLASS[b.fiberR] || FIBERGLASS.none).price + (DIFFS[b.diff] || DIFFS.open).price;
+  p += (GRILLES[b.grille] || GRILLES.stock).price + (FIBERGLASS[b.fiberF] || FIBERGLASS.none).price + (FIBERGLASS[b.fiberR] || FIBERGLASS.none).price + (b.car ? 0 : (DIFFS[b.diff] || DIFFS.open).price);
   ['topper', 'bedRack', 'bedTent', 'roofRack', 'roofTent'].forEach((k) => { p += ((CARGO[k] || {})[b[k]] || { price: 0 }).price; });
-  p += (TIRE_BRANDS[b.tireBrand] || TIRE_BRANDS.oem).price + (EXHAUSTS[b.exhaust] || EXHAUSTS.stock).price + ((b.cuts || []).length ? 150 + 10 * b.cuts.length : 0);
+  p += tireBrandOf(b).price + (EXHAUSTS[b.exhaust] || EXHAUSTS.stock).price + ((b.cuts || []).length ? 150 + 10 * b.cuts.length : 0);
   ARMOR.forEach((a) => { if (b[a.key]) p += a.price; });
   p += (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).price + (REAR_BUMPERS[b.rearBumper] || REAR_BUMPERS.stock).price + (b.skid ? 450 : 0);
   p += TRIMS[b.trimF || 'none'].price + TRIMS[b.trimR || 'none'].price + (b.bedCut ? 600 : 0) + (b.bedCutAngle && !(REAR_BUMPERS[b.rearBumper] || {}).angleCut ? 650 : 0) + (b.bmc ? 350 : 0)
@@ -1816,7 +1930,7 @@ function computeTelemetry(b, v, g) {
   return {
     tire: t, axleClr, frameClr, minClr, approach, departure, breakover, cg, ssf, tipAngle, track,
     weight: M, speedoAt60, gearLoss, regear, gap, poke, fit, alerts, offroad, onroad,
-    t60, t60Stock, mpg, payload, towing, towSrc: g.towSrc, travelF: travelOf(b).front, travelR: travelOf(b).rear,
+    t60, t60Stock, mpg, payload, towing, towSrc: g.towSrc, travelF: travelOf(b).front, travelR: travelOf(b).rear, power: v.hp + engineBoost(b).hp,
     height: v.hgt + dR + L + (roof.id !== 'none' ? 2.2 : 0),
   };
 }
@@ -1953,8 +2067,10 @@ function cylAxis(r, len, mat, axis = 'y', seg = 24, rTop) {
   return mk(g, mat);
 }
 function tubeMesh(pts, r, mat, seg = 64) {
+  // (a part measured off a body it wasn't made for — mid-switch between vehicles — can come out NaN: then it's left out, not a crash)
+  pts = pts.filter((p) => p && Number.isFinite(p[0]) && Number.isFinite(p[1]) && Number.isFinite(p[2]));
+  const g = new THREE.Group(); if (pts.length < 2) return g;
   const curve = new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(p[0], p[1], p[2])), false, 'centripetal');
-  const g = new THREE.Group();
   g.add(mk(new THREE.TubeGeometry(curve, seg, r, 12, false), mat));
   const capGeo = new THREE.SphereGeometry(r, 12, 8);
   [pts[0], pts[pts.length - 1]].forEach((p) => { const c = mk(capGeo, mat); c.position.set(p[0], p[1], p[2]); g.add(c); });
@@ -3833,6 +3949,19 @@ const WHEEL_DESIGNS = {
   'factory-steel16':  { holes: 6, holeR: 0.09, holeAt: 0.6, steel: true, logo: 'TOYOTA' },
   'factory-alloy16':  { spokes: 6, sw: [0.36, 0.26], conc: 0.01, logo: 'TOYOTA' },
   'factory-alloy17':  { spokes: 6, split: 0.1, sw: [0.15, 0.11], conc: 0.012, logo: 'TOYOTA' },
+  // sedan wheels (lip: a polished outer step lip, as a fraction of the rim radius — 2- / 3-piece wheels)
+  'dexus-oem':        { spokes: 5, split: 0.22, sw: [0.09, 0.068], conc: 0.014, logo: 'DEXUS' },
+  'bbs-lm':           { spokes: 10, split: 0.16, mesh: true, sw: [0.055, 0.04], conc: 0.03, lip: 0.14, logo: 'BBS' },
+  'bbs-chr':          { spokes: 5, split: 0.26, sw: [0.085, 0.06], conc: 0.018, logo: 'BBS' },
+  'hre-p101':         { spokes: 10, sw: [0.075, 0.058], conc: 0.06, logo: 'HRE' },
+  'hre-ff04':         { spokes: 5, split: 0.2, sw: [0.1, 0.07], conc: 0.045, logo: 'HRE' },
+  'volk-te37':        { spokes: 6, sw: [0.25, 0.17], conc: 0.012, logo: 'RAYS' },
+  'gram-57dr':        { spokes: 6, split: 0.16, sw: [0.12, 0.085], conc: 0.03, logo: 'RAYS' },
+  'work-s1':          { spokes: 5, sw: [0.23, 0.16], conc: 0.004, lip: 0.2, logo: 'WORK' },
+  'vossen-hf5':       { spokes: 5, split: 0.3, sw: [0.1, 0.07], conc: 0.035, logo: 'VOSSEN' },
+  'enkei-rpf1':       { spokes: 5, split: 0.34, sw: [0.12, 0.08], conc: 0.02, logo: 'ENKEI' },
+  'advan-rgd2':       { spokes: 5, split: 0.2, sw: [0.07, 0.05], conc: 0.028, logo: 'ADVAN' },
+  'rotiform-blq':     { spokes: 12, mesh: true, sw: [0.06, 0.045], conc: 0.02, logo: 'ROTIFORM' },
 };
 function wheelFaceShape(d, rimR) {
   const ro = rimR * 0.97, ri = rimR * 0.36, rw = rimR * 0.85;
@@ -3879,6 +4008,12 @@ const TREADS = {
   kr3:   { pitch: 0.13, lug: 1.8, rows: [{ u: -0.34, w: 0.3, len: 0.56, d: 0.027, ph: 0, ang: 0.12 }, { u: 0, w: 0.24, len: 0.5, d: 0.025, ph: 0.5, ang: 0.22, zig: true }, { u: 0.34, w: 0.3, len: 0.56, d: 0.027, ph: 0, ang: -0.12 }] },
   champ: { pitch: 0.11, lug: 1.4, rows: [{ u: -0.35, w: 0.3, len: 0.66, d: 0.02, ph: 0, ang: 0.1, alt: 0.75 }, { u: -0.1, w: 0.2, len: 0.5, d: 0.018, ph: 0.5, ang: -0.25 }, { u: 0.1, w: 0.2, len: 0.5, d: 0.018, ph: 0, ang: 0.25 }, { u: 0.35, w: 0.3, len: 0.66, d: 0.02, ph: 0.5, ang: -0.1, alt: 0.75 }] },
   at4w:  { pitch: 0.082, lug: 0.7, rows: [{ u: -0.4, w: 0.18, len: 0.66, d: 0.013, ph: 0, ang: 0.22, alt: 0.85 }, { u: -0.2, w: 0.17, len: 0.62, d: 0.013, ph: 0.5, ang: 0.22 }, { u: 0, w: 0.16, len: 0.6, d: 0.012, ph: 0, ang: 0.22 }, { u: 0.2, w: 0.17, len: 0.62, d: 0.013, ph: 0.5, ang: -0.22 }, { u: 0.4, w: 0.18, len: 0.66, d: 0.013, ph: 0, ang: -0.22, alt: 0.85 }] },
+  // car tires: near-continuous ribs between circumferential grooves (summer), mostly slick (track), small siped blocks (all-season)
+  perf:      { pitch: 0.11, lug: 0, rows: [{ u: -0.37, w: 0.24, len: 0.9, d: 0.006, ph: 0, ang: 0.35 }, { u: -0.1, w: 0.2, len: 0.985, d: 0.006, ph: 0 }, { u: 0.14, w: 0.2, len: 0.985, d: 0.006, ph: 0 }, { u: 0.38, w: 0.22, len: 0.86, d: 0.006, ph: 0.5, ang: -0.35 }] },
+  perf2:     { pitch: 0.12, lug: 0, rows: [{ u: -0.36, w: 0.26, len: 0.88, d: 0.006, ph: 0, ang: 0.5 }, { u: -0.06, w: 0.24, len: 0.99, d: 0.006, ph: 0 }, { u: 0.25, w: 0.26, len: 0.9, d: 0.006, ph: 0.5, ang: -0.45 }] },
+  semi:      { pitch: 0.2, lug: 0, rows: [{ u: -0.3, w: 0.36, len: 0.995, d: 0.004, ph: 0 }, { u: 0.2, w: 0.52, len: 0.995, d: 0.004, ph: 0.5 }] },
+  semi2:     { pitch: 0.14, lug: 0, rows: [{ u: -0.36, w: 0.25, len: 0.93, d: 0.005, ph: 0, ang: 0.2 }, { u: -0.05, w: 0.28, len: 0.995, d: 0.005, ph: 0 }, { u: 0.3, w: 0.36, len: 0.97, d: 0.005, ph: 0.5, ang: -0.15 }] },
+  allseason: { pitch: 0.075, lug: 0, rows: [{ u: -0.38, w: 0.2, len: 0.8, d: 0.007, ph: 0, ang: 0.3 }, { u: -0.13, w: 0.2, len: 0.82, d: 0.007, ph: 0.5, ang: 0.4 }, { u: 0.13, w: 0.2, len: 0.82, d: 0.007, ph: 0, ang: -0.4 }, { u: 0.38, w: 0.2, len: 0.8, d: 0.007, ph: 0.5, ang: -0.3 }] },
 };
 // Raised sidewall lettering drawn around a ring (black letters, or raised white letters)
 const sidewallCache = new Map();
@@ -3965,7 +4100,9 @@ function buildWheel(M, spec) {
     if (d.conc) { const p = fg.attributes.position, ro = rimR * 0.97; for (let i = 0; i < p.count; i++) { const r = Math.hypot(p.getX(i), p.getY(i)); p.setZ(i, p.getZ(i) - d.conc * Math.pow(1 - Math.min(1, r / ro), 0.9)); } fg.computeVertexNormals(); } // concave face
     fg.userData.shared = true; wheelFaceCache.set(fk, fg);
   }
-  const face = mk(fg, M.rim); face.position.z = zf - (d.steel ? 0.07 : 0.05); g.add(face);
+  const face = mk(fg, M.rim); face.position.z = zf - (d.steel ? 0.07 : 0.05) - (d.lip || 0) * rimR * 0.35; g.add(face); // (a stepped-lip wheel's face sits back in the barrel)
+  if (d.lip) { const sl = mk(new THREE.RingGeometry(rimR * (1 - d.lip), rimR + 0.012, 72), M.chrome); sl.position.z = zf + 0.002; g.add(sl); // polished step lip
+    const wall = mk(new THREE.CylinderGeometry(rimR * (1 - d.lip), rimR * (1 - d.lip), d.lip * rimR * 0.35 + 0.02, 72, 1, true), M.chrome); wall.rotation.x = Math.PI / 2; wall.position.z = zf - d.lip * rimR * 0.175; g.add(wall); }
   if (d.steel) { const dish = mk(new THREE.CylinderGeometry(rimR * 0.97, rimR * 0.7, 0.05, 48, 1, true), M.rim); dish.rotation.x = Math.PI / 2; dish.position.z = zf - 0.04; g.add(dish); }
   const lip = mk(new THREE.TorusGeometry(rimR + 0.01, d.steel ? 0.007 : 0.012, 8, 56), M.rim); lip.position.z = zf; g.add(lip);
   if (d.bead === 'true' || d.bead === 'sim') {
@@ -3977,7 +4114,7 @@ function buildWheel(M, spec) {
     for (let i = 0; i < nb; i++) { const a = (i / nb) * Math.PI * 2; o.position.set(Math.cos(a) * (rimR * 0.92 + 0.008), Math.sin(a) * (rimR * 0.92 + 0.008), zf + 0.01); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1); o.updateMatrix(); bolts.setMatrixAt(i, o.matrix); }
     g.add(bolts);
   }
-  const cz = -(d.conc || 0);
+  const cz = -(d.conc || 0) - (d.lip || 0) * rimR * 0.35;
   if (d.bead === 'ring') { const ring = mk(new THREE.RingGeometry(rimR * 0.86, rimR + 0.02, 56), spec.beadColor ? new THREE.MeshStandardMaterial({ color: spec.beadColor, metalness: 0.55, roughness: 0.3 }) : M.spacer); ring.position.z = zf + 0.003; g.add(ring); } // machined simulated-beadlock ring
   const hub = cylAxis(rimR * 0.34, 0.05, M.rim, 'z', 32); hub.position.z = zf - 0.05 + cz; g.add(hub);
   const cap = cylAxis(rimR * (d.steel ? 0.22 : 0.15), 0.02, d.steel ? M.chrome : M.rimAccent, 'z', 24); cap.position.z = zf - 0.02 + cz; g.add(cap);
@@ -4846,6 +4983,7 @@ function prepModel(obj, prof, report) {
       g.setIndex(keep);
       const g2 = new THREE.BufferGeometry(); Object.keys(g.attributes).forEach((a) => g2.setAttribute(a, g.attributes[a])); g2.setIndex(take);
       const m2 = new THREE.Mesh(g2, o.material); m2.name = (o.name || 'part') + '_badge'; m2.userData.badge = true; o.parent.add(m2); m2.position.copy(o.position); m2.quaternion.copy(o.quaternion); m2.scale.copy(o.scale);
+      m2.renderOrder = 2; // (a decal on a see-through sheet: drawn after the sheet it was cut from, so it isn't painted over)
     });
   });
   // texFill: regions of a texture painted over (a logo on a wheel's centre cap); the original texture comes back in developer mode
@@ -7388,7 +7526,8 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
   const effStyle = (b) => (b.wheelStyle && b.wheelStyle !== 'model' && WHEEL_DESIGNS[b.wheelStyle] ? b.wheelStyle : WHEEL_DESIGNS[base.vehicle.factoryWheel] ? base.vehicle.factoryWheel : 'factory-alloy16');
   // The model's own wheels stay unless tire size / brand / wheel design change (or the model had none, is a stand-in, or we're driving).
   let snapDriving = false; // (copying another player's truck: it's driving, so it gets the rolling wheels)
-  const swapActive = () => !!(model && model.wheelFit && (model.wheelFit.synthetic || model.reference || drive.on || snapDriving || !ownWheels(build)));
+  // (a car with camber or spacers shows its own wheels on the hubs too — tilted / pushed out)
+  const swapActive = () => !!(model && model.wheelFit && (model.wheelFit.synthetic || model.reference || drive.on || snapDriving || !ownWheels(build) || (build.car && (build.camberF || build.camberR || build.spacerF || build.spacerR))));
   // Body heave at each axle (m): bigger tires raise everything by the radius change; springs/spacers raise the body only.
   const axleDY = (front) => (swapActive() ? rig.wy - model.wheelFit.R : 0) + (front ? rig.lift : rig.liftR);
   const leafCount = (b) => ({ stock: 5, aal: 6, pack: 6 }[b.rearSpring] || 5);
@@ -7676,7 +7815,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         o.add(c.sub(cw)); o.z += Math.sign(wp.z) * ((wp.k[0] === 'F' ? rig.offF : rig.offR) + sp.z - Math.abs(wp.z)); pc.parent.worldToLocal(o); pc.position.copy(o);
       });
       if (chassis) chassis.update({ body: (v) => { body(v); return v; }, wyOf, spots: P.spots, zOffF: rig.offF, zOffR: rig.offR, ltF: ((LCA_KITS[build.lca] || LCA_KITS.stock).track || 0) * INCH, leaves: leafCount(build),
-        straps: !!build.straps, droopF: travelOf(build).front * 0.55 * INCH, suspOf: (sp) => rig.susp[P.spots.indexOf(sp)] || 0, spinOf: (sp) => (drive.spinA ? drive.spinA[P.spots.indexOf(sp)] || 0 : 0) });
+        straps: !!build.straps, droopF: travelOf(build).front * (1 - bumpShare(travelOf(build).front)) * INCH, suspOf: (sp) => rig.susp[P.spots.indexOf(sp)] || 0, spinOf: (sp) => (drive.spinA ? drive.spinA[P.spots.indexOf(sp)] || 0 : 0) });
       updateCutMatrix(); updateWindowPlanes(); // (matrix first: the window clip planes ride on the fresh body matrix too)
     }
     wheels.forEach((w, i) => { w.position.y = rig.wy + (rig.susp[i] || 0); });
@@ -7712,7 +7851,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function rebuildWheels(t, style, R, b, own = false) {
     wheels.forEach((w) => { truck.remove(w); w.traverse((o) => { if (o.geometry && !o.geometry.userData.shared) o.geometry.dispose(); }); });
     wheels = [];
-    const spec = { R, w: t.width * INCH, rimR: (t.rim / 2) * INCH + 0.012, style, tireBrand: b.tireBrand, beadColor: b.beadColor };
+    const spec = { R, w: t.width * INCH, rimR: (t.rim / 2) * INCH + 0.012, style, tireBrand: tireBrandId(b), beadColor: b.beadColor };
     base.P.spots.forEach((sp) => {
       const { x, s, z } = sp, off = offOf(sp); // offset & spacers just push the wheel outboard (no visible spacer disc)
       const w = own ? ownWheel(sp) : buildWheel(M, spec);
@@ -8482,6 +8621,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
 
   function applyBuild(b, opts = {}, instant = false) {
+    if (model && model.prof && model.prof.car && !b.car) b = carBuild(b); // (a car body never wears truck parts — e.g. mid-switch)
     build = b;
     const P = base.P; if (!P) return;
     TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
@@ -8505,6 +8645,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const swap = swapActive();
     wheels.forEach((w, i) => { w.visible = swap && !(cutaway && P.spots[i].s > 0); });
     if (model && model.wheelFit) model.wheelFit.meshes.forEach((m) => { m.visible = !swap && !(cutaway && String(m.userData.wheelK || '')[1] === 'P'); });
+    // static camber (a car's alignment): the top of each wheel leans in — set here parked; the drive loop adds it while driving
+    if (!drive.on) wheels.forEach((w, i) => { w.rotation.x = -P.spots[i].s * camberRad(b, isFrontSpot(P.spots[i])); });
     const sp = shockPbr(b.shock);
     M.shockBody.color.setHex(sp.body); M.shockBody.metalness = sp.bodyM; M.shockBody.roughness = sp.bodyR;
     M.spring.color.setHex(sp.spring); M.reservoir.color.setHex(sp.res);
@@ -8512,7 +8654,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (chassis) { // bedside exit flange sits on the (possibly widened) bedside skin
       const bi = model && model.bedInfo, exitZ = bi && bi.exitZ ? bi.exitZ.map((z, i) => z + (model.bulgeAt ? Math.abs((model.bulgeAt(bi.exX, bi.exY, (i ? -1 : 1) * z) || [0, 0, 0])[2]) : 0)) : null;
       chassis.setShock(b.shock, b.uca || 'stock', b.lca || 'stock', (EXHAUSTS[b.exhaust] || EXHAUSTS.stock).tip, b.exhaustExit || 'stock', b.bypassF || 'none', b.bypassR || 'none', b.rearLink || 'leaf',
-        { frontSusp: b.frontSusp || 'ifs', bed: bi, exColor: b.exhaustColor || 'stock', exit: exitZ ? { x: bi.exX, y: bi.exY, z: exitZ } : null, trophy: trophyRear(b), resMount: b.resMount || 'tower', bumpStop: bumpStopOf(b), bpF: travelOf(b).front * 0.45 * INCH, bpR: travelOf(b).rear * 0.45 * INCH,
+        { frontSusp: b.frontSusp || 'ifs', bed: bi, exColor: b.exhaustColor || 'stock', exit: exitZ ? { x: bi.exX, y: bi.exY, z: exitZ } : null, trophy: trophyRear(b), resMount: b.resMount || 'tower', bumpStop: bumpStopOf(b), bpF: travelOf(b).front * bumpShare(travelOf(b).front) * INCH, bpR: travelOf(b).rear * bumpShare(travelOf(b).rear) * INCH,
           exitQ: bi && bi.qZ ? { x: bi.qX, y: bi.qY, z: bi.qZ.map((z, i) => z + (model.bulgeAt ? Math.abs((model.bulgeAt(bi.qX, bi.qY, (i ? -1 : 1) * z) || [0, 0, 0])[2]) : 0)) } : null });
     }
     if (model && acc) {
@@ -8520,7 +8662,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (bk !== bumpersKey || !bumpers) {
         bumpersKey = bk;
         if (bumpers) { model.holder.remove(bumpers.group); bumpers.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
-        bumpers = buildBumpers(M, base.P, b);
+        try { bumpers = buildBumpers(M, base.P, b); } catch (e) { console.warn('bumpers', e); bumpers = { group: new THREE.Group(), anchors: {} }; }
         bumpers.group.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
         model.holder.add(bumpers.group);
         lightsKey = '';
@@ -8529,7 +8671,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (ek !== extrasKey || !extras) {
         extrasKey = ek;
         if (extras) { model.holder.remove(extras.group); extras.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
-        extras = buildExtras(M, base.P, b, model.bedInfo, model.grilleBox);
+        try { extras = buildExtras(M, base.P, b, model.bedInfo, model.grilleBox); } catch (e) { console.warn('extras', e); extras = { group: new THREE.Group() }; } // (never let one part break the stage)
         { const tw = bodyPaintTwin(); if (tw) { tw.envMapIntensity = b.finish === 'matte' ? 0.8 : b.finish === 'metallic' ? 2.3 : b.finish === 'gloss' ? 1.9 : 1.2; extras.group.traverse((o) => { if (o.isMesh && o.material && o.material.userData && o.material.userData.matchPaint) o.material = tw; }); } } // (a shell matched to the truck wears the body's own paint)
         extras.group.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
         model.holder.add(extras.group);
@@ -8983,7 +9125,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     model.morphNote = `Re-proportioned the ${plan.from} model as a ${plan.to}: wheelbase ${plan.src.wb}" → ${base.vehicle.wb}", bed ${plan.src.bedIn}" → ${base.vehicle.bedIn}" (approximation).`;
   }
 
+  // the fit measures the model in world space with the vehicle at the origin — while driving (a model swapped mid-drive) the
+  // truck is wherever you parked it, so it's set back to the origin for the measuring and put back after
   function fitModel(fresh = false) {
+    const tp = truck.position.clone(), tq = truck.quaternion.clone(); truck.position.set(0, 0, 0); truck.quaternion.identity(); truck.updateMatrixWorld(true);
+    try { return fitModelAt(fresh); } finally { truck.position.copy(tp); truck.quaternion.copy(tq); truck.updateMatrixWorld(true); }
+  }
+  function fitModelAt(fresh) {
     const spec = base.vehicle;
     model.reference = !!(model.ident && model.ident.make && (model.ident.make !== spec.make || model.ident.model !== spec.model || model.ident.gen !== spec.gen));
     const plan = model.reference ? null : morphPlan(spec);
@@ -9645,8 +9793,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const recenterCam = () => { camOrbit.yaw = 0; camOrbit.pitch = 0; };
   const qY = new THREE.Quaternion(), qP = new THREE.Quaternion(), qR = new THREE.Quaternion(), YAX = new THREE.Vector3(0, 1, 0), XAX = new THREE.Vector3(1, 0, 0);
   // close-ratio 6-speed (arcade-quick shifts) — power is boosted well past stock so the truck feels fast
-  const GEARS = [3.3, 2.15, 1.52, 1.14, 0.88, 0.69], REVERSE = 3.1, FINAL = 4.1, POWER = 3.5, SHIFT_T = 0.1, REDLINE = 6200;
-  const shiftTo = (g) => { const n = THREE.MathUtils.clamp(g, 0, GEARS.length - 1); if (n !== drive.gear) { drive.gear = n; drive.shiftT = SHIFT_T; } };
+  // drivelines: the trucks' 6-speed automatic; a car (the Dexus) has the real car's 8-speed ratios and 2.937 final drive, a
+  // 6,800 rpm redline, quicker shifts and the 170 mph limiter
+  const DRIVELINES = {
+    truck: { gears: [3.3, 2.15, 1.52, 1.14, 0.88, 0.69], rev: 3.1, final: 4.1, redline: 6200, up: 5900, down: 2300, vmax: 62, shiftT: 0.1, power: 3.5 },
+    car:   { gears: [4.596, 2.724, 1.863, 1.464, 1.231, 1.0, 0.824, 0.685], rev: 3.21, final: 2.937, redline: 6800, up: 6550, down: 3000, vmax: 76, shiftT: 0.07, power: 2.65 }, // (power: so the horsepower — a supercharger — shows above 60 mph, where a car runs out of grip-limited launch)
+  };
+  let DL = DRIVELINES.truck;
+  const shiftTo = (g) => { const n = THREE.MathUtils.clamp(g, 0, DL.gears.length - 1); if (n !== drive.gear) { drive.gear = n; drive.shiftT = DL.shiftT; } };
   // dust: soft puffs kicked up behind the tires
   const dustN = 160, dustPos = new Float32Array(dustN * 3), dustCol = new Float32Array(dustN * 4), dustVel = new Float32Array(dustN * 3), dustLife = new Float32Array(dustN);
   const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3)); dustGeo.setAttribute('color', new THREE.BufferAttribute(dustCol, 4));
@@ -10248,7 +10402,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     sunAnchor.copy(p); sun.position.copy(sunAnchor).addScaledVector(sunDir, 20); sun.target.position.copy(sunAnchor);
     if (envState.gp) envState.gp.position.set(camera.position.x, 0, camera.position.z); sky.position.set(camera.position.x, 0, camera.position.z);
     // the engine sound and the gauges follow the recording
-    replay.tick += dt; if (replay.tick > 0.1) { replay.tick = 0; replayInfo(); handlers.current.onDrive && handlers.current.onDrive({ mph: fr.mph, rpm: fr.rpm, gear: fr.gear, manual: false, air: fr.air, airT: 0, maxAir: drive.maxAir || 0, throttle: fr.thr, drift: 0, spinning: false, diff: build.diff || 'open', tc: tcModeOf(build), tcLit: false, flipped: false, canReset: false, resetHold: 0 }); }
+    replay.tick += dt; if (replay.tick > 0.1) { replay.tick = 0; replayInfo(); handlers.current.onDrive && handlers.current.onDrive({ mph: fr.mph, rpm: fr.rpm, redline: DL.redline, gear: fr.gear, manual: false, air: fr.air, airT: 0, maxAir: drive.maxAir || 0, throttle: fr.thr, drift: 0, spinning: false, diff: build.diff || 'open', tc: tcModeOf(build), tcLit: false, flipped: false, canReset: false, resetHold: 0 }); }
   }
   const avg = (arr) => arr.reduce((a, b) => a + b, 0) / Math.max(1, arr.length);
   function driveStep(dt) {
@@ -10262,7 +10416,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // rear lamps: brake lights whenever the brake / reverse pedal (S) is down; white reverse lights only while rolling backward
     const brakeLit = !!rev, revLit = d.u < -0.3 && !burn;
     if (brakeLit !== d.brakeLit || revLit !== d.revLit) { d.brakeLit = brakeLit; d.revLit = revLit; setRearLamps(brakeLit, revLit); }
-    const m = (veh.curb + 250) * 0.4536, a_ = Math.max(0.6, P.xF), b_ = Math.max(0.6, -P.xR), L = a_ + b_, Iz = m * (a_ * a_ + b_ * b_) * 0.55, hcg = 0.78;
+    // a car (the sedan): its own driveline, a low center of gravity (lower still on coilovers), stiff short-travel suspension,
+    // sticky street tires and quick steering — see the `car ?` branches below
+    const car = veh.body === 'sedan', CS = car ? carSuspOf(b) : null, lowerIn = car ? carLowerOf(b) : 0; DL = car ? DRIVELINES.car : DRIVELINES.truck;
+    // (static camber on a car: a few degrees helps the outside tire in a corner, a lot costs grip and straight-line bite)
+    const cgF = car ? camberGrip(b.camberF) : null, cgR = car ? camberGrip(b.camberR) : null;
+    const m = (veh.curb + 250) * 0.4536, a_ = Math.max(0.6, P.xF), b_ = Math.max(0.6, -P.xR), L = a_ + b_, Iz = m * (a_ * a_ + b_ * b_) * 0.55, hcg = car ? 0.5 - lowerIn * INCH * 0.55 : 0.78;
     const cy = Math.cos(d.yaw), sy = Math.sin(d.yaw);
     // ground under the four tires
     const wpos = P.spots.map((sp) => { const lx = sp.x, lz = sp.s * (sp.z + offOf(sp)); return [d.x + lx * cy + lz * sy, d.z - lx * sy + lz * cy]; });
@@ -10284,21 +10443,26 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const midX = (P.xF + P.xR) / 2, pitchG = Math.atan2(hF - hR, L), rollG = -Math.atan2(hPs - hDs, 2 * P.track);
     const targetY = (hF + hR) / 2 - Math.tan(pitchG) * midX;
     // suspension: travel from the kit, damping from the shocks (+ clickers)
-    const tv = travelOf(b), zeta = dampingOf(b);
-    const droop = [tv.front * 0.55, tv.rear * 0.55].map((v) => v * INCH), bump = [tv.front * 0.45, tv.rear * 0.45].map((v) => v * INCH);
+    // (a car: its coilovers' travel — dropping it eats into the bump travel — and their damping, + the clickers on adjustable ones)
+    const tv = car ? { front: CS.travel[0] - lowerIn * 0.35, rear: CS.travel[1] - lowerIn * 0.35 } : travelOf(b);
+    const zeta = car ? CS.zeta + (CS.adj ? ((b.damping ?? 0.5) - 0.5) * 0.2 : 0) : dampingOf(b), upF = bumpShare(tv.front), upR = bumpShare(tv.rear); // (long travel is set up with more up-travel)
+    const droop = [tv.front * (1 - upF), tv.rear * (1 - upR)].map((v) => v * INCH), bump = [tv.front * upF, tv.rear * upR].map((v) => v * INCH);
     const dr = (i) => droop[fr[i] ? 0 : 1], bp = (i) => bump[fr[i] ? 0 : 1];
     // what each tire is really carrying right now (the four-corner suspension's tire forces, last step; 0 = off the ground)
-    const share = (i) => (d.air ? 0 : d.ws ? THREE.MathUtils.clamp(d.ws[i].Ft / ((m * AIR_G) / 4), 0, 2) : 1);
+    const share = (i) => (d.air ? 0 : d.ws && d.ws[i] ? THREE.MathUtils.clamp(d.ws[i].Ft / ((m * AIR_G) / 4), 0, 2) : 1);
     const tireN = (isF) => (d.ws ? d.ws.reduce((a, w, i) => a + (fr[i] === isF ? w.Ft : 0), 0) * (9.81 / AIR_G) : null); // (in the grip model's gravity)
     // --- horizontal: bicycle model with load transfer, friction circle & differential
     // weather: rain makes everything slicker (paved worst-hit for standing water); mud mostly kills the dirt
     const paved = A.loose ? !A.loose(d.x, d.z) : !A.desert, wth = b.weather || 'dry';
     // tires: aggressive lugs give up a little grip on pavement and dig in on dirt; chop = wheels skipping over bumps the
     // suspension couldn't soak up (see below) — grip drops while they're off the ground
-    const TB = TIRE_BRANDS[b.tireBrand] || TIRE_BRANDS.oem, lug = (TREADS[TB.tread] || TREADS.ht).lug || 0, muT = paved ? 1 - 0.06 * lug : 0.9 + 0.1 * lug;
-    const mu = A.mu(d.x, d.z) * 1.12 * (paved && wth === 'dry' ? 1.1 : 1) * (wth === 'rain' ? (paved ? 0.72 : 0.8) : wth === 'mud' ? (paved ? 0.78 : 0.55) : 1) * muT * (1 - 0.4 * (d.chop || 0));
-    const steerMax = 0.62 / (1 + Math.abs(d.u) * 0.045);
-    d.steer += (stIn * steerMax - d.steer) * Math.min(1, dt * 5);
+    const TB = tireBrandOf(b), lug = (TREADS[TB.tread] || TREADS.ht).lug || 0, muT = paved ? 1 - 0.06 * lug : 0.9 + 0.1 * lug;
+    // a car's street tires: far more grip on pavement (the line, the width — wider sticks more), much less on dirt; rain per
+    // tire (an all-season holds on, a semi-slick doesn't)
+    const tWidth = tireSpec(b.tire, veh).width || 8.9, carK = !car ? 1 : (paved ? 1.2 * (TB.grip || 1) : 1.05 * (TB.dirt || 0.7)) * Math.pow(tWidth / 8.86, 0.22) * (wth === 'rain' ? (TB.wet || 0.9) / 0.85 : 1);
+    const mu = A.mu(d.x, d.z) * 1.12 * (paved && wth === 'dry' ? 1.1 : 1) * (wth === 'rain' ? (paved ? 0.72 : 0.8) : wth === 'mud' ? (paved ? 0.78 : 0.55) : 1) * muT * carK * (1 - 0.4 * (d.chop || 0));
+    const steerMax = car ? 0.6 / (1 + Math.abs(d.u) * 0.032) : 0.62 / (1 + Math.abs(d.u) * 0.045); // (a car's quick rack)
+    d.steer += (stIn * steerMax - d.steer) * Math.min(1, dt * (car ? 7.5 : 5));
     // axle loads: from the tires themselves (a front tire skipping off a rock or the rear unloading over a whoop really does lose
     // grip; a hard landing presses them in) — capped at twice static so a landing spike isn't a glue patch
     const nf0 = (m * g * b_) / L - (m * d.ax * hcg) / L, nr0 = (m * g * a_) / L + (m * d.ax * hcg) / L, tnF = tireN(true), tnR = tireN(false);
@@ -10328,14 +10492,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // 4L at a crawl: the tyres turn slowly enough to find grip and bite — the more so the bigger they are (37s climb near-wall
     // slopes; a vertical ledge still needs the suspension to get the tyre up onto it)
     const tireIn = (2 * rig.wy) / INCH, crawlK = crawl ? 1 + (0.25 + 0.04 * THREE.MathUtils.clamp(tireIn - 31, 0, 9)) * THREE.MathUtils.clamp(1 - Math.abs(d.u) / 7, 0, 1) : 1;
-    const tracLim = (rearT + frontT) * 1.15 * crawlK, rearShare = rearT + frontT > 0 ? rearT / (rearT + frontT) : 1;
+    // (a car: sticky street tires, a low CG squatting onto the driven rears and launch control — it puts the power down far
+    // harder than a truck on all-terrains, so it leaves one behind off the line)
+    const tracLim = (rearT + frontT) * 1.15 * crawlK * (car ? 1.6 * cgR.lon : 1), rearShare = rearT + frontT > 0 ? rearT / (rearT + frontT) : 1;
     // final drive from the rear ring & pinion (× low range in 4L); the tire radius is in Rw, so bigger tires = taller effective gearing
     d.drift = d.drift || 0;
-    const finalR = (b.gearR || FINAL) * (fourWD ? XF.low : 1), gearR = (d.u < -0.3 || (rev && !burn && d.u < 0.8) ? REVERSE : GEARS[d.gear]) * finalR, Rw = Math.max(0.2, rig.wy);
+    const finalR = (car ? DL.final : b.gearR || DL.final) * (fourWD ? XF.low : 1), gearR = (d.u < -0.3 || (rev && !burn && d.u < 0.8) ? DL.rev : DL.gears[Math.min(d.gear, DL.gears.length - 1)]) * finalR, Rw = Math.max(0.2, rig.wy);
     const boost = engineBoost(b), hpE = veh.hp + boost.hp, tqE = veh.tq + boost.tq; // supercharger / intake gains
-    const Fmax = Math.min((tqE * 1.356 * POWER * gearR) / Rw, (hpE * 745.7 * POWER) / Math.max(2, Math.abs(d.u)));
+    const Fmax = Math.min((tqE * 1.356 * DL.power * gearR) / Rw, (hpE * 745.7 * DL.power) / Math.max(2, Math.abs(d.u)));
     d.shiftT = Math.max(0, (d.shiftT || 0) - dt);
-    const cut = d.shiftT > 0 ? 0.3 : d.rpm >= REDLINE - 10 && d.u > 0 ? (crawl ? 0 : 0.15) : 1; // torque dips through a shift / on the limiter (4L: a full fuel cut — with crawl gearing even 15 % kept it pulling past redline)
+    const cut = d.shiftT > 0 ? 0.3 : d.rpm >= DL.redline - 10 && d.u > 0 ? (crawl ? 0 : 0.15) : 1; // torque dips through a shift / on the limiter (4L: a full fuel cut — with crawl gearing even 15 % kept it pulling past redline)
     let Fdem = 0; // (traction control may trim this below)
     const bind = fourWD && Math.abs((b.gearF || 4.1) - (b.gearR || 4.1)) > 0.01; // mismatched front / rear ratios fight each other in 4WD
     if (thr) Fdem = Fmax * cut * (bind ? 0.75 : 1);
@@ -10352,7 +10518,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const spinning = (Math.abs(Fdem) > tracLim * 1.02 && !d.air) || burn; d.spinning = spinning;
     const Fx = Math.sign(Fdem) * Math.min(Math.abs(Fdem), tracLim * (spinning ? 0.85 : 1));
     // (4L off the throttle: the low gearing holds it back — it creeps down a hill instead of running away)
-    const brake = rev && d.u > 0.8 ? mu * (Nf + Nr) * 0.85 : crawl && !thr && !rev && !d.air ? Math.min(mu * (Nf + Nr) * 0.6, m * Math.abs(d.u) * 2.2, m * g * 0.55) : 0, hb = hand ? mu * Nr * 0.75 : 0;
+    const brake = rev && d.u > 0.8 ? mu * (Nf + Nr) * 0.85 * (car ? (cgF.lon + cgR.lon) / 2 : 1) : crawl && !thr && !rev && !d.air ? Math.min(mu * (Nf + Nr) * 0.6, m * Math.abs(d.u) * 2.2, m * g * 0.55) : 0, hb = hand ? mu * Nr * 0.75 : 0;
     const u = d.u, vz = d.vz, r = d.r, st = d.steer;
     const latF = u * Math.sin(st) + (vz - r * a_) * Math.cos(st), lonF = u * Math.cos(st) - (vz - r * a_) * Math.sin(st);
     const af = Math.atan2(latF, Math.max(0.6, Math.abs(lonF))), ar = Math.atan2(vz + r * b_, Math.max(0.6, Math.abs(u)));
@@ -10361,20 +10527,20 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const SW = SWAY_BARS[b.sway] || SWAY_BARS.stock, trackW = 2 * Math.max(0.7, P.track || 0.8), ayAbs = Math.abs(d.ayPrev || 0);
     const dN = (m * ayAbs * hcg) / trackW, sens = (dNa, Na) => 1 - 0.32 * Math.min(0.6, (dNa / Math.max(1, Na)) ** 2);
     const kF = sens(dN * SW.front, Nf / 2), kR = sens(dN * (1 - SW.front), Nr / 2);
-    const sF = d.air ? 0 : 1, capF = mu * Nf * sF * (brake ? 0.75 : 1) * kF;
+    const sF = d.air ? 0 : 1, capF = mu * Nf * sF * (brake ? 0.75 : 1) * kF * (car ? cgF.lat : 1);
     // dry pavement: once it's already sideways at low speed the rear lets go a bit more easily (easy slow drifts), fading out by ~45 mph
     const lowSlide = paved && wth === 'dry' && diff !== 'open' && (d.drift || 0) > 8 ? 1 - 0.08 * (1 - THREE.MathUtils.clamp(Math.abs(d.u) / 20, 0, 1)) : 1;
     // dry pavement: a real tire's grip peaks just before it lets go and falls off a little once it's sliding — so it takes
     // more to break the rear loose (no more ice-rink feel), but once it's out the slide still holds and can be steered
-    const stick = paved && wth === 'dry' ? (Math.abs(Math.atan2(d.vz + d.r * b_, Math.max(0.6, Math.abs(d.u)))) < 0.12 ? 1.1 : 0.94) : 1;
+    const stick = paved && wth === 'dry' ? (Math.abs(Math.atan2(d.vz + d.r * b_, Math.max(0.6, Math.abs(d.u)))) < 0.12 ? 1.1 : TB.slide ? 0.98 : 0.94) : 1; // (a drift tire lets go progressively)
     // wheelspin costs side grip only on the tires that are actually spinning: both with a locker, mostly both with an LSD,
     // just the light inside tire with an open diff (the loaded outside tire still holds the rear in line)
     const diffV = atrac && diff !== 'locker' ? 'locker' : diff; // (A-TRAC brakes the light tire: the axle spins up together, like a locker)
     const spinLoss = burn ? 0.12 : !spinning ? 1 : diffV === 'open' ? 1 - 0.5 * (nLight / Math.max(1, Nr)) : diffV === 'lsd' ? 0.6 : 0.5; // (burnout: rears spinning flat out hold almost nothing sideways)
-    const capR = Math.sqrt(Math.max(0, (mu * Nr * kR) ** 2 - (Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide * stick;
-    const CF = 8.6, CR = paved && wth === 'dry' ? 13.5 : 12.5; // softer front cornering stiffness → a gentle push at the limit until the rear is overloaded
+    const capR = Math.sqrt(Math.max(0, (mu * Nr * kR * (car ? cgR.lat : 1)) ** 2 - (Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide * stick;
+    const CF = car ? 10.5 : 8.6, CR = car ? 15.5 : paved && wth === 'dry' ? 13.5 : 12.5; // softer front cornering stiffness → a gentle push at the limit until the rear is overloaded (a car: crisper both ends)
     const Fyf = THREE.MathUtils.clamp(-CF * Nf * mu * af, -capF, capF), Fyr = THREE.MathUtils.clamp(-CR * Nr * mu * ar, -capR, capR);
-    const roll = (A.roll + (A.sink ? A.sink(d.x, d.z) * 0.32 : 0)) * m * g * (Math.abs(u) > 0.1 ? Math.sign(u) : 0), drag = 0.24 * u * Math.abs(u);
+    const roll = (A.roll + (A.sink ? A.sink(d.x, d.z) * 0.32 : 0)) * m * g * (Math.abs(u) > 0.1 ? Math.sign(u) : 0), drag = (car ? 0.2 : 0.24) * u * Math.abs(u);
     const Fb = (brake + hb) * (Math.abs(u) > 0.3 ? Math.sign(u) : 0);
     // countersteering (wheel pointed against the rotation) in a slide: the fronts bite and settle the yaw — catches the
     // slide instead of whipping the rear out further
@@ -10395,7 +10561,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     } else { d.r *= Math.pow(0.5, dt); d.ax = 0; }
     // (not in the air: a truck yawing round mid-flight keeps its speed — and one that lands going backwards fast scrubs it
     // off over a second or so instead of stopping dead at the reverse limit)
-    if (!d.air) { const uc = THREE.MathUtils.clamp(d.u, -10, 62); d.u = d.u < -10 ? d.u + (uc - d.u) * Math.min(1, dt * 1.5) : uc; }
+    if (!d.air) { const uc = THREE.MathUtils.clamp(d.u, -10, DL.vmax); d.u = d.u < -10 ? d.u + (uc - d.u) * Math.min(1, dt * 1.5) : uc; }
     if (d.air) { // airborne: momentum is in the world, not the body — a truck that yaws in the air keeps flying the same way
       const wx = cy * d.u + sy * d.vz, wz = -sy * d.u + cy * d.vz, ny = d.yaw + d.r * dt, c2 = Math.cos(ny), s2 = Math.sin(ny);
       d.u = c2 * wx - s2 * wz; d.vz = s2 * wx + c2 * wz;
@@ -10428,16 +10594,23 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // land nose-first and the fronts stuff into their bump stops / the bumper digs in while the tail swings down and slams.
     // Travel, spring rate, shock valving, bypasses and bump stops decide how much of every hit reaches the body.
     const AG = AIR_G, TU = tuneOf(b), SHk = SHOCKS[b.shock] || SHOCKS.stock, BSk = BUMP_STOPS[bumpStopOf(b)], byF = bypassFirm(b);
-    const sasF = isSAS(b), muF = sasF ? 85 : 62, muR = 82, ms = Math.max(700, m - 2 * muF - 2 * muR);
-    const wnS = TU.wn * Math.pow(9.5 / Math.max(7, (tv.front + tv.rear) / 2), 0.3), kt = 300000, ct = 9000; // (long travel runs softer springs; tires: stiff, lossy rubber)
+    const sasF = isSAS(b), muF = car ? 42 : sasF ? 85 : 62, muR = car ? 46 : 82, ms = Math.max(700, m - 2 * muF - 2 * muR); // (a car's wheels & arms are far lighter)
+    // (long travel runs much softer springs — the travel is there to use; tires: stiff, lossy rubber)
+    // (a car: its coilovers' rate — stiff, ~1.7–2.2 Hz — and its own sway-bar / roll stiffness)
+    const wnCar = car ? CS.wn * (0.85 + 0.3 * TU.spr) : 0, rollK = (SW.roll || 1) * (car ? CS.roll : 1);
+    const wnS = car ? wnCar : TU.wn * Math.pow(9.5 / Math.max(7, (tv.front + tv.rear) / 2), 0.45), kt = 300000 * Math.pow(31 / Math.max(28, (2 * rig.wy) / INCH), 1.4), ct = 9000; // (a tall sidewall gives more)
     const corner = P.spots.map((sp, i) => { const f = fr[i], W = (ms * AG * (f ? b_ : a_)) / L / 2, mw = f ? muF : muR, Mc = W / AG;
-      return { x: sp.x, z: sp.s * (sp.z + offOf(sp)), W, mw, k: Mc * wnS * wnS, c: 2 * zeta * wnS * Mc, dr: dr(i), bp: bp(i), d0: (W + mw * AG) / kt, front: f }; });
-    // shock: compression / rebound from the clickers, digressive (blows off over the knee — race valving holds on harder),
-    // bypass tubes add damping the deeper the stroke goes
-    const qS = SHk.off || 0, knee = 0.25 + 0.4 * qS, cC = 0.7 + 0.6 * (TU.comp - 0.5), cR = 1.6 + 1.0 * (TU.reb - 0.5);
+      return { x: sp.x, z: sp.s * (sp.z + offOf(sp)), W, mw, k: Mc * wnS * wnS, kBar: Mc * (car ? wnCar : TU.wn) ** 2, c: 2 * zeta * wnS * Mc, dr: dr(i), bp: bp(i), d0: (W + mw * AG) / kt, front: f }; });
+    // shock: compression / rebound from the clickers; firm at low shaft speed (body control), digressive past the knee — a race
+    // valve blows off early and lets the wheel move fast over a whoop face (a factory twin-tube barely does, and runs out of
+    // travel). Bypass tubes are position-sensitive: mid-stroke they bleed oil round the piston (softer than the shock alone),
+    // and past the last tube — the final third of compression, the end of droop — the piston works on its own and the damping
+    // climbs steeply. That's what lets a long-travel truck float the whoops and still not bottom on the big hits.
+    const qS = SHk.off || 0, knee = 0.34 - 0.12 * qS, hsl = 0.55 - 0.4 * qS, cC = 0.7 + 0.6 * (TU.comp - 0.5), cR = 1.6 + 1.0 * (TU.reb - 0.5);
     const damp = (C, du, u) => { const v = Math.abs(du), c0 = C.c * (du > 0 ? cC : cR);
-      let F = v < knee ? c0 * v : c0 * knee + c0 * (0.3 + 0.35 * qS) * (v - knee);
-      if (du > 0 && byF > 0) { const dep = Math.max(0, u / C.bp); F += C.c * byF * 32 * dep * dep * Math.min(v, 6); }
+      let F = v < knee ? c0 * v : c0 * (knee + hsl * (v - knee));
+      if (byF > 0) { const dep = u >= 0 ? u / C.bp : -u / C.dr, end = THREE.MathUtils.smoothstep(dep, 0.76, 0.97);
+        F *= 1 - byF * 2.2 + end * byF * (2.2 + (du > 0 ? 10 : 5)); }
       return Math.sign(du) * F; };
     // bump stop: the last inches of compression (rubber: short & stiff; hydraulic: a long damped stroke)
     const stopF = (C, u, du) => { const zn = Math.min(C.bp * 0.6, BSk.stroke * INCH), s = u - (C.bp - zn); if (s <= 0) return 0; return C.k * BSk.k * s * (1 + (4 * s) / zn) + BSk.c * 2 * du * (du > 0 ? 1 : 0.3) * Math.min(1, s / 0.008); };
@@ -10450,13 +10623,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const bodyC = [[P.front - 0.14, yNose, 0.55], [P.front - 0.14, yNose, -0.55], [P.xF - 0.05, P.wheelY0 - 0.15, 0], [(P.xF + P.xR) / 2, P.rockerY - 0.06, P.halfW - 0.2], [(P.xF + P.xR) / 2, P.rockerY - 0.06, -(P.halfW - 0.2)],
       [P.rear + 0.12, yTail, 0.55], [P.rear + 0.12, yTail, -0.55], [P.rear + 0.28, P.rearBumperY + 0.02, 0]].map(([x, y, z]) => ({ x, y: y + liftAt(x), z, g: H(d.x + x * cy + z * sy, d.z - x * sy + z * cy) }));
     const pairOf = (isF) => [P.spots.findIndex((sp, i) => fr[i] === isF && sp.s > 0), P.spots.findIndex((sp, i) => fr[i] === isF && sp.s < 0)];
-    const pairs = [pairOf(true), pairOf(false)], nSub = Math.min(12, Math.max(3, Math.ceil(dt / 0.0025))), h = dt / nSub, Ip = ms * 1.3 * 1.3, Ir = ms * 0.6 * 0.6;
-    const ayNow = d.air ? 0 : -(d.r * d.u); d.ayPrev = ayNow;
+    const pairs = [pairOf(true), pairOf(false)], nSub = Math.min(12, Math.max(3, Math.ceil(dt / 0.0025))), h = dt / nSub, Ip = ms * 1.3 * 1.3, Ir = ms * 0.72 * 0.72; // (pitch / roll inertia: a full-size pickup's)
+    // body roll / load transfer from what the tires actually push sideways (≈ −r·u in a steady turn) — not from a yaw kick the
+    // tires never made (a whoop shoving the truck, see `lurch`): that read as a corner far harder than any tire could take and
+    // rolled trucks over in the whoops
+    const ayNow = d.air ? 0 : THREE.MathUtils.clamp(sumZ / m, -mu * g * 1.3, mu * g * 1.3); d.ayPrev = ayNow;
     let landed = 0, tireAny = false, bodyAny = false, peakStop = 0, hit = null;
     const wasAir = d.air;
     if (!d.flipped) for (let k = 0; k < nSub; k++) {
       const t = (k + 1) / nSub, tp = Math.tan(d.pitch), tr = Math.tan(d.roll);
-      let Fy = -ms * AG, Tp = wasAir ? 0 : ms * (d.ax || 0) * hcg * 0.85, Tr = -ms * ayNow * hcg * 0.85 * (SW.roll || 1); // (squat / dive & body roll from the tires' pull)
+      let Fy = -ms * AG, Tp = wasAir ? 0 : ms * (d.ax || 0) * hcg * 0.85, Tr = -ms * ayNow * hcg * 0.85 * rollK; // (squat / dive & body roll from the tires' pull)
       d.ws.forEach((w, i) => { const C = corner[i];
         const yB = d.y + tp * C.x - tr * C.z, vB = d.vy + d.pitchV * C.x - d.rollV * C.z, gh = hsPrev[i] + (hs[i] - hsPrev[i]) * t, gv = THREE.MathUtils.clamp((hs[i] - hsPrev[i]) / Math.max(dt, 1e-3), -25, 25);
         const def = gh - (yB + w.u) + C.d0, vw = vB + w.du;
@@ -10465,7 +10641,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         if (w.u > C.bp) Fs += C.k * 45 * (w.u - C.bp) + C.c * 12 * w.du;  // out of travel: metal on metal (a dead, lossy hit)
         if (w.u < -C.dr) Fs += C.k * 45 * (w.u + C.dr) + C.c * 6 * w.du; // hanging on the straps / topped-out shocks
         w.Fs = Fs; });
-      pairs.forEach(([a, c], j) => { if (a < 0 || c < 0) return; const F = ((corner[a].k * (j ? 0.35 : 1.1)) / (SW.roll || 1)) * (d.ws[a].u - d.ws[c].u); d.ws[a].Fs += F; d.ws[c].Fs -= F; }); // sway bars
+      // sway bars: their own rate (a long-travel truck's soft springs don't make the bar any softer)
+      pairs.forEach(([a, c], j) => { if (a < 0 || c < 0) return; const F = ((corner[a].kBar * (j ? 0.45 : 1.25)) / rollK) * (d.ws[a].u - d.ws[c].u); d.ws[a].Fs += F; d.ws[c].Fs -= F; });
       d.ws.forEach((w, i) => { const C = corner[i];
         w.vw = d.vy + d.pitchV * C.x - d.rollV * C.z + w.du + ((w.Ft - w.Fs) / C.mw - AG) * h;
         Fy += w.Fs; Tp += w.Fs * C.x; Tr -= w.Fs * C.z; if (w.Ft > 0) tireAny = true; peakStop = Math.max(peakStop, (w.Fs - C.W) / C.W); });
@@ -10492,7 +10669,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (d.air && !d.flipped) { // in the air: it keeps the spin it left with and noses over gently along its arc; gas spins the tires up
       // and lifts the nose, brake stops them and drops it (how drivers set up a landing)
       const arc = Math.atan2(d.vy, Math.max(4, Math.abs(d.u))) * 0.5;
-      d.pitchV += ((arc - d.pitch) * 0.5 + (thr ? 0.3 : 0) - (rev ? 0.9 : 0)) * dt; d.pitchV *= Math.pow(0.7, dt); d.rollV *= Math.pow(0.85, dt); d.vy *= Math.pow(0.985, dt);
+      // (a lopsided launch — one side of a whoop taller — leaves with less roll than the raw numbers say: the tires and
+      // sidewalls give, the high side's shock tops out and pulls it back. It settles in the air instead of corkscrewing over)
+      if (!wasAir) d.rollV = THREE.MathUtils.clamp(d.rollV, -1.3, 1.3);
+      d.pitchV += ((arc - d.pitch) * 0.5 + (thr ? 0.3 : 0) - (rev ? 0.9 : 0)) * dt; d.pitchV *= Math.pow(0.7, dt); d.rollV *= Math.pow(0.35, dt); d.vy *= Math.pow(0.985, dt);
     }
     d.pitchV = THREE.MathUtils.clamp(d.pitchV, -3, 3); d.rollV = THREE.MathUtils.clamp(d.rollV, -3.2, 3.2); // (a rollover turns over once or twice, never a blender)
     if (d.flipped) { d.pitch += d.pitchV * dt; d.roll += d.rollV * dt; }
@@ -10516,7 +10696,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // skip (grip loss, `chop`)
     if (!d.flipped && !d.air) {
       const sideF = (sgn) => d.ws.reduce((a, w, i) => a + (P.spots[i].s === sgn ? w.Ft : 0), 0), imb = (sideF(1) - sideF(-1)) / (m * AG);
-      if (Math.abs(imb) > 0.6 && Math.abs(d.u) > 5 && !(d.lurchT > 0)) { d.lurch = Math.sign(imb) * Math.min(1.6, (Math.abs(imb) - 0.45) * 2) * TU.kick; d.lurchT = 0.3; }
+      // (how hard: a factory truck darts all over; travel and good valving soak most of it up before it reaches the chassis)
+      const soakK = THREE.MathUtils.clamp(1 - 0.7 * THREE.MathUtils.clamp(((tv.front + tv.rear) / 2 - 9) / 12, 0, 1) - 0.3 * (qS - 0.15), 0.3, 1);
+      if (Math.abs(imb) > 0.6 && Math.abs(d.u) > 5 && !(d.lurchT > 0)) { d.lurch = Math.sign(imb) * Math.min(1.6, (Math.abs(imb) - 0.45) * 2) * TU.kick * soakK; d.lurchT = 0.3; }
       const unl = d.ws.filter((w, i) => w.Ft < (corner[i].W + corner[i].mw * AG) * 0.3).length / 4;
       d.chop = Math.max((d.chop || 0) * Math.pow(0.02, dt), Math.min(1, unl * 1.3));
     } else d.chop = (d.chop || 0) * Math.pow(0.02, dt);
@@ -10546,17 +10728,17 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const axleTilt = rIx.length === 2 ? Math.atan2(rig.susp[rIx.find((i) => P.spots[i].s > 0)] - rig.susp[rIx.find((i) => P.spots[i].s < 0)], 2 * zr) : 0;
     // (rear: the housing and both tires lean with the axle — the compressed side's tire tucks up into the bed)
     const fIx = P.spots.map((_, i) => i).filter((i) => fr[i]), axleTiltF = sasF && fIx.length === 2 ? Math.atan2(rig.susp[fIx.find((i) => P.spots[i].s > 0)] - rig.susp[fIx.find((i) => P.spots[i].s < 0)], 2 * zr) : 0;
-    wheels.forEach((w, i) => { const sp = P.spots[i]; d.spinA[i] += (wg + extra(i)) * dt; const cam = fr[i] ? (sasF ? -axleTiltF : -sp.s * rig.susp[i] * 0.35) : -axleTilt; w.rotation.set(cam, (sp.s < 0 ? Math.PI : 0) + (fr[i] ? st : 0), sp.s > 0 ? -d.spinA[i] : d.spinA[i]); holdCaliper(w); });
+    wheels.forEach((w, i) => { const sp = P.spots[i]; d.spinA[i] += (wg + extra(i)) * dt; const cam = fr[i] ? (sasF ? -axleTiltF : -sp.s * rig.susp[i] * 0.35) : -axleTilt; w.rotation.set(cam - sp.s * camberRad(b, fr[i]), (sp.s < 0 ? Math.PI : 0) + (fr[i] ? st : 0), sp.s > 0 ? -d.spinA[i] : d.spinA[i]); holdCaliper(w); }); // (+ a car's static camber)
     // drivetrain: 6-speed, rpm follows the (possibly spinning) rear tires. Auto shifts near redline under power,
     // early when cruising, kicks down when the revs fall; manual (E / Q) holds the gear and bounces off the limiter.
     const rearW = Math.abs(wg) + d.spinX;
     const rpm = (rearW * 60 / (2 * Math.PI)) * gearR;
     if (!d.manual && d.u > 0.5 && d.shiftT <= 0) {
-      if (rpm > (thr ? 5900 : 2600) && d.gear < GEARS.length - 1 && !spinning) shiftTo(d.gear + 1);
-      else if (rpm < (thr ? 2300 : 1300) && d.gear > 0) shiftTo(d.gear - 1);
+      if (rpm > (thr ? DL.up : 2600) && d.gear < DL.gears.length - 1 && !spinning) shiftTo(d.gear + 1);
+      else if (rpm < (thr ? DL.down : 1300) && d.gear > 0) shiftTo(d.gear - 1);
     }
     if (d.u <= 0.5 && !d.manual && d.gear > 0 && !thr) shiftTo(0);
-    d.rpm += (Math.max(720 + thr * 900, Math.min(REDLINE, rpm)) - d.rpm) * Math.min(1, dt * (d.shiftT > 0 ? 30 : 12)); d.throttle = thr || (rev && d.u < 0.8 ? 1 : 0);
+    d.rpm += (Math.max(720 + thr * 900, Math.min(DL.redline, rpm)) - d.rpm) * Math.min(1, dt * (d.shiftT > 0 ? 30 : 12)); d.throttle = thr || (rev && d.u < 0.8 ? 1 : 0);
     updateRig();
     recordFrame(dt); // (the replay's rolling 15 s)
     // dust / tire smoke: wheelspin, sideways slides and speed on loose ground
@@ -10625,7 +10807,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     d.tick += dt;
     if (d.tick > 0.1) { d.tick = 0; const nr = ctl.mode === 'walk' ? ctl.near : null;
-      handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0,
+      handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, redline: DL.redline, gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0,
         ctl: ctl.mode, fp: ctl.fp, run: !!keys.shift, near: nr ? (nr.mine ? 'mine' : nr.seat < 0 ? 'full' : 'ride') : null, nearName: nr && !nr.mine ? nr.name || 'player' : '', host: ctl.mode === 'ride' ? ((remotes.get(ctl.host) || {}).name || 'player') : '', hint: performance.now() < ctl.hintT ? ctl.hint : '' }); }
     if (landed > 3) handlers.current.onLand && handlers.current.onLand(landed);
   }
@@ -11320,8 +11502,13 @@ function TelemetryPanel({ vehicle, geom, applied, effective, onClose, customMode
           <div className="grid grid-cols-2 gap-2">
             <Metric label="0–60 mph (est.)" e={E.t60} a={A.t60} s={S.t60} unit="s" better="lower" />
             {E.mpg ? <Metric label={`MPG city / hwy (${E.mpg.src})`} e={E.mpg.city} a={A.mpg.city} s={S.mpg.city} unit={`/ ${E.mpg.hwy.toFixed(1)}`} /> : <div className="rounded bg-white/[0.045] px-2.5 py-2 text-[11px] text-white/50">Electric — range not modeled</div>}
-            <Metric label="Payload left" e={E.payload} a={A.payload} s={S.payload} unit="lb" digits={0} />
-            <Metric label={`Towing (${E.towSrc})`} e={E.towing} a={A.towing} s={S.towing} unit="lb" digits={0} />
+            {vehicle.body === 'sedan' ? (<>{/* (a car: power and top speed, not payload & towing) */}
+              <Metric label="Power" e={E.power} a={A.power} s={S.power} unit="hp" digits={0} />
+              <Metric label="Top speed (limited)" e={170} a={170} s={170} unit="mph" digits={0} />
+            </>) : (<>
+              <Metric label="Payload left" e={E.payload} a={A.payload} s={S.payload} unit="lb" digits={0} />
+              <Metric label={`Towing (${E.towSrc})`} e={E.towing} a={A.towing} s={S.towing} unit="lb" digits={0} />
+            </>)}
           </div>
           <div className="text-[10.5px] text-white/40 mt-1.5 leading-snug">0–60 from weight-to-power and gearing (calibrated to published tests); mpg scales the EPA figure for tire size, lift, weight & lights. Towing derates when tires outgrow the gearing.</div>
         </Section>
@@ -12565,6 +12752,13 @@ const EngineAudio = (() => {
           const lvl = s.centri ? 0.05 * r * r * (0.3 + this.thr) : 0.035 * s.sc * Math.min(1, this.rpm / 1800) * (0.35 + this.thr * 0.9);
           v += tone * lvl * this.g;
         }
+        if (this.on && s.howl) { // dual-stage intake howl: the firing frequency and its harmonics through the open intake — it swells
+          // hard once the second intake port opens (~3,600 rpm), the sharp-edged scream of a high-revving V8
+          const f0 = this.rpm / 15, open = 1 / (1 + Math.exp(-(this.rpm - 3600) / 140));
+          this.hw = ((this.hw || 0) + f0 / sr) % 1; const ph = 2 * Math.PI * this.hw;
+          const tone = 0.5 * Math.sin(ph) + 0.32 * Math.sin(2 * ph + 0.6) + 0.2 * Math.sin(3 * ph + 1.1) + 0.12 * Math.sin(4 * ph + 0.3);
+          v += tone * s.howl * (0.025 + 0.085 * open) * (0.2 + this.thr) * Math.min(1, this.rpm / 2200) * this.g;
+        }
         if (this.on && s.roar) { // open intake: band-limited rush that swells with throttle & rpm
           const nz = Math.random() * 2 - 1, fc = 0.04 + 0.1 * (this.rpm / 5600);
           this.ia = (this.ia || 0) + (nz - (this.ia || 0)) * fc; this.ib = (this.ib || 0) + (this.ia - (this.ib || 0)) * fc * 0.5;
@@ -12577,7 +12771,7 @@ const EngineAudio = (() => {
   }
   registerProcessor('apex-engine', ApexEngine);`;
   let ctx = null, node = null, ready = null, on = false, rpm = 0, throttle = 0, ext = null, cyl = 8, snd = EXHAUSTS.stock.snd, raf = 0, startT = 0, listeners = [], outG = null, vol = 0.9;
-  const IDLE = 720, RED = 6200;
+  const IDLE = 720; let RED = 6200, carVoice = false; // (a car: its own modelled V8 voice and redline — the recording is the truck's)
   // ---- Recorded V8 ('rec', the default): sounds/v8-start-rev.mp3 — a cold start and fast idle, mic right at the tailpipe.
   // The start clip plays as recorded. After that it's GRANULAR: the idle recording is cut into its individual exhaust pulses
   // (one per cylinder firing), and each time a cylinder fires at the current rpm the next recorded pulse is played — so the
@@ -12692,7 +12886,7 @@ const EngineAudio = (() => {
   function tick() {
     raf = requestAnimationFrame(tick);
     if (!node) return;
-    const t = ctx.currentTime, since = t - startT, useRec = mode === 'rec' && !!recN;
+    const t = ctx.currentTime, since = t - startT, useRec = mode === 'rec' && !!recN && !carVoice;
     let target = IDLE + throttle * (RED - IDLE);
     const crank = useRec && recN.withStart ? REC.crank : 0.6; // (the recording cranks for ~2 s before it fires)
     if (on && since < crank + 0.6) target = since < crank ? 210 + Math.sin(since * 25) * 40 : 1450 - (since - crank) * 1150; // crank → catch → settle
@@ -12714,9 +12908,9 @@ const EngineAudio = (() => {
   return {
     start(opts = {}) {
       if (!(window.AudioContext || window.webkitAudioContext)) return false;
-      cyl = opts.cyl || 8; snd = opts.snd || snd; on = true; rpm = 0; throttle = 0; starting = true;
-      ensure().then(() => (mode === 'rec' ? Promise.race([loadRec().catch(() => null), new Promise((r) => setTimeout(r, 2500))]) : null))
-        .then(() => { starting = false; startT = ctx.currentTime; if (on && mode === 'rec' && rec) recPlay(true); }).catch(() => { on = false; starting = false; });
+      cyl = opts.cyl || 8; snd = opts.snd || snd; RED = opts.redline || 6200; carVoice = !!opts.car; on = true; rpm = 0; throttle = 0; starting = true;
+      ensure().then(() => (mode === 'rec' && !carVoice ? Promise.race([loadRec().catch(() => null), new Promise((r) => setTimeout(r, 2500))]) : null))
+        .then(() => { starting = false; startT = ctx.currentTime; if (on && mode === 'rec' && rec && !carVoice) recPlay(true); }).catch(() => { on = false; starting = false; });
       if (!raf) tick();
       return true;
     },
@@ -12724,13 +12918,17 @@ const EngineAudio = (() => {
     // 'rec' (the recorded V8) or 'synth' (the original modelled engine) — switches live if the engine is running
     setMode(m) {
       mode = m === 'synth' ? 'synth' : 'rec'; if (!ctx || !on) return;
-      if (mode === 'synth') recStop(0.3); else loadRec().then(() => { if (on && mode === 'rec' && !recN) recPlay(false); }).catch(() => { /* stays on the modelled engine */ });
+      if (mode === 'synth') recStop(0.3); else loadRec().then(() => { if (on && mode === 'rec' && !recN && !carVoice) recPlay(false); }).catch(() => { /* stays on the modelled engine */ });
     },
     get mode() { return mode; },
     setThrottle(v) { throttle = Math.max(0, Math.min(1, v)); },
     setExternal(s) { ext = s; },
     setVolume(v) { vol = v; if (outG) outG.gain.setTargetAtTime(v, ctx.currentTime, 0.05); },
-    setSound(opts) { cyl = opts.cyl || cyl; snd = opts.snd || snd; },
+    setSound(opts) {
+      cyl = opts.cyl || cyl; snd = opts.snd || snd; if (opts.redline) RED = opts.redline;
+      const cv = !!opts.car; if (cv === carVoice) return; carVoice = cv; // (switched between the truck and a car with the engine running)
+      if (!ctx || !on) return; if (cv) recStop(0.3); else if (mode === 'rec') loadRec().then(() => { if (on && mode === 'rec' && !recN && !carVoice) recPlay(false); }).catch(() => { /* modelled engine */ });
+    },
     thump(v) { if (!ctx) return; const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(35, t + 0.25); g.gain.setValueAtTime(Math.min(0.6, v * 0.06), t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3); o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.35); },
     subscribe(f) { listeners.push(f); return () => { listeners = listeners.filter((x) => x !== f); }; },
     get running() { return on; },
@@ -13009,7 +13207,9 @@ function App() {
   useEffect(() => {
     if (firstBase.current) { firstBase.current = false; return; }
     if (!stageRef.current) return;
-    stageRef.current.setBase(vehicle);
+    // (between picking another vehicle and its own model arriving, the old model is fitted to the new specs — a part that can't
+    // be built on that body is skipped with a console note instead of taking the whole app down)
+    try { stageRef.current.setBase(vehicle); } catch (e) { console.warn('setBase', e); }
     const info = stageRef.current.modelInfo();
     if (info) setCustomModel((m) => (m ? { ...m, reference: info.reference, morphNote: info.morphNote } : m));
   }, [vehicle]);
@@ -13020,22 +13220,25 @@ function App() {
     // (the Dundra-only parts — replacement grilles, hood deflector, its 2005–06 factory bumpers & OEM badges — stay in the
     // build, unseen, on any other truck: they come back when you switch back to the Dundra)
     const notDundra = !tundraEra(vehicle) ? { grille: 'stock', bugShield: false, badges: {}, ...(['oem06', 'oem06c'].includes(effective.frontBumper) ? { frontBumper: 'stock' } : {}) } : {};
-    const b = isLocked(vehicle) ? { ...DEFAULT_BUILD, tod: effective.tod, weather: effective.weather, head: effective.head, windows: effective.windows, tcs: effective.tcs, plate: 'none' } : { ...effective, ...notDundra };
-    stageRef.current && stageRef.current.applyBuild({ ...b, oem: devUnlocked, ...(!devUnlocked && plateReserved(b.plateText) ? { plateText: 'DGC 4124' } : {}) }, { xray: xrayOn });
+    const b = isLocked(vehicle) ? { ...DEFAULT_BUILD, tod: effective.tod, weather: effective.weather, head: effective.head, windows: effective.windows, tcs: effective.tcs, plate: 'none' }
+      : isCarV(vehicle) ? carBuild(effective) : { ...effective, ...notDundra, car: false }; // (a car: its own parts, the truck-only ones neutral)
+    try { stageRef.current && stageRef.current.applyBuild({ ...b, oem: devUnlocked, ...(!devUnlocked && plateReserved(b.plateText) ? { plateText: 'DGC 4124' } : {}) }, { xray: xrayOn }); }
+    catch (e) { console.warn('applyBuild', e); } // (see setBase below: never let one part take the app down)
   }, [effective, xrayOn, vehicle, customModel, devUnlocked]);
-  useEffect(() => { if (isLocked(vehicle) && category && category !== 'character') openCategory(null); }, [vehicle]);
+  useEffect(() => { if (category && ((isLocked(vehicle) && category !== 'character') || (isCarV(vehicle) && !CAR_CATS.includes(category)))) openCategory(null); }, [vehicle]);
   useEffect(() => { stageRef.current && stageRef.current.setDamage(damage, true); }, [damage, vehicle]);
   useEffect(() => { stageRef.current && stageRef.current.setHood(hoodOpen); }, [hoodOpen]);
   useEffect(() => { stageRef.current && stageRef.current.setAutoRotate(autoRotate); }, [autoRotate]);
 
   // ---- Engine: start / stop, rev (hold R or the Rev button), exhaust sound follows the build
   const engineCfg = () => { const sc = SUPERCHARGERS[effective.supercharger] || SUPERCHARGERS.none, ik = INTAKES[effective.intake] || INTAKES.stock; // exhaust tone + blower whine + intake roar
-    return { cyl: /V8/i.test(vehicle.engine) ? 8 : 6, snd: { ...(EXHAUSTS[effective.exhaust] || EXHAUSTS.stock).snd, sc: sc.whine === 'roots' ? (sc.hp > 70 ? 1 : 0.7) : 0, centri: sc.whine === 'centri' ? 1 : 0, roar: ik.roar } }; };
+    const car = isCarV(vehicle), ex = EXHAUSTS[effective.exhaust] || EXHAUSTS.stock; // (a car: its own modelled V8 voice, 6,800 rpm redline)
+    return { cyl: /V8/i.test(vehicle.engine) ? 8 : 6, car, redline: car ? 6800 : 6200, snd: { ...(car ? (ex.car ? ex.snd : CAR_STOCK_SND) : ex.snd), sc: sc.whine === 'roots' ? (sc.hp > 70 ? 1 : 0.7) : 0, centri: sc.whine === 'centri' ? 1 : 0, roar: ik.roar } }; };
   const toggleEngine = useCallback(() => {
     if (EngineAudio.running) { EngineAudio.stop(); setEngineOn(false); }
     else if (EngineAudio.start(engineCfg())) setEngineOn(true);
-  }, [vehicle.engine, effective.exhaust, effective.supercharger, effective.intake]);
-  useEffect(() => { if (EngineAudio.running) EngineAudio.setSound(engineCfg()); }, [effective.exhaust, vehicle.engine, effective.supercharger, effective.intake]);
+  }, [vehicle.engine, vehicle.body, effective.exhaust, effective.supercharger, effective.intake]);
+  useEffect(() => { if (EngineAudio.running) EngineAudio.setSound(engineCfg()); }, [effective.exhaust, vehicle.engine, vehicle.body, effective.supercharger, effective.intake]);
   useEffect(() => {
     let n = 0;
     return EngineAudio.subscribe((s) => { stageRef.current && stageRef.current.setEngine(s); if (++n % 6 === 0 || !s.on) setEngineRpm(s.rpm); });
@@ -13053,7 +13256,7 @@ function App() {
     if (!EngineAudio.running && EngineAudio.start(engineCfg())) setEngineOn(true);
     setCategory(null); setPreview(null); setCutMode(false); setMenuTab(null);
     if (st.startDrive()) setDriving(true);
-  }, [vehicle.engine, effective.exhaust, effective.supercharger, effective.intake]);
+  }, [vehicle.engine, vehicle.body, effective.exhaust, effective.supercharger, effective.intake]);
   const startDriveRef = useRef(null); startDriveRef.current = startDrive;
   const stopDrive = useCallback(() => { stageRef.current && stageRef.current.stopDrive(); setDriving(false); setDriveHud(null); EngineAudio.setExternal(null); }, []);
   // multiplayer: while in a session, send this truck's pose ~10×/s and draw everyone else's; joining puts you on the host's map
@@ -13123,7 +13326,16 @@ function App() {
     return () => clearTimeout(id);
   }, [category, vehicle, customModel, applied.color, applied.wheelStyle, applied.tire]);
 
-  const loadVehicle = useCallback((v) => { setVehicle(v); setApplied((a) => ({ ...a, tire: 'stock' })); setPreview(null); setDamage([]); }, []);
+  // cars and trucks keep separate builds: switching between them puts each one's own build back (a truck's lift & bumpers
+  // never land on the sedan, the sedan's coilovers never on a truck)
+  const kindBuilds = useRef({}), vehicleNow = useRef(vehicle); vehicleNow.current = vehicle;
+  const loadVehicle = useCallback((v) => {
+    const ko = isCarV(vehicleNow.current) ? 'car' : 'truck', kn = isCarV(v) ? 'car' : 'truck';
+    setVehicle(v);
+    if (ko !== kn) setApplied((a) => { kindBuilds.current[ko] = a; return kindBuilds.current[kn] || (kn === 'car' ? CAR_DEFAULT_BUILD : DEFAULT_BUILD); });
+    else setApplied((a) => ({ ...a, tire: 'stock' }));
+    setPreview(null); setDamage([]);
+  }, []);
   window.apexApp = { loadVehicle, lineupVehicle, setApplied, applyPatch, openCategory, startDrive: () => startDriveRef.current && startDriveRef.current(), vehicle, applied }; // (console debugging handle)
   // Factory configurator: year / cab / drive / trim / engine (configurator generations) or year / trim (catalog rows)
   const setFactory = useCallback((patch) => {
@@ -13300,23 +13512,121 @@ function App() {
   const stockTire = parseTire(vehicle.tire);
 
   // ---------- Menu definitions
+  // a car (sedan) has its own menus for the running gear — engine, wheels & tires, suspension, lights — and no truck parts
+  const isCar = isCarV(vehicle), cats = isCar ? CATEGORIES.filter((c) => CAR_CATS.includes(c.id)) : CATEGORIES;
+  const carMenu = (category) => {
+    const btnRow = (vals, cur, fmt, onPick, onHover) => (
+      <div className="flex gap-1 mt-1.5" onMouseLeave={() => setPreview(null)}>
+        {vals.map((v) => <button key={String(v)} onMouseEnter={() => { UISound.hover(); onHover && onHover(v); }} onClick={() => { UISound.select(); onPick(v); }}
+          className={`flex-1 rounded py-1 text-[11px] font-bold border ${cur === v ? 'bg-amber-400 text-black border-amber-400' : 'border-white/15 text-white/75 hover:bg-white/10'}`}>{fmt(v)}</button>)}
+      </div>);
+    const labeled = (label, value, row) => ({ kind: 'custom', render: () => (<div><div className="flex justify-between hud text-[12.5px]"><span className="text-white/80 font-semibold">{label}</span><span className="text-amber-300 font-bold">{value}</span></div>{row}</div>) });
+    if (category === 'engine') {
+      const sc = SUPERCHARGERS[applied.supercharger] || SUPERCHARGERS.none, ik = INTAKES[applied.intake] || INTAKES.stock;
+      return { title: 'Hood / Engine', defaultDesc: `${vehicle.engine} · ${vehicle.hp + sc.hp + ik.hp} hp / ${vehicle.tq + sc.tq + Math.round(ik.hp * 0.8)} lb-ft · 8-speed automatic`, items: [
+        { kind: 'header', label: 'Engine' },
+        { kind: 'item', icon: 'Key', label: engineOn ? 'Shut the engine off' : 'Start the engine', right: <span className={`hud font-bold text-[13px] ${engineOn ? 'text-emerald-400' : 'text-white/45'}`}>{engineOn ? `${Math.round(engineRpm)} RPM` : 'OFF'}</span>, action: toggleEngine, desc: `${vehicle.engine} — a high-revving cross-plane V8 with a dual-stage intake: it howls when the second intake port opens at about 3,600 rpm and pulls to 6,800.` },
+        ...(engineOn ? [{ kind: 'custom', render: () => (
+          <div>
+            <button onPointerDown={() => EngineAudio.setThrottle(1)} onPointerUp={() => EngineAudio.setThrottle(0)} onPointerLeave={() => EngineAudio.setThrottle(0)}
+              className="w-full rounded-md py-2.5 hud text-[16px] font-bold tracking-widest uppercase bg-red-600 hover:bg-red-500 text-white select-none active:scale-[0.98]">Hold to Rev</button>
+            <div className="relative h-2 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${Math.min(100, (engineRpm / 6800) * 100)}%` }} /></div>
+            <div className="text-[11px] text-white/45 mt-1">Or hold <b>R</b> on the keyboard. Redline 6,800 rpm.</div>
+          </div>) }] : []),
+        { kind: 'header', label: 'Supercharger' },
+        ...Object.entries(SUPERCHARGERS).filter(([id, x]) => id === 'none' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id }, desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear it.'}` : 'The factory 5.0 V8, naturally aspirated.' })),
+        { kind: 'header', label: 'Air Intake' },
+        ...Object.entries(INTAKES).filter(([id, x]) => id === 'stock' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Fan', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.intake || 'stock') === id, patch: { intake: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp)` : ''}` })),
+        { kind: 'header', label: 'Exhaust' },
+        ...Object.entries(EXHAUSTS).filter(([id, x]) => id === 'stock' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Wind', label: id === 'stock' ? 'Factory quad-stack exhaust' : x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.exhaust || 'stock') === id, patch: { exhaust: id }, desc: `${id === 'stock' ? 'The factory system out to the four stacked tips — already raspy at the top end.' : x.desc}${engineOn ? '' : ' Start the engine to hear it.'}` })),
+        { kind: 'header', label: 'Differential' },
+        ...[['open', 'Open differential', 'Power goes to the rear tire with the least grip — the inside one lights up out of a slow corner.'], ['lsd', 'Torsen limited-slip (factory)', 'Shares the torque across the rear axle: clean exits, easy power slides.'], ['locker', 'Welded differential (drift)', 'Both rear tires locked together: the rear steps out the moment you ask and holds the slide.']]
+          .map(([id, label, desc]) => ({ kind: 'item', icon: 'Cog', label, price: id === 'locker' ? 120 : 0, installed: (applied.diff || 'lsd') === id, patch: { diff: id }, desc })),
+        { kind: 'header', label: 'Hood & Doors' },
+        customModel && customModel.hood ? { kind: 'item', icon: hoodOpen ? 'ChevronsDown' : 'ChevronsUp', label: hoodOpen ? 'Close Hood' : 'Open Hood', desc: 'You can also click the hood on the car.', right: null, action: () => setHoodOpen((h) => !h) } : null,
+        ...(customModel && customModel.doors ? [{ kind: 'item', icon: 'DoorOpen', label: doorsOpen ? 'Close Doors' : 'Open Doors', desc: 'Swings the doors open on their hinges.', right: null, action: () => setDoorsOpen((d) => !d) }] : []),
+      ].filter(Boolean) };
+    }
+    if (category === 'wheels') {
+      const brands = {}; Object.entries(WHEEL_STYLES).forEach(([id, w]) => { if (w.car && !w.factory) (brands[w.brand] = brands[w.brand] || []).push([id, w]); });
+      const offs = WHEEL_OFFSETS.filter((o) => o.car), mmOf = (v) => (v ? `${Math.round(v * 25.4)} mm` : '—');
+      const toAfter = ownWheels(applied) ? { wheelStyle: 'dexus-oem' } : {}; // (offset only applies to a separate wheel — the model's own keep theirs)
+      return { title: 'Wheels & Tires', defaultDesc: 'Hover to preview. Wider tires add grip; the wheel size follows the tire size.', items: [
+        { kind: 'header', label: 'Tire Size (width / profile / wheel diameter)' },
+        ...CAR_TIRES.map((t) => ({ kind: 'item', icon: 'CircleDot', price: t.price, installed: (applied.tire || 'stock') === t.id, patch: { tire: t.id }, label: t.size ? t.size : 'Factory staggered 225/40R19 · 255/35R19', desc: t.desc })),
+        { kind: 'header', label: 'Tires' },
+        ...[['oem', TIRE_BRANDS['car-oe']], ...Object.entries(TIRE_BRANDS).filter(([id, x]) => x.car && id !== 'car-oe')].map(([id, tb]) => ({ kind: 'item', icon: 'CircleDot', label: tb.brand ? `${tb.brand} ${tb.label}` : tb.label, price: tb.price, installed: (applied.tireBrand || 'oem') === id, patch: { tireBrand: id }, desc: `${tb.desc} Grip: ${Math.round(tb.grip * 100)}% dry · ${Math.round(tb.wet * 100)}% wet.` })),
+        { kind: 'header', label: 'Wheels' },
+        { kind: 'item', icon: 'CircleDot', label: 'Factory forged wheels (from the 3D model)', price: 0, installed: applied.wheelStyle === 'model', patch: { wheelStyle: 'model' }, desc: 'The car\'s own wheels. With another tire size or line, the same factory design is fitted in that size.' },
+        ...Object.entries(brands).flatMap(([brand, list]) => [{ kind: 'header', label: brand },
+          ...list.map(([id, w]) => ({ kind: 'item', icon: 'CircleDot', label: w.label, price: w.price, installed: applied.wheelStyle === id, patch: { wheelStyle: id }, desc: `${w.desc} (Set of 4 · simplified look-alike — check ${brand} for exact styling and fitment.)` }))]),
+        { kind: 'header', label: 'Wheel Finish' },
+        ...Object.entries(RIM_FINISHES).map(([id, r]) => ({ kind: 'item', label: r.label, swatch: r.swatch, price: r.price, installed: applied.rimFinish === id, patch: { rimFinish: id }, desc: 'Applies to aftermarket wheels.' })),
+        { kind: 'header', label: 'Offset & Spacers · front and rear' },
+        ...[['offsetF', 'Front wheel offset'], ['offsetR', 'Rear wheel offset']].map(([k, label]) => labeled(label, `${offsetMM(applied[k] || 'c45') > 0 ? '+' : ''}${offsetMM(applied[k] || 'c45')} mm`,
+          btnRow(offs.map((o) => o.id), applied[k] || 'c45', (id) => offs.find((o) => o.id === id).label.replace(' (factory)', ''), (id) => applyPatch({ [k]: id, ...toAfter }), (id) => setPreview({ [k]: id, ...toAfter })))),
+        ...[['spacerF', 'Front hub-centric spacers'], ['spacerR', 'Rear hub-centric spacers']].map(([k, label]) => labeled(label, mmOf(applied[k] || 0),
+          btnRow(CAR_SPACERS, applied[k] || 0, mmOf, (v) => applyPatch({ [k]: v }), (v) => setPreview({ [k]: v })))),
+        { kind: 'custom', render: () => <div className="text-[11px] text-white/45">Lower offset and spacers push the wheels out to fill the arches (wider track, a little more stability; too far and they rub). Front track +{(wheelShiftIn(effective, 'F') * 2 * 25.4).toFixed(0)} mm · rear +{(wheelShiftIn(effective, 'R') * 2 * 25.4).toFixed(0)} mm.</div> },
+      ] };
+    }
+    if (category === 'suspension') {
+      const cs = carSuspOf(applied), low = carLowerOf(applied);
+      return { title: 'Suspension', defaultDesc: 'Coilovers lower it and sharpen it up; camber and sway bars tune the balance.', items: [
+        { kind: 'custom', render: () => <div className="text-[11.5px] text-white/60 leading-snug"><span className="text-amber-300 font-semibold">Layout:</span> double-wishbone front, multi-link rear, rear-wheel drive. Lower = less roll and a lower center of gravity — and less room over bumps and dirt.</div> },
+        { kind: 'header', label: 'Coilovers & Springs' },
+        ...Object.entries(CAR_SUSP).map(([id, s]) => ({ kind: 'item', icon: 'ArrowUpDown', label: s.brand ? `${s.brand} ${s.label}` : s.label, price: s.price, installed: (applied.carSusp || 'stock') === id, patch: { carSusp: id, lower: s.adj ? Math.round(((s.lower[0] + s.lower[1]) / 2) * 4) / 4 : 0 }, desc: `${s.desc} ${s.adj ? `Adjustable ${s.lower[0]}–${s.lower[1]}" lower.` : s.lower[0] ? `${s.lower[0]}" lower.` : ''}` })),
+        ...(cs.adj ? [{ kind: 'custom', render: () => (
+          <div>
+            <div className="flex justify-between items-baseline"><span className="hud text-[15px] font-semibold">Ride height</span><span className="hud text-[18px] font-bold text-amber-300">−{low.toFixed(1)}"</span></div>
+            <input type="range" min={cs.lower[0]} max={cs.lower[1]} step="0.1" value={low} onChange={(e) => applyPatch({ lower: +e.target.value })} className="hud-range mt-2" />
+            <div className="text-[11px] text-white/45 mt-1">{(applied.carSusp === 'air') ? 'Aired all the way out it sits on the frame — great for the show, not for driving.' : 'Slam it and it scrapes over every bump; a little drop is the sweet spot.'}</div>
+          </div>) }, { kind: 'custom', render: () => (
+          <div>
+            <div className="flex justify-between items-baseline"><span className="hud text-[15px] font-semibold">Damping (clickers)</span><span className="hud text-[14px] font-bold text-amber-300">{(applied.damping ?? 0.5) < 0.34 ? 'Soft' : (applied.damping ?? 0.5) > 0.66 ? 'Firm' : 'Medium'}</span></div>
+            <input type="range" min="0" max="1" step="0.05" value={applied.damping ?? 0.5} onChange={(e) => applyPatch({ damping: +e.target.value })} className="hud-range mt-2" />
+          </div>) }] : []),
+        { kind: 'header', label: 'Camber (alignment) · negative degrees' },
+        ...[['camberF', 'Front camber'], ['camberR', 'Rear camber']].map(([k, label]) => labeled(label, applied[k] ? `−${applied[k]}°` : 'Factory',
+          btnRow(CAMBER_OPTS, applied[k] || 0, (v) => (v ? `−${v}°` : 'Std'), (v) => applyPatch({ [k]: v }), (v) => setPreview({ [k]: v })))),
+        { kind: 'custom', render: () => <div className="text-[11px] text-white/45">About −2° to −3° gives the outside tire more grip in a corner; past that it costs braking and straight-line grip — the stance look.</div> },
+        { kind: 'header', label: 'Sway Bars' },
+        ...Object.entries(CAR_SWAY).map(([id, s]) => ({ kind: 'item', icon: 'Link', label: s.label, price: s.price, installed: (applied.sway || 'stock') === id, patch: { sway: id }, desc: id === 'heavy' ? 'Flatter and quicker to change direction; a touch less grip over bumps.' : id === 'none' ? 'Rear bar off: more grip at the rear, the nose pushes a little more.' : 'Factory roll stiffness.' })),
+      ] };
+    }
+    if (category === 'lights') {
+      return { title: 'Lighting', defaultDesc: 'Headlight and taillight tints, plus underglow. Turn the lights on to see them.', items: [
+        { kind: 'item', icon: 'Power', label: applied.lightsOn ? 'Lights On' : 'Lights Off', right: <span className={`hud font-bold text-[13px] ${applied.lightsOn ? 'text-emerald-400' : 'text-white/45'}`}>{applied.lightsOn ? 'ON' : 'OFF'}</span>, patch: { lightsOn: !applied.lightsOn }, desc: 'Switches the underglow.' },
+        { kind: 'header', label: 'Headlights' },
+        ...Object.entries(HEADLIGHT_OPTS).map(([id, o]) => ({ kind: 'item', icon: 'Lamp', label: o.label, price: o.price, installed: applied.headlights === id, patch: { headlights: id }, desc: o.desc })),
+        { kind: 'header', label: 'Taillights' },
+        ...Object.entries(TAILLIGHT_OPTS).map(([id, o]) => ({ kind: 'item', icon: 'Lamp', label: o.label, price: o.price, installed: applied.taillights === id, patch: { taillights: id }, desc: o.desc })),
+        { kind: 'header', label: 'Underglow' },
+        { kind: 'item', icon: 'Lightbulb', label: 'LED underglow pods', price: 299, installed: applied.rockLights, patch: { rockLights: !applied.rockLights, ...(!applied.rockLights ? { lightsOn: true } : {}) }, desc: 'LED pods under the sills light the ground around the car.' },
+        ...(applied.rockLights ? Object.entries(ROCK_COLORS).map(([id, hex]) => ({ kind: 'item', label: `Underglow · ${id}`, swatch: '#' + hex.toString(16).padStart(6, '0'), price: 0, installed: applied.rockColor === id, patch: { rockColor: id, lightsOn: true }, desc: 'Underglow color.' })) : []),
+      ] };
+    }
+    return null;
+  };
   // built per category (also run for every category to feed the menu search)
   const buildMenu = (category) => {
   let title = 'Main Menu', items = [], defaultDesc = 'Pick a category. Hover any part to preview it on the truck, click to install.';
-  if (!category) {
+  const cm = isCar && category ? carMenu(category) : null;
+  if (cm) ({ title, items, defaultDesc } = cm);
+  else if (!category) {
     const locked = isLocked(vehicle);
     items = [
       { kind: 'header', label: 'Customize' },
       ...(locked ? [{ kind: 'custom', render: () => (
         <div className="text-[12.5px] text-white/70 leading-snug"><span className="hud text-[14px] font-bold text-amber-300 block mb-0.5">{vehicle.make} {vehicle.model}: drive only for now</span>Parts and options for this car are coming in a later update — hit Drive to take it out, or pick another vehicle. Your character still works everywhere.</div>
       ) }, { kind: 'item', label: 'Character', icon: 'PersonStanding', desc: CATEGORIES.find((c) => c.id === 'character').desc, right: <Icon name="ChevronRight" size={18} />, action: () => openCategory('character') }]
-        : CATEGORIES.map((c) => ({ kind: 'item', label: c.label, icon: c.icon, desc: c.desc, right: <Icon name="ChevronRight" size={18} />, action: () => openCategory(c.id) }))),
+        : cats.map((c) => ({ kind: 'item', label: c.label, icon: c.icon, desc: c.desc, right: <Icon name="ChevronRight" size={18} />, action: () => openCategory(c.id) }))),
       { kind: 'header', label: 'Your Vehicle' },
       { kind: 'item', label: 'Change Vehicle', icon: 'Truck', desc: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}. Trucks, sedans & more from the garage lineup — or the spec catalog, custom specs and your own .glb.`, right: <Icon name="ChevronRight" size={18} />, action: () => { setVehicleTab('garage'); setVehicleModal(true); } },
       { kind: 'item', label: '3D Model Library', icon: 'Box', desc: customModel ? `Active: ${customModel.name}. Swap, rotate or remove the realistic model saved for this vehicle.` : 'No realistic model saved for this vehicle yet — import a .glb to replace the placeholder body.', right: <Icon name="ChevronRight" size={18} />, action: openLibrary },
       { kind: 'item', label: 'Scan My Truck', icon: 'ScanLine', desc: 'Import a photogrammetry scan of your truck for an exact replica, or match paint & parts from photos.', right: <Icon name="ChevronRight" size={18} />, action: () => setScanModal(true) },
       { kind: 'item', label: account ? 'My Account & Saved Builds' : 'Create Account / Save Builds', icon: 'UserCircle', desc: account ? `Signed in · ${account.id}. Save this build as a preset, or load one you saved.` : 'Make an account with just your email to save builds as presets you can name anything.', right: <Icon name="ChevronRight" size={18} />, action: () => setAccountOpen(true) },
-      { kind: 'item', label: 'Reset Build to Stock', icon: 'RotateCcw', desc: 'Remove every modification and scanned damage, and return to the factory configuration.', right: null, action: () => { setApplied(DEFAULT_BUILD); setPreview(null); setDamage([]); } },
+      { kind: 'item', label: 'Reset Build to Stock', icon: 'RotateCcw', desc: 'Remove every modification and scanned damage, and return to the factory configuration.', right: null, action: () => { setApplied(isCar ? CAR_DEFAULT_BUILD : DEFAULT_BUILD); setPreview(null); setDamage([]); } },
     ];
   } else if (category === 'factory') {
     const cf = configuratorFor(vehicle);
@@ -13561,6 +13871,8 @@ function App() {
           );
         } },
       ] : []),
+      ...(isCar && customModel && (customModel.zones || []).includes('grille') ? [{ kind: 'header', label: 'Grille' }, ...CAR_GRILLES.map(([zc, label]) => ({ kind: 'item', icon: 'Grid3x3', label, price: zc ? 220 : 0,
+        installed: JSON.stringify((applied.zoneColors || {}).grille || null) === JSON.stringify(zc), patch: { zoneColors: (() => { const z = { ...(applied.zoneColors || {}) }; if (zc) z.grille = zc; else delete z.grille; return z; })() }, desc: zc ? `The grille in ${label.toLowerCase()} (any color under Individual Parts › Grille).` : 'The grille as it comes from the factory.' }))] : []),
       { kind: 'header', label: 'Finish' },
       ...Object.entries(FINISHES).map(([id, f]) => ({ kind: 'item', label: f.label, icon: 'Sparkles', price: f.price, desc: f.desc, installed: applied.finish === id, patch: { finish: id } })),
       { kind: 'header', label: 'Custom Color' },
@@ -13632,8 +13944,8 @@ function App() {
           <div className="text-[11.5px] text-white/45 mt-2">Ceramic film — most states allow only a top strip or 70%+ on the windshield; 20% and 5% are show / off-road only.</div>
         </div>
       ) },
-      { kind: 'header', label: 'Custom Emblem / Decal' },
-      { kind: 'item', icon: 'ImagePlus', label: applied.decal ? 'Change / remove your decal' : 'Upload Custom Emblem / Decal', right: <Icon name="ChevronRight" size={18} />, desc: 'Your own PNG / JPEG on the grille or the tailgate (processed locally, never uploaded).', action: () => setDecalOpen(true) },
+      ...(isCar ? [] : [{ kind: 'header', label: 'Custom Emblem / Decal' }]),
+      ...(isCar ? [] : [{ kind: 'item', icon: 'ImagePlus', label: applied.decal ? 'Change / remove your decal' : 'Upload Custom Emblem / Decal', right: <Icon name="ChevronRight" size={18} />, desc: 'Your own PNG / JPEG on the grille or the tailgate (processed locally, never uploaded).', action: () => setDecalOpen(true) }]),
       ...(damage.length ? [
         { kind: 'header', label: 'Scanned Body Damage' },
         { kind: 'item', icon: 'Hammer', label: `Repair ${damage.length} Damage Spot${damage.length > 1 ? 's' : ''}`, price: damageCost(damage), installed: applied.repairDamage, patch: { repairDamage: !applied.repairDamage },
@@ -13686,9 +13998,9 @@ function App() {
       ) },
       { kind: 'header', label: 'Starlight Headliner' },
       ...Object.entries(STARLIGHTS).map(([id, x]) => ({ kind: 'item', icon: 'Sparkles', label: x.label, price: x.price, installed: (applied.starlight || 'none') === id, patch: { starlight: id }, desc: x.desc })),
-      { kind: 'header', label: 'Moonroof' },
-      ...Object.entries(SUNROOFS).filter(([, x]) => !x.hidden).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id || (id === 'closed' && applied.sunroof === 'open'), patch: { sunroof: id }, desc: x.desc })),
-      ...((applied.sunroof || 'none') !== 'none' ? [{ kind: 'item', icon: !!applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: !!applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'Slides the glass back into the roof (also in the drive HUD → Windows).', action: () => applyPatch({ sunroof: 'closed', sunroofOpen: !!!applied.sunroofOpen }) }] : []),
+      ...(isCar ? [] : [{ kind: 'header', label: 'Moonroof' }]),
+      ...Object.entries(isCar ? {} : SUNROOFS).filter(([, x]) => !x.hidden).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id || (id === 'closed' && applied.sunroof === 'open'), patch: { sunroof: id }, desc: x.desc })),
+      ...(!isCar && (applied.sunroof || 'none') !== 'none' ? [{ kind: 'item', icon: !!applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: !!applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'Slides the glass back into the roof (also in the drive HUD → Windows).', action: () => applyPatch({ sunroof: 'closed', sunroofOpen: !!!applied.sunroofOpen }) }] : []),
       { kind: 'header', label: 'Sound System (play music from the drive HUD → Audio)' },
       ...Object.entries(AUDIO_SYSTEMS).map(([id, x]) => ({ kind: 'item', icon: 'Speaker', label: x.label, price: x.price, installed: (applied.audio || 'factory') === id, patch: { audio: id }, desc: x.desc })),
       { kind: 'header', label: 'Subwoofers' },
@@ -13698,12 +14010,12 @@ function App() {
     title = 'Wheels & Tires';
     defaultDesc = 'Hover a size to preview the tire, wheel, fender fitment and telemetry live.';
     const brands = {};
-    Object.entries(WHEEL_STYLES).forEach(([id, w]) => { if (!w.factory) (brands[w.brand] = brands[w.brand] || []).push([id, w]); });
+    Object.entries(WHEEL_STYLES).forEach(([id, w]) => { if (!w.factory && !w.car) (brands[w.brand] = brands[w.brand] || []).push([id, w]); });
     const offRow = (key, label) => ({ kind: 'custom', render: () => (
       <div>
         <div className="flex justify-between hud text-[12.5px]"><span className="text-white/80 font-semibold">{label}</span><span className="text-amber-300 font-bold">{offsetMM(applied[key]) > 0 ? '+' : ''}{offsetMM(applied[key])} mm</span></div>
         <div className="flex gap-1 mt-1.5" onMouseLeave={() => setPreview(null)}>
-          {WHEEL_OFFSETS.map((o) => (
+          {WHEEL_OFFSETS.filter((o) => !o.car).map((o) => (
             <button key={o.id} onMouseEnter={() => { UISound.hover(); setPreview({ [key]: o.id, ...(ownWheels(applied) ? { wheelStyle: vehicle.factoryWheel || 'factory-alloy16' } : {}) }); }}
               onClick={() => { UISound.select(); applyPatch({ [key]: o.id, ...(ownWheels(applied) ? { wheelStyle: vehicle.factoryWheel || 'factory-alloy16' } : {}) }); }}
               className={`flex-1 rounded py-1 text-[11px] font-bold border ${applied[key] === o.id ? 'bg-amber-400 text-black border-amber-400' : 'border-white/15 text-white/75 hover:bg-white/10'}`}>{o.label.replace(' (factory)', '')}</button>
@@ -13727,7 +14039,7 @@ function App() {
       ...TIRE_OPTIONS.map((t) => ({ kind: 'item', icon: 'CircleDot', price: t.price, installed: applied.tire === t.id, patch: { tire: t.id }, label: t.size ? t.size : `Stock ${vehicle.tire} (${stockTire.dia}")`, desc: t.desc })),
       { kind: 'custom', render: () => <FitmentCard build={effective} vehicle={vehicle} geom={geom} /> },
       { kind: 'header', label: 'Tire Brand & Tread' },
-      ...Object.entries(TIRE_BRANDS).map(([id, tb]) => ({ kind: 'item', icon: 'CircleDot', label: tb.brand ? `${tb.brand} ${tb.label}` : tb.label, price: tb.price, installed: (applied.tireBrand || 'oem') === id, patch: { tireBrand: id }, desc: `${tb.desc} Tread blocks & sidewall lettering modeled after the real tire (approximation).` })),
+      ...Object.entries(TIRE_BRANDS).filter(([, tb]) => !tb.car).map(([id, tb]) => ({ kind: 'item', icon: 'CircleDot', label: tb.brand ? `${tb.brand} ${tb.label}` : tb.label, price: tb.price, installed: (applied.tireBrand || 'oem') === id, patch: { tireBrand: id }, desc: `${tb.desc} Tread blocks & sidewall lettering modeled after the real tire (approximation).` })),
       { kind: 'header', label: 'Wheels' },
       { kind: 'item', icon: 'CircleDot', label: customModel ? 'Factory wheels (from the 3D model)' : 'Factory wheels', price: 0, installed: applied.wheelStyle === 'model', patch: { wheelStyle: 'model' }, desc: `Keeps the model's own wheels. With a different tire size or brand the matching factory-style wheel (${WHEEL_STYLES[vehicle.factoryWheel || 'factory-alloy16'].label}) is fitted instead.` },
       ...(vehicle.config ? ['factory-steel16', 'factory-alloy16', 'factory-alloy17'].map((id) => ({ kind: 'item', icon: 'CircleDot', label: `Doyoda ${WHEEL_STYLES[id].label}`, price: 0, installed: applied.wheelStyle === id, patch: { wheelStyle: id }, desc: WHEEL_STYLES[id].desc })) : []),
@@ -14038,15 +14350,15 @@ function App() {
         </div>
       ) }] : []),
       { kind: 'header', label: 'Exhaust' },
-      ...Object.entries(EXHAUSTS).map(([id, x]) => ({ kind: 'item', icon: 'Wind', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.exhaust || 'stock') === id, patch: { exhaust: id }, desc: `${x.desc}${engineOn ? '' : ' Start the engine to hear it.'}` })),
+      ...Object.entries(EXHAUSTS).filter(([, x]) => !x.car).map(([id, x]) => ({ kind: 'item', icon: 'Wind', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.exhaust || 'stock') === id, patch: { exhaust: id }, desc: `${x.desc}${engineOn ? '' : ' Start the engine to hear it.'}` })),
       { kind: 'header', label: 'Exhaust Exit' },
       ...Object.entries(EXHAUST_EXITS).map(([id, x]) => ({ kind: 'item', icon: 'MoveRight', label: x.label, price: x.price, installed: (applied.exhaustExit || 'stock') === id, patch: { exhaustExit: id }, desc: x.desc })),
       { kind: 'header', label: 'Exhaust Color · pipes, muffler & tips' },
       ...Object.entries(EXHAUST_COLORS).map(([id, x]) => ({ kind: 'item', icon: 'Palette', label: x.label, price: x.price, installed: (applied.exhaustColor || 'stock') === id, patch: { exhaustColor: id }, desc: id === 'stock' ? 'Bare steel pipes; tips keep the finish of the exhaust brand you picked.' : `${x.label} coating on the whole system — downpipe, muffler, tailpipes and tips.` })),
       { kind: 'header', label: 'Supercharger' },
-      ...Object.entries(SUPERCHARGERS).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id }, desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear the whine.'}` : 'No forced induction.' })),
+      ...Object.entries(SUPERCHARGERS).filter(([, x]) => !x.car).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id }, desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear the whine.'}` : 'No forced induction.' })),
       { kind: 'header', label: 'Air Intake' },
-      ...Object.entries(INTAKES).map(([id, x]) => ({ kind: 'item', icon: 'Fan', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.intake || 'stock') === id, patch: { intake: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp)` : ''}` })),
+      ...Object.entries(INTAKES).filter(([, x]) => !x.car).map(([id, x]) => ({ kind: 'item', icon: 'Fan', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.intake || 'stock') === id, patch: { intake: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp)` : ''}` })),
       { kind: 'header', label: 'Hood & Doors' },
       customModel && customModel.hood
         ? { kind: 'item', icon: hoodOpen ? 'ChevronsDown' : 'ChevronsUp', label: hoodOpen ? 'Close Hood' : 'Open Hood', desc: 'You can also click the hood directly on the vehicle.', right: null, action: () => setHoodOpen((h) => !h) }
@@ -14062,7 +14374,7 @@ function App() {
   let { title, items, defaultDesc } = buildMenu(category);
   if (query.trim()) { // search: matching parts from every category, grouped under the category name; hover previews, click installs
     const words = query.trim().toLowerCase().split(/\s+/), res = [];
-    CATEGORIES.forEach((c) => {
+    cats.forEach((c) => {
       const hits = buildMenu(c.id).items.filter((it) => it.kind === 'item' && (it.patch || it.action) && words.every((w) => `${it.label} ${it.desc || ''}`.toLowerCase().includes(w)));
       if (hits.length) res.push({ kind: 'header', label: c.label }, ...hits.slice(0, 25));
     });
@@ -14070,7 +14382,7 @@ function App() {
     items = res.length ? res : [{ kind: 'item', icon: 'SearchX', label: 'No matches', desc: `Nothing found for "${query.trim()}". Try a brand (Baja, King, Method) or a part (grille, bumper, tent).`, right: null, action: () => {} }];
   }
 
-  const dock = [{ id: null, short: 'Full Car', icon: 'Car' }, ...(isLocked(vehicle) ? CATEGORIES.filter((c) => c.id === 'character') : CATEGORIES)];
+  const dock = [{ id: null, short: 'Full Car', icon: 'Car' }, ...(isLocked(vehicle) ? CATEGORIES.filter((c) => c.id === 'character') : cats)];
 
   return (
     <div className="relative w-full h-full overflow-hidden select-none"
@@ -14379,7 +14691,7 @@ function App() {
               <div className="pb-1"><div className="hud text-[12px] tracking-widest text-white/55">MPH</div><div className="hud text-[18px] font-bold text-amber-300">{driveHud ? driveHud.gear : '1'}<span className="text-[10px] text-white/45 ml-1 tracking-widest">{driveHud && driveHud.manual ? 'MAN' : 'AUTO'}</span></div></div>
               <div className="ml-auto text-right pb-1"><div className="hud text-[11px] tracking-widest text-white/50">AIR</div><div className={`hud text-[16px] font-bold ${driveHud && driveHud.air ? 'text-emerald-300' : 'text-white/70'}`}>{driveHud && driveHud.air ? driveHud.airT.toFixed(1) : (driveHud ? driveHud.maxAir.toFixed(1) : '0.0')}s</div></div>
             </div>
-            <div className="relative h-1.5 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${driveHud ? Math.min(100, (driveHud.rpm / 6200) * 100) : 0}%` }} /></div>
+            <div className="relative h-1.5 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${driveHud ? Math.min(100, (driveHud.rpm / (driveHud.redline || 6200)) * 100) : 0}%` }} /></div>
             {driveHud && (driveHud.drift > 12 || driveHud.spinning || driveHud.tcLit) && <div className="mt-1.5 flex gap-1.5">{driveHud.drift > 12 && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-amber-400 text-black hud tracking-wider">DRIFT {Math.round(driveHud.drift)}°</span>}{driveHud.spinning && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-red-500 text-white hud tracking-wider">WHEELSPIN · {driveHud.diff === 'open' ? 'OPEN DIFF' : driveHud.diff === 'lsd' ? 'LSD' : 'LOCKED'}</span>}{driveHud.tcLit && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-emerald-400 text-black hud tracking-wider animate-pulse">{driveHud.tc === 'atrac' ? 'A-TRAC' : 'TCS'}</span>}</div>}
             <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · hold R reset · F get out · P photo mode · Esc exit</div>
            </div>

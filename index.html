@@ -14,6 +14,11 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2367e8f9'/%3E%3Cstop offset='1' stop-color='%230e7490'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='%230b0f17' stroke='url(%23g)' stroke-width='4'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-style='italic' font-size='29' fill='url(%23g)'%3EDC%3C/text%3E%3C/svg%3E" />
 <!-- Personal inquiries: put your work email between the quotes when you have one (the landing page's form opens a pre-filled email to it) -->
 <script>window.SITE_CONTACT_EMAIL = '';</script>
+<!-- Support the creator (landing page): fill in whichever ones you use, leave the rest empty — only filled ones show.
+     venmo: your Venmo username, without the @        cashapp: your $cashtag, without the $
+     paypal: your PayPal.me name (paypal.me/NAME)      kofi / buymeacoffee: your page name on Ko-fi / Buy Me a Coffee
+     zelle: the email or US phone number you use with Zelle (Zelle has no pay links: it's shown with a copy button) -->
+<script>window.SITE_SUPPORT = { venmo: '', cashapp: '', paypal: '', kofi: '', buymeacoffee: '', zelle: '' };</script>
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -131,7 +136,7 @@
     background: linear-gradient(160deg, rgba(20, 26, 40, .78), rgba(8, 10, 16, .82)); border: 1px solid rgba(255,255,255,.1);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 20px 60px rgba(0,0,0,.45);
     transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; animation: lpRise .8s ease-out both; }
-  #landing .card:nth-child(1) { animation-delay: .18s; } #landing .card:nth-child(2) { animation-delay: .28s; }
+  #landing .card:nth-child(1) { animation-delay: .18s; } #landing .card:nth-child(2) { animation-delay: .28s; } #landing .card:nth-child(3) { animation-delay: .36s; } #landing .card:nth-child(4) { animation-delay: .44s; }
   #landing .card::before { content: ''; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; opacity: 0; transition: opacity .3s ease;
     background: radial-gradient(520px 220px at var(--mx, 50%) var(--my, 0%), rgb(var(--a400) / .22), transparent 70%); }
   #landing .card:hover, #landing .card:focus-visible { transform: translateY(-4px); border-color: rgb(var(--a400) / .6); box-shadow: 0 26px 70px rgba(0,0,0,.55), 0 0 0 1px rgb(var(--a400) / .25); outline: none; }
@@ -151,7 +156,14 @@
   /* the inquiry form */
   #landing .contact { display: none; margin-top: 5vh; width: 100%; max-width: 560px; border-radius: 20px; padding: 26px; box-sizing: border-box;
     background: linear-gradient(160deg, rgba(20, 26, 40, .86), rgba(8, 10, 16, .9)); border: 1px solid rgb(var(--a400) / .35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 24px 70px rgba(0,0,0,.55); animation: lpRise .5s ease-out both; }
-  #landing.inq .cards { display: none; } #landing.inq .contact { display: block; }
+  #landing.inq .cards { display: none; } #landing.inq #lp-form { display: block; }
+  #landing.sup .cards { display: none; } #landing.sup #lp-support { display: block; }
+  #landing .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  #landing .pay a, #landing .pay button { display: flex; align-items: center; gap: 10px; text-decoration: none; text-align: left; cursor: pointer; border-radius: 12px; padding: 12px 14px; color: #fff; font: 700 15px Rajdhani, sans-serif; letter-spacing: .08em;
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.14); transition: border-color .2s, transform .2s; }
+  #landing .pay a:hover, #landing .pay button:hover { border-color: rgb(var(--a400) / .7); transform: translateY(-2px); }
+  #landing .pay .dot { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font: 900 15px Arial, sans-serif; color: #fff; flex-shrink: 0; }
+  #landing .pay small { display: block; font: 500 11.5px Inter, sans-serif; letter-spacing: 0; color: rgba(255,255,255,.5); margin-top: 1px; }
   #landing .contact h2 { margin: 4px 0 6px; font: 700 30px Rajdhani, sans-serif; color: #fff; }
   #landing .contact > p { margin: 0 0 16px; font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.64); }
   #landing .contact label { display: block; margin: 12px 0 5px; font: 700 11.5px Rajdhani, sans-serif; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.55); }
@@ -168,7 +180,7 @@
   #landing .btn.main { color: #04131a; background: rgb(var(--a400)); border-color: rgb(var(--a400)); box-shadow: 0 8px 26px rgb(var(--a400) / .3); }
   #landing .btn:hover { filter: brightness(1.1); }
   #landing .note { font-size: 13px; color: rgb(var(--a200)); min-height: 1em; }
-  @media (max-width: 760px) { #landing .cards { grid-template-columns: 1fr; } #landing .contact .row { grid-template-columns: 1fr; } #landing .card { padding: 22px 20px 20px; } #landing .wrap { padding-top: 5vh; } }
+  @media (max-width: 760px) { #landing .cards { grid-template-columns: 1fr; } #landing .contact .row, #landing .pay { grid-template-columns: 1fr; } #landing .card { padding: 22px 20px 20px; } #landing .wrap { padding-top: 5vh; } }
   @media (prefers-reduced-motion: reduce) { #landing .sky { animation: none; } }
 </style>
 </head>
@@ -192,6 +204,14 @@
         <div class="chips"><span>Customize</span><span>Off-road</span><span>Multiplayer</span></div>
         <div class="go">Enter the garage <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
       </button>
+      <button class="card secondary" id="lp-char">
+        <svg class="art" viewBox="0 0 100 120" aria-hidden="true" fill="currentColor"><circle cx="50" cy="20" r="15" /><path d="M24 44 Q24 38 31 38 L69 38 Q76 38 76 44 L76 78 L66 78 L66 114 L54 114 L54 82 L46 82 L46 114 L34 114 L34 78 L24 78 Z" /></svg>
+        <div class="kick">Your driver</div>
+        <h2>Character customization</h2>
+        <p>Make your own driver: height, hair, face, shirts, pants, shoes, sunglasses, CB radio headsets, every color. Then walk around and ride with friends.</p>
+        <div class="chips"><span>Outfits</span><span>Walk around</span><span>Multiplayer</span></div>
+        <div class="go">Make your character <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
+      </button>
       <button class="card secondary" id="lp-inq">
         <svg class="art" viewBox="0 0 120 90" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"><rect x="8" y="14" width="104" height="68" rx="10" /><path d="M12 20 L60 54 L108 20" /></svg>
         <div class="kick">Talk to me</div>
@@ -200,6 +220,22 @@
         <div class="chips"><span>Tips</span><span>Ideas</span><span>Work</span></div>
         <div class="go">Get in touch <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
       </button>
+      <button class="card secondary" id="lp-sup">
+        <svg class="art" viewBox="0 0 120 110" aria-hidden="true" fill="currentColor"><path d="M60 104 C20 74 6 56 6 34 C6 16 20 4 36 4 C47 4 55 10 60 19 C65 10 73 4 84 4 C100 4 114 16 114 34 C114 56 100 74 60 104 Z" /></svg>
+        <div class="kick">Keep it going</div>
+        <h2>Support the creator</h2>
+        <p>Daygo Customs 3D is free and built by one person. If you're having fun with it, a tip helps pay for the hosting and keeps new parts, maps and features coming.</p>
+        <div class="chips"><span>Venmo</span><span>Cash App</span><span>PayPal</span></div>
+        <div class="go">Send a tip <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
+      </button>
+    </div>
+
+    <div class="contact" id="lp-support">
+      <div class="kick" style="font:700 12px Rajdhani,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:rgb(var(--a300))">Support the creator</div>
+      <h2>Thanks for the support!</h2>
+      <p>Every tip goes straight back into the game: hosting, new trucks, parts and maps. Pick whatever's easiest for you.</p>
+      <div class="pay" id="lp-pay"></div>
+      <div class="acts"><button type="button" class="btn" id="lp-sup-back">Back</button><span class="note" id="lp-sup-note"></span></div>
     </div>
 
     <form class="contact" id="lp-form" novalidate>
@@ -224,17 +260,39 @@
   (function () {
     var L = document.getElementById('landing');
     // invite links, the Spotify sign-in return and a refresh after entering go straight to the garage
-    if (/[?&](join|code|error)=/.test(location.search) || location.hash === '#garage') { L.remove(); return; }
+    if (/[?&](join|code|error)=/.test(location.search) || location.hash === '#garage' || location.hash === '#character') { L.remove(); return; }
     document.getElementById('lp-logo').src = document.querySelector('link[rel="icon"]').href;
     // the garage's keyboard shortcuts (photo mode, lights…) stay quiet while this page is up; typing still works
     var hush = function (e) { e.stopPropagation(); };
     window.addEventListener('keydown', hush, true); window.addEventListener('keyup', hush, true);
     L.querySelectorAll('.card').forEach(function (c) { c.addEventListener('pointermove', function (e) { var r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); }); });
-    document.getElementById('lp-garage').addEventListener('click', function () {
+    // into the garage (#character: straight to the Character menu)
+    var enter = function (hash) {
       window.removeEventListener('keydown', hush, true); window.removeEventListener('keyup', hush, true);
-      try { history.replaceState(null, '', location.pathname + location.search + '#garage'); } catch (e) { /* ignore */ }
+      try { history.replaceState(null, '', location.pathname + location.search + hash); window.dispatchEvent(new HashChangeEvent('hashchange')); } catch (e) { location.hash = hash; }
       L.classList.add('leaving'); setTimeout(function () { L.remove(); }, 650);
+    };
+    document.getElementById('lp-garage').addEventListener('click', function () { enter('#garage'); });
+    document.getElementById('lp-char').addEventListener('click', function () { enter('#character'); });
+    // support the creator: a button for each way set in SITE_SUPPORT (the <head>)
+    var S = window.SITE_SUPPORT || {}, pay = document.getElementById('lp-pay'), supNote = document.getElementById('lp-sup-note');
+    var clean = function (v, strip) { return String(v || '').trim().replace(strip, ''); };
+    [['venmo', 'Venmo', '#008cff', 'V', function (v) { return 'https://venmo.com/u/' + encodeURIComponent(v); }, '@', /^@/],
+     ['cashapp', 'Cash App', '#00c244', '$', function (v) { return 'https://cash.app/$' + encodeURIComponent(v); }, '$', /^\$/],
+     ['paypal', 'PayPal', '#0a3d91', 'P', function (v) { return 'https://paypal.me/' + encodeURIComponent(v); }, 'paypal.me/', /^(https?:\/\/)?(www\.)?paypal\.me\//i],
+     ['kofi', 'Ko-fi', '#ff5e5b', 'K', function (v) { return 'https://ko-fi.com/' + encodeURIComponent(v); }, 'ko-fi.com/', /^(https?:\/\/)?(www\.)?ko-fi\.com\//i],
+     ['buymeacoffee', 'Buy Me a Coffee', '#e0a800', 'B', function (v) { return 'https://buymeacoffee.com/' + encodeURIComponent(v); }, 'buymeacoffee.com/', /^(https?:\/\/)?(www\.)?buymeacoffee\.com\//i]].forEach(function (m) {
+      var v = clean(S[m[0]], m[6]); if (!v) return;
+      var a = document.createElement('a'); a.href = m[4](v); a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.innerHTML = '<span class="dot" style="background:' + m[2] + '">' + m[3] + '</span><span></span>';
+      a.lastChild.textContent = m[1]; var sm = document.createElement('small'); sm.textContent = m[5] + v; a.lastChild.appendChild(sm); pay.appendChild(a);
     });
+    var z = clean(S.zelle, /^\s+/);
+    if (z) { var b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<span class="dot" style="background:#6d1ed4">Z</span><span>Zelle</span>'; var zs = document.createElement('small'); zs.textContent = z + ' · tap to copy'; b.lastChild.appendChild(zs);
+      b.addEventListener('click', function () { try { navigator.clipboard.writeText(z); supNote.textContent = 'Copied ' + z + ' — paste it into Zelle in your bank app.'; } catch (e) { supNote.textContent = 'Send with Zelle to ' + z; } }); pay.appendChild(b); }
+    if (!pay.children.length) pay.innerHTML = '<p style="grid-column:1/-1;margin:0;font-size:14px;color:rgba(255,255,255,.6)">Tip links are coming soon. Thanks for wanting to help!</p>';
+    document.getElementById('lp-sup').addEventListener('click', function () { L.classList.add('sup'); L.scrollTop = 0; });
+    document.getElementById('lp-sup-back').addEventListener('click', function () { L.classList.remove('sup'); supNote.textContent = ''; });
     var note = document.getElementById('lp-note'), topic = 'Tip';
     document.getElementById('lp-inq').addEventListener('click', function () { L.classList.add('inq'); L.scrollTop = 0; setTimeout(function () { document.getElementById('lp-msg').focus(); }, 60); });
     document.getElementById('lp-back').addEventListener('click', function () { L.classList.remove('inq'); note.textContent = ''; });
@@ -1069,8 +1127,10 @@ const gearForTire = (dia) => (dia >= 37 ? 5.29 : dia >= 35 ? 4.88 : dia >= 33 ? 
 // every control in the game (Menu → Controls)
 const CONTROLS = [
   ['Driving', [['W / ↑', 'Gas'], ['S / ↓', 'Brake — hold it once stopped to reverse'], ['A / D · ← / →', 'Steer'], ['Space', 'Handbrake (slides & drifts)'], ['W + S (stopped)', 'Burnout — fronts held, rears lit up'],
-    ['E / Q', 'Shift up / down (switches to manual)'], ['M', 'Automatic ↔ manual'], ['H', 'Horn'], ['L', 'Headlights: off → low → high'], ['R (tap)', 'Flip back onto the wheels once rolled over & stopped'], ['R (hold)', 'Reset the truck anywhere'], ['Esc', 'Leave drive mode']]],
-  ['Driving camera', [['C', 'Cycle: chase · close · side · driver\'s seat'], ['Right-drag', 'Look around'], ['V', 'Re-center the camera'], ['Mouse wheel', 'Chase camera in / out']]],
+    ['E / Q', 'Shift up / down (switches to manual)'], ['M', 'Automatic ↔ manual'], ['H', 'Horn'], ['L', 'Headlights: off → low → high'], ['R (tap)', 'Flip back onto the wheels once rolled over & stopped'], ['R (hold)', 'Reset the truck anywhere'], ['F', 'Get out (slow down first)'], ['Esc', 'Leave drive mode']]],
+  ['Driving camera', [['C', 'Cycle: chase · close · side · driver\'s seat'], ['Right-drag', 'Look around (in the driver\'s seat too)'], ['V', 'Re-center the camera'], ['Mouse wheel', 'Chase camera in / out — all the way in puts you in the driver\'s seat, scroll out to leave it']]],
+  ['On foot', [['F', 'Get in your truck, or a free seat in someone else\'s — walk up to it'], ['W A S D / arrows', 'Walk (the way the camera faces)'], ['Shift', 'Run'], ['Space', 'Jump'], ['Mouse', 'Look around — click the view to lock the pointer (Esc frees it), or drag'], ['C', 'First person ↔ third person'], ['Mouse wheel', 'Camera in / out — all the way in is first person']]],
+  ['Riding along', [['F', 'Get out'], ['Mouse', 'Look around'], ['C / mouse wheel', 'Your seat ↔ a camera outside the truck']]],
   ['Replay', [['B', 'Open / close the replay (last 15 s)'], ['Space', 'Play / pause'], ['C', 'Next camera'], ['← / →', 'Skip back / ahead 2 s'], ['Esc', 'Back to driving']]],
   ['Drive HUD', [['Lights', 'Switch panel: every light group, strobe'], ['Windows', 'Power windows & moonroof'], ['Audio / Volume', 'Stereo & sound levels'], ['Drive', '2H / 4H / 4L · traction control (OFF / TCS / A-TRAC) · weather · time of day · camera']]],
   ['Garage', [['Left-drag', 'Orbit the truck'], ['Right-drag', 'Pan'], ['Mouse wheel', 'Zoom'], ['Hover a part', 'Highlight it'], ['Click a part', 'Open its menu'], ['↑ / ↓', 'Browse a menu (live preview)'], ['Enter', 'Install the highlighted option'], ['Esc / Backspace', 'Back out of a menu'], ['R (hold)', 'Rev the engine (once it\'s started)']]],
@@ -3833,6 +3893,384 @@ function buildWheel(M, spec) {
 }
 
 // keep a spinning wheel's caliper still: its holder turns back by the wheel's spin (the spin is the innermost Euler angle)
+// =====================================================================
+//   PEOPLE — your driver: a customizable character. Schedule 1-style simple, chunky shapes, but human proportions and a real
+//   face (eyeballs with irises & pupils, lids, brows, nose, lips, ears). Built from primitives on a light rig: pelvis → chest
+//   → head, with arms and legs as two-bone limbs placed every frame (idle, walk / run cycle, jump, seated, hands on the
+//   steering wheel). Clothes, hair and gear are separate meshes over the body. Self-contained: the stage only calls
+//   buildCharacter() and the returned update() — take this block and the stage's "People" section out and it's gone.
+//   The shirt graphics are original Daygo Customs designs in the style of real streetwear (real brand logos are trademarks,
+//   so none are copied).
+// =====================================================================
+const CHAR_DEFAULT = {
+  skin: '#c68a62', heightIn: 70, build: 'average', eyes: '#5a3a22', brows: 'normal',
+  hair: 'short', hairColor: '#2b1d14', facial: 'stubble',
+  top: 'tee', pattern: 'solid', topColor: '#1e2329', topColor2: '#2b7bd6', graphic: 'dgc-chest', graphicColor: '#f2f2f2',
+  bottom: 'jeans', bottomColor: '#35507a', bottomColor2: '#f2f2f2', socks: 'crew', sockColor: '#f2f2f2',
+  shoes: 'sneakers', shoeColor: '#f4f4f2', shoeColor2: '#1b1d22',
+  hat: 'none', hatColor: '#1b1d22', hatColor2: '#f2f2f2', glasses: 'none', frameColor: '#111214', lens: 'smoke',
+  headset: 'none', headsetColor: '#1b1d22', chain: 'none', watch: 'none', gloves: 'none', gloveColor: '#1b1d22',
+};
+const CHAR_MIN_IN = 42, CHAR_MAX_IN = 83; // 3'6" … 6'11"
+const fmtFeet = (inch) => { const i = Math.round(inch); return `${Math.floor(i / 12)}'${i % 12}"`; };
+const CHAR_SKINS = ['#f6d9c5', '#efc3a3', '#e2a982', '#c68a62', '#a86b44', '#8a5334', '#6b3c24', '#482616'];
+const CHAR_HAIR_COLORS = ['#141010', '#2b1d14', '#4a2f1c', '#7a5233', '#a6834f', '#d8b56e', '#ece0c2', '#a4512a', '#6e2a1b', '#8d8d8d', '#e9e9e9', '#2f6fd6', '#e46aa8', '#3fae5a', '#7c4ad6', '#d63a3a'];
+const CHAR_EYE_COLORS = ['#3b2516', '#5a3a22', '#7a5a2a', '#5d7a3a', '#3f7fb5', '#7d8c96'];
+const CHAR_PALETTE = ['#f4f4f2', '#c9ccd1', '#7d8287', '#3a3d42', '#1b1d22', '#0b0b0c', '#c4161c', '#e8601c', '#e8b10c', '#f2d16b', '#3fae5a', '#2e6b3a', '#5b6b3a', '#7a8a5a',
+  '#2b7bd6', '#1d3f7a', '#35507a', '#5aa7c9', '#7c4ad6', '#e46aa8', '#8a5a3a', '#c8a27a', '#e9dcc1', '#6b2a2a'];
+const CHAR_BUILDS = { slim: { label: 'Slim', w: 0.88, arm: 0.88, leg: 0.9, depth: 0.64 }, average: { label: 'Average', w: 1, arm: 1, leg: 1, depth: 0.69 },
+  athletic: { label: 'Athletic', w: 1.06, arm: 1.12, leg: 1.06, depth: 0.71, sh: 1.08 }, heavy: { label: 'Heavy', w: 1.2, arm: 1.15, leg: 1.15, depth: 0.82, belly: 1.18 } };
+const CHAR_BROWS = { thin: 'Thin', normal: 'Normal', thick: 'Thick' };
+const CHAR_HAIR = { bald: 'Bald', buzz: 'Buzz cut', short: 'Short', crew: 'Crew cut', fade: 'Fade · textured top', messy: 'Messy', spiky: 'Spiky', curly: 'Curly', afro: 'Afro',
+  mohawk: 'Mohawk', mullet: 'Mullet', shaggy: 'Shaggy (skater)', long: 'Long', ponytail: 'Ponytail', bun: 'Bun' };
+const CHAR_FACIAL = { none: 'Clean shaven', stubble: 'Stubble', mustache: 'Mustache', goatee: 'Goatee', beard: 'Short beard', full: 'Full beard' };
+const CHAR_TOPS = { tee: { label: 'T-shirt', sleeve: 'short' }, longsleeve: { label: 'Long-sleeve tee', sleeve: 'long' }, hoodie: { label: 'Hoodie', sleeve: 'long', bulk: 1.08 },
+  tank: { label: 'Tank top', sleeve: 'none' }, polo: { label: 'Polo', sleeve: 'short', collar: true }, camp: { label: 'Button-up (short sleeve)', sleeve: 'short', collar: true, buttons: true },
+  flannel: { label: 'Flannel', sleeve: 'long', collar: true, buttons: true }, jersey: { label: 'Moto jersey', sleeve: 'long', bulk: 1.08 }, jacket: { label: 'Work jacket', sleeve: 'long', collar: true, bulk: 1.1, zip: true },
+  none: { label: 'Shirtless', sleeve: 'none' } };
+const CHAR_PATTERNS = { solid: 'Solid', stripes: 'Stripes', plaid: 'Plaid', raglan: 'Raglan (2-tone sleeves)', camo: 'Camo', tiedye: 'Tie-dye', checker: 'Checker band' };
+const CHAR_GRAPHICS = { none: 'Blank', 'dgc-chest': 'DAYGO CUSTOMS — left chest', 'dgc-front': 'DAYGO CUSTOMS — big front', 'send-it': 'SEND IT', 'build-lift': 'BUILD IT · LIFT IT · SEND IT',
+  'live-it': 'LIVE IT · BUILD IT', prerunner: 'Pre-runner badge', willdidthis: 'WILLDIDTHIS.COM', mountain: 'Off-Road Society sunset', skate: 'Skate checker logo', athletic: 'DGC athletic swoosh',
+  script: 'Vintage script', number: 'Jersey number 24' };
+const CHAR_BOTTOMS = { shorts: { label: 'Shorts', len: 'short' }, cargoShorts: { label: 'Cargo shorts', len: 'knee', pockets: true }, jeans: { label: 'Jeans', len: 'long', denim: true },
+  chinos: { label: 'Chinos', len: 'long' }, cargo: { label: 'Cargo pants', len: 'long', pockets: true }, joggers: { label: 'Joggers', len: 'long', cuff: true },
+  work: { label: 'Work pants (double knee)', len: 'long', knees: true }, track: { label: 'Track pants (side stripe)', len: 'long', stripe: true, cuff: true } };
+const CHAR_SOCKS = { none: 'No socks', ankle: 'Ankle', crew: 'Crew', high: 'Tall' };
+const CHAR_SHOES = { sneakers: 'Sneakers', skate: 'Skate shoes', hightops: 'High-tops', runners: 'Chunky runners', boots: 'Work boots', cowboy: 'Cowboy boots', slides: 'Slides' };
+const CHAR_HATS = { none: 'No hat', cap: 'Ball cap', backwards: 'Ball cap (backwards)', trucker: 'Trucker hat', beanie: 'Beanie', bucket: 'Bucket hat', cowboy: 'Cowboy hat' };
+const CHAR_GLASSES = { none: 'No glasses', sport: 'Sport wraparounds', aviator: 'Aviators', square: 'Square frames', round: 'Round frames', shield: 'Shield visor' };
+const CHAR_LENSES = { smoke: { label: 'Smoke', c: 0x1c2024, op: 0.85 }, black: { label: 'Black', c: 0x050506, op: 0.95 }, blue: { label: 'Blue mirror', c: 0x2a6fe0, op: 0.9, mirror: true },
+  gold: { label: 'Gold mirror', c: 0xd8a83a, op: 0.9, mirror: true }, red: { label: 'Red mirror', c: 0xd8362a, op: 0.9, mirror: true }, green: { label: 'G-15 green', c: 0x2f4a32, op: 0.85 }, clear: { label: 'Clear', c: 0xdfe6ea, op: 0.25 } };
+const CHAR_HEADSETS = { none: 'No headset', cb: 'CB radio headset (boom mic)', intercom: 'Race intercom headset' };
+const CHAR_METALS = { none: 'None', silver: 'Silver', gold: 'Gold', black: 'Black' };
+const CHAR_GLOVES = { none: 'No gloves', race: 'Race gloves', work: 'Work gloves' };
+// stride for a walk / run at v m/s (for a 1.75 m person): one full cycle of the legs covers this far
+const charStride = (v) => (v < 1.4 ? 1.15 : 1.15 + 0.35 * (v - 1.4));
+
+// shirt / pants artwork, drawn once per look and shared (the least recently used go once there are lots — a texture that's
+// still worn just uploads again)
+const charTexCache = new Map();
+function charTex(key, w, h, draw) {
+  let t = charTexCache.get(key);
+  if (t) { charTexCache.delete(key); charTexCache.set(key, t); return t; }
+  t = canvasTex(w, h, draw); charTexCache.set(key, t);
+  if (charTexCache.size > 48) { const [k0, t0] = charTexCache.entries().next().value; charTexCache.delete(k0); t0.dispose(); }
+  return t;
+}
+const shade = (hex, k) => { const c = new THREE.Color(hex); c.multiplyScalar(k); return '#' + c.getHexString(); };
+function charTopTex(c, graphic) {
+  const key = ['top', c.top, c.pattern, c.topColor, c.topColor2, graphic ? c.graphic : '-', c.graphicColor].join('|');
+  return charTex(key, 512, 256, (x, W, Hh) => {
+    const base = c.topColor, two = c.topColor2, gc = c.graphicColor, r = mulberry32(7);
+    x.fillStyle = base; x.fillRect(0, 0, W, Hh);
+    const pat = c.top === 'flannel' && c.pattern === 'solid' ? 'plaid' : c.pattern;
+    if (pat === 'stripes') { x.fillStyle = two; for (let y = 8; y < Hh; y += 26) x.fillRect(0, y, W, 9); }
+    else if (pat === 'plaid') {
+      x.globalAlpha = 0.55; x.fillStyle = two; for (let i = 0; i < W; i += 64) x.fillRect(i, 0, 26, Hh); for (let j = 0; j < Hh; j += 64) x.fillRect(0, j, W, 26);
+      x.globalAlpha = 0.5; x.fillStyle = shade(base, 0.45); for (let i = 40; i < W; i += 64) x.fillRect(i, 0, 4, Hh); for (let j = 40; j < Hh; j += 64) x.fillRect(0, j, W, 4); x.globalAlpha = 1;
+    } else if (pat === 'camo') { [shade(base, 0.7), two, shade(two, 0.6), shade(base, 1.3)].forEach((col) => { x.fillStyle = col; for (let i = 0; i < 26; i++) { x.beginPath(); x.ellipse(r() * W, r() * Hh, 14 + r() * 26, 8 + r() * 14, r() * 3, 0, Math.PI * 2); x.fill(); } }); }
+    else if (pat === 'tiedye') { for (let i = 0; i < 9; i++) { const gr = x.createRadialGradient(r() * W, r() * Hh, 4, r() * W, r() * Hh, 90 + r() * 80); gr.addColorStop(0, i % 2 ? two : gc); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.globalAlpha = 0.55; x.fillStyle = gr; x.fillRect(0, 0, W, Hh); } x.globalAlpha = 1; }
+    else if (pat === 'checker') { for (let i = 0; i < W; i += 16) for (let j = 0; j < 2; j++) { x.fillStyle = (i / 16 + j) % 2 ? two : '#f2f2f2'; x.fillRect(i, 150 + j * 16, 16, 16); } }
+    x.globalAlpha = 0.06; for (let i = 0; i < 1800; i++) { x.fillStyle = r() < 0.5 ? '#000' : '#fff'; x.fillRect(r() * W, r() * Hh, 1.5, 1.5); } x.globalAlpha = 1; // (a hint of knit)
+    if (!graphic) return;
+    // the front centre is x = 256 (the wearer's left chest is to the right of it, ~x 300); the back wraps round x = 0 / 512.
+    // y: 0 is the collar, ~90 the chest, ~130 mid front
+    const T = (txt, px, py, font, col = gc) => { x.font = font; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = col; x.fillText(txt, px, py); };
+    const back = (fn) => { x.save(); fn(); x.restore(); x.save(); x.translate(W, 0); fn(); x.restore(); }; // (drawn at x = 0 and again at 512 so it wraps)
+    const g = c.graphic;
+    if (g === 'dgc-chest') { T('DAYGO', 303, 86, 'italic 900 15px Arial Black, Arial, sans-serif'); T('CUSTOMS', 303, 100, '700 9px Arial, sans-serif'); back(() => T('DC', 0, 40, 'italic 900 16px Arial Black, Arial, sans-serif')); }
+    else if (g === 'dgc-front') { T('DAYGO', 256, 112, 'italic 900 38px Arial Black, Arial, sans-serif'); T('CUSTOMS', 256, 140, '700 17px Arial, sans-serif'); x.fillStyle = gc; x.fillRect(206, 152, 100, 3);
+      back(() => T('BUILD IT · LIFT IT · SEND IT', 0, 70, '700 11px Arial, sans-serif')); }
+    else if (g === 'send-it') { T('SEND', 256, 108, 'italic 900 40px Impact, Arial Black, sans-serif'); T('IT', 256, 144, 'italic 900 40px Impact, Arial Black, sans-serif'); x.fillStyle = gc; for (let i = 0; i < 4; i++) x.fillRect(176 - i * 8, 96 + i * 12, 30 - i * 5, 3); }
+    else if (g === 'build-lift') ['BUILD IT', 'LIFT IT', 'SEND IT'].forEach((t, i) => T(t, 256, 100 + i * 22, '900 20px Arial Black, Arial, sans-serif', i === 2 ? two : gc));
+    else if (g === 'live-it') { T('LIVE IT', 300, 84, '900 11px Arial Black, Arial, sans-serif'); T('BUILD IT', 300, 98, '900 11px Arial Black, Arial, sans-serif', two);
+      back(() => { T('DAYGO CUSTOMS', 0, 50, '900 14px Arial Black, Arial, sans-serif'); T('LIVE IT · BUILD IT', 0, 70, '700 11px Arial, sans-serif', two); }); }
+    else if (g === 'prerunner') { x.strokeStyle = gc; x.lineWidth = 4; x.beginPath(); x.arc(256, 120, 40, 0, Math.PI * 2); x.stroke(); x.fillStyle = gc;
+      x.beginPath(); x.moveTo(228, 128); x.lineTo(236, 114); x.lineTo(268, 114); x.lineTo(276, 122); x.lineTo(286, 124); x.lineTo(286, 132); x.lineTo(226, 132); x.fill();
+      [240, 274].forEach((cx) => { x.beginPath(); x.arc(cx, 134, 6, 0, Math.PI * 2); x.fill(); });
+      T('PRE-RUNNER', 256, 96, '900 9px Arial Black, Arial, sans-serif'); T('EST. 2026', 256, 150, '700 8px Arial, sans-serif'); }
+    else if (g === 'willdidthis') { T('WILLDIDTHIS', 300, 88, '900 10px Arial Black, Arial, sans-serif'); T('.COM', 300, 99, '700 8px Arial, sans-serif'); back(() => T('WILLDIDTHIS.COM', 0, 60, '900 13px Arial Black, Arial, sans-serif')); }
+    else if (g === 'mountain') { const gr = x.createLinearGradient(0, 88, 0, 146); gr.addColorStop(0, '#f5b04c'); gr.addColorStop(1, '#d9485f'); x.fillStyle = gr; x.beginPath(); x.arc(256, 118, 32, 0, Math.PI * 2); x.fill();
+      x.fillStyle = shade(base, 0.6); x.beginPath(); x.moveTo(222, 136); x.lineTo(244, 108); x.lineTo(256, 122); x.lineTo(270, 102); x.lineTo(292, 136); x.fill(); T('OFF-ROAD SOCIETY', 256, 162, '900 10px Arial Black, Arial, sans-serif'); }
+    else if (g === 'skate') { for (let i = 0; i < 6; i++) for (let j = 0; j < 2; j++) { x.fillStyle = (i + j) % 2 ? gc : two; x.fillRect(226 + i * 10, 92 + j * 10, 10, 10); } T('DAYGO', 256, 130, 'italic 900 22px Arial Black, Arial, sans-serif'); T('SKATE & OFF-ROAD', 256, 148, '700 8px Arial, sans-serif'); }
+    else if (g === 'athletic') { T('DGC', 300, 88, 'italic 900 18px Arial Black, Arial, sans-serif'); x.strokeStyle = two; x.lineWidth = 3; x.beginPath(); x.moveTo(283, 100); x.quadraticCurveTo(300, 106, 320, 96); x.stroke(); }
+    else if (g === 'script') { T('Daygo', 256, 116, 'italic 700 36px "Brush Script MT", "Segoe Script", cursive'); T('— CUSTOMS —', 256, 142, '700 9px Arial, sans-serif'); }
+    else if (g === 'number') { T('24', 256, 122, '900 52px Arial Black, Impact, sans-serif'); back(() => { T('DAYGO', 0, 56, '900 14px Arial Black, Arial, sans-serif'); T('24', 0, 108, '900 56px Arial Black, Impact, sans-serif'); }); }
+  });
+}
+function charPantsTex(c) {
+  const B = CHAR_BOTTOMS[c.bottom] || CHAR_BOTTOMS.jeans;
+  return charTex(['pants', c.bottom, c.bottomColor].join('|'), 128, 128, (x, W, Hh) => {
+    const r = mulberry32(3); x.fillStyle = c.bottomColor; x.fillRect(0, 0, W, Hh);
+    if (B.denim) { x.globalAlpha = 0.18; x.strokeStyle = '#ffffff'; for (let i = -Hh; i < W; i += 4) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + Hh, Hh); x.stroke(); } x.globalAlpha = 1; }
+    x.globalAlpha = 0.08; for (let i = 0; i < 900; i++) { x.fillStyle = r() < 0.5 ? '#000' : '#fff'; x.fillRect(r() * W, r() * Hh, 1.2, 1.2); } x.globalAlpha = 1;
+  });
+}
+// a cylinder geometry along an axis (the headset's ear cups)
+function cylAxisGeo(r, len, axis) { const g = new THREE.CylinderGeometry(r, r, len, 20); if (axis === 'x') g.rotateZ(Math.PI / 2); else if (axis === 'z') g.rotateX(Math.PI / 2); return g; }
+
+// spec → { root, update(mode, o), setHeadVisible(on), eye(), scale, dispose }. Faces +z with its feet on y = 0; root is scaled
+// to the character's height (everything inside is laid out for a 1.75 m person)
+function buildCharacter(spec) {
+  const c = { ...CHAR_DEFAULT, ...(spec || {}) };
+  const Hm = THREE.MathUtils.clamp(+c.heightIn || 70, CHAR_MIN_IN, CHAR_MAX_IN) * INCH, s = Hm / 1.75, Bd = CHAR_BUILDS[c.build] || CHAR_BUILDS.average, W = Bd.w, Dk = Bd.depth / 0.62;
+  const own = [], root = new THREE.Group(); root.name = 'character'; root.scale.setScalar(s);
+  const G = (g) => { own.push(g); return g; };
+  const std = (o) => { const m = new THREE.MeshStandardMaterial(o); own.push(m); return m; };
+  const add = (parent, geo, mat, pos, rot, scl) => { const m = new THREE.Mesh(G(geo), mat); if (pos) m.position.set(pos[0], pos[1], pos[2]); if (rot) m.rotation.set(rot[0], rot[1], rot[2]); if (scl) m.scale.set(scl[0], scl[1], scl[2]); parent.add(m); return m; };
+  const capY = (r, L) => { const g = new THREE.CapsuleGeometry(r, Math.max(0.001, L), 4, 12); g.translate(0, L / 2, 0); return g; }; // 0 … L along +y (the round ends overlap the joints)
+  const tube = (r0, r1, y0, y1, seg = 16) => { const g = new THREE.CylinderGeometry(r1, r0, y1 - y0, seg, 1, true); g.translate(0, (y0 + y1) / 2, 0); return g; }; // r0 at y0, r1 at y1
+  // ---- materials
+  const skinM = std({ color: c.skin, roughness: 0.62 }), lipM = std({ color: shade(c.skin, 0.72), roughness: 0.5 });
+  const hairM = std({ color: c.hairColor, roughness: 0.78 });
+  const TOP = CHAR_TOPS[c.top] || CHAR_TOPS.tee, shirtOn = c.top !== 'none';
+  const shirtM = std({ map: charTopTex(c, true), roughness: 0.86, side: THREE.DoubleSide });
+  const sleeveM = c.pattern === 'raglan' ? std({ color: c.topColor2, roughness: 0.86, side: THREE.DoubleSide }) : std({ map: charTopTex(c, false), roughness: 0.86, side: THREE.DoubleSide });
+  const trimM = std({ color: c.pattern === 'raglan' ? c.topColor2 : shade(c.topColor, 0.82), roughness: 0.8, side: THREE.DoubleSide });
+  const BOT = CHAR_BOTTOMS[c.bottom] || CHAR_BOTTOMS.jeans, pantsM = std({ map: charPantsTex(c), roughness: 0.9, side: THREE.DoubleSide }), pantsDk = std({ color: shade(c.bottomColor, 0.75), roughness: 0.9 });
+  const sockM = std({ color: c.sockColor, roughness: 0.9 }), shoeM = std({ color: c.shoeColor, roughness: 0.6 }), shoe2M = std({ color: c.shoeColor2, roughness: 0.55 });
+  const soleM = std({ color: c.shoes === 'boots' || c.shoes === 'cowboy' ? 0x2a1d14 : c.shoes === 'skate' ? 0xf1ece0 : 0xf4f4f0, roughness: 0.7 });
+  const gloveM = c.gloves !== 'none' ? std({ color: c.gloves === 'work' ? 0xb8925a : c.gloveColor, roughness: 0.7 }) : skinM;
+  const metalM = (k) => std({ color: k === 'gold' ? 0xd9b04a : k === 'black' ? 0x16171a : 0xc9ccd1, metalness: k === 'black' ? 0.3 : 0.9, roughness: 0.25 });
+  // ---- rig: pelvis → chest → head (rotations animate); the limbs are separate segments placed every frame
+  const pelvis = new THREE.Group(); pelvis.position.y = 0.92; root.add(pelvis);
+  const chest = new THREE.Group(); chest.position.y = 0.06; pelvis.add(chest);
+  const head = new THREE.Group(); head.position.y = 0.635; head.rotation.order = 'YXZ'; head.scale.setScalar(1.06 * Math.pow(1 / s, 0.28)); chest.add(head); // (a touch big, Schedule 1-style; shorter people: relatively bigger heads, as in real life)
+  // torso (skin), the shirt over it
+  const bel = Bd.belly || 1, shk = Bd.sh || 1;
+  const prof = [[0.001, -0.105], [0.13, -0.095], [0.135, 0.02], [0.14 * bel, 0.12], [0.152 * Math.sqrt(bel), 0.24], [0.166 * shk, 0.33], [0.164 * shk, 0.38], [0.148 * shk, 0.42], [0.115, 0.455], [0.075, 0.478], [0.04, 0.49], [0.001, 0.495]];
+  const lathe = (k, top = 0.495) => new THREE.LatheGeometry(prof.filter(([, y]) => y <= top + 1e-6).map(([r, y]) => new THREE.Vector2(r * k, y)), 28, -Math.PI, Math.PI * 2); // (the shirt texture's front = u 0.5)
+  add(chest, lathe(1), skinM, null, null, [W, 1, Bd.depth]);
+  if (shirtOn) {
+    const bulk = TOP.bulk || 1.045, top = TOP.sleeve === 'none' ? 0.43 : 0.495, zf = 0.168 * Bd.depth * bulk; // (zf ≈ how far the chest sticks out)
+    add(chest, lathe(1, top), shirtM, null, null, [W * bulk, 1, Bd.depth * bulk * 1.02]);
+    if (TOP.sleeve === 'none') [1, -1].forEach((sd) => add(chest, new THREE.BoxGeometry(0.035, 0.09, 0.07), shirtM, [sd * 0.105 * W, 0.45, 0])); // tank straps
+    add(chest, new THREE.TorusGeometry(0.055, 0.012, 8, 20), trimM, [0, 0.478, 0.004], [Math.PI / 2 + 0.25, 0, 0]); // collar band
+    if (TOP.collar) [1, -1].forEach((sd) => add(chest, new THREE.BoxGeometry(0.06, 0.008, 0.045), trimM, [sd * 0.035, 0.485, 0.045], [0.5, sd * -0.5, sd * 0.35]));
+    if (TOP.buttons || c.top === 'polo') { const bm = std({ color: 0xeeeeee, roughness: 0.4 }); for (let i = 0; i < (c.top === 'polo' ? 2 : 6); i++) { const y = 0.45 - i * 0.07, rz = prof.reduce((a, [r, py]) => (Math.abs(py - y) < Math.abs(a[1] - y) ? [r, py] : a), prof[0])[0]; add(chest, new THREE.SphereGeometry(0.006, 8, 6), bm, [0, y, rz * Bd.depth * bulk * 1.02 + 0.002]); } }
+    if (TOP.zip) add(chest, new THREE.BoxGeometry(0.008, 0.48, 0.004), metalM('silver'), [0, 0.2, zf * 0.98]);
+    if (c.top === 'hoodie') {
+      add(chest, new THREE.TorusGeometry(0.066, 0.024, 10, 22), shirtM, [0, 0.475, -0.01], [Math.PI / 2 + 0.2, 0, 0]); // hood bunched round the neck
+      add(chest, new THREE.SphereGeometry(0.1, 16, 10), shirtM, [0, 0.44, -0.085], null, [1.1, 0.55, 0.6]); // the hood down the back
+      add(chest, new THREE.BoxGeometry(0.2 * W, 0.08, 0.02), trimM, [0, 0.08, 0.14 * Bd.depth * bulk]); // front pocket
+      [1, -1].forEach((sd) => add(chest, capY(0.004, 0.11), std({ color: c.graphicColor, roughness: 0.6 }), [sd * 0.03, 0.44, zf * 0.94], [Math.PI - 0.14, 0, 0])); // drawstrings
+    }
+    if (c.top === 'jersey') [1, -1].forEach((sd) => add(chest, new THREE.BoxGeometry(0.02, 0.36, 0.09), sleeveM, [sd * 0.148 * W * 1.08, 0.15, 0]));
+  } else add(pelvis, tube(0.137 * W, 0.137 * W, 0.04, 0.075, 24), std({ color: 0x1a1612, roughness: 0.5 }), null, null, [1, 1, Dk]); // (shirtless: the belt shows)
+  add(chest, tube(0.046, 0.044, 0.44, 0.57, 14), skinM); // neck
+  if (c.chain !== 'none') add(chest, new THREE.TorusGeometry(0.06, 0.005, 6, 24), metalM(c.chain), [0, 0.475, 0.012], [Math.PI / 2 + 0.35, 0, 0]);
+  // hips: the seat of the pants — straight sides down to a soft, flat crotch between the thighs
+  // (its top runs up inside the shirt, narrower than it: no gap when the chest twists, nothing poking through)
+  const hipG = new THREE.LatheGeometry([[0.06, -0.085], [0.15, -0.04], [0.153, 0.0], [0.125, 0.06], [0.11, 0.1], [0.001, 0.1]].map(([r, y]) => new THREE.Vector2(r, y)), 24);
+  add(pelvis, hipG, pantsM, null, null, [W, 1, 0.56 * Dk]);
+  add(pelvis, new THREE.SphereGeometry(1, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), pantsM, [0, -0.084, 0], null, [0.06 * W, 0.022, 0.034 * Dk]);
+  // ---- head
+  const face = skinM;
+  add(head, new THREE.SphereGeometry(0.1, 28, 20), face, [0, 0.01, -0.005], null, [0.92, 1.08, 1.0]); // skull
+  add(head, new THREE.SphereGeometry(0.085, 24, 16), face, [0, -0.045, 0.012], null, [0.95, 0.78, 0.98]); // jaw & cheeks
+  add(head, new THREE.SphereGeometry(0.03, 14, 10), face, [0, -0.092, 0.045], null, [1.1, 0.8, 0.9]); // chin
+  [1, -1].forEach((sd) => add(head, new THREE.SphereGeometry(0.026, 12, 10), face, [sd * 0.092, -0.008, -0.004], null, [0.45, 1, 0.75])); // ears
+  add(head, new THREE.CapsuleGeometry(0.011, 0.028, 4, 8), face, [0, -0.015, 0.096], [0.35, 0, 0]); // nose bridge
+  add(head, new THREE.SphereGeometry(0.016, 12, 10), face, [0, -0.035, 0.103], null, [1.15, 0.85, 1]); // nose tip
+  const eyeW = std({ color: 0xf4f1ea, roughness: 0.28 }), irisM = std({ color: c.eyes, roughness: 0.3 }), pupM = new THREE.MeshBasicMaterial({ color: 0x050505 }), glint = new THREE.MeshBasicMaterial({ color: 0xffffff }); own.push(pupM, glint);
+  [1, -1].forEach((sd) => {
+    const e = new THREE.Group(); e.position.set(sd * 0.036, 0.012, 0.079); e.rotation.y = sd * 0.1; head.add(e);
+    add(e, new THREE.SphereGeometry(0.016, 16, 12), eyeW); // eyeball
+    add(e, new THREE.CircleGeometry(0.0078, 18), irisM, [0, 0, 0.0158]); add(e, new THREE.CircleGeometry(0.0036, 14), pupM, [0, 0, 0.0162]); add(e, new THREE.CircleGeometry(0.0013, 8), glint, [0.0025, 0.0028, 0.0165]);
+    add(e, new THREE.SphereGeometry(0.0172, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.34), face, [0, 0.001, 0.001], [0.12, 0, 0]); // upper lid (just over the top of the iris)
+    const bw = c.brows === 'thick' ? 0.009 : c.brows === 'thin' ? 0.004 : 0.0065;
+    add(head, new THREE.BoxGeometry(0.032, bw, 0.01), hairM, [sd * 0.037, 0.038, 0.088], [0, sd * 0.18, sd * -0.1]); // brow
+  });
+  const lipOut = c.facial === 'full' ? 0.01 : c.facial === 'beard' ? 0.006 : 0; // (a beard: the mouth sits out in it)
+  add(head, new THREE.CapsuleGeometry(0.006, 0.026, 4, 8), lipM, [0, -0.06, 0.092 + lipOut], [0, 0, Math.PI / 2], [1, 1, 0.8]); // lips
+  add(head, new THREE.BoxGeometry(0.03, 0.0016, 0.004), std({ color: 0x3a1a14, roughness: 0.6 }), [0, -0.06, 0.0975 + lipOut]); // lip line
+  // facial hair
+  // (a shell over the jaw — from the cheeks down at the sides, below the mouth-line at the front)
+  const lowerShell = (k, op, th0 = 0.47) => add(head, new THREE.SphereGeometry(0.087 * k, 24, 14, 0, Math.PI * 2, Math.PI * th0, Math.PI * (1 - th0)), op < 1 ? std({ color: c.hairColor, roughness: 0.9, transparent: true, opacity: op, depthWrite: false }) : hairM, [0, -0.038, 0.012], [0.25, 0, 0], [0.97, 0.85, 0.93]);
+  if (c.facial === 'stubble') lowerShell(1.012, 0.3, 0.5);
+  if (['mustache', 'goatee', 'beard', 'full'].includes(c.facial)) add(head, new THREE.CapsuleGeometry(0.007, 0.034, 4, 8), hairM, [0, -0.048, 0.1], [0, 0, Math.PI / 2]);
+  if (c.facial === 'goatee') add(head, new THREE.SphereGeometry(0.02, 12, 10), hairM, [0, -0.088, 0.065], null, [1, 1.2, 0.8]);
+  if (c.facial === 'beard') lowerShell(1.05, 1);
+  if (c.facial === 'full') { lowerShell(1.1, 1); add(head, new THREE.SphereGeometry(0.04, 14, 10), hairM, [0, -0.105, 0.05], null, [1.2, 1.1, 0.9]); }
+  // hair: a cap over the skull (hairline across the forehead, down to the tops of the ears and the nape), + the style's own
+  // pieces. Under a hat, only what shows below it.
+  const hatOn = c.hat !== 'none', cap = (k, th = 0.51, rx = -0.68) => add(head, new THREE.SphereGeometry(0.104 * k, 26, 16, 0, Math.PI * 2, 0, Math.PI * th), hairM, [0, 0.012, -0.008], [rx, 0, 0], [0.93, 1.08, 1.02]);
+  const tufts = (n, r0, spread, seed) => { const rr = mulberry32(seed); for (let i = 0; i < n; i++) { const a = rr() * Math.PI * 2, el = 0.25 + rr() * spread, p = [Math.cos(a) * Math.sin(el) * 0.095, 0.03 + Math.cos(el) * 0.1, Math.sin(a) * Math.sin(el) * 0.095 - 0.02]; add(head, new THREE.SphereGeometry(r0 * (0.8 + rr() * 0.5), 10, 8), hairM, p, [rr() * 3, rr() * 3, rr() * 3], [1, 0.6, 1.4]); } };
+  const hs = c.hair;
+  if (hs !== 'bald') {
+    if (hatOn) { if (!['afro', 'bun', 'mohawk', 'spiky'].includes(hs)) cap(1.012, 0.53, -0.72); }
+    else if (hs === 'buzz') cap(1.006, 0.5, -0.66);
+    else if (hs === 'short') cap(1.04);
+    else if (hs === 'crew') { cap(1.03); add(head, new THREE.SphereGeometry(0.05, 14, 10), hairM, [0, 0.09, 0.055], null, [1.3, 0.5, 0.8]); }
+    else if (hs === 'fade') { cap(1.008, 0.5, -0.66); add(head, new THREE.SphereGeometry(0.085, 18, 12), hairM, [0, 0.075, 0.01], null, [1.0, 0.55, 1.1]); }
+    else if (hs === 'messy') { cap(1.05); tufts(10, 0.03, 0.7, 11); }
+    else if (hs === 'spiky') { cap(1.03); const rr = mulberry32(5); for (let i = 0; i < 11; i++) { const a = rr() * Math.PI * 2, el = rr() * 0.8; add(head, new THREE.ConeGeometry(0.018, 0.06, 6), hairM, [Math.cos(a) * Math.sin(el) * 0.08, 0.1 + Math.cos(el) * 0.02, Math.sin(a) * Math.sin(el) * 0.08 - 0.01], [Math.sin(a) * el * 0.9, 0, -Math.cos(a) * el * 0.9]); } }
+    else if (hs === 'curly') { cap(1.04); tufts(26, 0.024, 0.85, 21); }
+    else if (hs === 'afro') add(head, new THREE.SphereGeometry(0.15, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.64), hairM, [0, 0.04, -0.035], [0.5, 0, 0], [1.05, 0.95, 1.0]); // (open down & to the front: the face shows, the back comes down the neck)
+    else if (hs === 'mohawk') { cap(1.004, 0.48, -0.66); for (let i = 0; i < 7; i++) { const a = -0.3 + i * 0.32; add(head, new THREE.BoxGeometry(0.022, 0.07, 0.03), hairM, [0, 0.03 + Math.cos(a) * 0.1, Math.sin(a) * 0.105], [a, 0, 0]); } }
+    else if (hs === 'mullet') cap(1.035);
+    else if (hs === 'shaggy') { cap(1.065, 0.6, -0.5); add(head, new THREE.SphereGeometry(0.07, 16, 10), hairM, [0, 0.065, 0.07], null, [1.25, 0.45, 0.6]); tufts(8, 0.03, 0.9, 31); }
+    else cap(1.045); // long / ponytail / bun
+    // (what hangs below a hat too)
+    if (hs === 'long') { add(head, new THREE.BoxGeometry(0.19, 0.27, 0.06), hairM, [0, -0.12, -0.075], [0.08, 0, 0]); [1, -1].forEach((sd) => add(head, new THREE.BoxGeometry(0.03, 0.2, 0.07), hairM, [sd * 0.09, -0.09, -0.03])); }
+    if (hs === 'ponytail') { add(head, capY(0.025, 0.13), hairM, [0, 0.0, -0.1], [Math.PI * 0.82, 0, 0]); add(head, new THREE.TorusGeometry(0.022, 0.006, 6, 14), std({ color: c.topColor2, roughness: 0.6 }), [0, -0.005, -0.103], [0.4, 0, 0]); }
+    if (hs === 'bun' && !hatOn) add(head, new THREE.SphereGeometry(0.042, 14, 12), hairM, [0, 0.08, -0.075]);
+    if (hs === 'mullet') add(head, new THREE.BoxGeometry(0.15, 0.13, 0.05), hairM, [0, -0.075, -0.085], [0.15, 0, 0]);
+  }
+  // hats: built in a frame tilted like a hat sits (front up on the forehead, lower at the back)
+  if (hatOn) {
+    const hatM = std({ color: c.hatColor, roughness: 0.75, side: THREE.DoubleSide }), hat2M = std({ color: c.hatColor2, roughness: 0.75, side: THREE.DoubleSide }), HS = [0.97, 0.92, 1.06];
+    const hg = new THREE.Group(); hg.position.set(0, 0.04, -0.006); hg.rotation.x = -0.28; head.add(hg);
+    const dome = (parent, m, r, phi0 = 0, phiL = Math.PI * 2, th = 0.5) => add(parent, new THREE.SphereGeometry(r, 26, 14, phi0, phiL, 0, Math.PI * th), m, null, null, HS);
+    if (['cap', 'backwards', 'trucker'].includes(c.hat)) {
+      const g = new THREE.Group(); g.rotation.y = c.hat === 'backwards' ? Math.PI : 0; hg.add(g);
+      if (c.hat === 'trucker') { dome(g, hat2M, 0.109, 0, Math.PI); dome(g, std({ color: 0x15161a, roughness: 0.9, side: THREE.DoubleSide }), 0.109, Math.PI, Math.PI); } // foam front, mesh back
+      else dome(g, hatM, 0.109);
+      add(g, new THREE.CylinderGeometry(0.09, 0.09, 0.008, 24, 1, false, -Math.PI / 2, Math.PI), hatM, [0, 0.002, 0.06], [0.38, 0, 0], [1.15, 1, 1.15]); // bill
+      add(g, new THREE.SphereGeometry(0.01, 8, 6), hatM, [0, 0.1, 0]); // button
+    } else if (c.hat === 'beanie') { dome(hg, hatM, 0.112, 0, Math.PI * 2, 0.56); add(hg, tube(0.116, 0.116, -0.03, 0.008, 26), hatM, null, null, HS); }
+    else if (c.hat === 'bucket') { dome(hg, hatM, 0.11); add(hg, tube(0.17, 0.112, -0.045, 0.0, 26), hatM, null, null, HS); }
+    else if (c.hat === 'cowboy') {
+      add(hg, tube(0.106, 0.09, -0.01, 0.12, 22), hatM, null, null, [1, 1, 1.15]); add(hg, new THREE.CircleGeometry(0.09, 22), hatM, [0, 0.12, 0], [-Math.PI / 2, 0, 0], [1, 1.15, 1]);
+      add(hg, new THREE.CylinderGeometry(0.21, 0.21, 0.008, 32), hatM, [0, -0.005, 0], null, [1, 1, 1.2]); add(hg, new THREE.TorusGeometry(0.105, 0.008, 6, 24), hat2M, [0, 0.012, 0], [Math.PI / 2, 0, 0], [1, 1.15, 1]);
+    }
+  }
+  // glasses
+  if (c.glasses !== 'none') {
+    const L = CHAR_LENSES[c.lens] || CHAR_LENSES.smoke, lensM = new THREE.MeshPhysicalMaterial({ color: L.c, metalness: L.mirror ? 0.9 : 0.1, roughness: 0.08, transparent: true, opacity: L.op, clearcoat: 1, side: THREE.DoubleSide }); own.push(lensM);
+    const frM = std({ color: c.glasses === 'aviator' ? 0xc9b37a : c.frameColor, roughness: 0.35, metalness: c.glasses === 'aviator' ? 0.8 : 0.1 });
+    const y = 0.014, z = 0.103, wrap = c.glasses === 'sport' || c.glasses === 'shield';
+    if (wrap) { const hgt = c.glasses === 'shield' ? 0.05 : 0.034; add(head, new THREE.CylinderGeometry(0.1, 0.1, hgt, 30, 1, true, -1.0, 2.0), lensM, [0, y, 0.004], null, [0.97, 1, 1.0]); if (c.glasses === 'sport') add(head, new THREE.CylinderGeometry(0.101, 0.101, 0.008, 30, 1, true, -1.05, 2.1), frM, [0, y + 0.019, 0.004], null, [0.97, 1, 1.0]); }
+    else {
+      [1, -1].forEach((sd) => {
+        const g = new THREE.Group(); g.position.set(sd * 0.036, y, z); head.add(g);
+        if (c.glasses === 'round') { add(g, new THREE.CircleGeometry(0.017, 20), lensM); add(g, new THREE.TorusGeometry(0.017, 0.0025, 6, 20), frM); }
+        else if (c.glasses === 'square') { add(g, new THREE.PlaneGeometry(0.036, 0.026), lensM); add(g, new THREE.BoxGeometry(0.04, 0.005, 0.006), frM, [0, 0.014, 0]); [1, -1].forEach((q) => add(g, new THREE.BoxGeometry(0.005, 0.028, 0.006), frM, [q * 0.019, 0, 0])); add(g, new THREE.BoxGeometry(0.04, 0.004, 0.005), frM, [0, -0.014, 0]); }
+        else { add(g, new THREE.CircleGeometry(0.019, 20), lensM, [0, -0.003, 0], null, [1, 1.05, 1]); add(g, new THREE.TorusGeometry(0.019, 0.0015, 6, 20), frM, [0, -0.003, 0], null, [1, 1.05, 1]); }
+      });
+      add(head, new THREE.BoxGeometry(0.016, 0.003, 0.004), frM, [0, y + 0.008, z]); // bridge
+    }
+    [1, -1].forEach((sd) => add(head, new THREE.BoxGeometry(0.003, 0.003, 0.115), frM, [sd * 0.0765, y + 0.006, 0.045], [0, -sd * 0.29, 0])); // arms back to the ears
+  }
+  // CB radio / race intercom headset: a band over the top, cups on the ears, a boom mic round to the mouth
+  if (c.headset !== 'none') {
+    const hm = std({ color: c.headsetColor, roughness: 0.45, metalness: 0.2 }), pad = std({ color: 0x0c0c0d, roughness: 0.9 }), big = c.headset === 'intercom';
+    const R = hatOn ? 0.128 : 0.112, cupR = big ? 0.048 : 0.04, cx = hatOn ? 0.11 : 0.103;
+    add(head, new THREE.TorusGeometry(R, 0.007, 8, 30, Math.PI), hm, [0, 0.0, -0.01], null, [cx / R, 1.1, 1]); // band (an arc over the top)
+    [1, -1].forEach((sd) => { add(head, cylAxisGeo(cupR, 0.034, 'x'), hm, [sd * cx, -0.005, -0.008]); add(head, cylAxisGeo(cupR * 0.9, 0.012, 'x'), pad, [sd * (cx - 0.017), -0.005, -0.008]); });
+    head.add(new THREE.Mesh(G(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(cx + 0.007, -0.01, 0.015), new THREE.Vector3(0.1, -0.05, 0.075), new THREE.Vector3(0.05, -0.065, 0.11), new THREE.Vector3(0.02, -0.062, 0.115)]), 16, 0.004, 6)), std({ color: 0x18191c, roughness: 0.5 })));
+    add(head, new THREE.SphereGeometry(0.012, 10, 8), pad, [0.02, -0.062, 0.115]); // foam mic
+    if (big) add(head, new THREE.BoxGeometry(0.012, 0.03, 0.02), hm, [-cx - 0.02, -0.01, -0.008]); // (intercom: the cord plug)
+  }
+  // ---- limbs: segments along +y from their joint (placed every frame)
+  const seg = () => { const g = new THREE.Group(); root.add(g); return g; };
+  const Lua = 0.28, Lfa = 0.25, Lth = 0.42, Lsh = 0.4;
+  const arms = [1, -1].map((sd) => { // sd = +1: the character's left (+x)
+    const up = seg(), lo = seg(), hand = seg(), bulk = TOP.bulk || 1, ra = Bd.arm, sleeved = shirtOn && TOP.sleeve !== 'none';
+    add(up, capY(0.05 * ra, Lua), skinM); add(lo, capY(0.042 * ra, Lfa), skinM);
+    add(up, new THREE.SphereGeometry(sleeved ? 0.068 * ra * bulk : 0.058 * ra, 16, 12), sleeved ? sleeveM : skinM, [0, 0.01, 0], null, [1, 1.1, 0.95]); // the shoulder (deltoid)
+    if (shirtOn && TOP.sleeve === 'short') add(up, tube(0.066 * ra * bulk, 0.063 * ra * bulk, 0.02, Lua * 0.55), sleeveM);
+    if (shirtOn && TOP.sleeve === 'long') { add(up, tube(0.065 * ra * bulk, 0.059 * ra * bulk, 0.02, Lua + 0.01), sleeveM); add(lo, tube(0.058 * ra * bulk, 0.051 * ra * bulk, -0.02, Lfa - 0.01), sleeveM); add(lo, tube(0.052 * ra * bulk, 0.051 * ra * bulk, Lfa - 0.04, Lfa - 0.005), trimM); }
+    if (c.watch !== 'none' && sd > 0) add(lo, tube(0.045 * ra, 0.045 * ra, Lfa - 0.045, Lfa - 0.025, 14), metalM(c.watch));
+    // hand: palm, a curl of four fingers, the thumb toward the front
+    add(hand, new THREE.CapsuleGeometry(0.03, 0.05, 4, 10), gloveM, [0, 0.05, 0], null, [1.25, 1, 0.55]);
+    const fingers = new THREE.Group(); fingers.position.y = 0.092; hand.add(fingers);
+    for (let i = 0; i < 4; i++) add(fingers, capY(0.0085, 0.056 - Math.abs(i - 1.5) * 0.008), gloveM, [(i - 1.5) * 0.018, 0, 0]);
+    add(hand, capY(0.0095, 0.042), gloveM, [sd * 0.032, 0.025, 0.006], [0, 0, sd * -0.7]);
+    return { sd, up, lo, hand, fingers };
+  });
+  function shoe(g) { // the foot group: ankle at the origin, toes toward +z, sole at y ≈ −0.055
+    const st = c.shoes;
+    if (st === 'slides') {
+      add(g, new THREE.CapsuleGeometry(0.035, 0.15, 4, 10), skinM, [0, -0.03, 0.06], [Math.PI / 2, 0, 0], [1.15, 1, 0.6]);
+      add(g, new THREE.BoxGeometry(0.1, 0.02, 0.27), soleM, [0, -0.052, 0.06]); add(g, new THREE.BoxGeometry(0.105, 0.03, 0.08), shoeM, [0, -0.025, 0.09]); return;
+    }
+    const tall = st === 'boots' ? 0.12 : st === 'cowboy' ? 0.22 : st === 'hightops' ? 0.09 : 0, solH = st === 'runners' ? 0.04 : st === 'boots' ? 0.03 : 0.024;
+    add(g, new THREE.CapsuleGeometry(0.046, 0.16, 4, 12), shoeM, [0, -0.028 + solH * 0.2, 0.055], [Math.PI / 2, 0, 0], [1.02, 1, 0.72]); // upper
+    if (tall) add(g, tube(0.058, 0.056, -0.04, tall), shoeM);
+    add(g, new THREE.BoxGeometry(0.1, solH, 0.27), st === 'runners' ? shoe2M : soleM, [0, -0.055 + solH / 2, 0.055]); // sole
+    if (st === 'cowboy') { add(g, new THREE.ConeGeometry(0.035, 0.07, 10), shoeM, [0, -0.035, 0.2], [Math.PI / 2, 0, 0]); add(g, new THREE.BoxGeometry(0.06, 0.04, 0.05), soleM, [0, -0.04, -0.045]); }
+    if (st !== 'boots' && st !== 'cowboy') [1, -1].forEach((q) => add(g, new THREE.BoxGeometry(0.004, 0.022, 0.12), shoe2M, [q * 0.047, -0.02, 0.05])); // side stripes
+    const lace = st === 'boots' ? std({ color: 0x3a2a1a, roughness: 0.8 }) : shoe2M;
+    for (let i = 0; i < 4; i++) add(g, new THREE.BoxGeometry(0.05, 0.004, 0.008), lace, [0, 0.008 - i * 0.006, 0.02 + i * 0.026]); // laces
+  }
+  const legs = [1, -1].map((sd) => {
+    const up = seg(), lo = seg(), foot = seg(), rl = Bd.leg;
+    add(up, capY(0.066 * rl, Lth), skinM); add(lo, capY(0.049 * rl, Lsh), skinM);
+    const len = BOT.len, r0 = 0.088 * rl, r1 = 0.065 * rl;
+    // (each leg's top runs well up inside the hips, so swinging it back never opens a gap at the seat)
+    if (len === 'short') add(up, tube(r0, r0 * 1.0, -0.11, Lth * 0.72), pantsM);
+    else if (len === 'knee') { add(up, tube(r0, r0 * 0.98, -0.11, Lth + 0.01), pantsM); add(lo, tube(r0 * 0.97, r1 * 1.22, -0.03, 0.07), pantsM); }
+    else { add(up, tube(r0, r0 * 0.9, -0.11, Lth + 0.01), pantsM); add(lo, tube(r0 * 0.88, BOT.cuff ? r1 * 0.85 : r1 * 1.02, -0.035, Lsh), pantsM); if (BOT.cuff) add(lo, tube(r1 * 0.86, r1 * 0.86, Lsh - 0.045, Lsh + 0.005), pantsDk); } // (the shin's leg starts as wide as the thigh's ends: no knee poking through)
+    if (BOT.pockets) add(up, new THREE.BoxGeometry(0.03, 0.12, 0.09), pantsDk, [sd * (r0 + 0.008), Lth * 0.55, 0]);
+    if (BOT.knees) add(up, tube(r0 * 1.01, r0 * 0.96, Lth * 0.72, Lth + 0.012), pantsDk);
+    if (BOT.stripe) { const stM = std({ color: c.bottomColor2, roughness: 0.7 }); add(up, new THREE.BoxGeometry(0.006, Lth, 0.016), stM, [sd * (r0 + 0.001), Lth / 2, 0]); add(lo, new THREE.BoxGeometry(0.006, Lsh - 0.05, 0.014), stM, [sd * (r1 + 0.001), (Lsh - 0.05) / 2, 0]); }
+    const sock = { none: 0, ankle: 0.035, crew: 0.13, high: 0.26 }[c.socks] || 0;
+    if (sock && len !== 'long') add(lo, tube(0.052 * rl, 0.052 * rl, Lsh - sock, Lsh + 0.02), sockM);
+    shoe(foot);
+    return { sd, up, lo, foot };
+  });
+  root.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  // ---- posing
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z), UPY = V3(0, 1, 0), tm = new THREE.Matrix4();
+  const place = (g, A, B) => { g.position.copy(A); const d = B.clone().sub(A); if (d.lengthSq() > 1e-10) g.quaternion.setFromUnitVectors(UPY, d.normalize()); };
+  function solve2(S, T, L1, L2, pole) { // two-bone IK: → [elbow / knee, where the end gets to]
+    const d = T.clone().sub(S); let len = d.length(); const dir = len > 1e-6 ? d.divideScalar(len) : V3(0, -1, 0);
+    len = THREE.MathUtils.clamp(len, Math.abs(L1 - L2) + 0.01, (L1 + L2) * 0.999);
+    const a = (L1 * L1 - L2 * L2 + len * len) / (2 * len), h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+    const p = pole.clone().addScaledVector(dir, -pole.dot(dir)); if (p.lengthSq() < 1e-8) p.set(0, 0, 1); p.normalize();
+    return [S.clone().addScaledVector(dir, a).addScaledVector(p, h), S.clone().addScaledVector(dir, len)];
+  }
+  const orientHand = (hand, Y, hint) => { const y = Y.clone().normalize(), z = hint.clone().addScaledVector(y, -hint.dot(y)); if (z.lengthSq() < 1e-6) z.set(0, 0, 1); z.normalize(); const x = y.clone().cross(z); tm.makeBasis(x, y, z); hand.quaternion.setFromRotationMatrix(tm); };
+  const toRoot = (grp, v) => v.clone().applyMatrix4(grp.matrix); // (pelvis / chest local → root)
+  const shoulderPt = (sd) => toRoot(pelvis, toRoot(chest, V3(sd * 0.15 * W * shk, 0.4, -0.005)));
+  const hipPt = (sd) => toRoot(pelvis, V3(sd * 0.09 * W, -0.045, 0));
+  let headVis = true;
+  // mode: 'stand' | 'walk' | 'air' | 'sit' | 'drive'. o: { t, phase, speed & stride (for a 1.75 m person), lookYaw, lookPitch
+  // (up +), grips: [left, right] world points on the steering wheel, bob: the driver's head-bob state (first person) }
+  function update(mode, o = {}) {
+    const t = o.t || 0, ph = o.phase || 0, v = o.speed || 0, runK = THREE.MathUtils.clamp((v - 2) / 2.5, 0, 1), walkK = THREE.MathUtils.clamp(v / 1.2, 0, 1), seated = mode === 'sit' || mode === 'drive';
+    pelvis.position.set(0, 0.92, 0); pelvis.rotation.set(0, 0, 0); chest.rotation.set(0, 0, 0);
+    if (mode === 'walk') {
+      pelvis.position.y = 0.92 - 0.02 - 0.035 * runK + (0.012 + 0.02 * runK) * Math.cos(2 * ph) * walkK;
+      pelvis.rotation.y = 0.09 * Math.sin(ph) * walkK; pelvis.rotation.z = 0.025 * Math.sin(ph) * walkK;
+      chest.rotation.y = -0.15 * Math.sin(ph) * walkK; chest.rotation.x = (0.04 + 0.2 * runK) * walkK;
+    } else if (mode === 'air') { pelvis.position.y = 0.9; chest.rotation.x = 0.1; }
+    else if (seated) { chest.rotation.x = -0.3; /* (back against a reclined seatback) */ const b = o.bob; if (b) { pelvis.position.y += (b.y || 0) * 0.75; pelvis.position.x -= (b.z || 0) * 0.5; chest.rotation.z = (b.z || 0) * 0.6; chest.rotation.x += (b.p || 0) * 0.5; } }
+    else { pelvis.position.y = 0.905 + 0.003 * Math.sin(t * 1.7); chest.rotation.x = 0.01 * Math.sin(t * 1.7); }
+    head.rotation.set(THREE.MathUtils.clamp(-(o.lookPitch || 0), -0.6, 0.55) + (seated ? 0.26 : 0), THREE.MathUtils.clamp(o.lookYaw || 0, -1.15, 1.15), 0);
+    pelvis.updateMatrix(); chest.updateMatrix();
+    legs.forEach((Lg) => {
+      const sd = Lg.sd, Hp = hipPt(sd), lph = ph + (sd > 0 ? 0 : Math.PI);
+      let T, pole = V3(0, 0, 1), pitch = 0;
+      if (mode === 'walk') { // swing while cos > 0 (the foot comes forward, lifted), stance while it's under you going back
+        const A = THREE.MathUtils.clamp((o.stride || 1.15) / 4, 0.1, 0.36) * walkK, lift = (0.06 + 0.1 * runK) * walkK, sw = Math.max(0, Math.cos(lph));
+        T = V3(sd * 0.1 * W, 0.055 + lift * Math.pow(sw, 0.8), A * Math.sin(lph)); pitch = -0.35 * sw * walkK + 0.25 * Math.max(0, -Math.cos(lph)) * Math.max(0, Math.sin(lph)) * walkK;
+      } else if (mode === 'air') T = V3(sd * 0.11 * W, 0.3, -0.12 + (sd > 0 ? 0.08 : -0.02));
+      else if (seated) { T = Hp.clone().add(V3(sd * 0.07, -0.24, 0.72)); pole = V3(sd * 0.25, 1, 0.3); pitch = -0.2; } // (feet out on the floor, knees up either side of the column)
+      else T = V3(sd * 0.105 * W, 0.055, 0.0);
+      const [K, Te] = solve2(Hp, T, Lth, Lsh, pole); place(Lg.up, Hp, K); place(Lg.lo, K, Te);
+      Lg.foot.position.copy(Te); Lg.foot.rotation.set(pitch, sd * 0.05, 0);
+    });
+    arms.forEach((Ar) => {
+      const sd = Ar.sd, S = shoulderPt(sd), lph = ph + (sd > 0 ? 0 : Math.PI);
+      let T, pole = V3(sd * 0.35, 0, -1), hint = V3(sd, 0, 0), curl = 0.35;
+      const grip = mode === 'drive' && o.grips ? o.grips[sd > 0 ? 0 : 1] : null;
+      if (grip) { const G = root.worldToLocal(grip.clone()); T = G.clone().addScaledVector(G.clone().sub(S).normalize(), -0.075); pole = V3(sd * 1.1, -1, -0.3); hint = V3(sd * 0.3, 1, 0.2); curl = 1.35; } // (the wrist short of the rim: the palm & fingers wrap it)
+      else if (seated) { const Hp = hipPt(sd); T = Hp.clone().add(V3(sd * 0.04, 0.1, 0.3)); pole = V3(sd, -0.2, -0.6); hint = V3(sd * 0.2, 1, 0); curl = 0.5; }
+      else if (mode === 'walk') { const sw = Math.sin(lph + Math.PI); T = S.clone().add(V3(sd * 0.04, -0.5 + 0.17 * runK, (0.16 + 0.12 * runK) * sw * walkK + 0.04 * runK)); pole = V3(sd * 0.25, 0, -1); }
+      else if (mode === 'air') T = S.clone().add(V3(sd * 0.3, -0.3, 0.06));
+      else T = S.clone().add(V3(sd * 0.035, -0.53, 0.03 + 0.008 * Math.sin(t * 1.7)));
+      const [E, Te] = solve2(S, T, Lua, Lfa, pole); place(Ar.up, S, E); place(Ar.lo, E, Te);
+      Ar.hand.position.copy(Te); orientHand(Ar.hand, Te.clone().sub(E), hint); Ar.fingers.rotation.x = -curl;
+    });
+    head.visible = headVis;
+  }
+  update('stand');
+  const dispose = () => { own.forEach((x) => x.dispose && x.dispose()); if (root.parent) root.parent.remove(root); };
+  return { root, update, dispose, scale: s, height: Hm, eye: () => { head.updateWorldMatrix(true, false); return head.localToWorld(V3(0, 0.015, 0.09)); }, setHeadVisible: (on) => { headVis = !!on; head.visible = headVis; }, spec: c };
+}
+
 function holdCaliper(w) { if (w.__cal === undefined) w.__cal = w.getObjectByName('calHolder') || null; if (w.__cal) w.__cal.rotation.z = -w.rotation.z; }
 // sh = SHOCKS entry. Body radius follows the real body diameter; reservoir: none / piggyback / remote (hose to a frame-mounted can).
 // Body UP like a real race coilover: the body hangs from the upper mount with the threaded preload collar on it and the hose
@@ -8689,9 +9127,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const b = build || {}, w = winCur;
     const open = Math.min(1, 0.24 * ((w.fl || 0) + (w.fr || 0) + (w.rl || 0) + (w.rr || 0)) + 0.16 * (w.rear || 0) + 0.2 * (w.roof || 0)); // (an open moonroof lets the stereo out too)
     const tp = truck.position, dist = camera.position.distanceTo(V(tp.x, tp.y + 1, tp.z));
-    MusicSys.update({ audio: b.audio, subs: b.subs }, { inside: drive.on && drive.cam === 3, open, dist });
+    const inCab = drive.on && drive.cam === 3 && ctl.mode === 'drive';
+    MusicSys.update({ audio: b.audio, subs: b.subs }, { inside: inCab, open, dist });
     const A = drive.on && drive.area, lay = outdoor.layoutId(), spd = drive.on ? Math.hypot(drive.u || 0, drive.vz || 0) : 0;
-    WorldAudio.update({ driving: drive.on, speed: spd, air: !!drive.air, weather: b.weather || 'dry', inside: drive.on && drive.cam === 3, open,
+    WorldAudio.update({ driving: drive.on, speed: spd, air: !!drive.air, weather: b.weather || 'dry', inside: inCab, open,
       paved: A ? (A.loose ? !A.loose(drive.x, drive.z) : !A.desert) : true, wooded: ['roadside', 'forest', 'trail', 'park', 'jumps', 'mud', 'rocks'].includes(lay),
       slide: drive.on ? THREE.MathUtils.clamp(((drive.drift || 0) - 7) / 25, 0, 1) + (drive.spinning ? 0.6 : 0) : 0 });
     if (model) { const bs = (b.subs || 'none') !== 'none' ? MusicSys.bass() : 0; const kick = bs > 0.5 && !(drive.on && drive.cam === 3) ? (bs - 0.5) * 0.004 : 0; bassS += (kick - bassS) * 0.25; model.stretch.rotation.z = bassS; } // big bass hits nudge the body (a smooth thump, not a 50 Hz buzz; none from the driver's seat)
@@ -8800,6 +9239,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       cargo:      [[P.rear - 3.6, P.roofTop + dy + 1.9, 4.4], [mid - 0.7, 1.25 + dy, 0]],
       interior:   [[P.cowlX - 0.9, P.roofTop + dy + 0.35, 3.2], [P.cowlX - 1.3, 1.05 + dy, -0.1]], // (in through the open passenger doors)
       factory:    [[mid + 1.2, 1.6 + dy * 0.5, 9.4 * kL], [mid, 0.8 + dy * 0.5, 0]],
+      character:  (() => { const sp = charSpot(), hm = meC ? meC.height : 1.75; return [[sp.x + 1.5, 0.45 + hm * 0.6, sp.z + 3.4], [sp.x - 0.45, 0.25 + hm * 0.45, sp.z - 0.35]]; })(), // (you by the front fender, the truck behind)
     }[name];
     if (!defs) return null;
     const [p, tgt] = defs;
@@ -8826,6 +9266,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (!drive.on) return;
     const k = e.key.toLowerCase();
     if ((e.target.tagName || '').match(/input|select|textarea/i)) return;
+    // F: get in / out (your truck, or a free seat in someone else's). Out of the truck its keys don't drive it: WASD walk
+    // (Shift runs), Space jumps, C switches first / third person
+    if (k === 'f' && !replay.on) { e.preventDefault(); if (e.type === 'keydown' && !e.repeat) interact(); return; }
+    if (k === 'shift') { keys.shift = e.type === 'keydown'; return; }
+    if (ctl.mode !== 'drive' && !replay.on) {
+      if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) { e.preventDefault(); keys[k] = e.type === 'keydown'; }
+      else if (k === ' ') { e.preventDefault(); if (e.type === 'keydown' && !e.repeat) ctl.jump = true; }
+      else if (k === 'c') { e.preventDefault(); if (e.type === 'keydown' && !e.repeat) { ctl.fp = !ctl.fp; if (!ctl.fp) ctl.pitch = THREE.MathUtils.clamp(ctl.pitch, -1.05, 0.65); } }
+      return;
+    }
     // replay: B opens / closes it · Space pause · C next camera · ← / → skip back / ahead 2 s (Esc: the app closes it)
     if (k === 'b' && e.type === 'keydown' && !e.repeat) { e.preventDefault(); if (replay.on) stopReplay(); else startReplay(); return; }
     if (replay.on) {
@@ -8856,7 +9306,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const camOrbit = { yaw: 0, pitch: 0, drag: null, zoom: 1 };
   renderer.domElement.addEventListener('contextmenu', (e) => { if (drive.on) e.preventDefault(); });
   // scroll wheel while driving: the chase camera comes in closer / pulls back (kept when you re-centre the look-around)
-  renderer.domElement.addEventListener('wheel', (e) => { if (!drive.on || drive.cam === 3) return; e.preventDefault(); camOrbit.zoom = THREE.MathUtils.clamp(camOrbit.zoom * Math.exp(e.deltaY * 0.0012), 0.45, 2.6); }, { passive: false });
+  // — all the way in drops you into the driver's seat (first person); scrolling back out from there goes back to the chase cam
+  let camSwitchT = 0;
+  renderer.domElement.addEventListener('wheel', (e) => {
+    if (!drive.on || replay.on) return; e.preventDefault();
+    if (ctl.mode !== 'drive') { peopleWheel(e.deltaY); return; }
+    const now = performance.now(); if (now < camSwitchT) return;
+    if (drive.cam === 3) { if (e.deltaY > 0) { drive.cam = 0; camOrbit.zoom = 0.5; recenterCam(); camSwitchT = now + 300; } return; }
+    if (e.deltaY < 0 && camOrbit.zoom <= 0.451) { drive.cam = 3; recenterCam(); camSwitchT = now + 300; return; }
+    camOrbit.zoom = THREE.MathUtils.clamp(camOrbit.zoom * Math.exp(e.deltaY * 0.0012), 0.45, 2.6);
+  }, { passive: false });
   renderer.domElement.addEventListener('pointerdown', (e) => { if (drive.on && e.button === 2) { camOrbit.drag = [e.clientX, e.clientY]; renderer.domElement.setPointerCapture(e.pointerId); } });
   renderer.domElement.addEventListener('pointermove', (e) => {
     if (!camOrbit.drag) return;
@@ -8950,6 +9409,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     Object.assign(drive, { on: true, area: driveArea(), x: 0, z: 0, y: 0, vy: 0, yaw: 0, r: 0, u: 0, vz: 0, ax: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, steer: 0, air: false, airT: 0, cam: 0, gear: 0, manual: false, shiftT: 0, rpm: 750, tick: 0, maxAir: 0, spinA: [0, 0, 0, 0], spinX: 0, prevT: null, drift: 0, spinning: false, rawPrev: null, chop: 0, flipped: false, lurch: 0, lurchT: 0, ws: null, hsPrev: null });
     if (drive.area.start) { drive.x = drive.area.start.x; drive.z = drive.area.start.z; drive.yaw = drive.area.start.yaw || 0; drive.y = drive.area.H(drive.x, drive.z); } // (spawn in front of the course, not on it)
     Object.keys(keys).forEach((k) => { keys[k] = false; }); recenterCam();
+    Object.assign(ctl, { mode: 'drive', host: null, fp: false, near: null, jump: false }); // (you start at the wheel)
     controls.enabled = false; controls.autoRotate = false; dust.visible = true;
     if (cutaway) setCutaway(false);
     wheelKey = ''; applyBuild(build, { xray: false }, true);
@@ -9012,9 +9472,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     });
     drop.forEach((o) => o.parent && o.parent.remove(o));
     if (damageGroup && map.get(damageGroup)) map.get(damageGroup).visible = false;
-    const P = base.P;
+    const P = base.P, sr = model.steerRig, Zc = model.zones || {};
     return { g: g2, RU, owned, holder: map.get(model.holder), baseY: model.baseY, Rw: rig.wy || P.R0,
-      wheels: wheels.map((w, i) => ({ w: map.get(w), s: P.spots[i].s, front: isFrontSpot(P.spots[i]) })).filter((x) => x.w && x.w.visible) };
+      wheels: wheels.map((w, i) => ({ w: map.get(w), s: P.spots[i].s, front: isFrontSpot(P.spots[i]) })).filter((x) => x.w && x.w.visible),
+      steer: sr && map.get(sr.pivot) ? { pivot: map.get(sr.pivot), axis: sr.axis.clone() } : null, // (its wheel turns with its steering; the driver's hands go with it)
+      cabin: new Set([...(Zc.interior || []), ...(Zc.dash || []), ...(Zc.steer || [])].map((m) => map.get(m)).filter(Boolean)) };
   }
   // put another player's build on this truck for an instant, copy it, put this truck's own build back
   function snapshotTruck(rb) {
@@ -9036,16 +9498,18 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true })); sp.scale.set(2.6, 0.65, 1); sp.position.y = 2.9; sp.renderOrder = 10; return sp;
   };
   // list: [{ id, name, x, y, z, yaw, pitch, roll, u (speed), steer, vx, vz (world velocity), r (turn rate), seq, bk, bj (their build) }]
-  function setRemotes(list) {
-    const seen = new Set(), now = performance.now();
+  // (+ cj / ck: their character, as JSON — see the People section. me: your own id, so riders in your truck sit in it)
+  function setRemotes(list, me) {
+    const seen = new Set(), now = performance.now(); if (me !== undefined) meId = me;
     list.forEach((p) => {
       seen.add(p.id); let r = remotes.get(p.id);
       if (!r) { r = { id: p.id, g: null, tag: null, name: null, pose: null, target: null, seq: null, want: null, wantBk: null, bk: null, first: now, spin: 0 }; remotes.set(p.id, r); }
       if (p.bk && p.bk !== r.wantBk) { r.wantBk = p.bk; try { r.want = JSON.parse(p.bj); } catch (e) { r.want = null; } }
-      if (p.seq !== r.seq) { r.seq = p.seq; r.target = { ...p, recv: now }; delete r.target.bj; if (!r.pose) r.pose = { ...r.target }; }
+      if (p.ck && p.ck !== r.wantCk) { r.wantCk = p.ck; try { r.wantC = JSON.parse(p.cj); } catch (e) { r.wantC = null; } }
+      if (p.seq !== r.seq) { r.seq = p.seq; r.target = { ...p, recv: now }; delete r.target.bj; delete r.target.cj; if (!r.pose) r.pose = { ...r.target }; }
       r.name = p.name || 'player';
     });
-    remotes.forEach((r, id) => { if (!seen.has(id)) { disposeRemoteTruck(r); remotes.delete(id); } });
+    remotes.forEach((r, id) => { if (!seen.has(id)) { disposeRemoteTruck(r); disposeRemoteChar(r); remotes.delete(id); } });
   }
   const rqA = new THREE.Quaternion(), rqB = new THREE.Quaternion(), rqC = new THREE.Quaternion();
   function stepRemotes(dt) {
@@ -9055,7 +9519,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const wantBk = r.wantBk || (now - r.first > 2500 ? 'default' : null);
       if (wantBk && wantBk !== r.bk && now - lastSnap > 800 && model) {
         lastSnap = now; const snap = snapshotTruck(r.want || {});
-        if (snap) { disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, tag: null, tagName: null }); scene.add(r.g); }
+        if (snap) { disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, tag: null, tagName: null }); scene.add(r.g); if (ctl.mode === 'ride' && ctl.host === r.id) cabinSides(r, true); }
       }
       if (!r.g || !r.target) return;
       if (r.tagName !== r.name) { if (r.tag) r.g.remove(r.tag); r.tag = tagSprite(r.name); r.tag.visible = tagsOn; r.g.add(r.tag); r.tagName = r.name; }
@@ -9071,6 +9535,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       // wheels roll with its speed; the fronts steer
       r.spin += ((t.u || 0) / Math.max(0.2, r.Rw)) * dt;
       r.wheels.forEach((w) => { w.w.rotation.set(0, (w.s < 0 ? Math.PI : 0) + (w.front ? c.steer : 0), w.s > 0 ? -r.spin : r.spin); holdCaliper(w.w); });
+      if (r.steer) r.steer.pivot.quaternion.setFromAxisAngle(r.steer.axis, -(c.steer || 0) * 15);
       // its own cut-outs follow its body
       r.g.updateMatrixWorld(true); const h = r.holder;
       if (h) { restMatR.makeTranslation(h.position.x, r.baseY, h.position.z); r.RU.uCutMat.value.copy(h.matrixWorld).invert().premultiply(restMatR); }
@@ -9081,8 +9546,258 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const getPose = () => {
     const d = drive, on = d.on, yaw = on ? d.yaw : 0, u = on ? d.u : 0, vz = on ? d.vz : 0;
     return { x: truck.position.x, y: truck.position.y, z: truck.position.z, yaw, pitch: on ? d.pitch : 0, roll: on ? d.roll : 0, u, steer: on ? d.steer || 0 : 0, r: on ? d.r || 0 : 0,
-      vx: Math.cos(yaw) * u + Math.sin(yaw) * vz, vz: -Math.sin(yaw) * u + Math.cos(yaw) * vz, seq: ++poseSeq };
+      vx: Math.cos(yaw) * u + Math.sin(yaw) * vz, vz: -Math.sin(yaw) * u + Math.cos(yaw) * vz, seq: ++poseSeq, av: peoplePose() };
   };
+
+  // ---- People: your character — standing by the truck in the garage's Character menu, in the driver's seat (hands on the
+  // wheel, turning with it), out walking, or riding along in someone else's truck — and everyone else's in multiplayer, each
+  // built from that player's own look. F gets in / out: your own truck (the driver's seat) or a free seat in someone else's
+  // (from their cab: Regular 2, Access / Double 4). On foot: WASD from the camera, Shift runs, Space jumps, the mouse looks
+  // (click the view to lock the pointer, Esc frees it), C or the scroll wheel switches first / third person; the trucks,
+  // trees and posts are solid. (Self-contained: this section plus buildCharacter.)
+  let meC = null, charShow = false, meId = null, lastCharBuild = 0;
+  const ctl = { mode: 'drive', host: null, seat: 0, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, face: 0, air: false, phase: 0, speed: 0, jump: false,
+    fp: false, dist: 3.4, yaw: 0, pitch: 0, ryaw: 0, hint: '', hintT: 0, near: null, wheelT: 0 };
+  const say = (t) => { ctl.hint = t; ctl.hintT = performance.now() + 2200; };
+  const wrapA = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  function setCharacter(spec) {
+    const json = JSON.stringify(spec || {}); if (meC && meC.json === json) return;
+    const vis = meC ? meC.root.visible : false; if (meC) meC.dispose();
+    meC = buildCharacter(spec); meC.json = json; meC.root.visible = vis; scene.add(meC.root);
+  }
+  // in the garage (Character menu): standing beside the front fender, so you see how tall you are next to the truck
+  const charSpot = () => { const P = base.P; return { x: P.xF + 0.25, z: Math.max(P.halfW, (P.track || 0.8) + (rig.offF || 0) + 0.2) + 0.6 }; };
+  // the cab's seats (truck rest space): each one's hip point (where you sit on the cushion) and where you step out beside it.
+  // (A Regular Cab only has the front two; anyone in its "back seats" — riding in a bigger cab's — sits in the bed.)
+  function seatsOf() {
+    const bi = model && model.bedInfo, P = base.P; if (!bi || !P) return null;
+    if (bi.seats) return bi.seats;
+    // (measured on the Tundra: the front cushion's top is 0.36 m under the wheel's centre, the seatback ~0.45 m behind it at
+    // hip height reclined ~23°; the rear bench is the same height, its back ~0.24 m ahead of the cab's rear wall)
+    const D = bi.dash, sc = D ? D.sc : V(P.cowlX - 0.5, P.hoodY - 0.05, -0.37), zs = Math.abs(sc.z) > 0.15 ? Math.abs(sc.z) : 0.37, fx = sc.x - 0.34, fy = sc.y - 0.26;
+    const reg = base.vehicle && base.vehicle.cab === 'regular', cr = bi.cabRear !== undefined ? bi.cabRear : P.xR + 0.9;
+    const rx = reg ? cr - 0.45 : cr + 0.37, ry = reg ? (bi.floorY || fy) + 0.1 : fy, out = P.halfW + 0.6;
+    const list = [[fx, fy, -zs], [fx, fy, zs], [rx, ry, -zs * 0.95], [rx, ry, zs * 0.95]].map(([x, y, z], i) => ({ i, hip: V(x, y, z), door: V(i < 2 ? fx - 0.15 : rx + 0.05, 0, Math.sign(z) * out), side: Math.sign(z) }));
+    if (D) bi.seats = { list, n: reg ? 2 : 4 }; // (measured once the cabin is: kept with this fit)
+    return { list, n: reg ? 2 : 4 };
+  }
+  // a truck for seating: its body (rest space → world through its holder) and steering wheel
+  const tkW = (tk, p) => { const h = tk.holder; h.updateWorldMatrix(true, false); return h.localToWorld(V(p.x - h.position.x, p.y - tk.baseY, p.z - h.position.z)); };
+  const myTruck = () => (model ? { holder: model.holder, baseY: model.baseY, steer: model.steerRig, steerA: drive.on ? -(drive.steer || 0) * 15 : 0 } : null);
+  const theirTruck = (r) => (r && r.g && r.holder ? { holder: r.holder, baseY: r.baseY, steer: r.steer, steerA: -((r.pose && r.pose.steer) || 0) * 15 } : null);
+  const qTurn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2); // (a character faces +z; the truck, +x)
+  const seatSlide = (C, i) => (i === 0 && C && C.scale < 1 ? (1 - C.scale) * 0.32 : 0); // (a shorter driver moves the seat up)
+  function seatChar(C, tk, seat, mode, o) {
+    C.root.position.copy(tkW(tk, V(seat.hip.x + seatSlide(C, seat.i), seat.hip.y - 0.875 * C.scale, seat.hip.z)));
+    tk.holder.getWorldQuaternion(C.root.quaternion).multiply(qTurn); C.root.updateMatrixWorld(true);
+    if ('bob' in o) { // (your own driver: where your eyes are in the truck — sitting still, looking ahead — for the first-person camera)
+      C.update(mode, { ...o, bob: null, lookYaw: 0, lookPitch: 0 }); const h = tk.holder;
+      C.seatEye = h.worldToLocal(C.eye()).add(V(h.position.x, tk.baseY, h.position.z));
+    }
+    C.update(mode, o);
+  }
+  // where the driver's hands go: 10 and 2 on the rim, carried round with the wheel up to ~100° (past that they slip on it)
+  function gripsOf(tk) {
+    const sr = tk.steer; if (!sr || !sr.pivot || !sr.pivot.parent) return null;
+    const par = sr.pivot.parent; par.updateWorldMatrix(true, false);
+    const c = par.localToWorld(sr.pivot.position.clone()), ax = sr.axis.clone().transformDirection(par.matrixWorld);
+    const hq = tk.holder.getWorldQuaternion(new THREE.Quaternion()), u = V(0, 1, 0).applyQuaternion(hq), r = V(0, 0, 1).applyQuaternion(hq);
+    u.addScaledVector(ax, -u.dot(ax)).normalize(); r.addScaledVector(ax, -r.dot(ax)).normalize();
+    const q = new THREE.Quaternion().setFromAxisAngle(ax, THREE.MathUtils.clamp(tk.steerA || 0, -1.75, 1.75)), R = 0.2, a = 1.05; // (the rim: ~0.2 m out, its plane 2.5 cm dash-side of the wheel's centroid)
+    return [-1, 1].map((sd) => c.clone().add(u.clone().multiplyScalar(R * Math.cos(a)).addScaledVector(r, sd * R * Math.sin(a)).applyQuaternion(q)).addScaledVector(ax, 0.025));
+  }
+  // a truck as a box on the ground (its heading only): how far a point is from it, and pushing a walker back out of it
+  const toBox = (px, pz, t) => { const c = Math.cos(t.yaw), s = Math.sin(t.yaw), dx = px - t.x, dz = pz - t.z; return [dx * c - dz * s, dx * s + dz * c, c, s]; };
+  const boxDist = (px, pz, t) => { const P = base.P, [lx, lz] = toBox(px, pz, t); return Math.hypot(Math.max(P.rear - lx, 0, lx - P.front), Math.max(-P.halfW - lz, 0, lz - P.halfW)); };
+  function pushOut(w, t, rad) {
+    const P = base.P, [lx, lz, c, s] = toBox(w.x, w.z, t), x0 = P.rear - rad, x1 = P.front + rad, hw = P.halfW + rad;
+    if (lx <= x0 || lx >= x1 || lz <= -hw || lz >= hw) return;
+    const pen = [lx - x0, x1 - lx, lz + hw, hw - lz], k = pen.indexOf(Math.min(...pen)), nx = k === 0 ? x0 : k === 1 ? x1 : lx, nz = k === 2 ? -hw : k === 3 ? hw : lz;
+    w.x = t.x + nx * c + nz * s; w.z = t.z - nx * s + nz * c;
+  }
+  const trucksNear = () => { const out = []; if (model && drive.on && ctl.mode !== 'drive') out.push({ x: drive.x, z: drive.z, yaw: drive.yaw, y: drive.y, mine: true }); remotes.forEach((r) => { if (r.g && r.pose) out.push({ x: r.pose.x, z: r.pose.z, yaw: r.pose.yaw || 0, y: r.pose.y || 0, r }); }); return out; };
+  // the truck in reach (≤ 1.5 m): yours, or someone else's — and the free seat whose door you're closest to
+  function nearestRide() {
+    let best = null;
+    trucksNear().forEach((t) => { const d = boxDist(ctl.x, ctl.z, t); if (d < 1.5 && (!best || d < best.d)) best = { ...t, d }; });
+    if (!best || best.mine) return best;
+    const r = best.r, av = (r.target && r.target.av) || {}, n = Math.min(4, av.c || 4), taken = new Set([0]), seats = seatsOf(), tk = theirTruck(r);
+    remotes.forEach((o) => { const a = o.target && o.target.av; if (a && a.m === 'ride' && a.h === r.id) taken.add(a.s); });
+    let si = -1, sdist = 1e9;
+    if (seats && tk) for (let i = 1; i < n; i++) { if (taken.has(i)) continue; const dw = tkW(tk, seats.list[i].door), dd = Math.hypot(dw.x - ctl.x, dw.z - ctl.z); if (dd < sdist) { sdist = dd; si = i; } }
+    best.seat = si; best.name = r.name; return best;
+  }
+  // riding in someone else's truck: its body panels drawn from both sides while you're in it (you'd see through the roof from
+  // inside otherwise) — not the cabin's own parts, which shimmer doubled
+  function cabinSides(r, on) {
+    if (!r || !r.g) return;
+    r.g.traverse((o) => { if (!o.isMesh || (r.cabin && r.cabin.has(o))) return; (Array.isArray(o.material) ? o.material : [o.material]).forEach((mt) => {
+      if (!mt) return;
+      if (on && mt.side !== THREE.DoubleSide) { mt.userData.side0 = mt.side; mt.side = THREE.DoubleSide; mt.needsUpdate = true; }
+      else if (!on && mt.userData.side0 !== undefined) { mt.side = mt.userData.side0; delete mt.userData.side0; mt.needsUpdate = true; }
+    }); });
+  }
+  const setPointerLock = (on) => { if (!on && document.pointerLockElement === renderer.domElement) document.exitPointerLock(); };
+  function getOut(tk, seatI) {
+    if (ctl.mode === 'ride') cabinSides(remotes.get(ctl.host), false);
+    const seats = seatsOf(), A = drive.area, st = seats && seats.list[seatI];
+    let x = meC ? meC.root.position.x : drive.x, z = meC ? meC.root.position.z : drive.z, face = ctl.face;
+    if (tk && st) { const p = tkW(tk, st.door), o = tkW(tk, V(st.hip.x, 0, 0)); x = p.x; z = p.z; face = Math.atan2(p.x - o.x, p.z - o.z); }
+    const dir = camera.getWorldDirection(V(0, 0, 0));
+    Object.assign(ctl, { mode: 'walk', host: null, x, z, y: A.H(x, z), vx: 0, vy: 0, vz: 0, air: false, speed: 0, face, jump: false,
+      yaw: Math.atan2(dir.x, dir.z), pitch: ctl.fp ? THREE.MathUtils.clamp(Math.asin(THREE.MathUtils.clamp(dir.y, -1, 1)), -0.6, 0.5) : 0, dist: 3.4 });
+  }
+  // F
+  function interact() {
+    if (!drive.on || replay.on) return;
+    if (ctl.mode === 'drive') { if (Math.hypot(drive.u, drive.vz) > 4.5) { say('Slow down to get out'); return; } getOut(myTruck(), 0); }
+    else if (ctl.mode === 'ride') getOut(theirTruck(remotes.get(ctl.host)), ctl.seat);
+    else {
+      const n = ctl.near || nearestRide();
+      if (!n) say('Walk up to a truck to get in');
+      else if (n.mine) { ctl.mode = 'drive'; setPointerLock(false); }
+      else if (n.seat < 0) say(`${n.name || 'That'}'s truck is full`);
+      else { Object.assign(ctl, { mode: 'ride', host: n.r.id, seat: n.seat, ryaw: 0, pitch: 0 }); cabinSides(n.r, true); }
+    }
+  }
+  function walkStep(dt) {
+    const A = drive.area, H = A.H, w = ctl, s = meC ? meC.scale : 1;
+    const f = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0), sd = (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0);
+    // (moves are from the camera: forward is where you're looking, along the ground)
+    let mx = Math.sin(w.yaw) * f - Math.cos(w.yaw) * sd, mz = Math.cos(w.yaw) * f + Math.sin(w.yaw) * sd; const ml = Math.hypot(mx, mz); if (ml > 0) { mx /= ml; mz /= ml; }
+    const vT = ml > 0 ? (keys.shift ? 5.2 : 1.6) * (0.65 + 0.35 * s) : 0, kA = 1 - Math.exp(-dt * (w.air ? 1.2 : 10));
+    w.vx += (mx * vT - w.vx) * kA; w.vz += (mz * vT - w.vz) * kA;
+    if (w.jump && !w.air) { w.vy = 3.4; w.air = true; } w.jump = false; // (~0.6 m: a real jump, not a moon one)
+    const ox = w.x, oz = w.z, g0 = H(ox, oz);
+    w.x += w.vx * dt; w.z += w.vz * dt;
+    // solid: ground too steep to walk up (cliffs, mesa walls), the map's edge, trees / posts / rocks, the trucks
+    if (!w.air && H(w.x, w.z) - g0 > 0.08 + Math.hypot(w.x - ox, w.z - oz) * 1.3) { w.x = ox; w.z = oz; w.vx *= 0.3; w.vz *= 0.3; }
+    const cl = { x: w.x, z: w.z, y: w.y, yaw: 0 }; if (A.clamp(cl)) { w.x = cl.x; w.z = cl.z; }
+    if (outdoor.collide) { const hit = outdoor.collide(w.x, w.z, 0.28); if (hit) { w.x += hit.nx * hit.pen; w.z += hit.nz * hit.pen; } }
+    trucksNear().forEach((t) => { if (w.y < t.y + base.P.roofTop - 0.1) pushOut(w, t, 0.25); });
+    const g = H(w.x, w.z);
+    if (w.air) { w.vy -= 9.81 * dt; w.y += w.vy * dt; if (w.y <= g) { w.y = g; w.vy = 0; w.air = false; } }
+    else if (w.y - g > 0.45) { w.air = true; w.vy = 0; } // (stepped off a ledge)
+    else w.y = g;
+    w.speed = Math.hypot(w.vx, w.vz);
+    // third person: you turn to where you're walking; first person: you face where you look
+    const want = w.fp ? w.yaw : w.speed > 0.25 ? Math.atan2(w.vx, w.vz) : w.face; w.face += wrapA(want - w.face) * Math.min(1, dt * 10);
+    const vn = w.speed / s; w.phase += (dt * vn * Math.PI * 2) / charStride(vn);
+    w.near = nearestRide();
+    sunAnchor.set(w.x, w.y, w.z); sun.position.copy(sunAnchor).addScaledVector(sunDir, 20); sun.target.position.copy(sunAnchor); // (shadows follow you, not the parked truck)
+  }
+  function lensTo(fov, near, dt) { if (camera.near !== near) { camera.near = near; camera.updateProjectionMatrix(); } if (fov && Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 4); camera.updateProjectionMatrix(); } }
+  function walkCamera(dt, C) {
+    const w = ctl, H = drive.area.H;
+    if (w.fp) { camera.position.copy(C.eye()); camera.quaternion.setFromEuler(new THREE.Euler(w.pitch, w.yaw + Math.PI, 0, 'YXZ')); }
+    else {
+      const focus = V(w.x, w.y + C.height * 0.82, w.z), e = THREE.MathUtils.clamp(0.3 - w.pitch, -0.35, 1.35);
+      const L = V(Math.sin(w.yaw) * Math.cos(e), -Math.sin(e), Math.cos(w.yaw) * Math.cos(e)), cp = focus.clone().addScaledVector(L, -w.dist * (0.55 + (0.45 * C.height) / 1.75));
+      const gy = H(cp.x, cp.z) + 0.2; if (cp.y < gy) cp.y = gy;
+      camera.position.copy(cp); camera.lookAt(focus);
+    }
+    lensTo(drive.baseFov || 50, w.fp ? 0.04 : 0.1, dt);
+    controls.target.copy(camera.position).add(camera.getWorldDirection(V(0, 0, 0)).multiplyScalar(2));
+    if (envState.gp) envState.gp.position.set(camera.position.x, 0, camera.position.z); sky.position.set(camera.position.x, 0, camera.position.z); if (stars.visible) stars.position.copy(camera.position);
+  }
+  function rideCamera(dt, C, tk) {
+    const hq = tk.holder.getWorldQuaternion(new THREE.Quaternion()), H = drive.area.H, P = base.P;
+    if (ctl.fp) { camera.position.copy(C.eye()); camera.quaternion.copy(hq).multiply(new THREE.Quaternion().setFromAxisAngle(YAX, -Math.PI / 2 + ctl.ryaw)).multiply(new THREE.Quaternion().setFromAxisAngle(XAX, ctl.pitch)); }
+    else { // around the truck you're in (behind it, unless you look round)
+      const fwd = V(1, 0, 0).applyQuaternion(hq), Y = Math.atan2(fwd.x, fwd.z) + ctl.ryaw, e = THREE.MathUtils.clamp(0.3 - ctl.pitch, -0.3, 1.3), focus = tkW(tk, V((P.front + P.rear) / 2, P.roofTop * 0.75, 0));
+      const cp = focus.clone().addScaledVector(V(Math.sin(Y) * Math.cos(e), -Math.sin(e), Math.cos(Y) * Math.cos(e)), -(4 + ctl.dist * 1.3));
+      const gy = H(cp.x, cp.z) + 0.6; if (cp.y < gy) cp.y = gy;
+      camera.position.lerp(cp, 1 - Math.pow(0.002, dt)); camera.lookAt(focus);
+    }
+    lensTo(ctl.fp ? 70 : drive.baseFov || 50, ctl.fp ? 0.04 : 0.1, dt);
+    controls.target.copy(camera.position).add(camera.getWorldDirection(V(0, 0, 0)).multiplyScalar(2));
+    if (envState.gp) envState.gp.position.set(camera.position.x, 0, camera.position.z); sky.position.set(camera.position.x, 0, camera.position.z); if (stars.visible) stars.position.copy(camera.position);
+    const p = tkW(tk, V(0, 0, 0)); sunAnchor.copy(p); sun.position.copy(sunAnchor).addScaledVector(sunDir, 20); sun.target.position.copy(sunAnchor);
+  }
+  // the mouse on foot / riding: click the view to lock the pointer (Esc frees it), or just drag
+  let lookDrag = false;
+  const lookOn = () => drive.on && !replay.on && ctl.mode !== 'drive';
+  renderer.domElement.addEventListener('pointerdown', (e) => {
+    if (!lookOn()) return; lookDrag = true;
+    if (e.button === 0 && document.pointerLockElement !== renderer.domElement && renderer.domElement.requestPointerLock) { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) { /* not allowed here */ } }
+  });
+  window.addEventListener('pointerup', () => { lookDrag = false; });
+  window.addEventListener('pointermove', (e) => {
+    const locked = document.pointerLockElement === renderer.domElement; if (!lookOn() || (!locked && !lookDrag)) return;
+    const k = locked ? 0.0022 : 0.005, mx = (e.movementX || 0) * k, my = (e.movementY || 0) * k;
+    if (ctl.mode === 'ride') ctl.ryaw = ctl.fp ? THREE.MathUtils.clamp(ctl.ryaw - mx, -2.4, 2.4) : ctl.ryaw - mx; else ctl.yaw -= mx;
+    ctl.pitch = THREE.MathUtils.clamp(ctl.pitch - my, ctl.fp ? -1.35 : -1.05, ctl.fp ? 1.35 : 0.65);
+  });
+  // scroll on foot / riding: the camera in / out — all the way in is first person, scrolling back out leaves it
+  function peopleWheel(dy) {
+    const now = performance.now(); if (now < ctl.wheelT) return;
+    if (ctl.fp) { if (dy > 0) { ctl.fp = false; ctl.dist = 1.1; ctl.pitch = THREE.MathUtils.clamp(ctl.pitch, -1.05, 0.65); ctl.wheelT = now + 300; } return; }
+    if (dy < 0 && ctl.dist <= 0.86) { ctl.fp = true; ctl.wheelT = now + 300; return; }
+    ctl.dist = THREE.MathUtils.clamp(ctl.dist * Math.exp(dy * 0.0012), 0.85, 8);
+  }
+  // every frame, after the trucks have moved: you, then everyone else
+  function peopleStep(dt, t) {
+    if (!meC && drive.on) setCharacter({});
+    const C = meC;
+    if (C) {
+      if (!drive.on) {
+        C.root.visible = charShow && !!base.P && !scanFx;
+        if (C.root.visible) { const sp = charSpot(); C.root.position.set(sp.x, 0, sp.z); C.root.quaternion.setFromAxisAngle(YAX, 0.45); C.root.updateMatrixWorld(true); C.setHeadVisible(true); C.update('stand', { t }); }
+      } else if (ctl.mode === 'walk') {
+        C.root.visible = true; C.setHeadVisible(!ctl.fp);
+        C.root.position.set(ctl.x, ctl.y, ctl.z); C.root.quaternion.setFromAxisAngle(YAX, ctl.face); C.root.updateMatrixWorld(true);
+        const vn = ctl.speed / C.scale;
+        C.update(ctl.air ? 'air' : vn > 0.15 ? 'walk' : 'stand', { t, phase: ctl.phase, speed: vn, stride: charStride(vn), lookYaw: wrapA(ctl.yaw - ctl.face), lookPitch: ctl.pitch });
+        if (!replay.on) walkCamera(dt, C);
+      } else if (ctl.mode === 'ride') {
+        const tk = theirTruck(remotes.get(ctl.host)), seats = seatsOf();
+        if (!tk || !seats) { getOut(null, 0); say('The driver left'); }
+        else { C.root.visible = true; C.setHeadVisible(!ctl.fp); seatChar(C, tk, seats.list[ctl.seat] || seats.list[1], 'sit', { t, lookYaw: ctl.ryaw, lookPitch: ctl.pitch }); rideCamera(dt, C, tk); }
+      } else { // driving: in the driver's seat, hands on the wheel
+        const tk = myTruck(), seats = seatsOf(), fpv = replay.on ? replay.shot === 'driver' : drive.cam === 3;
+        C.root.visible = !!(tk && seats); C.setHeadVisible(!fpv);
+        if (tk && seats) seatChar(C, tk, seats.list[0], 'drive', { t, grips: gripsOf(tk), lookYaw: fpv && !replay.on ? THREE.MathUtils.clamp(camOrbit.yaw, -1.2, 1.2) : 0, lookPitch: fpv && !replay.on ? camOrbit.pitch : 0, bob: fpv && !replay.on ? drive.head : null });
+      }
+    }
+    remotes.forEach((r) => placeRemoteChar(r, dt, t));
+  }
+  // someone else: built from their look (once it arrives — a default person after a moment for older versions), then on foot
+  // where they are, at the wheel of their truck, or in the seat they've taken in someone's truck (yours included)
+  function placeRemoteChar(r, dt, t) {
+    const now = performance.now(), want = r.wantCk || (now - r.first > 2500 ? 'default' : null);
+    if (want && want !== r.chK && now - lastCharBuild > 150) { lastCharBuild = now; if (r.ch) r.ch.dispose(); r.ch = buildCharacter(r.wantC || {}); r.chK = want; scene.add(r.ch.root); }
+    const C = r.ch; if (!C) return;
+    const T = r.target || {}, av = T.av || {}, m = av.m || 'drive', seats = seatsOf();
+    let shown = false;
+    if (m === 'walk') {
+      const age = Math.min(0.4, (now - (T.recv || now)) / 1000), px = (av.x || 0) + (av.vx || 0) * age, pz = (av.z || 0) + (av.vz || 0) * age, k = 1 - Math.exp(-dt * 12);
+      const wp = r.wp || (r.wp = { x: px, y: av.y || 0, z: pz, f: av.f || 0, ph: 0 });
+      if (Math.hypot(px - wp.x, pz - wp.z) > 8) Object.assign(wp, { x: px, z: pz, y: av.y || 0 });
+      wp.x += (px - wp.x) * k; wp.z += (pz - wp.z) * k; wp.y += ((av.y || 0) - wp.y) * k; wp.f += wrapA((av.f || 0) - wp.f) * k;
+      const vn = (av.v || 0) / C.scale; wp.ph += (dt * vn * Math.PI * 2) / charStride(vn);
+      C.root.position.set(wp.x, wp.y, wp.z); C.root.quaternion.setFromAxisAngle(YAX, wp.f); C.root.updateMatrixWorld(true);
+      C.update(av.a ? 'air' : vn > 0.15 ? 'walk' : 'stand', { t, phase: wp.ph, speed: vn, stride: charStride(vn), lookYaw: av.ly || 0, lookPitch: av.lp || 0 }); shown = true;
+    } else {
+      r.wp = null;
+      const tk = m === 'ride' ? (av.h === meId ? myTruck() : theirTruck(remotes.get(av.h))) : theirTruck(r);
+      if (tk && seats) { seatChar(C, tk, seats.list[m === 'ride' ? THREE.MathUtils.clamp(av.s || 1, 1, 3) : 0], m === 'ride' ? 'sit' : 'drive', { t, grips: m === 'ride' ? null : gripsOf(tk), lookYaw: av.ly || 0, lookPitch: av.lp || 0 }); shown = true; }
+    }
+    C.root.visible = shown;
+    // name tag: over their truck while they're in it, over them on foot
+    if (!r.chTag || r.chTagName !== r.name) { if (r.chTag) { scene.remove(r.chTag); r.chTag.material.map.dispose(); r.chTag.material.dispose(); } r.chTag = tagSprite(r.name || 'player'); r.chTag.scale.set(1.6, 0.4, 1); r.chTagName = r.name; scene.add(r.chTag); }
+    r.chTag.visible = tagsOn && shown && m === 'walk'; if (r.chTag.visible) r.chTag.position.set(C.root.position.x, C.root.position.y + C.height + 0.45, C.root.position.z);
+    if (r.tag) r.tag.visible = tagsOn && m !== 'walk';
+  }
+  function disposeRemoteChar(r) { if (r.ch) { r.ch.dispose(); r.ch = null; } if (r.chTag) { scene.remove(r.chTag); r.chTag.material.map.dispose(); r.chTag.material.dispose(); r.chTag = null; } }
+  // what everyone else needs to draw you (sent with the truck's pose): where you are and what you're doing
+  const r3 = (v) => Math.round((v || 0) * 1000) / 1000;
+  function peoplePose() {
+    const m = drive.on ? ctl.mode : 'garage', o = { m, c: (seatsOf() || { n: base.vehicle && base.vehicle.cab === 'regular' ? 2 : 4 }).n };
+    if (m === 'walk') Object.assign(o, { x: r3(ctl.x), y: r3(ctl.y), z: r3(ctl.z), vx: r3(ctl.vx), vz: r3(ctl.vz), f: r3(ctl.face), v: r3(ctl.speed), a: ctl.air ? 1 : 0, ly: r3(wrapA(ctl.yaw - ctl.face)), lp: r3(ctl.pitch) });
+    else if (m === 'ride') Object.assign(o, { h: ctl.host, s: ctl.seat, ly: r3(ctl.ryaw), lp: r3(ctl.pitch) });
+    else if (m === 'drive') Object.assign(o, { ly: r3(drive.cam === 3 ? camOrbit.yaw : 0), lp: r3(drive.cam === 3 ? camOrbit.pitch : 0) });
+    return o;
+  }
   // reset: only once it's rolled over and come to rest (under ~2 mph). Back on its wheels where it is (same heading),
   // dropped from just above the ground, everything at rest
   const canReset = (d) => !!d.flipped && Math.hypot(d.u, d.vz) < 0.9;
@@ -9098,6 +9813,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function stopDrive() {
     if (!drive.on) return;
     if (replay.on) stopReplay();
+    if (ctl.mode === 'ride') cabinSides(remotes.get(ctl.host), false);
+    Object.assign(ctl, { mode: 'drive', host: null, near: null }); setPointerLock(false);
     setCabinView(false); camera.near = 0.1;
     drive.on = false; dust.visible = false; envCap.due = [performance.now() + 150]; // re-capture reflections back at the stage
     drive.brakeLit = drive.revLit = false; setRearLamps(false, false);
@@ -9128,7 +9845,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
   const replayInfo = () => { if (handlers.current.onReplay) handlers.current.onReplay(replay.on ? { t: replay.t - replay.t0, dur: replay.t1 - replay.t0, cam: replay.cam, shot: replay.shot, speed: replay.speed, paused: replay.paused } : null); };
   function startReplay() {
-    if (!drive.on || replay.on || rec.frames.length < 20) return false;
+    if (!drive.on || replay.on || ctl.mode !== 'drive' || rec.frames.length < 20) return false;
     const F = rec.frames;
     Object.assign(replay, { on: true, t0: F[0].t, t1: F[F.length - 1].t, t: F[0].t, paused: false, cut: true, tv: null, shotT: 0, saved: { spinA: (drive.spinA || []).slice(), fov: camera.fov } });
     controls.enabled = replay.cam === 'free'; replay.lastP.copy(truck.position);
@@ -9213,8 +9930,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function driveStep(dt) {
     const d = drive, P = base.P, A = d.area, H = A.H, veh = base.vehicle, b = build, g = 9.81;
     if (d.rHeld && performance.now() - d.rHeld >= 800) resetTruck(true); // (R held: reset)
-    const live = !d.flipped; // (on its roof / side: wheels in the air, no drive)
-    const thr = live && (keys.w || keys.arrowup) ? 1 : 0, rev = live && (keys.s || keys.arrowdown) ? 1 : 0, stIn = live ? (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0) : 0, hand = live && !!keys[' '];
+    const drv = ctl.mode === 'drive', live = !d.flipped && drv; // (on its roof / side: wheels in the air, no drive. Nobody at the wheel: parked, handbrake on)
+    const thr = live && (keys.w || keys.arrowup) ? 1 : 0, rev = live && (keys.s || keys.arrowdown) ? 1 : 0, stIn = live ? (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0) : 0, hand = (live && !!keys[' ']) || (!drv && !d.flipped);
     // burnout: gas + brake together at a crawl — the brakes hold the fronts, the throttle lights up the rears (instead of
     // reversing). Steering swings the tail round the planted front axle.
     const burn = !!(thr && rev && Math.abs(d.u) < 4 && !d.air);
@@ -9520,7 +10237,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     recordFrame(dt); // (the replay's rolling 15 s)
     // dust / tire smoke: wheelspin, sideways slides and speed on loose ground
     d.drift = Math.abs(Math.atan2(d.vz, Math.max(0.5, Math.abs(d.u)))) * DEG;
-    const slide = d.drift > 10 || spinning || hand;
+    const slide = d.drift > 10 || spinning || (hand && Math.abs(d.u) > 0.5); // (parked with the brake on: no dust)
     const peel = diffV === 'open' && spinning && d.drift <= 10 && !hand; // open diff: only the light tire smokes
     // (spinning on pavement makes white-grey tire smoke, not dirt; a burnout pours it out)
     const smoke = spinning && paved ? [0.86, 0.86, 0.84] : A.dust, puffs = burn ? 3 : 1;
@@ -9530,8 +10247,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (envState.gp) envState.gp.position.set(camera.position.x, 0, camera.position.z); // sky dome travels with you
     sky.position.set(camera.position.x, 0, camera.position.z);
     if (stars.visible) stars.position.copy(camera.position);
-    setCabinView(d.cam === 3);
-    if (d.cam === 3 && model && model.steerRig) { // first person: the driver's eye, riding with the body; right-drag looks around
+    setCabinView(drv && d.cam === 3);
+    if (!drv) { /* (out of the truck / riding along: the People section moves the camera) */ }
+    else if (d.cam === 3 && model && model.steerRig) { // first person: the driver's eye, riding with the body; right-drag looks around
       const sr = model.steerRig;
       sr.pivot.parent.updateWorldMatrix(true, false); // (this frame's body pose — a one-frame-old one left the eye up to half a metre behind at speed)
       const hq = model.holder.getWorldQuaternion(new THREE.Quaternion());
@@ -9554,7 +10272,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       // (eye height: a seated adult's, a little above the old one. Looking round behind you, you lean forward and in toward the
       // middle, as you would — otherwise the eye sat inside the headrest)
       const yawL = THREE.MathUtils.clamp(camOrbit.yaw, -2.3, 2.3), lean = THREE.MathUtils.smoothstep(Math.abs(yawL), 0.9, 2.1);
-      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), inward = model.holder.worldToLocal(c.clone()).z < 0 ? 1 : -1, eye = c.add(V(-0.6 + 0.2 * lean + hb.x, 0.41 + hb.y, hb.z + inward * 0.3 * lean).applyQuaternion(hq));
+      // (your character's own eyes: a taller driver sits higher, a shorter one lower with the seat moved up)
+      const se = meC && meC.seatEye, sc0 = model.bedInfo && model.bedInfo.dash && model.bedInfo.dash.sc, eyeX = se && sc0 ? se.x - sc0.x : -0.6, eyeY = se && sc0 ? se.y - sc0.y : 0.41;
+      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), inward = model.holder.worldToLocal(c.clone()).z < 0 ? 1 : -1, eye = c.add(V(eyeX + 0.2 * lean + hb.x, eyeY + hb.y, hb.z + inward * 0.3 * lean).applyQuaternion(hq));
       camera.position.copy(eye);
       const pitchL = THREE.MathUtils.clamp(camOrbit.pitch, -0.9, 1.35) - 0.1 + hb.p; // (far enough up to look out through the moonroof)
       camera.quaternion.copy(hq).multiply(new THREE.Quaternion().setFromAxisAngle(YAX, -Math.PI / 2 + yawL)).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitchL))
@@ -9580,7 +10300,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const fovT = d.baseFov + Math.min(16, Math.hypot(d.u, d.vz) * 0.3); camera.fov += (fovT - camera.fov) * Math.min(1, dt * 2.5); camera.updateProjectionMatrix();
     }
     d.tick += dt;
-    if (d.tick > 0.1) { d.tick = 0; handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0 }); }
+    if (d.tick > 0.1) { d.tick = 0; const nr = ctl.mode === 'walk' ? ctl.near : null;
+      handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0,
+        ctl: ctl.mode, fp: ctl.fp, run: !!keys.shift, near: nr ? (nr.mine ? 'mine' : nr.seat < 0 ? 'full' : 'ride') : null, nearName: nr && !nr.mine ? nr.name || 'player' : '', host: ctl.mode === 'ride' ? ((remotes.get(ctl.host) || {}).name || 'player') : '', hint: performance.now() < ctl.hintT ? ctl.hint : '' }); }
     if (landed > 3) handlers.current.onLand && handlers.current.onLand(landed);
   }
 
@@ -9607,6 +10329,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const W = renderer.domElement.width, Hh = renderer.domElement.height, same = (v) => JSON.stringify(v) === JSON.stringify(saved);
     const order = list.map((v, i) => i).sort((a, b) => (same(list[a]) ? 1 : 0) - (same(list[b]) ? 1 : 0));
     const lastIsCurrent = order.length && same(list[order[order.length - 1]]);
+    const charVis = meC ? meC.root.visible : false; if (meC) meC.root.visible = false; // (just the truck in the pictures)
     order.forEach((i) => {
       const veh = list[i];
       base.vehicle = same(veh) ? saved : veh; fitModel(false);
@@ -9619,6 +10342,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       out[i] = c.toDataURL('image/jpeg', 0.86);
     });
     base.vehicle = saved; if (!lastIsCurrent) fitModel(false);
+    if (meC) meC.root.visible = charVis;
     renderFrame();
     return out;
   }
@@ -9710,11 +10434,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const loop = () => {
     raf = requestAnimationFrame(loop);
     const t = clock.getElapsedTime(), dt = Math.min(0.05, Math.max(0.001, t - lastT)); lastT = t; STAR_T.value = t; // (starlight twinkle)
-    if (drive.on) { if (replay.on) replayStep(dt); else driveStep(dt); } else controls.update();
+    if (drive.on) { if (replay.on) replayStep(dt); else { driveStep(dt); if (ctl.mode === 'walk') walkStep(dt); } } else controls.update();
     if (dust.visible) updateDust(dt);
     if (rain.visible) updateRain(dt);
     stepWindows(dt); updateAntenna(dt); if (remotes.size) stepRemotes(dt); outdoor.tick(dt, camera.position, drive.on);
-    updateSteerWheel(); updateMusic();
+    updateSteerWheel(); updateMusic(); peopleStep(dt, t);
     { const now = performance.now(); // reflection capture: when scheduled, or after driving ~25 m (at most every 1.5 s)
       if ((envCap.due.length && now > envCap.due[0]) || (drive.on && now - envCap.last > 1500 && truck.position.distanceTo(envCap.at) > 25)) { envCap.due = envCap.due.filter((t) => t > now); captureEnv(); } }
     engineFx(t, dt);
@@ -9746,7 +10470,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     setPaintTolerance: (v) => { if (model) model.paintMats.forEach((m) => { if (m.userData.paintMode === 'keyed') m.userData.paintU.uTol.value = v; }); },
     setPickPaint: (on) => { pickPaint = !!on && !!model; el.style.cursor = pickPaint ? 'crosshair' : 'grab'; },
     modelInfo,
-    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt) }), // console inspection
+    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), ctl, meC: () => meC, seatsOf, remotes, gripsOf, myTruck }), // console inspection
     startDrive, stopDrive, isDriving: () => drive.on, recenterCam, renderVariants, setCutaway,
     setCutMode: (on, r) => { cutMode = !!on && !!model; if (r) cutR = r; controls.enabled = !cutMode && !drive.on; el.style.cursor = cutMode ? 'crosshair' : 'grab'; },
     setEngine: (s) => { Object.assign(engine, s); },
@@ -9757,6 +10481,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     setReplaySpeed: (s) => { replay.speed = s; replayInfo(); }, toggleReplayPause: () => { replay.paused = !replay.paused; replayInfo(); },
     seekReplay: (f) => { if (!replay.on) return; replay.t = replay.t0 + THREE.MathUtils.clamp(f, 0, 1) * (replay.t1 - replay.t0); replay.cut = true; replay.tv = null; replayInfo(); },
     resetTruck, getPose, getBuild: () => build, setRemotes, setTags: (on) => { tagsOn = on; remotes.forEach((r) => { if (r.tag) r.tag.visible = on; }); },
+    // your character: its look, shown by the truck in the garage (Character menu), F = get in / out (the on-screen button)
+    setCharacter, getCharacter: () => (meC ? meC.spec : null), showCharacter: (on) => { charShow = !!on; }, interact,
+    charHeights: () => ({ person: meC ? meC.height : 1.778, roof: base.P ? base.P.roofTop + (model ? (axleDY(true) + axleDY(false)) / 2 : 0) : null }),
     setCamera: (pos, tgt) => { gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target); camera.position.set(...pos); controls.target.set(...tgt); controls.update(); },
     setWet: (on) => outdoor.setWet(on),
     setQuality: (q) => { post.on = q === 'cinematic' && !!post.composer; },
@@ -10759,19 +11486,22 @@ const Online = (() => {
     if (!meta) throw new Error('No session with that code.');
     await leave();
     st.session = { code, env: meta.env, host: meta.host, hostName: meta.hostName };
-    myRef = db.ref('sessions/' + code + '/players/' + st.user.uid); myRef.onDisconnect().remove(); lastBj = null; // (send the build again in the new session)
+    myRef = db.ref('sessions/' + code + '/players/' + st.user.uid); myRef.onDisconnect().remove(); lastBj = null; lastCj = null; // (send the build & character again in the new session)
     playersRef = db.ref('sessions/' + code + '/players'); playersRef.on('value', (s) => { st.players = s.val() || {}; emit(); });
     emit(); return st.session;
   }
   async function leave() { if (playersRef) playersRef.off(); playersRef = null; if (myRef) { await myRef.remove().catch(() => {}); myRef.onDisconnect().cancel(); } myRef = null; st.session = null; st.players = {}; emit(); }
   // ~10 updates a second: the pose (merged in, so the build stays), plus the whole build — as one JSON string, only when it
   // changes — so everyone sees your truck exactly as you've built it. (Huge strings, like an uploaded image, are left out.)
-  let lastBj = null, bkN = 0;
+  // Your character goes the same way (cj, keyed by ck) — what you're doing with it (walking, at the wheel, riding along) is
+  // in the pose (av).
+  let lastBj = null, bkN = 0, lastCj = null;
   const lean = (v) => (typeof v === 'string' ? (v.length > 4000 ? undefined : v) : Array.isArray(v) ? v.map(lean) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, lean(x)])) : v);
-  function publish(pose, build) {
+  function publish(pose, build, person) {
     if (!myRef) return; const now = performance.now(); if (now - lastPush < 95) return; lastPush = now;
     const msg = { ...pose, name: st.profile ? st.profile.username : 'player', t: fb.database.ServerValue.TIMESTAMP };
     if (build) { const bj = JSON.stringify(lean(build)); if (bj !== lastBj) { lastBj = bj; msg.bj = bj; msg.bk = Date.now().toString(36) + '-' + ++bkN; } }
+    if (person) { const cj = JSON.stringify(person); if (cj !== lastCj) { lastCj = cj; msg.cj = cj; msg.ck = Date.now().toString(36) + '-' + ++bkN; } }
     myRef.update(msg).catch(() => {});
   }
   return { state: st, subscribe: (f) => { subs.add(f); return () => subs.delete(f); }, start, signUp, signIn, signOut, savePresets, host, join, leave, publish };
@@ -11734,7 +12464,43 @@ const CATEGORIES = [
   { id: 'fab',        label: 'Fab & Cutting',       short: 'Fab',        icon: 'Scissors',    view: 'armor',      desc: 'Trim the fenders, cut the bed corners, cab-mount chop — clearance for big tires.' },
   { id: 'cargo',      label: 'Bed & Roof',          short: 'Bed/Roof',   icon: 'Tent',        view: 'cargo',      desc: 'Bed cover, Softopper / Leer shells, bed racks, bed tents, roof racks and rooftop tents.' },
   { id: 'lights',     label: 'Lighting',            short: 'Lights',     icon: 'Lightbulb',   view: 'lights',     desc: 'Ditch lights, light bars, fog pods and rock lights from Baja Designs & Diode Dynamics.' },
+  { id: 'character',  label: 'Character',           short: 'Character',  icon: 'PersonStanding', view: 'character', desc: 'Your driver: height, build, face, hair, shirts, pants, shoes, hats, sunglasses, CB radio headsets — every color. Walk around with it (F gets in / out); everyone in multiplayer sees exactly you.' },
 ];
+// Character menu rows: a color picker (swatches + any color), and the height slider measured against your truck
+function CharColorRow({ label, value, list, onPick, onHover }) {
+  const v = (value || '#000000').toLowerCase();
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5"><span className="hud text-[11px] tracking-[0.2em] uppercase text-white/55">{label}</span><span className="text-[10.5px] text-white/35 font-mono">{v}</span></div>
+      <div className="flex flex-wrap gap-1.5" onMouseLeave={() => onHover(null)}>
+        {list.map((c) => <button key={c} title={c} onMouseEnter={() => onHover(c)} onClick={() => { UISound.select(); onPick(c); }} className={`w-6 h-6 rounded border transition ${v === c.toLowerCase() ? 'border-white ring-2 ring-amber-400' : 'border-white/25 hover:border-white/70 hover:scale-110'}`} style={{ background: c }} />)}
+        <label title="Any color" className="relative w-6 h-6 rounded border border-white/25 hover:border-white/70 cursor-pointer overflow-hidden" style={{ background: 'conic-gradient(#f43f5e,#f59e0b,#84cc16,#06b6d4,#6366f1,#d946ef,#f43f5e)' }}>
+          <input type="color" value={v} onChange={(e) => onPick(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+        </label>
+      </div>
+    </div>
+  );
+}
+function CharHeightRow({ value, roof, onChange }) {
+  const v = THREE.MathUtils.clamp(Math.round(value || 70), CHAR_MIN_IN, CHAR_MAX_IN), roofIn = roof ? Math.round(roof / INCH) : null, d = roofIn !== null ? v - roofIn : 0;
+  return (
+    <div>
+      <div className="flex items-center justify-between"><span className="hud text-[11px] tracking-[0.2em] uppercase text-white/55">Height</span><span className="hud text-[17px] font-bold text-amber-300">{fmtFeet(v)}<span className="text-white/45 text-[12px] font-semibold ml-1.5">{Math.round(v * 2.54)} cm</span></span></div>
+      <input type="range" min={CHAR_MIN_IN} max={CHAR_MAX_IN} step="1" value={v} onChange={(e) => onChange(+e.target.value)} className="hud-range w-full mt-1" />
+      <div className="flex justify-between text-[10.5px] text-white/35 hud tracking-wider"><span>{fmtFeet(CHAR_MIN_IN)}</span><span>{fmtFeet(CHAR_MAX_IN)}</span></div>
+      {roofIn !== null && <div className="text-[11.5px] text-white/60 mt-1 leading-snug">Next to your truck: its roof is {fmtFeet(roofIn)} — you're {d === 0 ? 'right at the roof line' : `${Math.abs(d)}" ${d > 0 ? 'taller than' : 'below'} the roof`}.</div>}
+    </div>
+  );
+}
+// a random look (keeps your height)
+function randomCharacter(cur) {
+  const pick = (o, skip = []) => { const k = Object.keys(o).filter((x) => !skip.includes(x)); return k[Math.floor(Math.random() * k.length)]; }, pc = (a) => a[Math.floor(Math.random() * a.length)], chance = (p) => Math.random() < p;
+  return { ...cur, skin: pc(CHAR_SKINS), build: pick(CHAR_BUILDS), eyes: pc(CHAR_EYE_COLORS), brows: pick(CHAR_BROWS), hair: pick(CHAR_HAIR), hairColor: chance(0.85) ? pc(CHAR_HAIR_COLORS.slice(0, 11)) : pc(CHAR_HAIR_COLORS), facial: pick(CHAR_FACIAL),
+    top: pick(CHAR_TOPS, chance(0.92) ? ['none'] : []), pattern: chance(0.55) ? 'solid' : pick(CHAR_PATTERNS), topColor: pc(CHAR_PALETTE), topColor2: pc(CHAR_PALETTE), graphic: pick(CHAR_GRAPHICS), graphicColor: pc(CHAR_PALETTE),
+    bottom: pick(CHAR_BOTTOMS), bottomColor: pc(CHAR_PALETTE), bottomColor2: pc(CHAR_PALETTE), socks: pick(CHAR_SOCKS), sockColor: pc(CHAR_PALETTE), shoes: pick(CHAR_SHOES), shoeColor: pc(CHAR_PALETTE), shoeColor2: pc(CHAR_PALETTE),
+    hat: chance(0.5) ? 'none' : pick(CHAR_HATS, ['none']), hatColor: pc(CHAR_PALETTE), hatColor2: pc(CHAR_PALETTE), glasses: chance(0.5) ? 'none' : pick(CHAR_GLASSES, ['none']), lens: pick(CHAR_LENSES), frameColor: pc(CHAR_PALETTE),
+    headset: chance(0.25) ? pick(CHAR_HEADSETS, ['none']) : 'none', headsetColor: pc(CHAR_PALETTE), chain: chance(0.3) ? pick(CHAR_METALS, ['none']) : 'none', watch: chance(0.4) ? pick(CHAR_METALS, ['none']) : 'none', gloves: chance(0.15) ? pick(CHAR_GLOVES, ['none']) : 'none', gloveColor: pc(CHAR_PALETTE) };
+}
 const HOVER_HINT = {
   hood: 'Click the hood to open / close it', wheel: 'Click to open Wheels & Tires', suspension: 'Click to open Suspension',
   armor: 'Click to open Body Armor', bumper: 'Click to open Body Armor', engine: 'Click to open Hood / Engine', door: 'Click to open / close the doors',
@@ -11749,6 +12515,10 @@ function App() {
   const geom = useMemo(() => vehicleGeometry(vehicle), [vehicle]);
   const [applied, setApplied] = useState(DEFAULT_BUILD);
   const [preview, setPreview] = useState(null);
+  // your character (Character menu): kept in this browser and sent to everyone in a multiplayer session; hover previews
+  const [charSpec, setCharSpec] = useState(() => { try { return { ...CHAR_DEFAULT, ...(JSON.parse(localStorage.getItem('apex.char') || 'null') || {}) }; } catch (e) { return { ...CHAR_DEFAULT }; } });
+  const [charPreview, setCharPreview] = useState(null);
+  const effChar = useMemo(() => ({ ...charSpec, ...(charPreview || {}) }), [charSpec, charPreview]);
   const [category, setCategory] = useState(null);
   const [view, setView] = useState('full');
   const [hoodOpen, setHoodOpen] = useState(false);
@@ -11822,8 +12592,9 @@ function App() {
   }, [goView]);
   const back = useCallback(() => openCategory(null), [openCategory]);
   const applyPatch = useCallback((p) => { setApplied((a) => ({ ...a, ...p })); setPreview(null); }, []);
-  const onApply = useCallback((it) => { if (it.patch) applyPatch(it.patch); if (it.action) it.action(); }, [applyPatch]);
-  const onPreview = useCallback((p) => setPreview(p), []);
+  // (character options carry { __char: {...} } instead of a truck patch)
+  const onApply = useCallback((it) => { if (it.patch && it.patch.__char) { setCharSpec((c) => ({ ...c, ...it.patch.__char })); setCharPreview(null); } else if (it.patch) applyPatch(it.patch); if (it.action) it.action(); }, [applyPatch]);
+  const onPreview = useCallback((p) => { if (p && p.__char) { setCharPreview(p.__char); setPreview(null); } else { setPreview(p); setCharPreview(null); } }, []);
 
   const handlers = useRef({});
   handlers.current = {
@@ -11857,6 +12628,15 @@ function App() {
     catch (err) { console.error(err); setError(String((err && err.message) || err)); }
     return () => { stageRef.current && stageRef.current.dispose(); stageRef.current = null; };
   }, []);
+  // your character: onto the stage (shown by the truck while the Character menu is open), saved here
+  useEffect(() => { stageRef.current && stageRef.current.setCharacter(effChar); }, [effChar, ready]);
+  useEffect(() => { try { localStorage.setItem('apex.char', JSON.stringify(charSpec)); } catch (e) { /* storage full / blocked */ } }, [charSpec]);
+  useEffect(() => { stageRef.current && stageRef.current.showCharacter(category === 'character' && !driving); }, [category, driving, ready]);
+  useEffect(() => { // willdidthis.com/#character (the landing page's Character card) opens straight into the Character menu
+    if (!ready) return undefined;
+    const go = () => { if (location.hash === '#character') openCategory('character'); };
+    go(); window.addEventListener('hashchange', go); return () => window.removeEventListener('hashchange', go);
+  }, [ready]);
   const firstBase = useRef(true);
   useEffect(() => {
     if (firstBase.current) { firstBase.current = false; return; }
@@ -11903,13 +12683,13 @@ function App() {
   useEffect(() => {
     if (!on.session) { stageRef.current && stageRef.current.setRemotes([]); return; }
     if (on.session.env && on.session.env !== envId && ENVIRONMENTS.some((e) => e.id === on.session.env)) setEnvId(on.session.env);
-    const me = on.user && on.user.uid, iv = setInterval(() => { const st = stageRef.current; if (st) Online.publish(st.getPose(), st.getBuild()); }, 100);
+    const me = on.user && on.user.uid, iv = setInterval(() => { const st = stageRef.current; if (st) Online.publish(st.getPose(), st.getBuild(), st.getCharacter()); }, 100);
     return () => clearInterval(iv);
   }, [on.session && on.session.code]);
   useEffect(() => {
     const st = stageRef.current; if (!st || !on.session) return;
     const me = on.user && on.user.uid, now = Date.now();
-    st.setRemotes(Object.entries(on.players || {}).filter(([id, p]) => id !== me && p && (!p.t || now - p.t < 15000)).map(([id, p]) => ({ id, ...p })));
+    st.setRemotes(Object.entries(on.players || {}).filter(([id, p]) => id !== me && p && (!p.t || now - p.t < 15000)).map(([id, p]) => ({ id, ...p })), me);
   }, [on.players]);
   useEffect(() => { stageRef.current && stageRef.current.setTags(tagsOn); }, [tagsOn]);
   useEffect(() => {
@@ -12207,6 +12987,47 @@ function App() {
       ];
     }
     items = items.map((it) => (it.kind === 'item' && it.right === undefined && !it.installed && it.price === undefined ? { ...it, right: null } : it));
+  } else if (category === 'character') {
+    title = 'Character';
+    const cs = charSpec, ch = (p) => ({ __char: p });
+    defaultDesc = 'Your driver — at the wheel, on foot (F gets in / out) and exactly what everyone sees in multiplayer. Hover to preview, click to wear.';
+    const wear = (on) => (on ? <span className="flex items-center gap-1 hud text-[13px] font-bold tracking-wider text-emerald-300"><Icon name="CheckCircle2" size={15} /> WEARING</span> : '');
+    const opt = (key, table, icon, pre = '', descOf = null) => Object.entries(table).map(([id, x]) => ({ kind: 'item', icon, label: pre + (typeof x === 'string' ? x : x.label), right: wear((cs[key] || CHAR_DEFAULT[key]) === id), installed: cs[key] === id, patch: ch({ [key]: id }), desc: descOf ? descOf(id, x) : undefined }));
+    const colors = (key, label, list = CHAR_PALETTE) => ({ kind: 'custom', render: () => <CharColorRow label={label} value={cs[key] || CHAR_DEFAULT[key]} list={list} onPick={(v) => { setCharSpec((c) => ({ ...c, [key]: v })); setCharPreview(null); }} onHover={(v) => setCharPreview(v ? { [key]: v } : null)} /> });
+    const hts = stageRef.current ? stageRef.current.charHeights() : { roof: null };
+    const GRAPHIC_DESC = 'Original Daygo Customs designs in the style of real streetwear (no real brand logos — those are trademarks).';
+    items = [
+      { kind: 'header', label: 'Height & build' },
+      { kind: 'custom', render: () => <CharHeightRow value={cs.heightIn} roof={hts.roof} onChange={(v) => setCharSpec((c) => ({ ...c, heightIn: v }))} /> },
+      ...opt('build', CHAR_BUILDS, 'PersonStanding', 'Build · '),
+      { kind: 'header', label: 'Skin & face' },
+      colors('skin', 'Skin tone', CHAR_SKINS), colors('eyes', 'Eye color', CHAR_EYE_COLORS),
+      ...opt('brows', CHAR_BROWS, 'Eye', 'Eyebrows · '),
+      { kind: 'header', label: 'Hair' },
+      ...opt('hair', CHAR_HAIR, 'Scissors'), colors('hairColor', 'Hair color', CHAR_HAIR_COLORS),
+      ...opt('facial', CHAR_FACIAL, 'Smile'),
+      { kind: 'header', label: 'Shirt' },
+      ...opt('top', CHAR_TOPS, 'Shirt'),
+      ...(cs.top !== 'none' ? [colors('topColor', 'Shirt color'), ...opt('pattern', CHAR_PATTERNS, 'Grid3x3', 'Pattern · '), colors('topColor2', 'Second color · pattern, sleeves, accents'),
+        { kind: 'header', label: 'Shirt graphic' }, ...opt('graphic', CHAR_GRAPHICS, 'Type', '', () => GRAPHIC_DESC), colors('graphicColor', 'Graphic color')] : []),
+      { kind: 'header', label: 'Pants & shorts' },
+      ...opt('bottom', CHAR_BOTTOMS, 'Ruler'), colors('bottomColor', 'Pants / shorts color'), ...(cs.bottom === 'track' ? [colors('bottomColor2', 'Stripe color')] : []),
+      { kind: 'header', label: 'Socks & shoes' },
+      ...opt('shoes', CHAR_SHOES, 'Footprints'), colors('shoeColor', 'Shoe color'), colors('shoeColor2', 'Shoe accents · laces, stripes'),
+      ...opt('socks', CHAR_SOCKS, 'Footprints', 'Socks · '), ...(cs.socks !== 'none' ? [colors('sockColor', 'Sock color')] : []),
+      { kind: 'header', label: 'Hats' },
+      ...opt('hat', CHAR_HATS, 'HardHat'), ...(cs.hat !== 'none' ? [colors('hatColor', 'Hat color'), ...(['trucker', 'cowboy'].includes(cs.hat) ? [colors('hatColor2', cs.hat === 'trucker' ? 'Front panel color' : 'Band color')] : [])] : []),
+      { kind: 'header', label: 'Sunglasses' },
+      ...opt('glasses', CHAR_GLASSES, 'Glasses'), ...(cs.glasses !== 'none' ? [...opt('lens', CHAR_LENSES, 'Sun', 'Lens · '), colors('frameColor', 'Frame color')] : []),
+      { kind: 'header', label: 'CB radio headset' },
+      ...opt('headset', CHAR_HEADSETS, 'Headphones', '', (id) => (id === 'cb' ? 'Over-the-ear CB / trail radio headset with a boom mic — the pre-runner look.' : id === 'intercom' ? 'Big race-car intercom headset (Rugged / PCI style) with the boom mic and cord plug.' : 'Nothing on your ears.')),
+      ...(cs.headset !== 'none' ? [colors('headsetColor', 'Headset color')] : []),
+      { kind: 'header', label: 'Accessories' },
+      ...opt('chain', CHAR_METALS, 'Link', 'Chain · '), ...opt('watch', CHAR_METALS, 'Watch', 'Watch · '), ...opt('gloves', CHAR_GLOVES, 'Hand'), ...(cs.gloves === 'race' ? [colors('gloveColor', 'Glove color')] : []),
+      { kind: 'header', label: 'Quick looks' },
+      { kind: 'item', icon: 'Shuffle', label: 'Randomize my look', right: null, desc: 'A random outfit, hair and face (your height stays).', action: () => { setCharSpec((c) => randomCharacter(c)); setCharPreview(null); } },
+      { kind: 'item', icon: 'RotateCcw', label: 'Back to the default look', right: null, desc: 'Black Daygo tee, jeans and white sneakers.', action: () => { setCharSpec({ ...CHAR_DEFAULT }); setCharPreview(null); } },
+    ];
   } else if (category === 'lights') {
     title = 'Lighting';
     defaultDesc = 'Hover to preview, click to install. Turn the lights on to see the beams on the road.';
@@ -13031,6 +13852,24 @@ function App() {
       )}
       {driving && (
         <>
+          {/* on foot / riding along: what F does here, and the keys */}
+          {driveHud && (driveHud.ctl === 'walk' || driveHud.ctl === 'ride' || driveHud.hint) && !replayHud && (
+            <div className="absolute z-30 left-1/2 -translate-x-1/2 bottom-6 md:bottom-8 flex flex-col items-center gap-2 pointer-events-none w-[min(560px,calc(100vw-24px))]">
+              {driveHud.hint && <div className="glass-panel border border-amber-400/50 rounded-full px-4 py-1.5 hud text-[14px] font-bold tracking-wider text-amber-200 fade-up">{driveHud.hint}</div>}
+              {driveHud.ctl === 'walk' && driveHud.near && (
+                <div onClick={() => stageRef.current && stageRef.current.interact()} className={`pointer-events-auto cursor-pointer glass-panel border rounded-full px-4 py-2 hud text-[15px] font-bold tracking-wider flex items-center gap-2 ${driveHud.near === 'full' ? 'border-white/15 text-white/60' : 'border-amber-400/60 text-white hover:bg-amber-400/15'}`}>
+                  {driveHud.near !== 'full' && <span className="rounded bg-amber-400 text-black px-1.5 leading-tight">F</span>}
+                  {driveHud.near === 'mine' ? 'Get in your truck' : driveHud.near === 'ride' ? `Ride with ${driveHud.nearName}` : `${driveHud.nearName}'s truck is full`}
+                </div>
+              )}
+              {driveHud.ctl === 'ride' && <div onClick={() => stageRef.current && stageRef.current.interact()} className="pointer-events-auto cursor-pointer glass-panel border border-white/10 rounded-full px-4 py-1.5 hud text-[13.5px] font-bold tracking-wider text-white/85 flex items-center gap-2 hover:bg-white/10">Riding with {driveHud.host}<span className="rounded bg-white/15 px-1.5 leading-tight text-[12px]">F · GET OUT</span></div>}
+              {driveHud.ctl !== 'drive' && (
+                <div className="glass-panel border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white/60 hud tracking-wider text-center leading-snug">
+                  {driveHud.ctl === 'walk' ? <>WASD walk · Shift run · Space jump · mouse look (click to lock) · C / scroll {driveHud.fp ? 'third person' : 'first person'} · F get in · Esc exit</> : <>Mouse look · C / scroll {driveHud.fp ? 'outside camera' : 'your seat'} · F get out · Esc exit</>}
+                </div>
+              )}
+            </div>
+          )}
           {driveHud && driveHud.resetHold > 0 && (
             <div className="absolute z-40 left-1/2 -translate-x-1/2 top-[76px] glass-panel border border-amber-400/50 rounded-lg px-4 py-2 w-56">
               <div className="hud text-[12px] font-bold tracking-wider text-amber-300 text-center">HOLD R — RESETTING</div>
@@ -13127,7 +13966,8 @@ function App() {
                     ))}
                   </div>
                   <div className="mt-2"><TimeOfDayControl value={applied.tod} onChange={(h) => applyPatch({ tod: h })} /></div>
-                  <button onPointerDown={() => WorldAudio.horn(true)} onPointerUp={() => WorldAudio.horn(false)} onPointerLeave={() => WorldAudio.horn(false)} className="w-full mt-2 rounded py-1.5 hud text-[11px] font-bold border border-white/15 text-white/80 hover:bg-white/10 select-none">HOLD FOR HORN (H)</button>                  <div className="hud text-[10.5px] tracking-[0.18em] text-white/45 mt-2 mb-1">CAMERA (C)</div>
+                  <button onPointerDown={() => WorldAudio.horn(true)} onPointerUp={() => WorldAudio.horn(false)} onPointerLeave={() => WorldAudio.horn(false)} className="w-full mt-2 rounded py-1.5 hud text-[11px] font-bold border border-white/15 text-white/80 hover:bg-white/10 select-none">HOLD FOR HORN (H)</button>
+                  <button onClick={() => { stageRef.current && stageRef.current.interact(); setHudPop(null); }} className="w-full mt-1 rounded py-1.5 hud text-[11px] font-bold border border-white/15 text-white/80 hover:bg-white/10">GET OUT & WALK (F)</button>                  <div className="hud text-[10.5px] tracking-[0.18em] text-white/45 mt-2 mb-1">CAMERA (C)</div>
                   <div className="grid grid-cols-4 gap-1">
                     {['Chase', 'Close', 'Side', 'Driver'].map((l, i) => (
                       <button key={l} onClick={() => stageRef.current && stageRef.current.setDriveCam(i)} className="rounded py-1 hud text-[11px] font-bold border border-white/12 text-white/70 hover:bg-white/10">{l}</button>
@@ -13146,7 +13986,7 @@ function App() {
             </div>
             <div className="relative h-1.5 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${driveHud ? Math.min(100, (driveHud.rpm / 6200) * 100) : 0}%` }} /></div>
             {driveHud && (driveHud.drift > 12 || driveHud.spinning || driveHud.tcLit) && <div className="mt-1.5 flex gap-1.5">{driveHud.drift > 12 && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-amber-400 text-black hud tracking-wider">DRIFT {Math.round(driveHud.drift)}°</span>}{driveHud.spinning && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-red-500 text-white hud tracking-wider">WHEELSPIN · {driveHud.diff === 'open' ? 'OPEN DIFF' : driveHud.diff === 'lsd' ? 'LSD' : 'LOCKED'}</span>}{driveHud.tcLit && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-emerald-400 text-black hud tracking-wider animate-pulse">{driveHud.tc === 'atrac' ? 'A-TRAC' : 'TCS'}</span>}</div>}
-            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · hold R reset · P photo mode · Esc exit</div>
+            <div className="text-[10.5px] text-white/45 mt-2 leading-snug">W/S or ↑/↓ gas · brake / reverse · A/D steer · Space handbrake (drift) · E/Q shift up/down · M auto · C camera · H horn · W+S burnout · hold R reset · F get out · P photo mode · Esc exit</div>
            </div>
             <div className="flex gap-1 mt-2.5">
               {[['lights', 'Lightbulb', 'Lights'], ['windows', 'PanelTop', 'Windows'], ['audio', 'Music', 'Audio'], ['volume', 'Volume2', 'Volume'], ['drive', 'Settings2', 'Drive']].map(([id, ic, l]) => (

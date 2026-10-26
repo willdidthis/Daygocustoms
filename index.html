@@ -8,7 +8,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Daygo Customs 3D</title>
-<meta name="description" content="Daygo Customs — build your dream 1st-gen Tundra in 3D, then take it off-road." />
+<meta name="description" content="Daygo Customs — build your dream truck in 3D, then take it off-road." />
 <meta name="theme-color" content="#07080b" />
 <!-- tab icon: "DC" monogram on a dark tile with an ocean-cyan edge (replaces the browser's default globe) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2367e8f9'/%3E%3Cstop offset='1' stop-color='%230e7490'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='%230b0f17' stroke='url(%23g)' stroke-width='4'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-style='italic' font-size='29' fill='url(%23g)'%3EDC%3C/text%3E%3C/svg%3E" />
@@ -200,7 +200,7 @@
         <svg class="art" viewBox="0 0 300 130" aria-hidden="true"><path fill="currentColor" d="M8 92 L8 58 L136 58 L141 24 Q143 17 151 17 L197 17 Q204 17 208 23 L228 52 L284 56 Q293 57 293 65 L293 88 Q293 92 289 92 Z" /><path fill="#0b0f17" opacity=".8" d="M150 25 L176 25 L176 50 L147 50 Z M182 25 L198 25 Q202 25 204 29 L218 50 L182 50 Z" /><circle cx="62" cy="96" r="25" fill="currentColor" /><circle cx="62" cy="96" r="12" fill="#0b0f17" /><circle cx="240" cy="96" r="25" fill="currentColor" /><circle cx="240" cy="96" r="12" fill="#0b0f17" /></svg>
         <div class="kick">The 3D garage</div>
         <h2>Daygo Customs 3D</h2>
-        <p>Build your dream 1st-gen Tundra (paint, lifts, long travel, wheels, lights, interior), then take it to the dunes, the drift lot or the jump track with friends.</p>
+        <p>Build your dream truck — the Doyoda Dundra or three generations of the Dord D-D50 (paint, lifts, long travel, wheels, lights, interior) — then take it to the dunes, the drift lot or the jump track with friends.</p>
         <div class="chips"><span>Customize</span><span>Off-road</span><span>Multiplayer</span></div>
         <div class="go">Enter the garage <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
       </button>
@@ -324,6 +324,48 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
    trim: [name, engine, hp, lb-ft, tire, ground clearance (in), approach°, departure°, breakover°, curb lb, drive?]
    ===================================================================== */
 const CATALOG = {
+  // ---- the garage's own lineup (made-up brands — every one has a 3D model, see LINEUP / STOCK_MODELS). Specs follow the
+  // real trucks / car each is modelled on.
+  Doyoda: {
+    Dundra: [
+      { gen: '1st Gen', years: [2000, 2006], body: 'pickup', fs: 'ifs', dims: [128.3, 217.5, 75.2, 71.7], trims: [
+        ['SR5 V6', '3.4L V6 (5VZ-FE)', 190, 220, '245/75R16', 10.4, 29, 24, 19, 4200],
+        ['SR5 V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.4, 30, 25, 19.5, 4500],
+        ['Limited V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.4, 30, 25, 19.5, 4650],
+        ['TRD Off-Road V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.6, 31, 25, 20, 4600],
+      ] },
+    ],
+  },
+  Dord: {
+    'D-D50': [
+      { gen: '12th Gen', years: [2009, 2014], body: 'pickup', fs: 'ifs', dims: [144.5, 231.7, 78.9, 76.0], cab: 'crew', trims: [
+        ['DLT 5.0 V8 Crew Cab', '5.0L V8', 360, 380, '275/65R18', 8.9, 25.5, 26.2, 21.1, 5200],
+        ['DLT TurboBoost Crew Cab', '3.5L Twin-Turbo V6', 365, 420, '275/65R18', 8.9, 25.5, 26.2, 21.1, 5300],
+        ['Dariat 6.2 Crew Cab', '6.2L V8', 411, 434, '275/55R20', 8.9, 24.8, 25.5, 20.9, 5550],
+      ] },
+      { gen: '13th Gen', years: [2015, 2020], body: 'pickup', fs: 'ifs', dims: [145.0, 231.9, 79.9, 77.2], cab: 'super', trims: [
+        ['DL Super Cab', '3.5L V6', 282, 253, '245/70R17', 8.8, 24.8, 26.0, 21.0, 4400],
+        ['DLT Super Cab', '2.7L TurboBoost V6', 325, 375, '265/70R17', 9.4, 25.5, 26.0, 21.0, 4600],
+        ['DLT Sport 5.0 Super Cab', '5.0L V8', 385, 387, '275/55R20', 9.4, 24.8, 25.5, 20.9, 4900],
+      ] },
+      { gen: '13th Gen Daptor', years: [2017, 2020], body: 'pickup', fs: 'ifs', dims: [145.0, 231.9, 86.3, 78.5], cab: 'crew', trims: [
+        ['Daptor Crew Cab', '3.5L HO TurboBoost V6', 450, 510, '315/70R17', 11.5, 30.2, 23.0, 22.9, 5525],
+        ['Daptor Pursuit Crew Cab', '3.5L HO TurboBoost V6', 450, 510, '315/70R17', 11.5, 30.2, 23.0, 22.9, 5650],
+      ] },
+      { gen: '14th Gen', years: [2021, 2024], body: 'pickup', fs: 'ifs', dims: [145.0, 232.6, 86.3, 78.5], cab: 'crew', trims: [
+        ['Daptor Crew Cab', '3.5L HO TurboBoost V6', 450, 510, '315/70R17', 12.0, 31.0, 23.9, 22.7, 5700],
+        ['Daptor 37 Crew Cab', '3.5L HO TurboBoost V6', 450, 510, '37x12.50R17', 13.1, 33.1, 24.9, 24.4, 5800],
+        ['Daptor R Crew Cab', '5.2L Supercharged V8', 720, 640, '37x12.50R17', 13.1, 33.2, 24.9, 24.4, 6000],
+      ] },
+    ],
+  },
+  Dexus: {
+    ISD: [
+      { gen: '2nd Gen', years: [2008, 2014], body: 'sedan', fs: 'ifs', dims: [108.3, 183.5, 71.5, 55.7], trims: [
+        ['Sport Sedan', '5.0L V8', 416, 371, '225/40R19', 5.1, 15, 19, 13, 3780, 'RWD'],
+      ] },
+    ],
+  },
   Toyota: {
     Tacoma: [
       { gen: '1st Gen', years: [1995, 2004], body: 'pickup', fs: 'ifs', dims: [121.9, 203.1, 66.5, 68.7], trims: [
@@ -375,12 +417,6 @@ const CATALOG = {
       ] },
     ],
     Tundra: [
-      { gen: '1st Gen', years: [2000, 2006], body: 'pickup', fs: 'ifs', dims: [128.3, 217.5, 75.2, 71.7], trims: [
-        ['SR5 V6', '3.4L V6 (5VZ-FE)', 190, 220, '245/75R16', 10.4, 29, 24, 19, 4200],
-        ['SR5 V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.4, 30, 25, 19.5, 4500],
-        ['Limited V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.4, 30, 25, 19.5, 4650],
-        ['TRD Off-Road V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.6, 31, 25, 20, 4600],
-      ] },
       { gen: '2nd Gen', years: [2007, 2021], body: 'pickup', fs: 'ifs', dims: [145.7, 228.9, 79.9, 76.2], trims: [
         ['SR5 4.6', '4.6L i-Force V8', 310, 327, '255/70R18', 10.4, 26, 24, 20, 5200],
         ['SR5 5.7', '5.7L i-Force V8', 381, 401, '255/70R18', 10.4, 26, 24, 20, 5500],
@@ -689,9 +725,9 @@ const CATALOG = {
   },
 };
 
-const BODY_LABEL = { pickup: 'Crew-cab pickup', suv: '4-door body-on-frame SUV', suv2: '2-door SUV', crossover: 'Crossover / unibody SUV' };
-const OH_FRAC = { pickup: 0.40, suv: 0.46, suv2: 0.50, crossover: 0.50 };
-const FRAME_OFF = { pickup: 5, suv: 4, suv2: 4, crossover: 1.5 };
+const BODY_LABEL = { pickup: 'Crew-cab pickup', suv: '4-door body-on-frame SUV', suv2: '2-door SUV', crossover: 'Crossover / unibody SUV', sedan: 'Sports sedan' };
+const OH_FRAC = { pickup: 0.40, suv: 0.46, suv2: 0.50, crossover: 0.50, sedan: 0.42 };
+const FRAME_OFF = { pickup: 5, suv: 4, suv2: 4, crossover: 1.5, sedan: 1 };
 const INCH = 0.0254;
 // gravity on an airborne truck (m/s²): a bit over 1 g — at true 9.81 the jumps read floaty at game scale and you sailed too far
 const AIR_G = 13.2;
@@ -708,7 +744,7 @@ function parseTire(size) {
 }
 
 // Configurator-backed generations: the catalog row's trim index maps to a starting factory configuration.
-const CONFIGURATORS = { 'Toyota|Tundra|1st Gen': () => TUNDRA1 };
+const CONFIGURATORS = { 'Doyoda|Dundra|1st Gen': () => TUNDRA1 };
 const configuratorFor = (v) => (v && CONFIGURATORS[[v.make, v.model, v.gen].join('|')] ? CONFIGURATORS[[v.make, v.model, v.gen].join('|')]() : null);
 const TUNDRA1_TRIM_CFG = [
   { cab: 'access', trim: 'SR5', engine: 'v6', drive: '4x4' }, { cab: 'access', trim: 'SR5', engine: 'v8', drive: '4x4' },
@@ -717,7 +753,7 @@ const TUNDRA1_TRIM_CFG = [
 
 function makeVehicle(make, model, genIdx, year, trimIdx, cfg) {
   const gen = CATALOG[make][model][genIdx];
-  if (make === 'Toyota' && model === 'Tundra' && gen.gen === '1st Gen') {
+  if (make === 'Doyoda' && model === 'Dundra' && gen.gen === '1st Gen') {
     const v = TUNDRA1.spec(year, cfg || TUNDRA1_TRIM_CFG[trimIdx] || TUNDRA1_TRIM_CFG[1]);
     return { ...v, genIdx, trimIdx };
   }
@@ -728,15 +764,80 @@ function makeVehicle(make, model, genIdx, year, trimIdx, cfg) {
   return {
     source: 'catalog', make, model, gen: gen.gen, genIdx, trimIdx, year, trim, engine, hp, tq, tire,
     clearance, approach, departure, breakover, curb, drive: drive || '4x4',
-    body: gen.body, fs: gen.fs, spare: !!gen.spare, wb, len, wid, hgt,
+    body: gen.body, fs: gen.fs, spare: !!gen.spare, wb, len, wid, hgt, cab: gen.cab || null,
     stockDia: tp.dia, stockWidth: tp.width, stockRim: tp.rim,
   };
 }
 // One stored 3D model per vehicle generation (custom-spec vehicles key on their names).
 const vehicleKey = (v) => [v.make, v.model, v.gen || 'custom'].join('|');
+
+/* =====================================================================
+   THE GARAGE LINEUP — every vehicle with its own 3D model, by body type (top-left vehicle button → Garage). The brands
+   and models are made up (Doyoda, Dord, Dexus — no real trademarks); specs follow the real vehicle each is modelled on.
+   Each generation is a CATALOG row + a stock .glb in models/ with a profile of hints for that file (each artist names and
+   builds things their own way): which materials are paint / glass, what to hide (badges, the model's own suspension that
+   the 3D chassis replaces, police gear on the civilian trim), wheel fixes, orientation.
+   ===================================================================== */
+const LINEUP_TYPES = [
+  { id: 'truck', label: 'Trucks', icon: 'Truck' }, { id: 'suv', label: 'SUVs', icon: 'CarFront' }, { id: 'sedan', label: 'Sedans', icon: 'Car' },
+  { id: 'coupe', label: 'Coupes', icon: 'Car' }, { id: 'hatchback', label: 'Hatchbacks', icon: 'Car' }, { id: 'wagon', label: 'Wagons', icon: 'Car' },
+  { id: 'convertible', label: 'Convertibles', icon: 'Car' }, { id: 'sports', label: 'Sports cars', icon: 'Gauge' }, { id: 'van', label: 'Vans', icon: 'Bus' },
+];
+const LINEUP = [
+  { type: 'truck', make: 'Doyoda', model: 'Dundra', blurb: 'The one that started it all. Regular, Access & Double Cab, every factory option, fully modded.',
+    gens: [{ gen: '1st Gen', label: '1st Gen', years: '2000–2006', note: 'Regular · Access · Double Cab' }] },
+  { type: 'truck', make: 'Dord', model: 'D-D50', blurb: "America's full-size workhorse — three generations, from the 5.0 V8 Crew Cab to the 720 hp Daptor R.",
+    gens: [{ gen: '12th Gen', label: '12th Gen', years: '2009–2014', note: 'Crew Cab · lifted on 35s' }, { gen: '13th Gen', label: '13th Gen', years: '2015–2020', note: 'Super Cab' },
+      { gen: '13th Gen Daptor', label: '13th Gen Daptor', years: '2017–2020', note: 'Crew Cab · desert runner / Pursuit' }, { gen: '14th Gen', label: '14th Gen Daptor', years: '2021–2024', note: 'Crew Cab · Daptor R' }] },
+  { type: 'sedan', make: 'Dexus', model: 'ISD', blurb: 'V8 sports sedan. Drive it now — mods are coming in a later update.', locked: true,
+    gens: [{ gen: '2nd Gen', label: '2nd Gen', years: '2008–2014', note: '5.0 V8 · drive only for now' }] },
+];
+// the vehicle a lineup generation opens with (its first catalog trim, latest year)
+const lineupVehicle = (make, model, gen) => { const gens = CATALOG[make][model], gi = Math.max(0, gens.findIndex((g) => g.gen === gen)); return makeVehicle(make, model, gi, gens[gi].years[1], 0, make === 'Doyoda' ? { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' } : undefined); };
+const lineupOf = (v) => LINEUP.find((e) => v && e.make === v.make && e.model === v.model) || null;
+const isLocked = (v) => !!(lineupOf(v) && lineupOf(v).locked); // (drive-only for now: no customizing)
+// stock 3D model per generation (url relative to the page). prof: see prepModel
+const STOCK_MODELS = {
+  'Doyoda|Dundra|1st Gen': { url: 'car.glb', ident: { cab: 'double' } },
+  'Dord|D-D50|12th Gen': { url: 'models/dord-d50-12.glb', ident: { cab: 'crew' }, prof: {
+    merge: true, rotY: Math.PI / 2, paint: /^Color_A17$/, glass: /^(Color_006|Translucent_Glass_Gray|material_45)$/,
+    badges: /\| (Color_I11|Color_004_1)$/, // (the blue ovals & their rings)
+    // the oval's chrome surround & the model badges (tailgate, both front fenders) — model inches
+    cut: [[134.5, 51, -335, 149.5, 57.5, -331.6], [161.5, 51.5, -335, 179.5, 57.5, -331.6], [99, 58.5, -141.5, 102.9, 63.5, -122], [181.4, 58.5, -141.5, 185.3, 63.5, -122], [135.5, 49.5, -77.6, 148.8, 57, -73.8]]
+      .map(([x0, y0, z0, x1, y1, z1]) => ({ node: /./, mat: /^(Color_00[0237]|Color_008|Color_A01_3)$/, min: [x0, y0, z0], max: [x1, y1, z1], badge: true })) } },
+  'Dord|D-D50|13th Gen': { url: 'models/dord-d50-13.glb', ident: { cab: 'super' }, prof: {
+    // the maker's ovals & model badges are painted into the atlases: those triangles become dev-mode badges; the wheels'
+    // centre caps are painted plain silver
+    uvCut: [{ mat: /^Material_1$/, size: 1024, rects: [[4, 408, 170, 482], [2, 482, 242, 550], [686, 474, 1020, 509]] }, { mat: /^Material_3$/, size: 1024, rects: [[930, 126, 1024, 182]] }],
+    texFill: [{ mat: /^Material_1$/, size: 1024, round: true, rects: [[924, 652, 1012, 712, '#b9bdc2']] }],
+    // (its bumpers are in the body's white atlas, so the paint would take them: chrome from the factory)
+    zoneDefaults: { frontBumper: { hex: '#d9dcdf', finish: 'chrome' }, rearBumper: { hex: '#d9dcdf', finish: 'chrome' } } } },
+  'Dord|D-D50|13th Gen Daptor': { url: 'models/dord-d50-13-daptor.glb', ident: { cab: 'crew' }, prof: {
+    paint: /smallspecmap__PAINT_1_/, detailed: true, wheels: /\bhub_/, hide: /\bsuspension_\d/,
+    badges: /\| (Black|for_badge\.001)$/, // (grille & tailgate lettering, the steering-wheel badge)
+    police: /\b(extra_\d|radar|siren_glass|misc_stuff)/, policeTrim: /Pursuit/, // (hidden LED strobes, radar, in-car computer & camera: the Pursuit trim)
+    fix: (obj) => { // the front-left tyre was modelled steered: swapped for a mirror image of the front-right one
+      let bad = null, good = null; const c = new THREE.Vector3();
+      obj.traverse((o) => { if (!o.isMesh || !o.material) return; if (o.material.name === 'vehicle_generic_tyrewallblack.002') bad = o; else if (o.material.name === 'vehicle_generic_tyrewallblack.001') { new THREE.Box3().setFromObject(o).getCenter(c); if (c.z < 0) good = o; } });
+      if (!bad || !good) return null;
+      const g = good.geometry.clone(); g.applyMatrix4(good.matrixWorld); g.scale(-1, 1, 1);
+      if (g.index) { const ix = g.index.array; for (let i = 0; i < ix.length; i += 3) { const t = ix[i + 1]; ix[i + 1] = ix[i + 2]; ix[i + 2] = t; } g.index.needsUpdate = true; }
+      const m = new THREE.Mesh(g, good.material); m.name = 'wheel_lf_tyre'; obj.add(m); bad.parent.remove(bad);
+      return 'Straightened the front-left tyre (it was modelled turned).';
+    } } },
+  'Dord|D-D50|14th Gen': { url: 'models/dord-d50-14.glb', ident: { cab: 'crew' }, prof: {
+    paint: /Paaint/i, notPaint: /grid|caalb/i, detailed: true, hide: /SK_Suspension/, // (the model's own arms, axle & links: the 3D suspension replaces them)
+    // the maker's name: grille letters, tailgate letters & badges, the bedside lettering graphic
+    badges: /SM_Bumper_F.*\| RaptorGrille_F$|SK_Trunk.*\| Logo_D$|SM_Fender_B.*\| Logo$/, fillBadges: /SK_Trunk.*\| RaptorGrille_F$/,
+    cut: [{ node: /SM_Bumper_F/, mat: /^Exhaust$/, min: [-0.565, 0.995, 2.845], max: [0.565, 1.095, 3.2], unit: 0.01, badge: true }] } },
+  'Dexus|ISD|2nd Gen': { url: 'models/dexus-isd.glb', ident: {}, prof: { car: true, detailed: true, paint: /^Vehicle_Exterior_mm_ext$/, paintTol: 1.3, badges: /mm_badges/ } }, // (badge decals: grille, trunk, bumpers; every material is "Exterior", only _ext is the paint)
+};
+const stockModelFor = (v) => STOCK_MODELS[vehicleKey(v)] || null;
+// what the header & menus call a vehicle
+const vehicleName = (v) => `${v.year} ${v.make} ${v.model}`;
 // 1st-gen Tundra styling by year / cab (null for any other vehicle): early = the 2000–02 front; earlyTail = the narrow
 // amber / red / clear taillights every Regular & Access Cab wore (the Double Cab, 2004+, had its own bigger lamps)
-const tundraEra = (v) => (v && v.make === 'Toyota' && v.model === 'Tundra' && v.gen === '1st Gen'
+const tundraEra = (v) => (v && v.make === 'Doyoda' && v.model === 'Dundra' && v.gen === '1st Gen'
   ? { early: (v.year || 2005) <= 2002, earlyTail: v.cab !== 'double', v8: /V8/i.test(v.engine || ''), cab: v.cab || 'double' } : null);
 
 /* =====================================================================
@@ -800,8 +901,8 @@ const TUNDRA1 = {
     const tp = parseTire(tire);
     const towing = cfg.engine === 'v8' ? (dbl ? 6900 : 7100) : 5000;
     return {
-      source: 'catalog', make: 'Toyota', model: 'Tundra', gen: '1st Gen', genIdx: CATALOG.Toyota.Tundra.findIndex((g) => g.gen === '1st Gen'), trimIdx: 0, year,
-      trim: `${cab.label} ${cfg.trim}${cfg.trd ? ' TRD Off-Road' : ''} ${cfg.drive}`, config: 'tundra1', cfg, cab: cfg.cab, bedIn: cab.bedIn, bedLabel: cab.bed,
+      source: 'catalog', make: 'Doyoda', model: 'Dundra', gen: '1st Gen', genIdx: 0, trimIdx: 0, year,
+      trim: `${cab.label} ${cfg.trim}${cfg.trd ? ' DRD Off-Road' : ''} ${cfg.drive}`, config: 'tundra1', cfg, cab: cfg.cab, bedIn: cab.bedIn, bedLabel: cab.bed,
       engine: eng.label(year), hp: eng.hp(year), tq: eng.tq(year), tire, clearance: clr0 + (cfg.trd ? 0.2 : 0),
       approach: ang[0] + (cfg.trd ? 1 : 0), departure: ang[1], breakover: ang[2], curb, drive: fwd ? '4x4' : '4x2',
       body: 'pickup', fs: 'ifs', spare: false, wb: cab.wb, len: cab.len(year), wid, hgt,
@@ -835,7 +936,7 @@ const WRAPS = [
 ];
 const TIRE_OPTIONS = [
   { id: 'stock', size: null,          price: 0,    desc: 'Factory fitment for the selected configuration.' },
-  { id: '265-75-16', size: '265/75R16', price: 980, desc: 'Plus-one-size on the factory 16" wheel — the classic 1st-gen Tundra no-lift upgrade.' },
+  { id: '265-75-16', size: '265/75R16', price: 980, desc: 'Plus-one-size on the factory 16" wheel — the classic 1st-gen Dundra no-lift upgrade.' },
   { id: '285-75-16', size: '285/75R16', price: 1240, desc: '32.8" on a 16" wheel. Usually wants a leveling kit and light liner trim.' },
   { id: '33-17', size: '33x12.50R17', price: 1480, desc: 'Mild upgrade; most trucks clear it with a leveling kit.' },
   { id: '33-18', size: '33x12.50R18', price: 1560, desc: '33" on an 18" wheel — less sidewall, sharper steering.' },
@@ -852,9 +953,9 @@ const TIRE_OPTIONS = [
 // Wheel designs: simplified 3D approximations of each design (spoke count / windows / lip) — check the brand catalog for exact looks.
 const WHEEL_STYLES = {
   model:             { label: "Keep the model's own wheels", brand: 'Model', price: 0, factory: true, desc: 'Shows the wheels that came with the 3D model (when the tire size is stock and there is no lift).' },
-  'factory-steel16': { label: '16" styled steel', brand: 'Toyota factory', price: 0, factory: true, desc: 'Base / Regular Cab steel wheel with center cap.' },
-  'factory-alloy16': { label: '16" aluminum, 6-spoke', brand: 'Toyota factory', price: 0, factory: true, desc: 'SR5-style factory alloy.' },
-  'factory-alloy17': { label: '17" aluminum, 6-spoke', brand: 'Toyota factory', price: 0, factory: true, desc: 'Limited-style factory alloy (2004+).' },
+  'factory-steel16': { label: '16" styled steel', brand: 'Doyoda factory', price: 0, factory: true, desc: 'Base / Regular Cab steel wheel with center cap.' },
+  'factory-alloy16': { label: '16" aluminum, 6-spoke', brand: 'Doyoda factory', price: 0, factory: true, desc: 'SR5-style factory alloy.' },
+  'factory-alloy17': { label: '17" aluminum, 6-spoke', brand: 'Doyoda factory', price: 0, factory: true, desc: 'Limited-style factory alloy (2004+).' },
   'apex-beadlock':   { label: 'Daygo 6-spoke beadlock', brand: 'Daygo', price: 1600, desc: 'Sim-beadlock with 24 exposed bolts.' },
   'method-305':      { label: 'MR305 NV — 12-spoke', brand: 'Method Race Wheels', price: 1480, desc: 'Twelve slim spokes, slightly concave face and a simulated beadlock ring.' },
   'method-312':      { label: 'MR312 — split 6-spoke', brand: 'Method Race Wheels', price: 1640, desc: 'Split 6-spoke with simulated beadlock lip and stainless bolts.' },
@@ -925,7 +1026,7 @@ const ARMOR = [ // (the old bolt-on flares are retired: the FiberwerX-style wide
 // (and the bumper-mounted fogs / add-on grille guard with it). dx / dy: change of the lowest corner vs. stock (in).
 const FRONT_BUMPERS = {
   stock:   { label: 'As modeled (bumper + add-on grille guard)', price: 0, lbs: 0, dx: 0, dy: 0, factory: true, desc: 'The model as built: color-keyed bumper with an aftermarket chrome grille guard.' },
-  oem06:   { label: '2005–06 factory bumper, color-keyed', price: 0, lbs: -25, dx: 0, dy: 0, factory: true, noGuard: true, desc: 'Stock 2003–06 Tundra front bumper (Limited-style, painted) with fog pockets — grille guard removed.' },
+  oem06:   { label: '2005–06 factory bumper, color-keyed', price: 0, lbs: -25, dx: 0, dy: 0, factory: true, noGuard: true, desc: 'Stock 2003–06 Dundra front bumper (Limited-style, painted) with fog pockets — grille guard removed.' },
   oem06c:  { label: '2005–06 factory chrome bumper (SR5)', price: 350, lbs: -25, dx: 0, dy: 0, factory: true, noGuard: true, chrome: true, desc: 'Stock 2003–06 chrome bumper with black lower valance and fog pockets.' },
   desert:  { label: 'Desert pre-runner tube bumper + aluminum skid', price: 1450, lbs: 35, dx: -9, dy: 8, cutFenders: true, desc: 'Minimal race-truck front: a single DOM tube bar right under the headlights, diagonal braces to the frame, short uprights and a big brushed-aluminum skid plate covering the radiator & diff — the factory bumper is cut off.' },
   plate:   { label: 'Pre-runner plate bumper', price: 1650, lbs: 70, dx: -5, dy: 4, desc: 'Cut-and-weld high-clearance plate bumper: tucked center section, wings swept up toward the fenders, D-ring mounts and an integrated skid plate.' },
@@ -933,7 +1034,7 @@ const FRONT_BUMPERS = {
   tube:    { label: 'Pre-runner tube bumper', price: 1850, lbs: 85, dx: -3, dy: 2, desc: 'Bent 1.75" DOM tube hoop over a plate center section, tube wings to the fenders, skid plate underneath.' },
   winch:   { label: 'Full-width winch bumper', price: 2300, lbs: 165, dx: 1, dy: 0.5, desc: 'Heavy plate bumper with a 10,000 lb winch, hawse fairlead and shackle mounts. Adds weight over the front axle.' },
   trophy:  { label: 'Trophy-truck tube front + full aluminum skid', price: 2400, lbs: 45, dx: -11, dy: 9, ownSkid: true, cutFenders: true, desc: 'Race front end: a wide 2" DOM hoop across the nose that wraps back to the fenders, a second bar low across the frame horns, uprights and gussets, and a full-width brushed-aluminum skid sloping back under the front end — the plate bolts to its face.' },
-  prerunnerHoop: { label: 'Pre-runner hoop bumper + full skid', price: 1750, lbs: 46, dx: -8, dy: 7, ownSkid: true, cutFenders: true, desc: 'The classic pre-runner Tundra front: a single tall tube hoop from fender to fender with a center upright, a big brushed-aluminum skid up the front over the radiator and under the nose, and the fenders cut off clean at the hoop line — plate on the upright.' },
+  prerunnerHoop: { label: 'Pre-runner hoop bumper + full skid', price: 1750, lbs: 46, dx: -8, dy: 7, ownSkid: true, cutFenders: true, desc: 'The classic pre-runner front: a single tall tube hoop from fender to fender with a center upright, a big brushed-aluminum skid up the front over the radiator and under the nose, and the fenders cut off clean at the hoop line — plate on the upright.' },
 };
 // Trophy-truck parts (Armor). Roll cages are fitted to the cab as measured: feet on the cab floor, hoops just inside the
 // glass and under the roof, A-pillar bars following the windshield pillars.
@@ -988,7 +1089,7 @@ function archOpening(P, trim, fiber) {
 // Control arms (1st-gen Tundra IFS). look: visual style of the 3D arms.
 const UCA_KITS = {
   stock:         { label: 'Factory stamped upper arms', price: 0, droop: 0, look: 'stock', desc: 'Stamped-steel factory arms with a pressed-in ball joint.' },
-  'tc-uca':      { brand: 'Total Chaos', label: 'Uniball upper control arms (#97500)', price: 1050, droop: 1, look: 'tc', desc: 'Urethane-pivot, uniball 4130 chromoly arms for 2000–06 Tundras. +1" droop with extended-travel coilovers; restores caster on lifted trucks.' },
+  'tc-uca':      { brand: 'Total Chaos', label: 'Uniball upper control arms (#97500)', price: 1050, droop: 1, look: 'tc', desc: 'Urethane-pivot, uniball 4130 chromoly arms for 2000–06 Dundras. +1" droop with extended-travel coilovers; restores caster on lifted trucks.' },
   'spc-uca':     { brand: 'SPC Performance', label: 'Adjustable upper control arms', price: 690, droop: 0.5, look: 'spc', desc: 'Zinc-plated arms with an adjustable ball joint for caster / camber.' },
   'camburg-uca': { brand: 'Camburg', label: '1.25" uniball upper arms', price: 980, droop: 1, look: 'camburg', desc: 'Race-proven 1.25" uniball arms, black powder coat.' },
   'icon-uca':    { brand: 'ICON', label: 'Tubular Delta Joint upper arms', price: 890, droop: 0.8, look: 'icon', desc: 'Tubular arms with ICON\'s Delta Joint — street-friendly with more travel.' },
@@ -999,7 +1100,7 @@ const LCA_KITS = {
   // long-travel kits (matched upper + lower arms, longer per side → wider track, more wheel travel). travel = extra inches of
   // front wheel travel over the ~8" stock IFS (the kits' advertised totals; numbers are estimates)
   lt2:      { label: '+2" long-travel kit (UCA + LCA)', price: 2850, track: 2, travel: 3, lt: true, look: 'lt', desc: 'Entry long travel: arms 2" longer per side (track +4"), ~11" front wheel travel; stock-ish fender fitment with a trim. Extended CVs included.' },
-  lt35:     { brand: 'Total Chaos', label: '+3.5" long-travel kit (UCA + LCA)', price: 3580, track: 3.5, travel: 5, lt: true, look: 'lt', desc: 'Arms 3.5" longer per side (track +7"), ~13" wheel travel with 4WD; needs extended CV axles & 2.5" coilovers. Listed for 2004–06 1st-gen Tundras.' },
+  lt35:     { brand: 'Total Chaos', label: '+3.5" long-travel kit (UCA + LCA)', price: 3580, track: 3.5, travel: 5, lt: true, look: 'lt', desc: 'Arms 3.5" longer per side (track +7"), ~13" wheel travel with 4WD; needs extended CV axles & 2.5" coilovers. Listed for 2004–06 1st-gen Dundras.' },
   lt4:      { label: '+4" race long-travel kit (UCA + LCA)', price: 4900, track: 4, travel: 6.5, lt: true, look: 'lt', desc: 'Race-geometry arms 4" longer per side (track +8"), 1.5" uniballs top and bottom, ~14.5" front wheel travel — fiberglass fenders required.' },
   lt55:     { label: '+5.5" desert race long-travel (fabricated)', price: 7800, track: 5.5, travel: 9, lt: true, look: 'lt', desc: 'Fabricated chromoly arms 5.5" longer per side (track +11"), relocated coilover & bypass towers, ~17" front wheel travel. Pairs with a 3.0 coilover + bypass.' },
 };
@@ -1039,12 +1140,12 @@ const TIRE_BRANDS = {
 // Grilles (2003–06 Tundra). letters: raised TOYOTA lettering; markers: amber "Raptor" marker lights.
 const GRILLES = {
   stock:     { label: 'Factory chrome grille', price: 0, desc: 'The 2003–06 chrome-surround grille as modeled (color it under Paint › Individual Parts).' },
-  'trd-pro': { label: 'TRD Pro-style grille · TOYOTA letter bar', brand: 'Trail Runner-style', price: 420, insert: 'honeycomb', letters: true, bar: true, desc: 'Full replacement 2003–06 Tundra grille: matte-black shell, open stretched-hex mesh top and bottom, and a solid center bar carrying a framed TOYOTA letter plate.' },
-  'trd-pro-lit': { label: 'TRD Pro-style grille + 4 Raptor lights', brand: 'Trail Runner-style', price: 520, insert: 'honeycomb', letters: true, bar: true, markers: 4, desc: 'The same lettered grille with four amber "Raptor" marker lights across the top mesh (wired to the parking lights — a soft glow, not a driving light).' },
-  'trd-pro-blank': { label: 'TRD Pro-style grille · blank center bar', brand: 'Aftermarket', price: 380, insert: 'honeycomb', bar: true, desc: 'Stretched-hex mesh with a plain center bar (no lettering) — add Raptor lights below if you like.' },
-  'billet-chrome': { label: 'Polished billet grille insert + Toyota emblem', brand: 'T-Rex-style', price: 380, insert: 'billet', chrome: true, bars: 11, emblem: true, desc: 'The classic 2003–06 Tundra look: thin polished-aluminium horizontal billet bars in a chrome surround, with the Toyota emblem kept up top.' },
-  billet:    { label: 'Black billet bar grille + emblem', brand: 'Aftermarket', price: 320, insert: 'billet', bars: 9, emblem: true, desc: 'Horizontal machined-aluminium billet bars, black powder coat, Toyota emblem retained.' },
-  mesh:      { label: 'Black wire-mesh grille insert + emblem', brand: 'Aftermarket', price: 260, insert: 'mesh', emblem: true, desc: 'Stainless woven mesh insert, black powder coat, with the Toyota emblem.' },
+  'trd-pro': { label: 'DRD Pro-style grille · DOYODA letter bar', brand: 'Trail Runner-style', price: 420, insert: 'honeycomb', letters: true, bar: true, desc: 'Full replacement 2003–06 Dundra grille: matte-black shell, open stretched-hex mesh top and bottom, and a solid center bar carrying a framed DOYODA letter plate.' },
+  'trd-pro-lit': { label: 'DRD Pro-style grille + 4 marker lights', brand: 'Trail Runner-style', price: 520, insert: 'honeycomb', letters: true, bar: true, markers: 4, desc: 'The same lettered grille with four amber marker lights across the top mesh (wired to the parking lights — a soft glow, not a driving light).' },
+  'trd-pro-blank': { label: 'DRD Pro-style grille · blank center bar', brand: 'Aftermarket', price: 380, insert: 'honeycomb', bar: true, desc: 'Stretched-hex mesh with a plain center bar (no lettering) — add marker lights below if you like.' },
+  'billet-chrome': { label: 'Polished billet grille insert + emblem', brand: 'T-Rex-style', price: 380, insert: 'billet', chrome: true, bars: 11, emblem: true, desc: 'The classic 2003–06 Dundra look: thin polished-aluminium horizontal billet bars in a chrome surround, with the factory emblem kept up top.' },
+  billet:    { label: 'Black billet bar grille + emblem', brand: 'Aftermarket', price: 320, insert: 'billet', bars: 9, emblem: true, desc: 'Horizontal machined-aluminium billet bars, black powder coat, factory emblem retained.' },
+  mesh:      { label: 'Black wire-mesh grille insert + emblem', brand: 'Aftermarket', price: 260, insert: 'mesh', emblem: true, desc: 'Stainless woven mesh insert, black powder coat, with the factory emblem.' },
   'mesh-chrome': { label: 'Chrome mesh grille insert + emblem', brand: 'Aftermarket', price: 300, insert: 'mesh', chrome: true, emblem: true, desc: 'Polished stainless woven mesh in a chrome surround — the 2000–06 "Limited" street look.' },
 };
 // the 2000–02 factory grille (shown in place of the modeled 2003–06 one when the model year is 2000–02 and the grille is stock)
@@ -1067,7 +1168,7 @@ const CARGO = {
     'softopper-tan': { brand: 'Softopper', label: 'Soft truck topper · tan', price: 1890, desc: 'The same Softopper in the tan (khaki) sailcloth.' },
     gfc: { brand: 'Go Fast Campers', label: 'Platform-style pop-up camper (grey tent)', price: 9800, desc: 'Flat-top aluminium camper shell at cab height; the roof hinges at the cab end and the rear lifts into a tent. Toggle Deploy to pop it up.' },
     'gfc-orange': { brand: 'Go Fast Campers', label: 'Platform-style pop-up camper (orange tent)', price: 9800, desc: 'Same pop-up camper with the orange tent fabric.' },
-    rebel: { brand: 'SnugTop', label: 'Rebel cab-high fiberglass cap', price: 3600, desc: 'Paint-matched cab-high cap that lines up with the Tundra roof: upright sides flush with the bedsides, large two-pane side windows up high, a near-full-width framed rear glass door and an LED third brake light.' },
+    rebel: { brand: 'SnugTop', label: 'Rebel cab-high fiberglass cap', price: 3600, desc: 'Paint-matched cab-high cap that lines up with the cab roof: upright sides flush with the bedsides, large two-pane side windows up high, a near-full-width framed rear glass door and an LED third brake light.' },
     'rebel-bars': { brand: 'SnugTop', label: 'Rebel cap + Thule crossbars', price: 4150, desc: 'The Rebel with two crossbars on low towers (as in the product photos).' },
     'are-cx': { brand: 'A.R.E.', label: 'CX Series cab-high fiberglass cap', price: 3400, desc: 'Paint-matched fiberglass with rounded corners and tumble-home sides, frameless tinted side glass, framed rear lift gate and third brake light.' },
     'are-cx-bars': { brand: 'A.R.E.', label: 'CX Series cap + Thule crossbars', price: 3950, desc: 'The CX cap with two Thule crossbars on top for bikes, boxes or a rooftop tent.' },
@@ -1082,7 +1183,7 @@ const CARGO = {
   bedTent: { none: { label: 'No bed tent', price: 0 }, napier: { brand: 'Napier', label: 'Backroadz truck bed tent', price: 260, desc: 'Pitched in the open bed; needs the cover off and no topper.' } },
   roofRack: {
     none: { label: 'No roof rack', price: 0 },
-    uptop: { brand: 'upTOP Overland', label: 'Alpha platform roof rack', price: 1400, desc: 'Black aluminium platform (~53" × 72" on Tundras), ~2.5" tall, wind fairing.' },
+    uptop: { brand: 'upTOP Overland', label: 'Alpha platform roof rack', price: 1400, desc: 'Black aluminium platform (~53" × 72" on a full-size cab), ~2.5" tall, wind fairing.' },
     frontrunner: { brand: 'Front Runner', label: 'Slimline II roof rack', price: 1150, desc: 'Flat slatted platform on gutter feet.' },
     prinsu: { brand: 'Prinsu', label: 'Pro roof rack', price: 980, desc: 'Low-profile cross-slat rack with a front light-bar cutout.' },
     crossbars: { brand: 'Thule', label: 'WingBar Evo crossbars', price: 520, desc: 'Two aero crossbars on feet.' },
@@ -1257,7 +1358,7 @@ const EXHAUST_EXITS = {
 // Third brake light on the cab's rear roof edge: factory red, clear / smoked LED, or a pre-runner pod bar (its amber / white
 // chase pods are their own switch-panel group)
 const BRAKE3 = {
-  oem:    { label: 'Factory third brake light (red lens)', price: 0, desc: 'The stock 1st-gen Tundra lamp: a slim red lens along the top of the back glass.' },
+  oem:    { label: 'Factory third brake light (red lens)', price: 0, desc: 'The stock 1st-gen Dundra lamp: a slim red lens along the top of the back glass.' },
   clear:  { label: 'Clear-lens LED (chrome housing)', price: 140, desc: 'Clear lens with a row of LEDs in a chrome housing (lights red under braking).' },
   smoke:  { label: 'Smoked LED', price: 150, desc: 'Dark smoked lens over a red LED strip.' },
   baja:   { label: 'Pre-runner pod bar — amber + red', price: 480, pods: 'amber', desc: 'Billet housing on the roof edge: red brake light in the middle and two amber Baja-style chase pods. The pods have their own switch.' },
@@ -1368,14 +1469,14 @@ const EXHAUST_COLORS = {
 // 'centri' (belt-driven centrifugal, whistle that climbs with rpm & boost).
 const SUPERCHARGERS = {
   none:     { label: 'Naturally aspirated (factory)', price: 0, hp: 0, tq: 0 },
-  trd:      { brand: 'TRD', label: 'Supercharger (Eaton roots)', price: 4200, hp: 60, tq: 65, whine: 'roots', desc: 'The dealer-installed TRD roots kit for the 2UZ-FE: ~+60 hp, instant low-rpm torque and the classic supercharger whine.' },
+  trd:      { brand: 'DRD', label: 'Supercharger (Eaton roots)', price: 4200, hp: 60, tq: 65, whine: 'roots', desc: 'The dealer-installed DRD roots kit for the V8: ~+60 hp, instant low-rpm torque and the classic supercharger whine.' },
   roots:    { label: 'Intercooled roots supercharger (high boost)', price: 5900, hp: 95, tq: 90, whine: 'roots', desc: 'Bigger roots blower with an intercooler — more boost, louder whine.' },
   centri:   { label: 'Centrifugal supercharger (Vortech-style)', price: 5200, hp: 110, tq: 60, whine: 'centri', desc: 'Belt-driven centrifugal: boost climbs with rpm, a rising turbine-like whistle up top.' },
 };
 const INTAKES = {
   stock:   { label: 'Factory airbox', price: 0, hp: 0, roar: 0, desc: 'Quiet stock intake.' },
   kn:      { brand: 'K&N', label: '63-series cold air intake', price: 380, hp: 6, roar: 0.55, desc: 'Open cone filter — loud induction growl under throttle.' },
-  trd:     { brand: 'TRD', label: 'Cold air intake', price: 420, hp: 5, roar: 0.35, desc: 'Sealed-box CAI: a deeper, subtler intake note.' },
+  trd:     { brand: 'DRD', label: 'Cold air intake', price: 420, hp: 5, roar: 0.35, desc: 'Sealed-box CAI: a deeper, subtler intake note.' },
   snorkel: { label: 'Raised snorkel + pre-filter', price: 650, hp: 0, roar: 0.7, desc: 'A-pillar snorkel: whooshing intake you hear in the cab, cleaner air in dust.' },
 };
 const engineBoost = (b) => { const s = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, i = INTAKES[b.intake] || INTAKES.stock; return { hp: s.hp + i.hp, tq: s.tq + i.hp * 0.8 }; };
@@ -1497,7 +1598,7 @@ const PHOTO_ANGLES = [
 const lightGroupsOf = (b) => [
   ['ditch', 'Ditch', b.ditch && b.ditch !== 'none'], ['roofBar', 'Roof bar', b.roofBar && b.roofBar !== 'none'], ['rackSide', 'Rack sides', b.rackSide && b.rackSide !== 'none'],
   ['rackRear', 'Bed lights', b.rackRear && b.rackRear !== 'none'], ['bumperBar', 'Bumper bar', b.bumperBar && b.bumperBar !== 'none'], ['hoop', 'Hoop pods', b.hoop && b.hoop !== 'none'],
-  ['fog', 'Fogs', b.fog && b.fog !== 'none'], ['raptor', 'Raptor', (b.raptorLights || 0) > 0 || !!(GRILLES[b.grille] || {}).markers], ['rock', 'Rock lights', !!b.rockLights], ['chase', 'Chase pods', !!(BRAKE3[b.brake3] || {}).pods],
+  ['fog', 'Fogs', b.fog && b.fog !== 'none'], ['raptor', 'Grille markers', (b.raptorLights || 0) > 0 || !!(GRILLES[b.grille] || {}).markers], ['rock', 'Rock lights', !!b.rockLights], ['chase', 'Chase pods', !!(BRAKE3[b.brake3] || {}).pods],
 ].filter((x) => x[2]).map(([id, l]) => [id, l]);
 const kitOf = (group, id) => LIGHT_KITS[group].find((k) => k.id === id) || LIGHT_KITS[group][0];
 
@@ -1708,7 +1809,7 @@ function computeTelemetry(b, v, g) {
   const offroad = clamp(100 * (0.18 * n(minClr, 6, 16) + 0.14 * n(approach, 15, 50) + 0.10 * n(departure, 15, 45) +
     0.12 * n(breakover, 12, 32) + 0.14 * n(t.dia, 27, 40) + 0.08 * n(sidewall, 4, 10) + 0.12 * sh.off + 0.07 * armorS +
     0.05 * (v.fs === 'solid' ? 1 : 0.5) + (hasUca ? 0.02 : 0) + lca.travel * 0.025));
-  const baseComfort = { crossover: 90, suv: 84, suv2: 80, pickup: 80 }[v.body];
+  const baseComfort = { crossover: 90, suv: 84, suv2: 80, pickup: 80, sedan: 92 }[v.body] || 84;
   const onroad = clamp(baseComfort - (cg - g.cg0) * 2.4 - Math.max(0, newAsm - stockAsm) * 0.14 - Math.max(0, t.dia - v.stockDia) * 1.6 -
     L * 1.8 - Math.max(0, gearLoss - 5) * 0.8 - Math.max(0, 1.15 - ssf) * 60 + sh.comfort + (sidewall - 6) * 0.6 + (b.rearSpring === 'pack' ? 2 : 0), 5, 100);
 
@@ -1720,7 +1821,7 @@ function computeTelemetry(b, v, g) {
   };
 }
 
-const DEFAULT_VEHICLE = makeVehicle('Toyota', 'Tundra', CATALOG.Toyota.Tundra.findIndex((g) => g.gen === '1st Gen'), 2005, 1, { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' });
+const DEFAULT_VEHICLE = makeVehicle('Doyoda', 'Dundra', 0, 2005, 1, { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' });
 /* =====================================================================
    THREE.JS HELPERS
    ===================================================================== */
@@ -4585,7 +4686,7 @@ const TOK = {
   light: ['light', 'lights', 'lamp', 'lamps', 'signal', 'turnsignal', 'turnsignals'],
 };
 const hasTok = (tokens, key) => tokens.some((t) => TOK[key].includes(t));
-const isWheelName = (tokens) => hasTok(tokens, 'wheel') && !(tokens.includes('brake') && hasTok(tokens, 'light')) && !tokens.includes('arch') && !tokens.includes('well');
+const isWheelName = (tokens) => hasTok(tokens, 'wheel') && !(tokens.includes('brake') && hasTok(tokens, 'light')) && !tokens.includes('arch') && !tokens.includes('well') && !tokens.includes('steering');
 function lineageTokens(o, root) { const t = []; for (let p = o; p && p !== root.parent; p = p.parent) t.push(...nameTokens(p.name)); return t; }
 
 // World-space vertex sample of meshes (for geometric analysis).
@@ -4672,6 +4773,121 @@ function textureKeyColor(tc) {
   let best = 0; for (let k = 1; k < K; k++) if (score(k) > score(best)) best = k;
   const c = new THREE.Color(C[best][0], C[best][1], C[best][2]);
   return { color: c, lum: Math.max(0.02, 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) };
+}
+// A freshly parsed model, before anything else looks at it:
+//  - packed attributes (KHR_mesh_quantization: byte normals, 16-bit UVs — see tools/optimize-glb.ps1) back to plain floats,
+//    since the body reshaping (widebody, cab morph) writes straight into the arrays
+//  - line / point helpers (SketchUp edge lines) dropped
+//  - the stock model's profile (prof): hide parts, name wheels / doors / hood so they're found, merge a model made of
+//    thousands of little meshes into one per material, tag badges & the trim-only extras
+// Returns { police: [meshes shown only on a trim matching prof.policeTrim] }.
+const TEX_SWAP = new WeakMap(); // painted-over texture → its original (developer mode shows the original)
+function prepModel(obj, prof, report) {
+  prof = prof || {};
+  if (prof.fix) { obj.updateMatrixWorld(true); const t = prof.fix(obj); if (t) report.push({ lvl: 'fix', text: t }); } // (that model's own one-off repair)
+  const lineage = (o) => { const t = []; for (let p = o; p && p !== obj.parent; p = p.parent) if (p.name) t.push(p.name); return t.join(' '); };
+  const matName = (o) => (Array.isArray(o.material) ? o.material.map((m) => m && m.name).join(' ') : (o.material && o.material.name) || '');
+  const drop = [], wound = new WeakSet(); let flipped = 0;
+  obj.traverse((o) => {
+    if (o.isLine || o.isLineSegments || o.isPoints) { drop.push(o); return; }
+    if (!o.isMesh) return;
+    const g = o.geometry, conv = (a) => { if (!a || (a.isBufferAttribute && a.array instanceof Float32Array && !a.normalized)) return a; const n = a.count, k = a.itemSize, arr = new Float32Array(n * k), get = ['getX', 'getY', 'getZ', 'getW'];
+      for (let i = 0; i < n; i++) for (let c = 0; c < k; c++) arr[i * k + c] = a[get[c]](i); return new THREE.BufferAttribute(arr, k); };
+    Object.keys(g.attributes).forEach((key) => { const a = conv(g.attributes[key]); if (a !== g.attributes[key]) g.setAttribute(key, a); });
+    Object.keys(g.morphAttributes || {}).forEach((key) => { g.morphAttributes[key] = g.morphAttributes[key].map(conv); });
+    // faces wound against their own normals (a mirrored copy exported inside-out) render as back faces: the shading normal
+    // flips inward and the paint goes dark and mirror-like — turn them the right way round
+    const pA = g.attributes.position, nA = g.attributes.normal, ix = g.index;
+    if (pA && nA && ix && !wound.has(g)) {
+      wound.add(g); let pos = 0, neg = 0; const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3();
+      for (let t = 0; t < ix.count; t += 3) { const i0 = ix.getX(t), i1 = ix.getX(t + 1), i2 = ix.getX(t + 2);
+        a.fromBufferAttribute(pA, i0); b.fromBufferAttribute(pA, i1).sub(a); c.fromBufferAttribute(pA, i2).sub(a); b.cross(c);
+        n.set(nA.getX(i0) + nA.getX(i1) + nA.getX(i2), nA.getY(i0) + nA.getY(i1) + nA.getY(i2), nA.getZ(i0) + nA.getZ(i1) + nA.getZ(i2));
+        const d = b.dot(n), w = b.length(); if (d > 0) pos += w; else if (d < 0) neg += w; }
+      if (neg > 4 * pos) { const arr = ix.array; for (let i = 0; i + 2 < arr.length; i += 3) { const t = arr[i + 1]; arr[i + 1] = arr[i + 2]; arr[i + 2] = t; } ix.needsUpdate = true; flipped++; }
+    }
+    const id = lineage(o) + ' | ' + matName(o);
+    if (prof.hide && prof.hide.test(id)) { drop.push(o); return; }
+    if (prof.notWheel && prof.notWheel.test(id)) o.name = (o.name || 'part').replace(/wheel|tire|tyre|rim|brake|disc|rotor|caliper/gi, 'x');
+    if (prof.wheels && prof.wheels.test(id)) o.name = 'wheel_' + (o.name || 'part');
+    if (prof.badges && prof.badges.test(id)) o.userData.badge = true;
+    if (prof.fillBadges && prof.fillBadges.test(id)) { o.userData.badge = true; o.userData.badgeFill = true; } // (letters set into a panel: blacked in, not removed — a hole would show the paint behind)
+  });
+  drop.forEach((o) => { if (o.parent) o.parent.remove(o); o.geometry && o.geometry.dispose && o.geometry.dispose(); });
+  if (flipped) report.push({ lvl: 'fix', text: `Turned ${flipped} inside-out part${flipped > 1 ? 's' : ''} the right way round.` });
+  // cuts: triangles of a mesh inside a box (model units, × box.unit) split off into their own mesh — a badge (shown only in
+  // developer mode) or dropped. E.g. a maker's name moulded into the grille, which shares its mesh with the grille bars.
+  (prof.cut || []).forEach((cu) => {
+    obj.updateMatrixWorld(true);
+    const k = cu.unit || 1, lo = new THREE.Vector3(...cu.min).multiplyScalar(k), hi = new THREE.Vector3(...cu.max).multiplyScalar(k), box = new THREE.Box3(lo, hi);
+    const targets = []; obj.traverse((o) => { if (o.isMesh && cu.node.test(lineage(o)) && (!cu.mat || cu.mat.test(matName(o)))) targets.push(o); });
+    targets.forEach((o) => {
+      const g = o.geometry, p = g.attributes.position, ix = g.index; if (!ix) return;
+      const v = new THREE.Vector3(), c = new THREE.Vector3(), keep = [], take = [];
+      for (let t = 0; t < ix.count; t += 3) { c.set(0, 0, 0); for (let j = 0; j < 3; j++) c.add(v.fromBufferAttribute(p, ix.getX(t + j)).applyMatrix4(o.matrixWorld)); c.multiplyScalar(1 / 3); (box.containsPoint(c) ? take : keep).push(ix.getX(t), ix.getX(t + 1), ix.getX(t + 2)); }
+      if (!take.length) return;
+      g.setIndex(keep);
+      if (cu.badge) { const g2 = new THREE.BufferGeometry(); Object.keys(g.attributes).forEach((a) => g2.setAttribute(a, g.attributes[a])); g2.setIndex(take); const m2 = new THREE.Mesh(g2, o.material); m2.name = (o.name || 'part') + '_badge'; m2.userData.badge = true; o.parent.add(m2); m2.position.copy(o.position); m2.quaternion.copy(o.quaternion); m2.scale.copy(o.scale); }
+    });
+  });
+  if (drop.length && (prof.hide)) report.push({ lvl: 'fix', text: `Left out ${drop.length} part${drop.length > 1 ? 's' : ''} this game draws its own way (lines, chassis bits, extras).` });
+  // uvCut: triangles whose texture coordinates land in a region of the texture (pixels of a size × size atlas) — a badge
+  // painted into the atlas — split off as a badge piece (developer mode only)
+  (prof.uvCut || []).forEach((cu) => {
+    const targets = []; obj.traverse((o) => { if (o.isMesh && cu.mat.test(matName(o)) && o.geometry.index && o.geometry.attributes.uv) targets.push(o); });
+    targets.forEach((o) => {
+      const g = o.geometry, uv = g.attributes.uv, ix = g.index, keep = [], take = [], S = cu.size || 1024;
+      for (let t = 0; t < ix.count; t += 3) {
+        let u = 0, v = 0; for (let j = 0; j < 3; j++) { u += uv.getX(ix.getX(t + j)) / 3; v += uv.getY(ix.getX(t + j)) / 3; }
+        const px = (((u % 1) + 1) % 1) * S, py = (((v % 1) + 1) % 1) * S, hit = cu.rects.some(([x0, y0, x1, y1]) => px >= x0 && px <= x1 && py >= y0 && py <= y1);
+        (hit ? take : keep).push(ix.getX(t), ix.getX(t + 1), ix.getX(t + 2));
+      }
+      if (!take.length) return;
+      g.setIndex(keep);
+      const g2 = new THREE.BufferGeometry(); Object.keys(g.attributes).forEach((a) => g2.setAttribute(a, g.attributes[a])); g2.setIndex(take);
+      const m2 = new THREE.Mesh(g2, o.material); m2.name = (o.name || 'part') + '_badge'; m2.userData.badge = true; o.parent.add(m2); m2.position.copy(o.position); m2.quaternion.copy(o.quaternion); m2.scale.copy(o.scale);
+    });
+  });
+  // texFill: regions of a texture painted over (a logo on a wheel's centre cap); the original texture comes back in developer mode
+  (prof.texFill || []).forEach((tf) => {
+    const done = new Set();
+    obj.traverse((o) => { if (!o.isMesh || !tf.mat.test(matName(o))) return; const mt = Array.isArray(o.material) ? o.material[0] : o.material; const tex = mt && mt.map; if (!tex || done.has(tex) || !tex.image) return; done.add(tex);
+      const img = tex.image, cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; const x = cv.getContext('2d'); x.drawImage(img, 0, 0);
+      const k = img.width / (tf.size || 1024); tf.rects.forEach(([x0, y0, x1, y1, col]) => { x.fillStyle = col || '#c8ccd0'; if (tf.round) { x.beginPath(); x.ellipse(((x0 + x1) / 2) * k, ((y0 + y1) / 2) * k, ((x1 - x0) / 2) * k, ((y1 - y0) / 2) * k, 0, 0, Math.PI * 2); x.fill(); } else x.fillRect(x0 * k, y0 * k, (x1 - x0) * k, (y1 - y0) * k); });
+      const t2 = tex.clone(); t2.image = cv; t2.needsUpdate = true; TEX_SWAP.set(t2, tex); mt.map = t2; });
+  });
+  // named groups (hood / doors): give the node a name the classifier knows
+  (prof.rename || []).forEach(([re, name]) => obj.traverse((o) => { if (o !== obj && re.test(o.name || '')) o.name = name + '_' + (o.name || ''); }));
+  // police / trim-only gear
+  const police = [];
+  if (prof.police) obj.traverse((o) => { if (o.isMesh && prof.police.test(lineage(o) + ' | ' + matName(o))) { o.userData.trimOnly = true; police.push(o); } });
+  // thousands of tiny meshes (SketchUp exports): one mesh per material, transforms baked in — wheels / hood / doors are then
+  // found by shape like any merged model
+  if (prof.merge) {
+    obj.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(obj.matrixWorld).invert(), groups = new Map(), m4 = new THREE.Matrix4(), n3 = new THREE.Matrix3();
+    obj.traverse((o) => { if (!o.isMesh || o.isSkinnedMesh || Array.isArray(o.material) || o.userData.trimOnly || o.userData.badge) return; const k = o.material; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(o); });
+    let before = 0, after = 0;
+    groups.forEach((list, mat) => {
+      before += list.length; after++;
+      const hasUv = list.every((m) => m.geometry.attributes.uv), pos = [], nor = [], uv = [], idx = []; let base = 0;
+      list.forEach((m) => {
+        m4.multiplyMatrices(inv, m.matrixWorld); n3.getNormalMatrix(m4); const flip = m4.determinant() < 0;
+        const g = m.geometry, p = g.attributes.position, nn = g.attributes.normal, u = g.attributes.uv, v = new THREE.Vector3();
+        for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m4); pos.push(v.x, v.y, v.z); if (nn) { v.fromBufferAttribute(nn, i).applyMatrix3(n3).normalize(); nor.push(v.x, v.y, v.z); } else nor.push(0, 1, 0); if (hasUv) uv.push(u.getX(i), u.getY(i)); }
+        const ix = g.index, cnt = ix ? ix.count : p.count;
+        for (let k = 0; k + 2 < cnt; k += 3) { const a = ix ? ix.getX(k) : k, b = ix ? ix.getX(k + 1) : k + 1, c = ix ? ix.getX(k + 2) : k + 2; if (flip) idx.push(base + a, base + c, base + b); else idx.push(base + a, base + b, base + c); }
+        base += p.count;
+        m.parent.remove(m);
+      });
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+      if (hasUv) g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+      g.setIndex(base > 65535 ? new THREE.Uint32BufferAttribute(idx, 1) : new THREE.Uint16BufferAttribute(idx, 1)); g.computeBoundingBox(); g.computeBoundingSphere();
+      const mesh = new THREE.Mesh(g, mat); mesh.name = 'merged_' + (mat.name || 'mat'); obj.add(mesh);
+    });
+    report.push({ lvl: 'fix', text: `Merged ${before.toLocaleString()} little parts into ${after} (one per material) so it draws fast.` });
+  }
+  return { police };
 }
 // Copy a standard material into a MeshPhysicalMaterial (needed for clearcoat finishes).
 function toPhysical(m) {
@@ -5615,7 +5831,9 @@ function buildExtras(M, P, b, info, gBox) {
   // toward the driver, laid out in a local frame: +x across the truck, +y up, +z toward the driver.
   const D = info.dash;
   if (D) {
-    const panel = (x, y, z, lean) => { const gp = new THREE.Group(); gp.position.set(x, y, z); gp.rotation.set(0, -Math.PI / 2, 0); gp.rotateOnWorldAxis(V3e(0, 0, 1), -lean); put(gp, 'body'); return gp; };
+    // (the gauge cluster, radio & CarPlay screen dress the Dundra's plain dash — a model with a detailed dash of its own keeps it)
+    const ownDash = !!(info.own && info.own.detailed);
+    const panel = (x, y, z, lean) => { const gp = new THREE.Group(); gp.position.set(x, y, z); gp.rotation.set(0, -Math.PI / 2, 0); gp.rotateOnWorldAxis(V3e(0, 0, 1), -lean); if (ownDash) gp.visible = false; put(gp, 'body'); return gp; };
     const quad = (gp, w, h, mat, x, y, z) => { const m = mk(new THREE.PlaneGeometry(w, h), mat); m.position.set(x, y, z); gp.add(m); return m; };
     const gauges = extraTex('tundra-gauges', 512, 200, (x, w, h) => {
       x.fillStyle = '#08090b'; x.fillRect(0, 0, w, h);
@@ -5687,7 +5905,7 @@ function buildExtras(M, P, b, info, gBox) {
       wall(-zW, zW, yB, yT); [1, -1].forEach((s) => wall(s > 0 ? zW : -zO, s > 0 ? zO : -zW, yW, yT)); }
     // corner lamps: a chrome reflector behind each wrap-around corner lens (its side-facing part, the outer ~quarter) — through
     // the clear corner you looked straight into the engine bay from the side
-    if (info.lensBox) Object.entries(info.lensBox).forEach(([sk, lb]) => {
+    if (info.era && info.lensBox) Object.entries(info.lensBox).forEach(([sk, lb]) => { // (the Dundra's wrap-around corner lens only)
       const s = +sk, zb = Math.max(Math.abs(lb.z0), Math.abs(lb.z1)) - 0.115, refl = new THREE.MeshStandardMaterial({ color: 0xdfe3e8, metalness: 0.9, roughness: 0.22, side: THREE.DoubleSide });
       put(rbox(P.front + lb.dx0 + 0.01, P.front + lb.dx0 + 0.26, lb.y0 + 0.02, lb.y1 - 0.02, s > 0 ? zb - 0.004 : -zb, s > 0 ? zb : -zb + 0.004, refl, 0.001), 'body');
     });
@@ -5696,7 +5914,9 @@ function buildExtras(M, P, b, info, gBox) {
       const pl = new THREE.Mesh(new THREE.PlaneGeometry(len, 2 * cf.zw), new THREE.MeshStandardMaterial({ color: 0x060607, roughness: 0.6, metalness: 0.02, side: THREE.DoubleSide }));
       pl.rotation.set(-Math.PI / 2, 0, 0); pl.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), Math.atan2(cf.y1 - cf.y0, x1 - x0)); pl.position.set((x0 + x1) / 2, (cf.y0 + cf.y1) / 2, 0); pl.castShadow = false; put(pl, 'body'); }
     // headliner: our own fabric ceiling laid just under the roof skin (measured grid), with the moonroof opening left out
-    if (LN) {
+    // (a model with its own headliner keeps it until you pick a colour, starlight or a moonroof)
+    const ownLiner = info.own && info.own.detailed && (b.headliner || 'oem') === 'oem' && (b.starlight || 'none') === 'none' && SR === 'none';
+    if (LN && !ownLiner) {
       const HL = HEADLINERS[b.headliner] || HEADLINERS.oem, SL = STARLIGHTS[b.starlight] || STARLIGHTS.none, IC = INTERIOR_COLORS[b.intColor] || {};
       const hex = headlinerHex(b); void IC; // (starlight on the factory liner: black, like every real install)
       const NZ = LN.nz + 1, at = (i, j) => LN.y[i * NZ + j], X = (i) => LN.x0 + ((LN.x1 - LN.x0) * i) / LN.nx, Z = (j) => -LN.lz + (2 * LN.lz * j) / LN.nz;
@@ -5722,7 +5942,7 @@ function buildExtras(M, P, b, info, gBox) {
       // interior trim in the headliner colour, so no bare body shell shows from the cab and nothing covers the glass: roof
       // rails from the C pillar to the A pillar (liner edge down to the glass tops), A / B / C pillar panels filling the gaps
       // between the windows, and headers above the windshield and the back glass. Each overlaps the glass edge by ~1 cm.
-      if (GL && idx.length) {
+      if (GL && idx.length && !(info.own && info.own.detailed)) { // (a model with its own interior has its own pillar trim)
         // (a firm depth bias: where a strip lies right on the shell's inner face it must win outright — a weak one striped)
         const trimM = new THREE.MeshStandardMaterial({ color: hex, roughness: Math.min(0.9, HL.rough || 0.9), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 });
         const strip = (A, B) => { // a band between two matching polylines
@@ -7103,6 +7323,7 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
       const p = new THREE.PointLight(0xff1a0a, 0, 4, 1.6); rearL.g.add(p); rearL.red.push(p);
       const b1 = new THREE.Mesh(bb, new THREE.MeshStandardMaterial({ color: 0x2a0000, emissive: 0xff2a10, emissiveIntensity: 0, roughness: 0.3 })); rearL.g.add(b1); rearL.bulbB.push(b1);
       const b2 = new THREE.Mesh(bb, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, emissive: 0xf4f7ff, emissiveIntensity: 0, roughness: 0.3 })); rearL.g.add(b2); rearL.bulbR.push(b2);
+      b1.visible = b2.visible = false; // (shown while lit)
     }
     rearL.g.userData.noScan = true; truck.add(rearL.g);
   }
@@ -7115,11 +7336,11 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
       h.updateWorldMatrix(true, true); const off = V(h.position.x, model.baseY, h.position.z);
       model.tailSpots = (model.zones.taillights || []).filter((m) => { const mt = m.userData.baseMat || m.material; return !Array.isArray(mt) && mt.transparent; }).map((m) => {
         const box = new THREE.Box3().setFromObject(m), toR = (p) => h.worldToLocal(p.clone()).add(off), a = toR(box.min), c = toR(box.max);
-        return { x: Math.max(a.x, c.x), cy: (a.y + c.y) / 2, y0: Math.min(a.y, c.y), z: (a.z + c.z) / 2 };
+        return { x: Math.max(a.x, c.x), x0: Math.min(a.x, c.x), cy: (a.y + c.y) / 2, y0: Math.min(a.y, c.y), z: (a.z + c.z) / 2 };
       }).sort((p, q) => p.z - q.z).slice(0, 2);
     }
     model.tailSpots.forEach((t, i) => {
-      const xi = t.x - 0.07; // a few cm inside the lens
+      const xi = Math.max(t.x - 0.07, t.x0 + 0.03); // a few cm inside the lens (a shallow lens: just ahead of its face, never out behind it)
       rearL.bulbB[i].position.set(xi, t.cy + 0.04, t.z); rearL.red[i].position.set(xi - 0.02, t.cy + 0.04, t.z);
       rearL.bulbR[i].position.set(xi, t.y0 + 0.09, t.z); rearL.rev[i].position.set(xi + 0.02, t.y0 + 0.09, t.z); rearL.rev[i].target.position.set(xi - 6, t.y0 - 1.2, t.z * 1.3);
     });
@@ -7130,8 +7351,8 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     const k = TOD.lightK, head = (build.head || 'off') !== 'off';
     rearL.rev.forEach((l) => { l.intensity = rev ? 7 * k : 0; });
     rearL.red.forEach((l) => { l.intensity = (brake ? 0.9 : head ? 0.25 : 0) * k; });
-    rearL.bulbB.forEach((b) => { b.material.emissiveIntensity = (brake ? 7 : head ? 2 : 0) * k; });
-    rearL.bulbR.forEach((b) => { b.material.emissiveIntensity = rev ? 8 * k : 0; });
+    rearL.bulbB.forEach((b) => { b.material.emissiveIntensity = (brake ? 7 : head ? 2 : 0) * k; b.visible = brake || head; }); // (an unlit bulb is just a dark bead — where a lens is clear or shallow it showed)
+    rearL.bulbR.forEach((b) => { b.material.emissiveIntensity = rev ? 8 * k : 0; b.visible = rev; });
     if (!model || !model.zones) return;
     (model.zones.taillights || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
       if (mt && mt.userData && mt.userData.revU) mt.userData.revU.value = rev ? k : 0; // (early 3-section lens: its clear band is the reverse lamp)
@@ -7251,6 +7472,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // (its back: the cab's measured back wall — cabRear is the roof's rear edge, ~13 cm ahead of the wall at seat height)
     const wallX = bi && bi.cabBack && bi.cabBack.length ? bi.cabBack.filter(([y]) => y < bi.railY + 0.25).reduce((m, [, x]) => Math.min(m, x), 1e9) - 0.006 : 1e9;
     if (bi && P) { TRIM_MIN.value.set(Math.min(bi.cabRear - 0.06, wallX), P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
+    if (model.prof && model.prof.detailed) { TRIM_MIN.value.set(1e6, 1e6, 1e6); TRIM_MAX.value.set(-1e6, -1e6, -1e6); } // (a model with a real interior: its body shell's inside is already trimmed)
     if (model.glassFit) TRIM_GLASS.value.set(model.glassFit.gm, model.glassFit.gk, model.glassFit.bot);
   }
   function setCuts(cuts = []) {
@@ -7465,13 +7687,35 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     blob.visible = !!model && !drive.on;
   }
 
-  function rebuildWheels(t, style, R, b) {
+  // a corner's own wheel — the model's tire, rim & rotor pieces (copies sharing their geometry) on a hub group laid out like
+  // buildWheel's: origin at the hub, axle along z, so it rolls and steers the same; the calipers hold still (calHolder)
+  function ownWheel(sp) {
+    const P = base.P, k = (sp.x > (P.xF + P.xR) / 2 ? 'F' : 'B') + (sp.s > 0 ? 'P' : 'D'), wf = model.wheelFit, w = new THREE.Group();
+    const hub = wf.pts.find((p) => p.k === k); if (!hub) return w;
+    const h = model.holder; h.updateMatrixWorld(true);
+    const toRest = new THREE.Matrix4().makeTranslation(h.position.x, model.baseY, h.position.z).multiply(new THREE.Matrix4().copy(h.matrixWorld).invert());
+    const hubInv = new THREE.Matrix4().compose(V(hub.x, hub.y, hub.z), new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), sp.s < 0 ? Math.PI : 0), V(1, 1, 1)).invert();
+    const cal = new THREE.Group(); cal.name = 'calHolder'; w.add(cal);
+    const c = V(0, 0, 0);
+    wf.meshes.forEach((m) => {
+      let mk = m.userData.wheelK; if (!mk) { new THREE.Box3().setFromObject(m).getCenter(c); mk = wf.pts.reduce((best, p) => (!best || Math.hypot(p.x - c.x, p.z - c.z) < Math.hypot(best.x - c.x, best.z - c.z) ? p : best), null).k; }
+      if (mk !== k) return;
+      const cp = new THREE.Mesh(m.geometry, m.material); cp.castShadow = m.castShadow; cp.receiveShadow = m.receiveShadow; cp.matrixAutoUpdate = false;
+      const p0 = m.position.clone(); if (m.userData.pos0) { m.position.copy(m.userData.pos0); m.updateMatrixWorld(true); } // (where it sits unlifted)
+      cp.matrix.copy(hubInv).multiply(toRest).multiply(m.matrixWorld); tag(cp, 'wheel');
+      m.position.copy(p0); m.updateMatrixWorld(true);
+      (/caliper/i.test(m.name) ? cal : w).add(cp);
+    });
+    w.traverse((o) => { if (o.geometry) o.geometry.userData.shared = true; }); // (the model's own geometry: never disposed with the hub)
+    return w;
+  }
+  function rebuildWheels(t, style, R, b, own = false) {
     wheels.forEach((w) => { truck.remove(w); w.traverse((o) => { if (o.geometry && !o.geometry.userData.shared) o.geometry.dispose(); }); });
     wheels = [];
     const spec = { R, w: t.width * INCH, rimR: (t.rim / 2) * INCH + 0.012, style, tireBrand: b.tireBrand, beadColor: b.beadColor };
     base.P.spots.forEach((sp) => {
       const { x, s, z } = sp, off = offOf(sp); // offset & spacers just push the wheel outboard (no visible spacer disc)
-      const w = buildWheel(M, spec);
+      const w = own ? ownWheel(sp) : buildWheel(M, spec);
       w.position.set(x, rig.wy, s * (z + off));
       if (s < 0) w.rotation.y = Math.PI;
       truck.add(w); wheels.push(w);
@@ -7498,7 +7742,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
   // a twin of the body's paint material for parts matched to the truck (a hard shell): the same paint shader, sharing the body's
   // live colour / finish / wrap uniforms, on a plain white base so it shows the colour exactly as the body does — not a look-alike
-  let twinPaint = null, twinSrc = null;
+  let twinPaint = null, twinSrc = null, badgeFillMat = null; // (badgeFillMat: blacked-in maker lettering)
+  const texCleanOf = new WeakMap(); // (material → its painted-over texture, while developer mode shows the original)
   function bodyPaintTwin() {
     const src = model && model.paintMats && model.paintMats[0]; if (!src || !src.userData.paintU) return null;
     if (twinPaint && twinSrc === src) return twinPaint;
@@ -7664,6 +7909,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (!isP && cx > P.front - 0.55 && cy > P.hoodY - 0.45 && cy < P.hoodY - 0.04 && az > 0.4 && az < P.halfW + 0.08) return cx > P.front - 0.1 && cy < P.hoodY - 0.36 ? 'bumperCap' : 'headlights';
       if (!isP && cx < P.rear + 0.35 && cy > P.rearBumperY + 0.2 && cy < prof.roofTop - 0.25 && az > P.halfW - 0.32) return 'taillights';
       if (isG) { // windows: back glass faces ±x behind the cab; door glass faces ±z, split at the B-pillar
+        if (/lamp|light|lens|signal|indicator|blinker/i.test(mt.name || '') && !/window|windshield/i.test(mt.name || '')) return null; // (lamp lenses — mirror turn signals, the third brake light — don't roll down)
         const n = normal();
         if (cx < cabRear + 0.25 && Math.abs(n.x) > 0.5 && az < P.halfW - 0.1) return 'winRear';
         if (Math.abs(n.z) > 0.55 && cx > cabRear + 0.05 && cx < prof.roofFront + 0.15 && cy > P.cowlY - 0.2) return (cx > bPillar ? 'winF' : 'winR') + (cz > 0 ? 'P' : 'D');
@@ -7727,6 +7973,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     model.zones = {};
     model.holder.updateMatrixWorld(true);
+    const hasHoodPart = model.parts.meshes.some((m) => m.userData.part === 'hood');
     model.parts.meshes.slice().forEach((me) => {
       if (!me.visible || model.wheelPieces.includes(me) || me.isSkinnedMesh || me.isInstancedMesh || me.userData.zone) return;
       const g = me.geometry, pos = g.attributes.position, idx = g.index, tri = (idx ? idx.count : pos.count) / 3;
@@ -7756,6 +8003,30 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       // the grille guard's upright tops (chrome, in the guard's own mesh) sit on the bumper's top edge, where the bumper-cap rule
       // claimed them — they stayed floating on the bumper once the guard came off
       if (zones.includes('guard')) for (let t = 0; t < tri; t++) if (zones[t] === 'bumperCap' && isChrome(mats[matOf[t]] || mats[0])) zones[t] = 'guard';
+      // body panels are separate shells: a painted shell that's mostly hood is all hood (its edges follow the panel gaps), and
+      // a fender's flat top the hood rule caught goes back to the fender (the Dundra keeps its own tuned split)
+      if (idx && zones.includes('hood') && !tundraEra(base.vehicle)) {
+        const par = new Int32Array(pos.count); for (let i = 0; i < par.length; i++) par[i] = i;
+        const find = (i) => { while (par[i] !== i) { par[i] = par[par[i]]; i = par[i]; } return i; }, isPt = (t) => paintSet.has(mats[matOf[t]] || mats[0]);
+        for (let t = 0; t < tri; t++) if (isPt(t)) { const r0 = find(I(3 * t)); for (let j = 1; j < 3; j++) { const r = find(I(3 * t + j)); if (r !== r0) par[r] = r0; } }
+        const acc = new Map();
+        for (let t = 0; t < tri; t++) {
+          if (!isPt(t)) continue;
+          a.fromBufferAttribute(pos, I(3 * t)).applyMatrix4(me.matrixWorld); b.fromBufferAttribute(pos, I(3 * t + 1)).applyMatrix4(me.matrixWorld).sub(a); c.fromBufferAttribute(pos, I(3 * t + 2)).applyMatrix4(me.matrixWorld).sub(a);
+          const ar = b.cross(c).length() / 2, r = find(I(3 * t)), e = acc.get(r) || [0, 0]; e[1] += ar; if (zones[t] === 'hood') e[0] += ar; acc.set(r, e);
+        }
+        for (let t = 0; t < tri; t++) {
+          if (!isPt(t)) continue; const e = acc.get(find(I(3 * t))); if (!e[0]) continue;
+          if (e[0] >= 0.75 * e[1]) { if (!zones[t]) zones[t] = 'hood'; } else if (zones[t] === 'hood' && e[0] < 0.35 * e[1] && e[1] < 2.5) zones[t] = null;
+        }
+      }
+      // a model with a hood part of its own: only that part is the hood — a flat-topped bit of the body under it (the engine
+      // bay's floor) stayed behind when the hood opened, in the body colour
+      if (hasHoodPart && me.userData.part !== 'hood' && zones.includes('hood') && !tundraEra(base.vehicle)) for (let t = 0; t < tri; t++) {
+        if (zones[t] !== 'hood') continue;
+        const cy = (a.fromBufferAttribute(pos, I(3 * t)).applyMatrix4(me.matrixWorld).y + b.fromBufferAttribute(pos, I(3 * t + 1)).applyMatrix4(me.matrixWorld).y + c.fromBufferAttribute(pos, I(3 * t + 2)).applyMatrix4(me.matrixWorld).y) / 3;
+        zones[t] = cy < P.hoodY - 0.03 ? 'engine' : null;
+      }
       if (!any) return;
       let rem = zones;
       [...new Set(zones.filter(Boolean))].forEach((id) => {
@@ -7820,7 +8091,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     model.windows = {};
     Object.entries(WINDOW_OF).forEach(([zid, wid]) => {
       const pieces = model.zones[zid]; if (!pieces || !pieces.length) return;
-      const bb = new THREE.Box3(); pieces.forEach((p) => bb.union(pieceBox(p)));
+      // the pane's own extent (a few stray triangles of some other glass bit below it would drop the clip line into view)
+      const triN = (p) => (p.geometry.index ? p.geometry.index.count : p.geometry.attributes.position.count) / 3, nMax = Math.max(...pieces.map(triN));
+      const bb = new THREE.Box3(); pieces.forEach((p) => { if (triN(p) >= nMax * 0.15) bb.union(pieceBox(p)); });
       // (side glass: the clip line sits 6 cm down inside the door, and each pane gets a skirt of glass reaching down to it —
       // the model's glass stopped exactly at the belt, so at a glancing angle you could see through the slit between them)
       const sideW = wid !== 'rear', plane = new THREE.Plane(), belt = bb.min.y + 0.004 - (sideW ? 0.06 : 0);
@@ -7973,10 +8246,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // The liners of a trimmed opening run out to it
     const archZ = {}; [['F', P.xF], ['R', P.xR]].forEach(([k, xc]) => { archZ[k] = []; for (let a = -20; a <= 200; a += 5) { const t = (a * Math.PI) / 180;
       archZ[k].push(ARCH_DR.map((dr) => { const r = P.R0 + 0.075 + dr; let z = 0; [1, -1].forEach((s) => { const h = probe(V(xc + r * Math.cos(t), P.wheelY0 + r * Math.sin(t), s * (P.halfW + 2)), V(0, 0, -s)); if (h && Math.abs(h.point.z) > P.halfW - 0.22 && !['steps', 'mirrors', 'guard'].includes(h.object.userData.zone)) z = Math.max(z, Math.abs(h.point.z)); }); return z || NaN; })); } });
-    model.bedInfo = { badgeAt, heads, archZ, cabFloor, b3, cabBack, cabSurf, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw,
+    model.bedInfo = { badgeAt, heads, archZ, cabFloor, b3: (model.prof || {}).car ? null : b3 /* (a car's third brake light is its own) */, cabBack, cabSurf, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw,
       // model-year styling for the 1st-gen Tundra: 2000–02 front (bar grille, amber corner lamps, rub-strip bumper with
       // rectangular fogs); Regular / Access Cab beds keep the original 3-section taillights through 2006
-      era: tundraEra(base.vehicle), lensBox: model.lensBox || null,
+      era: tundraEra(base.vehicle), lensBox: model.lensBox || null, own: model.prof || {}, // (own: the stock model's profile — what it already has of its own)
       // the windshield's surface (sampled vertices) and the back glass's lower edge: a roll cage has to stay inside both
       wsPts: (() => { const out = [], v = V(0, 0, 0); (model.zones.winWs || []).forEach((pc) => { pc.updateMatrixWorld(true); const pa = pc.geometry.attributes.position, ix = pc.geometry.index, n = ix ? ix.count : pa.count, st = Math.max(1, Math.floor(n / 600)); for (let k = 0; k < n; k += st) { v.fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(pc.matrixWorld); out.push([v.x, v.y, v.z]); } }); return out; })(),
       rearGlassBot: model.rearGlassBot ?? null };
@@ -8004,6 +8277,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function lampMat(bm, kind, opt) {
     opt = opt || 'oem';
     if (kind === 'tail' && opt === 'oem') return bm;
+    if (opt === 'oem' && model.prof && model.prof.detailed) return bm; // (a detailed model's own lamps, exactly as built)
     // the lamp's reflector bowl: the model's light-grey / "chrome" parts inside the headlight (not the bulbs, not the dark housing)
     const lumB = bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0;
     const reflector = (kind === 'head' && !isLens(bm) && !/^sphere/i.test(bm.name || '') && (/chrome/i.test(bm.name || '') || lumB > 0.25))
@@ -8038,8 +8312,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     ensureCut(m); m.needsUpdate = true; zoneMatCache.set(key, m); return m;
   }
+  // a texture's average brightness (0…1, cached) — what a textured material really looks like, tint × texture
+  const texLumCache = new WeakMap();
+  const texLum = (tex) => { if (!tex) return 1; if (texLumCache.has(tex)) return texLumCache.get(tex); const tc = textureCanvas(tex, model.texCache, 64); let s = 1;
+    if (tc) { let a = 0, n = 0; for (let i = 0; i < tc.data.length; i += 4) { a += 0.2126 * srgbToLin(tc.data[i] / 255) + 0.7152 * srgbToLin(tc.data[i + 1] / 255) + 0.0722 * srgbToLin(tc.data[i + 2] / 255); n++; } s = n ? a / n : 1; }
+    texLumCache.set(tex, s); return s; };
   function applyZones(b) {
-    const Z = model.zones || {}, FB = FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock;
+    const Z = model.zones || {}, FB = FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock, own = model.prof || {};
     const show = (id, on) => (Z[id] || []).forEach((m) => { m.visible = on; });
     show('guard', FB === FRONT_BUMPERS.stock); show('guardMount', FB === FRONT_BUMPERS.stock); show('bumperCap', !!FB.factory); show('frontBumper', !!FB.factory); show('fbLower', !!FB.factory); show('fogs', !!FB.factory && (b.fog || 'none') === 'none');
     // small bumper bits the model files with the headlights (a chrome bracket, the strip along the bumper top) — they sit
@@ -8059,12 +8338,15 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     void tf; void tr; ['trimF1', 'trimF2', 'trimR1', 'trimR2'].forEach((z) => show(z, true)); // (trimming is a smooth shader cut now — see trimCuts) show('bedCut', !b.bedCut && !(REAR_BUMPERS[b.rearBumper] || {}).bedCut);
     const setMat = (m, fn) => { const bm = m.userData.baseMat; m.material = Array.isArray(bm) ? bm.map(fn) : fn(bm); };
     PAINT_ZONES.forEach(({ id }) => {
-      const zc = (b.zoneColors || {})[id] || ((id === 'frontBumper' || id === 'fbLower') && FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : null)
+      let zc = (b.zoneColors || {})[id] || ((id === 'frontBumper' || id === 'fbLower') && FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : null)
         || (id === 'rearBumper' && b.rearBumper === 'oemBlack' ? { hex: '#16171a', finish: 'satin' } : null)
+        || (own.zoneDefaults && own.zoneDefaults[id]) // (a stock model's factory finish for that part, e.g. chrome bumpers)
+        || (id === 'bumperCap' && !(model.bedInfo && model.bedInfo.era) ? 'keep' : null) // (the colour-keyed strip under the grille is the Dundra's)
         // (the strip along the bumper top under the grille, and the brackets at its corners, are the bumper's colour: your
         // bumper colour if you picked one, chrome on the chrome bumper, otherwise the body colour like the color-keyed bumper)
         || (id === 'bumperCap' ? (b.zoneColors || {}).frontBumper || (FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : { hex: b.color, finish: FINISHES[b.finish] ? b.finish : 'gloss' }) : null)
         || (id === 'liner' ? { hex: '#141416', finish: 'matte' } : null); // liners default black
+      if (zc === 'keep') zc = null;
       if (id === 'rearBumper') { // factory rear bumper: the colour goes on the painted centre section (around the plate); the
         // plastic step pad on top and the lower lip default to black plastic — or take the colour too with "whole bumper"
         const isPaint = (bm) => model.paintMats.includes(bm) || !!(bm.userData && bm.userData.paintU), plastic = b.rearBumperAll && zc ? zc : { hex: '#18191b', finish: 'matte' };
@@ -8099,8 +8381,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         return mt;
       };
       const kindOf = (zid) => (zid === 'interior' ? IT.tex || 'vinylGrain' : 'stipple'), freqOf = (kind) => ({ weave: 11, grain: 3.6, perf: 3.2, nap: 5, vinylGrain: 4.5, stipple: 3.5 }[kind] || 4); // (repeats per metre: weave threads ~3 mm, leather pebbles 3–6 mm)
+      // (a model with a detailed interior of its own keeps it as-is on the stock colour & upholstery; a textured material's
+      // brightness is its texture's, not just its tint's — the dark plastics stay dark)
+      const ownStock = own.detailed && (b.intColor || 'stock') === 'stock' && (b.intTrim || 'cloth') === 'cloth';
       const tone = (zid, k) => (Z[zid] || []).forEach((m) => setMat(m, (bm) => {
-        const lum = bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0;
+        if (ownStock) return bm;
+        const lum = (bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0) * texLum(bm.map);
         if (lum < 0.25 && b.intColor !== 'black') return bm;
         const key = `${bm.uuid}|int|${b.intTrim}|${b.intColor}|${k}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
         const fm = bm.clone();
@@ -8112,10 +8398,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       tone('interior', 1); tone('dash', 0.62); tone('steer', 0.55);
       // the cabin is low-poly with flat facets — seats, door panels and dash shaded in visible triangles. Smooth shading across
       // gentle bends (hard edges over ~50° stay crisp), once per mesh
-      ['interior', 'dash', 'steer'].forEach((zid) => (Z[zid] || []).forEach((m) => { if (!m.userData.smoothN && m.geometry) { smoothNormals(m.geometry, 50); m.userData.smoothN = true; } })); }
+      if (!own.detailed) ['interior', 'dash', 'steer'].forEach((zid) => (Z[zid] || []).forEach((m) => { if (!m.userData.smoothN && m.geometry) { smoothNormals(m.geometry, 50); m.userData.smoothN = true; } })); }
     // engine bay (the model's untextured engine renders as chrome / bare grey): cast aluminium + black plastics & hoses, as on the 2UZ
     // the cowl panel under the windshield (where the wipers park): deep black textured plastic, like a new factory one
     (Z.cowl || []).forEach((m) => setMat(m, (bm) => {
+      if (own.detailed && bm.map) return bm; // (a detailed model's own textured cowl & wipers)
       const key = `${bm.uuid}|cowl`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
       const fm = bm.clone(); if (fm.map) fm.map = null;
       if (bm.metalness > 0.7) { fm.color.setHex(0x111214); fm.metalness = 0.5; fm.roughness = 0.4; } // (wiper arms: black steel)
@@ -8124,9 +8411,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm;
     }));
     (Z.engine || []).forEach((m) => setMat(m, (bm) => {
+      if (own.detailed && bm.map) return bm; // (a detailed model's own textured engine)
       const key = `${bm.uuid}|bay`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
       const chrome = bm.metalness > 0.7, lum = bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0;
       if (!chrome && lum < 0.1) return bm; // already dark
+      if (model.prof && bm.map && model.paintMats.includes(bm)) { // (a lineup model's bay drawn into its paint texture: that picture, unpainted)
+        const tm = new THREE.MeshStandardMaterial({ map: bm.map, color: 0xb4b4b4, roughness: 0.6, metalness: 0.25, side: bm.side });
+        ensureCut(tm); zoneMatCache.set(key, tm); return tm;
+      }
       const fm = bm.clone(); if (fm.map) fm.map = null;
       if (chrome) { fm.color.setHex(0x8e9196); fm.metalness = 0.75; fm.roughness = 0.42; } else if (model.paintMats.includes(bm)) { fm.color.setHex(0x55585d); fm.metalness = 0.55; fm.roughness = 0.45; } // (engine block / heads: dark cast metal)
       else { fm.color.setHex(0x232427); fm.metalness = 0.15; fm.roughness = 0.6; }
@@ -8205,8 +8497,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const modelR = model && model.wheelFit && !model.wheelFit.synthetic && !model.reference ? model.wheelFit.R : null;
     rig.wy = b.tire === 'stock' && modelR ? modelR : (t.dia / 2) * INCH;
     rig.offF = wheelShiftIn(b, 'F') * INCH; rig.offR = wheelShiftIn(b, 'R') * INCH;
-    const key = `${t.dia}|${t.width}|${t.rim}|${style}|${b.tireBrand}|${b.beadColor || ''}|${rig.wy.toFixed(4)}|${rig.offF.toFixed(4)}|${rig.offR.toFixed(4)}|${b.spacerF}|${b.spacerR}|${P.spots.map((s) => s.x.toFixed(3) + s.z.toFixed(3)).join()}`;
-    if (key !== wheelKey) { wheelKey = key; rebuildWheels(t, style, rig.wy, b); }
+    // (a lineup model on its own wheels drives on them too — copies on the rolling hubs, not a stand-in factory design)
+    const ownRoll = !!(modelR && model.prof && ownWheels(b) && model.wheelFit.meshes.length);
+    const key = `${ownRoll ? 'own|' : ''}${t.dia}|${t.width}|${t.rim}|${style}|${b.tireBrand}|${b.beadColor || ''}|${rig.wy.toFixed(4)}|${rig.offF.toFixed(4)}|${rig.offR.toFixed(4)}|${b.spacerF}|${b.spacerR}|${P.spots.map((s) => s.x.toFixed(3) + s.z.toFixed(3)).join()}`;
+    if (key !== wheelKey) { wheelKey = key; rebuildWheels(t, style, rig.wy, b, ownRoll); }
     P.spareSpec = { R: rig.wy, w: t.width * INCH, rimR: (t.rim / 2) * INCH + 0.012, style, tireBrand: b.tireBrand, beadColor: b.beadColor }; // (spares match the truck's wheels)
     const swap = swapActive();
     wheels.forEach((w, i) => { w.visible = swap && !(cutaway && P.spots[i].s > 0); });
@@ -8265,7 +8559,20 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (instant) { rig.lift = target; rig.liftR = targetR; updateRig(); }
     else { updateRig(); gsap.to(rig, { lift: target, liftR: targetR, duration: 0.7, ease: 'power2.out', onUpdate: updateRig }); }
     if (acc) { const vis = (l, on) => l.forEach((o) => { o.visible = on; }); vis(acc.reg.flares, false); /* (bolt-on flares retired) */ vis(acc.reg.sliders, b.sliders); }
-    if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory; model.bumpers.front.forEach((m) => { m.visible = !!fs; }); model.bumpers.rear.forEach((m) => { m.visible = ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'); }); }
+    if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory; model.bumpers.front.forEach((m) => { m.visible = !!fs; }); model.bumpers.rear.forEach((m) => { m.visible = ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'); });
+      // the stock models' maker badges: developer mode only (like the Dundra's); trim-only gear (the Pursuit's police kit) on its trim
+      if (model.prof && model.prof.texFill) { // painted-over logos: the original texture in developer mode
+        const swapTo = (mt) => { if (!mt || !mt.map) return;
+          if (b.oem) { const orig = TEX_SWAP.get(mt.map); if (orig) { texCleanOf.set(mt, mt.map); mt.map = orig; mt.needsUpdate = true; } }
+          else if (texCleanOf.has(mt)) { mt.map = texCleanOf.get(mt); texCleanOf.delete(mt); mt.needsUpdate = true; } };
+        model.parts.meshes.forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach(swapTo));
+      }
+      (model.badges || []).forEach((m) => {
+        if (!m.userData.badgeFill) { m.visible = !!b.oem; return; }
+        if (!m.userData.mat0) m.userData.mat0 = m.material;
+        m.material = b.oem ? m.userData.mat0 : (badgeFillMat || (badgeFillMat = new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.55, metalness: 0.1 })));
+      });
+      const pt = model.prof && model.prof.policeTrim, onTrim = !pt || pt.test(base.vehicle.trim || ''); (model.police || []).forEach((m) => { m.visible = onTrim; }); }
     if (model) { applyWindows(b); setCuts([...trimCuts(b), ...(b.cuts || [])]); buildArchLiners(b); buildRoofAntenna(b);
       const bc = bedCutGeom(base.P, b), rbF = ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'); // (a factory bumper keeps its corners: the cut stops ahead of it)
       // (outer 28 cm of the width: the bedside's inner wall stands ~21 cm in — at 20 cm a strip of it hung down below the cut)
@@ -8387,10 +8694,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         try {
           clearCustom(true);
           const obj = gltf.scene || gltf.scenes[0];
+          const report = [], prof = opts.prof || {}, prep = prepModel(obj, prof, report);
           const holder = new THREE.Group(), stretch = new THREE.Group(), inner = new THREE.Group(); holder.add(stretch); stretch.add(inner); inner.add(obj);
           truck.add(holder);
           const parts = classify(obj);
-          const report = [];
+          // (trim-only gear & the maker's badges ride along with the body, but aren't body: no paint, zones or probes)
+          const extra = (m) => m.userData.trimOnly || m.userData.badge, extras = parts.meshes.filter(extra);
+          parts.meshes = parts.meshes.filter((m) => !extra(m)); parts.wheelMeshes = parts.wheelMeshes.filter((m) => !extra(m));
           let points = 0; obj.traverse((o) => { if (o.isPoints) { points++; o.visible = false; } });
           if (points) report.push({ lvl: 'warn', text: `${points} point-cloud / Gaussian-splat object(s) hidden — export a textured mesh for best results.` });
           // hide baked ground / shadow planes
@@ -8423,18 +8733,23 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
           parts.doorNodes.forEach((n) => tag(n, 'door'));
           parts.hoodNodes.forEach((n) => tag(n, 'hood'));
           const ex = (gltf.asset && gltf.asset.extras) || {};
-          const credit = ex.title || ex.author ? [ex.title ? `“${ex.title}”` : null, ex.author ? `by ${String(ex.author).replace(/\s*\(https?:[^)]*\)/, '')}` : null, ex.license ? String(ex.license).replace(/\s*\(https?:[^)]*\)/, '') : null].filter(Boolean).join(' · ') : null;
+          // (the lineup's own models: credit the author & licence, not the source title — it names the real maker and model)
+          const credit = ex.title || ex.author ? [ex.title && opts.kind !== 'stock' ? `“${ex.title}”` : null, ex.author ? `by ${String(ex.author).replace(/\s*\(https?:[^)]*\)/, '')}` : null, ex.license ? String(ex.license).replace(/\s*\(https?:[^)]*\)/, '') : null].filter(Boolean).join(' · ') : null;
           const creditUrl = ex.source || (String(ex.author || '').match(/https?:[^)\s]+/) || [null])[0];
           model = { holder, stretch, inner, obj, buffer, opts, name: opts.name || 'model.glb', kind: opts.kind || 'stock', paint: opts.paint !== false, parts, report,
             paintMats: [], glassMats: [], engineMats: [], allMats: [], wheelMats: new Set(), orig: new Map(), texCache: new Map(),
             rotY: 0, baseY: 0, wheelFit: null, wheelLocal: null, wheelMode: 'none', hood: null, doors: [], bumpers: { front: [], rear: [] }, xray: false,
             probeTargets: [], tris: Math.round(tris), underbody: null, ident: opts.ident || null, reference: false, wheelPieces: [],
-            morph: null, morphOrig: null, morphGeos: null, morphNote: null, credit, creditUrl };
+            morph: null, morphOrig: null, morphGeos: null, morphNote: null, credit, creditUrl, prof, police: prep.police, badges: extras.filter((m) => m.userData.badge) };
+          extras.forEach((m) => { m.castShadow = true; });
           refreshMaterials();
-          model.glassMats = model.allMats.filter((mt) => hasTok(nameTokens(mt.name), 'glass') || (mt.transmission || 0) > 0.2 || (mt.transparent && mt.opacity < 0.85 && !model.wheelMats.has(mt)));
+          const isGlass = (mt) => { const n = mt.name || ''; if (prof.notGlass && prof.notGlass.test(n)) return false; if (prof.glass && prof.glass.test(n)) return true;
+            return hasTok(nameTokens(n), 'glass') || (mt.transmission || 0) > 0.2 || (mt.transparent && mt.opacity < 0.85 && !model.wheelMats.has(mt)); };
+          model.glassMats = model.allMats.filter(isGlass);
           // Orientation: longest horizontal axis → X, front (headlights/grille/front wheels/hood) → +X
           holder.updateMatrixWorld(true);
           let rotY = opts.rotY;
+          if ((rotY === undefined || rotY === null) && prof.rotY !== undefined) rotY = prof.rotY; // (the stock models' facing is known)
           if (rotY === undefined || rotY === null) {
             const sz = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
             rotY = sz.z > sz.x ? Math.PI / 2 : 0;
@@ -8730,6 +9045,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (chassis) { model.holder.remove(chassis.frame); truck.remove(chassis.links); [chassis.frame, chassis.links].forEach((g) => g.traverse((o) => o.geometry && o.geometry.dispose())); }
     chassis = buildChassis(M, base.P, { fourWD: /4x4|4wd|awd/i.test(spec.drive || '') });
     chassis.frame.position.copy(restOff); model.holder.add(chassis.frame); truck.add(chassis.links);
+    if (model.prof && model.prof.car) { chassis.frame.visible = false; chassis.links.visible = false; } // (a unibody car: its own floor & suspension, no ladder frame)
     wheelKey = ''; lightsKey = ''; bumpersKey = '';
     applyBuild(build, { xray }, true);
     setDamage(damage, damageVisible);
@@ -8899,7 +9215,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
 
   // Paint: named "paint" materials, else the dominant body material. Textured → colour-keyed mask.
   function setupPaint() {
-    const named = model.allMats.filter((mt) => hasTok(nameTokens(mt.name), 'paint') && !model.glassMats.includes(mt) && !model.wheelMats.has(mt));
+    const pr = model.prof || {}, named = model.allMats.filter((mt) => (pr.paint ? pr.paint.test(mt.name || '') : hasTok(nameTokens(mt.name), 'paint')) && !model.glassMats.includes(mt) && !model.wheelMats.has(mt));
     let chosen = named;
     if (!chosen.length) {
       const area = new Map();
@@ -8907,10 +9223,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       chosen = [...area.keys()].filter((mt) => mt.color && !model.glassMats.includes(mt) && !model.wheelMats.has(mt) && !hasTok(nameTokens(mt.name), 'light')).sort((a, b) => area.get(b) - area.get(a)).slice(0, 1);
     }
     // body colour family: untextured materials sharing the main body colour are paint too (models often split panels into copies)
-    if (chosen.length === 1 && !chosen[0].map && chosen[0].color) {
+    if (chosen.length === 1 && !chosen[0].map && chosen[0].color && !pr.paint) { // (a profile names its paint exactly: on a black truck every black plastic would match)
       const c0 = chosen[0].color;
       model.allMats.forEach((mt) => {
-        if (chosen.includes(mt) || mt.map || !mt.color || model.glassMats.includes(mt) || model.wheelMats.has(mt) || hasTok(nameTokens(mt.name), 'light')) return;
+        if (chosen.includes(mt) || mt.map || !mt.color || model.glassMats.includes(mt) || model.wheelMats.has(mt) || hasTok(nameTokens(mt.name), 'light') || (pr.notPaint && pr.notPaint.test(mt.name || ''))) return;
         if (Math.abs(mt.color.r - c0.r) + Math.abs(mt.color.g - c0.g) + Math.abs(mt.color.b - c0.b) < 0.06) chosen.push(mt);
       });
     }
@@ -8928,11 +9244,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function addPaintMat(mt, keyColor) {
     const phys = toPhysical(mt);
     if (phys !== mt) { replaceMat(mt, phys); model.orig.set(phys, snapshot(mt)); model.glassMats = model.glassMats.filter((g) => g !== mt); }
+    // (the recolour keeps the original's brightness — a plain jet-black paint material would stay black whatever colour you
+    // pick, so it gets a mid-grey base)
+    if (!phys.map && phys.color && 0.2126 * phys.color.r + 0.7152 * phys.color.g + 0.0722 * phys.color.b < 0.04) phys.color.setScalar(0.45);
     const U = installPaintShader(phys);
     const tc = phys.map ? textureCanvas(phys.map, model.texCache) : null;
     if (phys.map && (tc || keyColor)) {
       const k = keyColor || (tc && textureKeyColor(tc));
-      if (k) { U.uKey.value.copy(k.color); U.uKeyLum.value = k.lum; U.uTol.value = 0.9; phys.userData.paintMode = 'keyed'; }
+      if (k) { U.uKey.value.copy(k.color); U.uKeyLum.value = k.lum; U.uTol.value = (model.prof && model.prof.paintTol) || 0.9; phys.userData.paintMode = 'keyed'; }
     }
     if (phys.userData.paintMode !== 'keyed') {
       const c = phys.color.clone(); U.uKey.value.copy(c); U.uKeyLum.value = Math.max(0.02, 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b); U.uTol.value = 100; phys.userData.paintMode = 'whole';
@@ -9576,8 +9895,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // hip height reclined ~23°; the rear bench is the same height, its back ~0.24 m ahead of the cab's rear wall)
     const D = bi.dash, sc = D ? D.sc : V(P.cowlX - 0.5, P.hoodY - 0.05, -0.37), zs = Math.abs(sc.z) > 0.15 ? Math.abs(sc.z) : 0.37, fx = sc.x - 0.34, fy = sc.y - 0.26;
     const reg = base.vehicle && base.vehicle.cab === 'regular', cr = bi.cabRear !== undefined ? bi.cabRear : P.xR + 0.9;
-    const rx = reg ? cr - 0.45 : cr + 0.37, ry = reg ? (bi.floorY || fy) + 0.1 : fy, out = P.halfW + 0.6;
-    const list = [[fx, fy, -zs], [fx, fy, zs], [rx, ry, -zs * 0.95], [rx, ry, zs * 0.95]].map(([x, y, z], i) => ({ i, hip: V(x, y, z), door: V(i < 2 ? fx - 0.15 : rx + 0.05, 0, Math.sign(z) * out), side: Math.sign(z) }));
+    const rx = reg ? cr - 0.45 : cr + 0.37, out = P.halfW + 0.6;
+    // (under a low roof — a sedan — the seat sits lower, so the head clears the headliner: eye ~0.75 m over the hip, + head & cap)
+    const LN = D && D.liner, ceilAt = (x, z) => { if (!LN) return null; const NZ = LN.nz + 1, fi = THREE.MathUtils.clamp(((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx, 0, LN.nx - 1e-6), fj = ((z + LN.lz) / (2 * LN.lz)) * LN.nz, i = Math.floor(fi), j = Math.floor(fj);
+      if (j < 0 || j >= LN.nz) return null; const at = (a, c) => LN.y[a * NZ + c], u = fi - i, v = fj - j, y = (at(i, j) * (1 - u) + at(i + 1, j) * u) * (1 - v) + (at(i, j + 1) * (1 - u) + at(i + 1, j + 1) * u) * v; return isNaN(y) ? null : y; };
+    const under = (x, y) => { const c = ceilAt(x - 0.1, zs); return c === null ? y : Math.min(y, c - 0.915); };
+    const fyS = under(fx, fy), ry = under(rx, reg ? (bi.floorY || fy) + 0.1 : fy);
+    const list = [[fx, fyS, -zs], [fx, fyS, zs], [rx, ry, -zs * 0.95], [rx, ry, zs * 0.95]].map(([x, y, z], i) => ({ i, hip: V(x, y, z), door: V(i < 2 ? fx - 0.15 : rx + 0.05, 0, Math.sign(z) * out), side: Math.sign(z) }));
     if (D) bi.seats = { list, n: reg ? 2 : 4 }; // (measured once the cabin is: kept with this fit)
     return { list, n: reg ? 2 : 4 };
   }
@@ -10470,7 +10794,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     setPaintTolerance: (v) => { if (model) model.paintMats.forEach((m) => { if (m.userData.paintMode === 'keyed') m.userData.paintU.uTol.value = v; }); },
     setPickPaint: (on) => { pickPaint = !!on && !!model; el.style.cursor = pickPaint ? 'crosshair' : 'grab'; },
     modelInfo,
-    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), ctl, meC: () => meC, seatsOf, remotes, gripsOf, myTruck }), // console inspection
+    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: () => { Object.assign(winCur, winTarget); applyWindowsAt(winCur); }, ctl, meC: () => meC, seatsOf, remotes, gripsOf, myTruck }), // console inspection
     startDrive, stopDrive, isDriving: () => drive.on, recenterCam, renderVariants, setCutaway,
     setCutMode: (on, r) => { cutMode = !!on && !!model; if (r) cutR = r; controls.enabled = !cutMode && !drive.on; el.style.cursor = cutMode ? 'crosshair' : 'grab'; },
     setEngine: (s) => { Object.assign(engine, s); },
@@ -11135,16 +11459,59 @@ function ModalShell({ title, accent, sub, onClose, children, tabs, tab, setTab }
 }
 
 /* ---------------- Vehicle selector: catalog / custom specs / mesh import ---------------- */
+// The garage lineup: body type → make / model → generation. Empty body types say so (more vehicles come in later updates).
+function LineupPicker({ vehicle, onPick }) {
+  const cur = lineupOf(vehicle), [type, setType] = useState(cur ? cur.type : 'truck');
+  const list = LINEUP.filter((e) => e.type === type);
+  return (
+    <div className="grid md:grid-cols-[190px_1fr] gap-4">
+      <div className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible scroll-thin pb-1 md:pb-0">
+        {LINEUP_TYPES.map((t) => { const n = LINEUP.filter((e) => e.type === t.id).length; return (
+          <button key={t.id} onClick={() => { UISound.hover(); setType(t.id); }} className={`shrink-0 text-left rounded-lg px-3 py-2 hud text-[14px] font-bold flex items-center gap-2 border transition ${type === t.id ? 'bg-white text-black border-white' : 'border-white/10 text-white/80 hover:bg-white/10'}`}>
+            <Icon name={t.icon} size={16} />{t.label}<span className={`ml-auto text-[11px] ${type === t.id ? 'text-black/50' : 'text-white/35'}`}>{n || '—'}</span>
+          </button>); })}
+      </div>
+      <div className="space-y-3 min-w-0">
+        {!list.length && (
+          <div className="rounded-lg border border-dashed border-white/15 p-8 text-center">
+            <Icon name="Hourglass" size={30} className="mx-auto text-white/35" />
+            <div className="hud text-[20px] font-bold mt-2">{(LINEUP_TYPES.find((t) => t.id === type) || {}).label} — coming soon</div>
+            <div className="text-[13px] text-white/50 mt-1">Nothing in this class yet. New models land here in future updates.</div>
+          </div>
+        )}
+        {list.map((e) => (
+          <div key={e.make + e.model} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="hud text-[12px] tracking-[0.22em] uppercase text-amber-300 font-bold">{e.make}</span>
+              <span className="hud text-[24px] font-bold leading-none">{e.model}</span>
+              {e.locked && <span className="rounded-full border border-white/20 px-2 py-0.5 hud text-[10.5px] font-bold tracking-wider text-white/60 uppercase">Drive only · mods coming soon</span>}
+            </div>
+            <div className="text-[12.5px] text-white/60 mt-1 leading-snug">{e.blurb}</div>
+            <div className="grid sm:grid-cols-2 gap-2 mt-3">
+              {e.gens.map((g) => { const on = vehicle.make === e.make && vehicle.model === e.model && vehicle.gen === g.gen; return (
+                <button key={g.gen} onClick={() => { UISound.select(); onPick(lineupVehicle(e.make, e.model, g.gen)); }}
+                  className={`text-left rounded-lg border px-3 py-2.5 transition ${on ? 'border-amber-400 bg-amber-400/10' : 'border-white/12 hover:border-white/35 hover:bg-white/[0.04]'}`}>
+                  <div className="flex items-center justify-between gap-2"><span className="hud text-[16px] font-bold">{g.label}</span><span className="hud text-[12px] text-white/50">{g.years}</span></div>
+                  <div className="text-[11.5px] text-white/55 mt-0.5">{g.note}</div>
+                  {on && <div className="hud text-[11px] font-bold tracking-wider text-amber-300 mt-1 uppercase flex items-center gap-1"><Icon name="Check" size={12} />In the garage</div>}
+                </button>); })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 function VehicleModal({ open, initialTab, onClose, vehicle, onApply, customModel, onImportModel, onRotateModel, onClearModel, onTogglePaint }) {
-  const [tab, setTab] = useState('catalog');
+  const [tab, setTab] = useState('garage');
   const [library, setLibrary] = useState([]);
   useEffect(() => { if (open && initialTab) setTab(initialTab); }, [open, initialTab]);
   useEffect(() => {
     if (!open || tab !== 'mesh') return;
     ModelLib.list().then((rows) => setLibrary(rows.map(({ key, name, kind, size, vehicleLabel, savedAt }) => ({ key, name, kind, size, vehicleLabel, savedAt })))).catch(() => setLibrary([]));
   }, [open, tab, customModel]);
-  const [make, setMake] = useState(vehicle.make in CATALOG ? vehicle.make : 'Toyota');
-  const [model, setModel] = useState(vehicle.make in CATALOG && CATALOG[vehicle.make][vehicle.model] ? vehicle.model : Object.keys(CATALOG.Toyota)[0]);
+  const [make, setMake] = useState(vehicle.make in CATALOG ? vehicle.make : 'Doyoda');
+  const [model, setModel] = useState(vehicle.make in CATALOG && CATALOG[vehicle.make][vehicle.model] ? vehicle.model : Object.keys(CATALOG.Doyoda)[0]);
   const [year, setYear] = useState(vehicle.year);
   const [trimIdx, setTrimIdx] = useState(vehicle.trimIdx || 0);
   const [cv, setCv] = useState(() => ({
@@ -11182,9 +11549,10 @@ function VehicleModal({ open, initialTab, onClose, vehicle, onApply, customModel
   };
 
   return (
-    <ModalShell title="SELECT" accent="VEHICLE" sub="Pick Year / Make / Model / Trim to load factory specs. The 3D body, wheel wells, ride height and telemetry rebuild to match."
+    <ModalShell title="SELECT" accent="VEHICLE" sub={tab === 'garage' ? 'Pick a class, then a model and generation. Every one is a full 3D model — your build carries over.' : 'Pick Year / Make / Model / Trim to load factory specs. The 3D body, wheel wells, ride height and telemetry rebuild to match.'}
       onClose={onClose} tab={tab} setTab={setTab}
-      tabs={[['catalog', 'US Catalog', 'Database'], ['custom', 'Custom Specs', 'SlidersHorizontal'], ['mesh', '3D Model Library', 'Box']]}>
+      tabs={[['garage', 'Garage', 'LayoutGrid'], ['catalog', 'Spec Catalog', 'Database'], ['custom', 'Custom Specs', 'SlidersHorizontal'], ['mesh', '3D Model Library', 'Box']]}>
+      {tab === 'garage' && <LineupPicker vehicle={vehicle} onPick={(v) => { onApply(v); onClose(); }} />}
       {tab === 'catalog' && (
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-3">
@@ -12506,7 +12874,7 @@ const HOVER_HINT = {
   armor: 'Click to open Body Armor', bumper: 'Click to open Body Armor', engine: 'Click to open Hood / Engine', door: 'Click to open / close the doors',
   lights: 'Click to open Lighting',
 };
-const TUNDRA_MODEL_IDENT = { make: 'Toyota', model: 'Tundra', gen: '1st Gen', cab: 'double' }; // car.glb = 1st-gen Tundra Double Cab
+const TUNDRA_MODEL_IDENT = { make: 'Doyoda', model: 'Dundra', gen: '1st Gen', cab: 'double' }; // car.glb = 1st-gen Dundra Double Cab
 
 function App() {
   const mountRef = useRef(null);
@@ -12559,7 +12927,7 @@ function App() {
   const [damage, setDamage] = useState([]);
   const [scan, setScan] = useState({ phase: 'idle' });
   const [customModel, setCustomModel] = useState(null); // { name, kind, paint, wheels, tris }
-  const [vehicleTab, setVehicleTab] = useState('catalog');
+  const [vehicleTab, setVehicleTab] = useState('garage');
   const [envId, setEnvId] = useState(() => { const v = lsGet('apex-out-env2', 'backroads'); return ENVIRONMENTS.some((e) => e.id === v) ? v : 'backroads'; }); // (a removed location falls back to the backroads)
   const [wet, setWet] = useState(() => lsGet('apex-wet', '1') === '1');
   const [quality, setQuality] = useState(() => lsGet('apex-gfx', window.innerWidth < 768 ? 'performance' : 'cinematic'));
@@ -12647,7 +13015,15 @@ function App() {
   }, [vehicle]);
   // oem: factory badges / lettering are only drawn with developer mode unlocked (the public build stays unbranded)
   // (a reserved "DEV" plate number from a preset / scan / import is only shown with developer mode on — see plateReserved)
-  useEffect(() => { stageRef.current && stageRef.current.applyBuild({ ...effective, oem: devUnlocked, ...(!devUnlocked && plateReserved(effective.plateText) ? { plateText: 'DGC 4124' } : {}) }, { xray: xrayOn }); }, [effective, xrayOn, vehicle, customModel, devUnlocked]);
+  // (a drive-only vehicle gets a stock build — just the drive's own settings: time of day, weather, lights, windows)
+  useEffect(() => {
+    // (the Dundra-only parts — replacement grilles, hood deflector, its 2005–06 factory bumpers & OEM badges — stay in the
+    // build, unseen, on any other truck: they come back when you switch back to the Dundra)
+    const notDundra = !tundraEra(vehicle) ? { grille: 'stock', bugShield: false, badges: {}, ...(['oem06', 'oem06c'].includes(effective.frontBumper) ? { frontBumper: 'stock' } : {}) } : {};
+    const b = isLocked(vehicle) ? { ...DEFAULT_BUILD, tod: effective.tod, weather: effective.weather, head: effective.head, windows: effective.windows, tcs: effective.tcs, plate: 'none' } : { ...effective, ...notDundra };
+    stageRef.current && stageRef.current.applyBuild({ ...b, oem: devUnlocked, ...(!devUnlocked && plateReserved(b.plateText) ? { plateText: 'DGC 4124' } : {}) }, { xray: xrayOn });
+  }, [effective, xrayOn, vehicle, customModel, devUnlocked]);
+  useEffect(() => { if (isLocked(vehicle) && category && category !== 'character') openCategory(null); }, [vehicle]);
   useEffect(() => { stageRef.current && stageRef.current.setDamage(damage, true); }, [damage, vehicle]);
   useEffect(() => { stageRef.current && stageRef.current.setHood(hoodOpen); }, [hoodOpen]);
   useEffect(() => { stageRef.current && stageRef.current.setAutoRotate(autoRotate); }, [autoRotate]);
@@ -12678,6 +13054,7 @@ function App() {
     setCategory(null); setPreview(null); setCutMode(false); setMenuTab(null);
     if (st.startDrive()) setDriving(true);
   }, [vehicle.engine, effective.exhaust, effective.supercharger, effective.intake]);
+  const startDriveRef = useRef(null); startDriveRef.current = startDrive;
   const stopDrive = useCallback(() => { stageRef.current && stageRef.current.stopDrive(); setDriving(false); setDriveHud(null); EngineAudio.setExternal(null); }, []);
   // multiplayer: while in a session, send this truck's pose ~10×/s and draw everyone else's; joining puts you on the host's map
   useEffect(() => {
@@ -12747,6 +13124,7 @@ function App() {
   }, [category, vehicle, customModel, applied.color, applied.wheelStyle, applied.tire]);
 
   const loadVehicle = useCallback((v) => { setVehicle(v); setApplied((a) => ({ ...a, tire: 'stock' })); setPreview(null); setDamage([]); }, []);
+  window.apexApp = { loadVehicle, lineupVehicle, setApplied, applyPatch, openCategory, startDrive: () => startDriveRef.current && startDriveRef.current(), vehicle, applied }; // (console debugging handle)
   // Factory configurator: year / cab / drive / trim / engine (configurator generations) or year / trim (catalog rows)
   const setFactory = useCallback((patch) => {
     setPreview(null);
@@ -12784,11 +13162,14 @@ function App() {
     .then(() => fetch(new URL('car.glb', document.baseURI).href)) // throws on data:/blocked file:// origins → falls through
     .then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b && b.byteLength > 1000 ? b : null)).catch(() => null));
   const fetchDemo = () => demoP.current || (demoP.current = fetch(DEMO_MODEL.url).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null));
+  // the lineup's own models (models/*.glb), fetched once each
+  const stockP = useRef(new Map());
+  const fetchStock = (url) => { if (!stockP.current.has(url)) stockP.current.set(url, fetch(new URL(url, document.baseURI).href).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b && b.byteLength > 1000 ? b : null)).catch(() => null)); return stockP.current.get(url); };
   const showModel = useCallback(async (src) => {
     const st = stageRef.current; if (!st) return null;
-    setModelStatus({ loading: src.name });
+    setModelStatus({ loading: src.label || src.name });
     try {
-      const info = await st.loadCustomModel(src.buf, { name: src.name, rotY: src.rotY, paint: src.paint, kind: src.kind, ident: src.ident || null });
+      const info = await st.loadCustomModel(src.buf, { name: src.name, rotY: src.rotY, paint: src.paint, kind: src.kind, ident: src.ident || null, prof: src.prof || null });
       activeSrc.current = src;
       setCustomModel({ ...info, kind: src.kind, paint: src.paint, source: src.source });
       setModelStatus(null);
@@ -12799,8 +13180,14 @@ function App() {
     if (skipResolveKey.current && skipResolveKey.current === vehicleKey(vehicle)) { skipResolveKey.current = null; return; } // the import wizard is loading this one
     let src = null;
     try { const rec = await ModelLib.get(vehicleKey(vehicle)); if (rec) src = { buf: rec.buf, name: rec.name, kind: rec.kind, rotY: rec.rotY, paint: rec.paint, ident: rec.ident, source: 'library' }; } catch (e) { /* storage blocked */ }
-    if (!src && sessionModel.current) src = sessionModel.current;
-    if (!src) { setModelStatus({ loading: 'car.glb' }); const b = await fetchCarGlb(); if (b) src = { buf: b, name: 'car.glb', kind: 'stock', paint: true, ident: TUNDRA_MODEL_IDENT, source: 'car.glb' }; }
+    if (!src && sessionModel.current && vehicleKey(sessionModel.current.ident || {}) === vehicleKey(vehicle)) src = sessionModel.current;
+    const sm = stockModelFor(vehicle);
+    if (!src && sm && sm.url !== 'car.glb') { // a lineup vehicle with its own model
+      const label = `${vehicle.make} ${vehicle.model}`; setModelStatus({ loading: label }); const b = await fetchStock(sm.url);
+      if (b) src = { buf: b, name: sm.url.split('/').pop(), label, kind: 'stock', paint: true, ident: { make: vehicle.make, model: vehicle.model, gen: vehicle.gen, ...sm.ident }, prof: sm.prof, source: 'stock' };
+    }
+    if (!src && !sm && sessionModel.current) src = sessionModel.current;
+    if (!src) { setModelStatus({ loading: 'Doyoda Dundra' }); const b = await fetchCarGlb(); if (b) src = { buf: b, name: 'car.glb', label: 'Doyoda Dundra', kind: 'stock', paint: true, ident: TUNDRA_MODEL_IDENT, source: 'car.glb' }; }
     if (!src) { setModelStatus({ loading: DEMO_MODEL.name }); const b = await fetchDemo(); if (b) src = { buf: b, name: DEMO_MODEL.name, kind: 'demo', paint: true, source: 'demo' }; }
     if (!isLive()) return;
     if (!src) { stageRef.current.clearCustom(); setCustomModel(null); activeSrc.current = null; setModelStatus({ none: true }); return; }
@@ -12917,11 +13304,15 @@ function App() {
   const buildMenu = (category) => {
   let title = 'Main Menu', items = [], defaultDesc = 'Pick a category. Hover any part to preview it on the truck, click to install.';
   if (!category) {
+    const locked = isLocked(vehicle);
     items = [
       { kind: 'header', label: 'Customize' },
-      ...CATEGORIES.map((c) => ({ kind: 'item', label: c.label, icon: c.icon, desc: c.desc, right: <Icon name="ChevronRight" size={18} />, action: () => openCategory(c.id) })),
+      ...(locked ? [{ kind: 'custom', render: () => (
+        <div className="text-[12.5px] text-white/70 leading-snug"><span className="hud text-[14px] font-bold text-amber-300 block mb-0.5">{vehicle.make} {vehicle.model}: drive only for now</span>Parts and options for this car are coming in a later update — hit Drive to take it out, or pick another vehicle. Your character still works everywhere.</div>
+      ) }, { kind: 'item', label: 'Character', icon: 'PersonStanding', desc: CATEGORIES.find((c) => c.id === 'character').desc, right: <Icon name="ChevronRight" size={18} />, action: () => openCategory('character') }]
+        : CATEGORIES.map((c) => ({ kind: 'item', label: c.label, icon: c.icon, desc: c.desc, right: <Icon name="ChevronRight" size={18} />, action: () => openCategory(c.id) }))),
       { kind: 'header', label: 'Your Vehicle' },
-      { kind: 'item', label: 'Select Year / Make / Model', icon: 'Truck', desc: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}. Load factory specs from the US catalog, enter custom specs, or import a .glb mesh.`, right: <Icon name="ChevronRight" size={18} />, action: () => setVehicleModal(true) },
+      { kind: 'item', label: 'Change Vehicle', icon: 'Truck', desc: `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}. Trucks, sedans & more from the garage lineup — or the spec catalog, custom specs and your own .glb.`, right: <Icon name="ChevronRight" size={18} />, action: () => { setVehicleTab('garage'); setVehicleModal(true); } },
       { kind: 'item', label: '3D Model Library', icon: 'Box', desc: customModel ? `Active: ${customModel.name}. Swap, rotate or remove the realistic model saved for this vehicle.` : 'No realistic model saved for this vehicle yet — import a .glb to replace the placeholder body.', right: <Icon name="ChevronRight" size={18} />, action: openLibrary },
       { kind: 'item', label: 'Scan My Truck', icon: 'ScanLine', desc: 'Import a photogrammetry scan of your truck for an exact replica, or match paint & parts from photos.', right: <Icon name="ChevronRight" size={18} />, action: () => setScanModal(true) },
       { kind: 'item', label: account ? 'My Account & Saved Builds' : 'Create Account / Save Builds', icon: 'UserCircle', desc: account ? `Signed in · ${account.id}. Save this build as a preset, or load one you saved.` : 'Make an account with just your email to save builds as presets you can name anything.', right: <Icon name="ChevronRight" size={18} />, action: () => setAccountOpen(true) },
@@ -12966,7 +13357,7 @@ function App() {
         ...[['4x2', 'Rear-wheel drive. Sits about 0.6–1" lower.'], ['4x4', 'Part-time 4WD with 2-speed transfer case (A.D.D. front axle disconnect).']].map(([id, d]) => ({ kind: 'item', icon: 'Cog', label: id, installed: c.drive === id, desc: d, action: () => setFactory({ drive: id }) })),
         { kind: 'header', label: 'Trim' },
         ...cf.trimsFor(c.cab).map((t) => ({ kind: 'item', icon: 'Award', label: t, installed: c.trim === t, desc: TRIM_DESC[t], action: () => setFactory({ trim: t }) })),
-        ...(c.drive === '4x4' && c.trim !== 'Base' ? [{ kind: 'item', icon: 'Mountain', label: 'TRD Off-Road Package', installed: !!c.trd, right: <span className={`hud font-bold text-[13px] ${c.trd ? 'text-emerald-400' : 'text-white/45'}`}>{c.trd ? 'ON' : 'OFF'}</span>, desc: 'Bilstein shocks, front skid plate, off-road tuned springs and TRD Off-Road decals.', action: () => setFactory({ trd: !c.trd }) }] : []),
+        ...(c.drive === '4x4' && c.trim !== 'Base' ? [{ kind: 'item', icon: 'Mountain', label: 'DRD Off-Road Package', installed: !!c.trd, right: <span className={`hud font-bold text-[13px] ${c.trd ? 'text-emerald-400' : 'text-white/45'}`}>{c.trd ? 'ON' : 'OFF'}</span>, desc: 'Bilstein shocks, front skid plate, off-road tuned springs and DRD Off-Road decals.', action: () => setFactory({ trd: !c.trd }) }] : []),
         { kind: 'header', label: 'Engine' },
         ...Object.entries(cf.engines).map(([id, e]) => {
           const ok = cf.enginesFor(c.cab, c.trim).includes(id);
@@ -12980,7 +13371,9 @@ function App() {
       ];
     } else {
       defaultDesc = `${gen.gen} ${vehicle.model} (${gen.years[0]}–${gen.years[1]}). Pick the model year and trim.`;
+      const lu = lineupOf(vehicle);
       items = [
+        ...(lu && lu.gens.length > 1 ? [{ kind: 'header', label: 'Generation' }, ...lu.gens.map((g) => ({ kind: 'item', icon: 'Layers', label: `${g.label} · ${g.years}`, installed: vehicle.gen === g.gen, desc: `${lu.make} ${lu.model} ${g.label}: ${g.note}. Its own 3D model — your build carries over.`, action: () => loadVehicle(lineupVehicle(lu.make, lu.model, g.gen)) }))] : []),
         { kind: 'header', label: 'Model Year' }, yearRow,
         { kind: 'header', label: 'Trim' },
         ...gen.trims.map((t, ti) => ({ kind: 'item', icon: 'Award', label: t[0], installed: vehicle.trimIdx === ti, desc: `${t[1]} · ${t[2]} hp / ${t[3]} lb-ft · ${t[4]} · ${t[10] || '4x4'}`, action: () => setFactory({ trimIdx: ti }) })),
@@ -13071,8 +13464,8 @@ function App() {
       { kind: 'header', label: 'Grille Light Hoop (tube + pods)' }, ...kitItems('hoop'), ...(applied.hoop && applied.hoop !== 'none' ? lensRow('hoop', 'bumperLens') : []),
       { kind: 'header', label: 'Fog Pockets' }, ...kitItems('fog'), ...lensRow('fog', 'fogLens'),
       ...((applied.fog || 'none') === 'none' ? [{ kind: 'header', label: 'Factory Fog Lens' }, ...Object.entries(FOG_TINTS).map(([id, o]) => ({ kind: 'item', icon: 'Lamp', label: o.label, price: id === 'clear' ? 0 : 60, installed: (applied.fogTint || 'clear') === id, patch: { fogTint: id }, desc: id === 'yellow' ? 'Selective-yellow film / bulbs in the factory fog lamps (as in your photo).' : id === 'smoke' ? 'Smoked film over the factory fog lenses.' : 'Stock clear fog lenses.' }))] : []),
-      { kind: 'header', label: 'Raptor Lights (grille markers)' },
-      ...[0, 3, 4].map((n) => ({ kind: 'item', icon: n ? 'Lightbulb' : 'Ban', label: n ? `${n} amber Raptor lights` : 'No Raptor lights', price: n ? 90 : 0, installed: (applied.raptorLights || 0) === n, patch: { raptorLights: n, ...(n ? { lightsOn: true } : {}) }, desc: n ? `${n} small amber LED markers across the top of the grille, wired to the parking lights — a soft glow, dimmer than the headlights. Fits any grille.` : 'No grille markers (the "+ 4 Raptor lights" grille has its own).' })),
+      { kind: 'header', label: 'Grille Marker Lights' },
+      ...[0, 3, 4].map((n) => ({ kind: 'item', icon: n ? 'Lightbulb' : 'Ban', label: n ? `${n} amber grille marker lights` : 'No grille marker lights', price: n ? 90 : 0, installed: (applied.raptorLights || 0) === n, patch: { raptorLights: n, ...(n ? { lightsOn: true } : {}) }, desc: n ? `${n} small amber LED markers across the top of the grille, wired to the parking lights — a soft glow, dimmer than the headlights. Fits any grille.` : 'No grille markers (the "+ 4 marker lights" grille has its own).' })),
       ...(backlit ? [{ kind: 'header', label: 'Pod Backlight Color' }, ...Object.entries(BACKLIGHTS).map(([id, hex]) => ({ kind: 'item', label: id[0].toUpperCase() + id.slice(1), swatch: '#' + hex.toString(16).padStart(6, '0'), price: 0, installed: applied.backlight === id, patch: { backlight: id }, desc: 'Color-selectable backlight (Diode Dynamics SS-series / Baja Squadron 2.0 Pro). Glows as an accent when the main beam is off.' }))] : []),
       { kind: 'header', label: 'Rock Lights' },
       { kind: 'item', icon: 'Lightbulb', label: '8-pod rock light kit', price: 299, installed: applied.rockLights, patch: { rockLights: !applied.rockLights, ...(!applied.rockLights ? { lightsOn: true } : {}) }, desc: 'Waterproof LED pods under the rockers light up the ground around the tires.' },
@@ -13115,7 +13508,7 @@ function App() {
               <span className="text-white/85 font-semibold truncate">{((hoverColor && hoverColor.code && hoverColor) || vehicle.colors.find((c) => c.hex === applied.color) || { name: 'Hover a factory color' }).name}</span>
               <span className="text-white/60">FACTORY</span>
             </div>
-            <div className="text-[10.5px] text-white/40 mt-1">Toyota paint codes; on-screen colors are approximations. Metallic / mica / pearl colors switch the finish to Metallic.</div>
+            <div className="text-[10.5px] text-white/40 mt-1">Factory paint codes; on-screen colors are approximations. Metallic / mica / pearl colors switch the finish to Metallic.</div>
           </div>
         ) },
       ] : []),
@@ -13337,7 +13730,7 @@ function App() {
       ...Object.entries(TIRE_BRANDS).map(([id, tb]) => ({ kind: 'item', icon: 'CircleDot', label: tb.brand ? `${tb.brand} ${tb.label}` : tb.label, price: tb.price, installed: (applied.tireBrand || 'oem') === id, patch: { tireBrand: id }, desc: `${tb.desc} Tread blocks & sidewall lettering modeled after the real tire (approximation).` })),
       { kind: 'header', label: 'Wheels' },
       { kind: 'item', icon: 'CircleDot', label: customModel ? 'Factory wheels (from the 3D model)' : 'Factory wheels', price: 0, installed: applied.wheelStyle === 'model', patch: { wheelStyle: 'model' }, desc: `Keeps the model's own wheels. With a different tire size or brand the matching factory-style wheel (${WHEEL_STYLES[vehicle.factoryWheel || 'factory-alloy16'].label}) is fitted instead.` },
-      ...(vehicle.config ? ['factory-steel16', 'factory-alloy16', 'factory-alloy17'].map((id) => ({ kind: 'item', icon: 'CircleDot', label: `Toyota ${WHEEL_STYLES[id].label}`, price: 0, installed: applied.wheelStyle === id, patch: { wheelStyle: id }, desc: WHEEL_STYLES[id].desc })) : []),
+      ...(vehicle.config ? ['factory-steel16', 'factory-alloy16', 'factory-alloy17'].map((id) => ({ kind: 'item', icon: 'CircleDot', label: `Doyoda ${WHEEL_STYLES[id].label}`, price: 0, installed: applied.wheelStyle === id, patch: { wheelStyle: id }, desc: WHEEL_STYLES[id].desc })) : []),
       ...Object.entries(brands).flatMap(([brand, list]) => [
         { kind: 'header', label: brand },
         ...list.map(([id, w]) => ({ kind: 'item', icon: 'CircleDot', label: w.label, price: w.price, installed: applied.wheelStyle === id, patch: { wheelStyle: id }, desc: `${w.desc} (Set of 4 · 3D design is a simplified look-alike — check ${brand} for exact styling and fitment.)` })),
@@ -13363,7 +13756,7 @@ function App() {
       { kind: 'custom', render: () => (
         <div className="text-[11.5px] text-white/60 leading-snug">
           <div><span className="text-amber-300 font-semibold">Front:</span> independent double wishbone (upper & lower A-arms) with a coilover, {/4x4/.test(vehicle.drive) ? 'CV axles, ' : ''}rack-and-pinion steering.</div>
-          <div className="mt-0.5"><span className="text-amber-300 font-semibold">Rear:</span> solid axle on leaf springs (spring-under, U-bolted) with staggered shocks — as on the real 1st-gen Tundra.</div>
+          <div className="mt-0.5"><span className="text-amber-300 font-semibold">Rear:</span> solid axle on leaf springs (spring-under, U-bolted) with staggered shocks — as on the factory 1st-gen Dundra.</div>
         </div>
       ) },
       { kind: 'header', label: 'Lift Kit' },
@@ -13466,10 +13859,10 @@ function App() {
   } else if (category === 'armor') {
     title = 'Bumpers & Armor';
     defaultDesc = 'Steel bumpers replace the factory bumper — it gets cut off the truck. Hover to preview.';
-    const FB = FRONT_BUMPERS[applied.frontBumper] || FRONT_BUMPERS.stock;
+    const FB = FRONT_BUMPERS[applied.frontBumper] || FRONT_BUMPERS.stock, isDundra = !!tundraEra(vehicle);
     const BGs = applied.badges || {}, badgeItem = (k, label, desc) => ({ kind: 'item', icon: 'BadgeCheck', label, installed: !!BGs[k], right: <span className={`hud font-bold text-[13px] ${BGs[k] ? 'text-emerald-400' : 'text-white/45'}`}>{BGs[k] ? 'ON' : 'OFF'}</span>, desc, action: () => applyPatch({ badges: { ...BGs, [k]: !BGs[k] } }) });
     items = [
-      ...(devUnlocked ? [
+      ...(devUnlocked && isDundra ? [
         { kind: 'header', label: 'OEM Factory Badges (developer preset)' },
         badgeItem('grille', '3-oval Toyota emblem — grille', 'The Toyota emblem in chrome on the center of the grille.'),
         badgeItem('grilleV8', 'V8 badge — right end of the grille', "The small chrome V8 badge on the grille's upper bar (optional on the real truck)."),
@@ -13480,7 +13873,8 @@ function App() {
         badgeItem('trd', 'TRD Off-Road — bedsides', 'TRD OFF ROAD decals behind the rear wheels.'),
       ] : []),
       { kind: 'header', label: 'Front Bumper' },
-      ...Object.entries(FRONT_BUMPERS).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: f.label, price: f.price, installed: (applied.frontBumper || 'stock') === id, patch: { frontBumper: id }, desc: f.desc })),
+      // (the 2005–06 factory bumpers & the add-on guard are the Dundra's; any other truck: its own bumper as modeled)
+      ...Object.entries(FRONT_BUMPERS).filter(([id]) => isDundra || !['oem06', 'oem06c'].includes(id)).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: !isDundra && id === 'stock' ? 'Factory front bumper (as modeled)' : f.label, price: f.price, installed: (applied.frontBumper || 'stock') === id, patch: { frontBumper: id }, desc: !isDundra && id === 'stock' ? "The truck's own factory front bumper." : f.desc })),
       { kind: 'item', icon: 'Shield', label: 'Front skid plate (3/16" steel)', price: 450, installed: applied.skid || !FB.factory, patch: { skid: !applied.skid }, desc: !FB.factory ? 'Included with the steel bumper.' : 'Protects the oil pan, steering rack and front diff.' },
       { kind: 'header', label: 'Rear Bumper' },
       ...Object.entries(REAR_BUMPERS).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: f.label, price: f.price, installed: (applied.rearBumper || 'stock') === id, patch: { rearBumper: id }, desc: f.desc })),
@@ -13543,9 +13937,10 @@ function App() {
           <label className="flex items-center gap-2 mt-2 text-[12.5px] text-white/75 cursor-pointer"><input type="checkbox" checked={!!applied.plateFront} onChange={(e) => applyPatch({ plateFront: e.target.checked })} className="accent-amber-400" />Front plate too (factory & trophy-truck bumpers)</label>
         </div>
       ) }] : []),
-      { kind: 'header', label: 'Grille' },
-      ...Object.entries(GRILLES).map(([id, gr]) => ({ kind: 'item', icon: 'Grid3x3', label: gr.label, price: gr.price, installed: (applied.grille || 'stock') === id, patch: { grille: id }, desc: `${gr.desc} Grille color: Paint › Individual Parts › Grille.` })),
-      ...(GRILLES[applied.grille] && GRILLES[applied.grille].letters ? [{ kind: 'custom', render: () => (
+      // (replacement grilles & the hood deflector are made for the Dundra's 2003–06 front end)
+      ...(isDundra ? [{ kind: 'header', label: 'Grille' },
+        ...Object.entries(GRILLES).map(([id, gr]) => ({ kind: 'item', icon: 'Grid3x3', label: gr.label, price: gr.price, installed: (applied.grille || 'stock') === id, patch: { grille: id }, desc: `${gr.desc} Grille color: Paint › Individual Parts › Grille.` }))] : []),
+      ...(isDundra && GRILLES[applied.grille] && GRILLES[applied.grille].letters ? [{ kind: 'custom', render: () => (
         <div className="flex gap-1.5" onMouseLeave={() => setPreview(null)}>
           {[['white', '#f2f2f0'], ['red', '#c8102e'], ['silver', '#c9ccd1'], ['black', '#0b0b0c']].map(([id, hex]) => (
             <button key={id} onMouseEnter={() => { UISound.hover(); setPreview({ grilleLetters: id }); }} onClick={() => { UISound.select(); applyPatch({ grilleLetters: id }); }}
@@ -13555,9 +13950,9 @@ function App() {
           ))}
         </div>
       ) }] : []),
-      { kind: 'header', label: 'Hood Deflector' },
-      { kind: 'item', icon: 'Ban', label: 'No hood deflector', price: 0, installed: !applied.bugShield, patch: { bugShield: false }, desc: 'Bare hood edge.' },
-      { kind: 'item', icon: 'Shield', label: 'Lund / AVS-style smoked hood deflector', price: 120, installed: !!applied.bugShield, patch: { bugShield: true }, desc: 'Smoked acrylic bug shield along the hood\'s leading edge — a common 2000–06 Tundra add-on.' },
+      ...(isDundra ? [{ kind: 'header', label: 'Hood Deflector' },
+        { kind: 'item', icon: 'Ban', label: 'No hood deflector', price: 0, installed: !applied.bugShield, patch: { bugShield: false }, desc: 'Bare hood edge.' },
+        { kind: 'item', icon: 'Shield', label: 'Lund / AVS-style smoked hood deflector', price: 120, installed: !!applied.bugShield, patch: { bugShield: true }, desc: 'Smoked acrylic bug shield along the hood\'s leading edge — a common 2000–06 Dundra add-on.' }] : []),
       { kind: 'header', label: 'Antenna' },
       { kind: 'item', icon: 'Radio', label: 'Factory mast antenna', price: 0, installed: applied.antenna !== 'removed', patch: { antenna: 'stock' }, desc: 'The fender-mounted mast antenna.' },
       { kind: 'item', icon: 'Ban', label: 'Remove antenna (shave)', price: 40, installed: applied.antenna === 'removed', patch: { antenna: 'removed' }, desc: 'Pull the mast — cleaner look, no ditch-light / rack interference.' },
@@ -13675,7 +14070,7 @@ function App() {
     items = res.length ? res : [{ kind: 'item', icon: 'SearchX', label: 'No matches', desc: `Nothing found for "${query.trim()}". Try a brand (Baja, King, Method) or a part (grille, bumper, tent).`, right: null, action: () => {} }];
   }
 
-  const dock = [{ id: null, short: 'Full Car', icon: 'Car' }, ...CATEGORIES];
+  const dock = [{ id: null, short: 'Full Car', icon: 'Car' }, ...(isLocked(vehicle) ? CATEGORIES.filter((c) => c.id === 'character') : CATEGORIES)];
 
   return (
     <div className="relative w-full h-full overflow-hidden select-none"
@@ -13693,7 +14088,7 @@ function App() {
 
       {/* Top bar */}
       <div className="absolute top-0 inset-x-0 flex items-center justify-between gap-3 px-3 md:px-6 py-3 md:py-4 pointer-events-none">
-        <button onClick={() => setVehicleModal(true)} className="pointer-events-auto flex items-center gap-2 glass-panel border border-white/10 rounded-full pl-2 pr-4 py-1.5 min-w-0 hover:border-amber-400/50 transition">
+        <button onClick={() => { setVehicleTab('garage'); setVehicleModal(true); }} title="Change vehicle — trucks, sedans & more" className="pointer-events-auto flex items-center gap-2 glass-panel border border-white/10 rounded-full pl-2 pr-4 py-1.5 min-w-0 hover:border-amber-400/50 transition">
           <span className="w-7 h-7 rounded-full bg-amber-400 text-black flex items-center justify-center shrink-0"><Icon name="Truck" size={15} /></span>
           <span className="hud text-[15px] font-bold truncate">{vehicle.year} {vehicle.make} {vehicle.model} <span className="text-white/55 hidden sm:inline">{vehicle.trim}</span></span>
           <span className="md:hidden hud text-[14px] font-bold text-amber-300 ml-1">${total.toLocaleString()}</span>
@@ -13769,7 +14164,7 @@ function App() {
                   )}
                   {menuTab === 'import' && (
                     <div className="space-y-2 p-1">
-                      <div className="text-[12.5px] text-white/75 leading-snug">Scan your own truck with your phone, or import a 3D model (.glb / .gltf) to customize instead of the Tundra.</div>
+                      <div className="text-[12.5px] text-white/75 leading-snug">Scan your own truck with your phone, or import a 3D model (.glb / .gltf) to customize instead of the stock trucks.</div>
                       <button onClick={() => { setScanModal(true); setMenuTab(null); }} disabled={scan.phase === 'running'} className="w-full rounded-lg bg-amber-400 text-black px-3 py-2 hud font-bold text-[13px] tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-amber-300 disabled:opacity-50"><Icon name="ScanLine" size={15} />Scan / Import</button>
                       <button onClick={() => { importRef.current && importRef.current.click(); setMenuTab(null); }} className="w-full rounded-lg border border-white/15 text-white/80 px-3 py-2 hud font-bold text-[12.5px] tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-white/10"><Icon name="Upload" size={14} />Load a .glb file</button>
                     </div>

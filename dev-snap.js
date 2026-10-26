@@ -34,6 +34,42 @@ window.__pick = (px, py) => {
     return { d: +h.distance.toFixed(2), zone: o.userData.zone, part: o.userData.part, mat: m && m.name, col: m && m.color && m.color.getHexString(), map: !!(m && m.map), lin: lin.join(' < ') };
   });
 };
+// like __pick, with the mesh name, its texture coordinates and the world point
+window.__pick2 = (px, py) => {
+  const d = apexStage._debug(), L = window.__lastCam || { W: 900, H: 560 }, cam = d.camera.clone();
+  if (L.pos) { cam.position.set(...L.pos); cam.lookAt(...L.tgt); }
+  cam.aspect = L.W / L.H; cam.clearViewOffset(); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
+  const rc = new d.THREE.Raycaster(); rc.setFromCamera(new d.THREE.Vector2((px / L.W) * 2 - 1, -((py / L.H) * 2 - 1)), cam);
+  return rc.intersectObject(d.scene, true).filter((h) => h.object.isMesh && (() => { for (let p = h.object; p; p = p.parent) if (!p.visible) return false; return true; })()).slice(0, 3).map((h) => {
+    const o = h.object, m = Array.isArray(o.material) ? o.material[h.face.materialIndex] : o.material;
+    return { d: +h.distance.toFixed(2), name: (o.name || '').replace('LOD_A_', '').slice(0, 40), zone: o.userData.zone, mat: ((o.userData.baseMat || m) || {}).name, uv: h.uv ? [+h.uv.x.toFixed(3), +h.uv.y.toFixed(3)] : null, p: h.point.toArray().map((v) => +v.toFixed(3)) };
+  });
+};
+// every paintable / lamp zone in its own flat colour (unzoned body grey), as a contact sheet — returns the legend
+window.__zoneSheet = async (name, views) => {
+  const d = apexStage._debug(), T = d.THREE, Z = d.model.zones, saved = [], legend = [];
+  const pal = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']; let i = 0;
+  Object.entries(Z).forEach(([id, list]) => { const c = pal[i++ % pal.length]; legend.push(`${id}=${c}(${list.length})`); list.forEach((m) => { saved.push([m, m.material]); m.material = new T.MeshBasicMaterial({ color: c }); }); });
+  d.model.parts.meshes.forEach((m) => { if (!m.userData.zone && m.visible) { saved.push([m, m.material]); m.material = new T.MeshLambertMaterial({ color: 0x777777 }); } });
+  await __sheet(name, views); saved.forEach(([m, mt]) => { m.material = mt; });
+  return legend.join(' ');
+};
+// full-throttle acceleration run on the current map, physics stepped by hand (works with the page hidden): 0-60, 0-100,
+// quarter mile, speed after `secs`. patch: build changes for the run (restored after)
+window.__accel = (patch = {}, secs = 16) => {
+  const d = apexStage._debug(), b0 = d.build;
+  apexStage.applyBuild({ ...b0, ...patch }, {}, true);
+  if (apexStage.isDriving()) apexStage.stopDrive(); apexStage.startDrive(); // (a clean start every run)
+  const dr = d.drive; apexStage.setIgnition(true);
+  const st = dr.area && dr.area.start; if (st) { dr.x = st.x; dr.z = st.z; dr.yaw = st.yaw || 0; dr.y = dr.area.H(dr.x, dr.z); } if (window.__accelYaw !== undefined) dr.yaw = window.__accelYaw;
+  Object.assign(dr, { u: 0, vz: 0, r: 0, steer: 0, gear: 0, rpm: 800, vy: 0, air: false, ws: null, hsPrev: null });
+  apexStage.driveKey('w', true);
+  let t = 0, t60 = null, t100 = null, q = null, dist = 0, v = 0; const dt = 1 / 60;
+  while (t < secs) { d.step(dt); t += dt; v = Math.hypot(dr.u, dr.vz); dist += v * dt; if (!t60 && v >= 26.82) t60 = +t.toFixed(2); if (!t100 && v >= 44.7) t100 = +t.toFixed(2); if (!q && dist >= 402.3) q = `${t.toFixed(2)}s @ ${(v * 2.237).toFixed(0)} mph`; }
+  apexStage.driveKey('w', false);
+  apexStage.applyBuild(b0, {}, true);
+  return { t60, t100, quarter: q, [`mph@${secs}s`]: +(v * 2.237).toFixed(0), dist: Math.round(dist) };
+};
 // load a lineup vehicle (make, model, gen) and wait for its model
 window.__load = async (make, model, gen) => { apexApp.loadVehicle(apexApp.lineupVehicle(make, model, gen)); const url = (STOCK_MODELS_URL[`${make}|${model}|${gen}`] || ''); await __wait(() => { const m = apexStage._debug().model; return m && (!url || url.endsWith(m.name)); }); await new Promise((r) => setTimeout(r, 400)); return apexStage._debug().model.name; };
 window.STOCK_MODELS_URL = { 'Doyoda|Dundra|1st Gen': 'car.glb', 'Dord|D-D50|12th Gen': 'dord-d50-12.glb', 'Dord|D-D50|13th Gen': 'dord-d50-13.glb', 'Dord|D-D50|13th Gen Daptor': 'dord-d50-13-daptor.glb', 'Dord|D-D50|14th Gen': 'dord-d50-14.glb', 'Dexus|ISD|2nd Gen': 'dexus-isd.glb' };
@@ -47,6 +83,22 @@ window.__sheet = async (name, list, W = 640, H = 400) => {
   R.setPixelRatio(pr); R.setSize(s0.x, s0.y, false); cam.aspect = asp; if (vo && vo.enabled) cam.setViewOffset(vo.fullWidth, vo.fullHeight, vo.offsetX, vo.offsetY, vo.width, vo.height); cam.position.copy(p0); cam.quaternion.copy(q0); cam.updateProjectionMatrix();
   await fetch('http://localhost:8766/snap?name=' + name, { method: 'POST', body: cv.toDataURL('image/jpeg', 0.85) }); return list.length;
 };
+// one sheet across several builds: items = [[patch, view, label?], …] — each patch is applied (on top of the current build) before its view
+window.__multi = async (name, items, W = 480, H = 320, wait = 900) => {
+  const d = apexStage._debug(), R = d.renderer, cam = d.camera, V = __V(), cv = document.createElement('canvas'), x = cv.getContext('2d');
+  cv.width = W * 2; cv.height = H * Math.ceil(items.length / 2);
+  for (let i = 0; i < items.length; i++) {
+    const [patch, v, label] = items[i]; if (patch) { apexApp.applyPatch(patch); await new Promise((r) => setTimeout(r, wait)); }
+    if (window.gsap) gsap.globalTimeline.getChildren().forEach((t) => t.progress(1));
+    const s0 = R.getSize(new d.THREE.Vector2()), pr = R.getPixelRatio(), asp = cam.aspect, vo = cam.view && { ...cam.view }, p0 = cam.position.clone(), q0 = cam.quaternion.clone();
+    R.setPixelRatio(1); R.setSize(W, H, false); cam.aspect = W / H; cam.clearViewOffset(); cam.updateProjectionMatrix();
+    const [pos, tgt] = typeof v === 'string' ? V[v] : v; cam.position.set(...pos); cam.lookAt(...tgt); cam.updateMatrixWorld(); d.scene.updateMatrixWorld(true); R.render(d.scene, cam);
+    x.drawImage(R.domElement, (i % 2) * W, Math.floor(i / 2) * H, W, H);
+    if (label) { x.font = 'bold 15px Arial'; x.fillStyle = '#000a'; x.fillRect((i % 2) * W, Math.floor(i / 2) * H, x.measureText(label).width + 12, 22); x.fillStyle = '#fff'; x.fillText(label, (i % 2) * W + 6, Math.floor(i / 2) * H + 16); }
+    R.setPixelRatio(pr); R.setSize(s0.x, s0.y, false); cam.aspect = asp; if (vo && vo.enabled) cam.setViewOffset(vo.fullWidth, vo.fullHeight, vo.offsetX, vo.offsetY, vo.width, vo.height); cam.position.copy(p0); cam.quaternion.copy(q0); cam.updateProjectionMatrix();
+  }
+  await fetch('http://localhost:8766/snap?name=' + name, { method: 'POST', body: cv.toDataURL('image/jpeg', 0.85) }); return items.length;
+};
 // apply a build patch on top of the stock build and settle it instantly (tweens don't run while the page is hidden)
 window.__build = async (patch, base) => {
   apexApp.setApplied({ ...(base || DEFAULT_BUILD), tod: null, ...patch }); await new Promise((r) => setTimeout(r, 1500));
@@ -59,7 +111,7 @@ window.__build = async (patch, base) => {
 window.__run = (o) => {
   const d = apexStage._debug(), dr = d.drive, P = d.P, b = d.build, dt = 1 / 60, tv = travelOf(b), INCH_ = 0.0254;
   const bpF = tv.front * bumpShare(tv.front) * INCH_, bpR = tv.rear * bumpShare(tv.rear) * INCH_;
-  Object.assign(dr, { x: o.x, z: o.z, yaw: o.yaw || 0, u: o.speed, vz: 0, r: 0, y: -100, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, ws: null, air: false, flipped: false, airT: 0, maxAir: 0, steer: 0, chop: 0, lurchT: 0, gear: o.gear ?? 3, manual: false, shiftT: 0 });
+  Object.assign(dr, { x: o.x, z: o.z, yaw: o.yaw || 0, u: o.speed, vz: 0, r: 0, y: -100, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, ws: null, air: false, flipped: false, airT: 0, maxAir: 0, steer: 0, chop: 0, lurchT: 0, gear: o.gear ?? 3, manual: false, shiftT: 0, ign: true });
   const N = Math.round((o.secs || 8) / dt); let a2 = 0, n = 0, pMax = 0, rMax = 0, air = 0, bott = 0, wasB = false, vs = 0, flipT = -1, uMin = [9, 9, 9, 9], uMax = [-9, -9, -9, -9], vyPrev = 0, pv2 = 0, rv2 = 0, bodyHits = 0;
   for (let i = 0; i < N; i++) {
     const t = i * dt;
@@ -82,6 +134,22 @@ window.__run = (o) => {
   const r = (v, k = 1) => +v.toFixed(k);
   return { aRms: r(Math.sqrt(a2 / Math.max(1, n))), pitchMax: r(pMax * 57.3), rollMax: r(rMax * 57.3), pvRms: r(Math.sqrt(pv2 / Math.max(1, n)), 2), rvRms: r(Math.sqrt(rv2 / Math.max(1, n)), 2), airPct: r((100 * air) / N), bottoms: bott,
     travelIn: uMax.map((m, k) => r((m - uMin[k]) / INCH_)), vAvg: r((vs / N) * 3.6), flipAt: flipT < 0 ? null : r(flipT), endZ: r(dr.z - o.z, 2), travelF: r(tv.front), travelR: r(tv.rear) };
+};
+// jump bench: swaps the ground for a pre-runner tabletop (h m tall, lip°, top m, 18° landing), runs at the posted speed and
+// reports the pitch leaving the lip, its rate, the lowest nose-down angle in the air and the pitch at touchdown
+window.__jump = (o = {}) => {
+  const d = apexStage._debug(), dr = d.drive, dt = 1 / 60, G = AIR_G, DR = Math.PI / 180;
+  const h = o.h || 4, lip = o.lip || 22, top = o.top || 40, Lu = (2 * h) / Math.tan(lip * DR), Ll = (2 * h) / Math.tan(18 * DR);
+  const prof = (t) => (t < 0 ? 0 : t < Lu ? h * (t / Lu) ** 2 : t < Lu + top ? h : t < Lu + top + Ll ? h * (1 - (t - Lu - top) / Ll) ** 2 : 0);
+  const X = h + (top + 0.3 * Ll) * Math.sin(lip * DR) - h * 0.49, U = o.u || (top + 0.3 * Ll) * Math.sqrt((0.5 * G) / Math.max(0.5, X));
+  const H0 = dr.area.H; dr.area.H = (x) => prof(x);
+  Object.assign(dr, { x: -45, z: 0, yaw: 0, u: U, vz: 0, r: 0, y: -100, vy: 0, pitch: 0, roll: 0, pitchV: 0, rollV: 0, ws: null, air: false, flipped: false, airT: 0, maxAir: 0, steer: 0, chop: 0, lurchT: 0, gear: 3, manual: false, shiftT: 0, ign: true });
+  let tk = null, pMin = 0; const out = { U: +(U * 2.237).toFixed(0) };
+  for (let i = 0; i < 60 * 9; i++) { const t = i * dt; apexStage.driveKey('w', dr.x < Lu ? dr.u < U : !!o.gas); d.step(dt);
+    if (dr.air && !tk) { tk = t; Object.assign(out, { tkPitch: +(dr.pitch * 57.3).toFixed(1), tkPv: +(dr.pitchV * 57.3).toFixed(0), tkU: +(dr.u * 2.237).toFixed(0) }); }
+    if (tk && dr.air) pMin = Math.min(pMin, dr.pitch);
+    if (tk && !dr.air && t > tk + 0.2) { Object.assign(out, { air: +(t - tk).toFixed(2), landPitch: +(dr.pitch * 57.3).toFixed(1), landU: +(dr.u * 2.237).toFixed(0) }); break; } }
+  apexStage.driveKey('w', false); dr.area.H = H0; out.pMinAir = +(pMin * 57.3).toFixed(1); return out;
 };
 window.SB = { stock: {}, bilstein: { shock: 'bilstein-5100', lift: 3 }, mid: { shock: 'king-25', uca: 'tc-uca', lift: 3, bumpStop: 'fox20' }, lt: { lift: 6, shock: 'king-30', uca: 'camburg-uca', lca: 'lt4', bypassF: 'b35-5', bypassR: 'b35-5', rearLink: 'trailing', bumpStop: 'king25' } };
 window.WT = [{ label: 'med40', x: 80, z: 0, speed: 11.1, secs: 12 }, { label: 'med60', x: 80, z: 0, speed: 16.7, secs: 9 }, { label: 'med80', x: 80, z: 0, speed: 22.2, secs: 7 }, { label: 'big40', x: 80, z: -14, speed: 11.1, secs: 12 }, { label: 'big60', x: 80, z: -14, speed: 16.7, secs: 9 }, { label: 'rand60', x: -70, z: -46, speed: 16.7, secs: 14 }];

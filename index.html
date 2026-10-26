@@ -8,6 +8,12 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Daygo Customs 3D</title>
+<meta name="description" content="Daygo Customs — build your dream 1st-gen Tundra in 3D, then take it off-road." />
+<meta name="theme-color" content="#07080b" />
+<!-- tab icon: "DC" monogram on a dark tile with an ocean-cyan edge (replaces the browser's default globe) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2367e8f9'/%3E%3Cstop offset='1' stop-color='%230e7490'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='%230b0f17' stroke='url(%23g)' stroke-width='4'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-style='italic' font-size='29' fill='url(%23g)'%3EDC%3C/text%3E%3C/svg%3E" />
+<!-- Personal inquiries: put your work email between the quotes when you have one (the landing page's form opens a pre-filled email to it) -->
+<script>window.SITE_CONTACT_EMAIL = '';</script>
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -91,17 +97,177 @@
   .pulse { animation: pulseGlow 1.6s ease-in-out infinite; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
   .fade-up { animation: fadeUp .25s ease-out both; }
+  @keyframes loadSweep { from { left: -35% } to { left: 100% } }
+  .load-sweep { animation: loadSweep 1.3s ease-in-out infinite; }
   /* photo mode (P): every menu / HUD element hidden, just the 3D view — the canvas opts back in (visibility inherits) */
   body.photo-mode #root * { visibility: hidden !important; }
   body.photo-mode #root canvas { visibility: visible !important; }
   #photo-hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 99; padding: 6px 14px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font: 600 12px Rajdhani, sans-serif; letter-spacing: .14em; pointer-events: none; transition: opacity 1.2s ease 1.6s; }
   body:not(.photo-mode) #photo-hint { display: none; }
   body.photo-mode.photo-quiet #photo-hint { opacity: 0; }
+
+  /* ---- landing page (first screen: the garage, or personal inquiries) ---- */
+  #landing { position: fixed; inset: 0; z-index: 1000; overflow-x: hidden; overflow-y: auto; background: #05060a; color: #e5e7eb; font-family: Inter, system-ui, sans-serif; transition: opacity .6s ease, transform .6s ease; }
+  #landing.leaving { opacity: 0; transform: scale(1.04); pointer-events: none; }
+  #landing .sky { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(1200px 520px at 50% 108%, rgb(var(--a500) / .32), transparent 62%),
+                radial-gradient(700px 380px at 82% 8%, rgba(99, 102, 241, .16), transparent 70%),
+                radial-gradient(600px 340px at 10% 18%, rgb(var(--a400) / .1), transparent 70%),
+                linear-gradient(180deg, #05060a 0%, #0a0f1d 55%, #0b1424 100%); }
+  #landing .stars { position: fixed; inset: 0 0 45% 0; pointer-events: none; opacity: .55;
+    background-image: radial-gradient(1px 1px at 12% 22%, #fff, transparent), radial-gradient(1px 1px at 28% 64%, #fff, transparent), radial-gradient(1.4px 1.4px at 47% 18%, #fff, transparent),
+      radial-gradient(1px 1px at 63% 42%, #fff, transparent), radial-gradient(1.3px 1.3px at 78% 14%, #fff, transparent), radial-gradient(1px 1px at 88% 58%, #fff, transparent),
+      radial-gradient(1px 1px at 6% 72%, #fff, transparent), radial-gradient(1px 1px at 37% 36%, #fff, transparent), radial-gradient(1.2px 1.2px at 94% 30%, #fff, transparent);
+    animation: lpTwinkle 5s ease-in-out infinite alternate; }
+  @keyframes lpTwinkle { from { opacity: .3 } to { opacity: .65 } }
+  #landing .sun { position: fixed; left: 50%; bottom: 30vh; width: min(46vw, 420px); aspect-ratio: 1; transform: translate(-50%, 50%); border-radius: 50%; pointer-events: none;
+    background: linear-gradient(180deg, rgb(var(--a200)), rgb(var(--a500)) 55%, rgb(var(--a800)));
+    -webkit-mask: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 19px); mask: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 19px);
+    clip-path: inset(0 0 50% 0); opacity: .85; }
+  #landing .ridge { position: fixed; left: 0; right: 0; bottom: 30vh; height: 22vh; pointer-events: none; }
+  #landing .floor { position: fixed; left: -50%; right: -50%; bottom: 0; height: 30vh; pointer-events: none; transform-origin: 50% 0; transform: perspective(300px) rotateX(62deg);
+    background-image: linear-gradient(rgb(var(--a400) / .55) 1.5px, transparent 1.5px), linear-gradient(90deg, rgb(var(--a400) / .4) 1.5px, transparent 1.5px);
+    background-size: 64px 64px; animation: lpDrive 1.6s linear infinite;
+    -webkit-mask: linear-gradient(180deg, transparent, #000 35%); mask: linear-gradient(180deg, transparent, #000 35%); }
+  @keyframes lpDrive { to { background-position: 0 64px, 0 0; } }
+  #landing .horizon { position: fixed; left: 0; right: 0; bottom: 30vh; height: 2px; background: linear-gradient(90deg, transparent, rgb(var(--a300)), transparent); box-shadow: 0 0 24px 4px rgb(var(--a400) / .55); pointer-events: none; }
+  #landing .wrap { position: relative; min-height: 100%; display: flex; flex-direction: column; align-items: center; padding: 6vh 16px 32px; box-sizing: border-box; }
+  #landing .brand { display: flex; align-items: center; gap: 14px; animation: lpRise .8s ease-out both; }
+  #landing .brand img { width: 52px; height: 52px; filter: drop-shadow(0 0 18px rgb(var(--a400) / .55)); }
+  #landing .word { font: italic 700 clamp(38px, 7vw, 68px)/.95 Rajdhani, sans-serif; letter-spacing: .02em; color: #fff; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
+  #landing .word b { color: rgb(var(--a400)); font-weight: 700; }
+  #landing .tag { margin-top: 12px; font: 600 clamp(12px, 1.6vw, 15px) Rajdhani, sans-serif; letter-spacing: .42em; text-transform: uppercase; color: rgba(255,255,255,.62); text-align: center; animation: lpRise .8s .1s ease-out both; }
+  #landing .cards { margin-top: 5.5vh; width: 100%; max-width: 940px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; }
+  #landing .card { position: relative; text-align: left; cursor: pointer; border-radius: 20px; padding: 26px 26px 22px; color: inherit; font: inherit; overflow: hidden; isolation: isolate;
+    background: linear-gradient(160deg, rgba(20, 26, 40, .78), rgba(8, 10, 16, .82)); border: 1px solid rgba(255,255,255,.1);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; animation: lpRise .8s ease-out both; }
+  #landing .card:nth-child(1) { animation-delay: .18s; } #landing .card:nth-child(2) { animation-delay: .28s; }
+  #landing .card::before { content: ''; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; opacity: 0; transition: opacity .3s ease;
+    background: radial-gradient(520px 220px at var(--mx, 50%) var(--my, 0%), rgb(var(--a400) / .22), transparent 70%); }
+  #landing .card:hover, #landing .card:focus-visible { transform: translateY(-4px); border-color: rgb(var(--a400) / .6); box-shadow: 0 26px 70px rgba(0,0,0,.55), 0 0 0 1px rgb(var(--a400) / .25); outline: none; }
+  #landing .card:hover::before, #landing .card:focus-visible::before { opacity: 1; }
+  #landing .card .kick { font: 700 12px Rajdhani, sans-serif; letter-spacing: .3em; text-transform: uppercase; color: rgb(var(--a300)); }
+  #landing .card h2 { margin: 8px 0 8px; font: 700 clamp(26px, 3.2vw, 34px)/1.05 Rajdhani, sans-serif; color: #fff; }
+  #landing .card p { margin: 0; font-size: 14.5px; line-height: 1.55; color: rgba(255,255,255,.66); }
+  #landing .card .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  #landing .card .chips span { font: 600 11.5px Rajdhani, sans-serif; letter-spacing: .12em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.72); background: rgba(255,255,255,.04); }
+  #landing .card .go { margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; font: 700 15px Rajdhani, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+  #landing .card.primary .go { color: #04131a; background: rgb(var(--a400)); padding: 10px 18px; border-radius: 10px; box-shadow: 0 8px 26px rgb(var(--a400) / .35); }
+  #landing .card.secondary .go { color: rgb(var(--a200)); }
+  #landing .card .go svg { transition: transform .25s ease; } #landing .card:hover .go svg { transform: translateX(4px); }
+  #landing .card .art { position: absolute; right: -14px; bottom: -8px; width: 52%; max-width: 270px; opacity: .17; z-index: -1; color: rgb(var(--a300)); }
+  #landing .foot { margin-top: auto; padding-top: 40px; font: 600 12px Rajdhani, sans-serif; letter-spacing: .26em; text-transform: uppercase; color: rgba(255,255,255,.38); text-align: center; }
+  @keyframes lpRise { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+  /* the inquiry form */
+  #landing .contact { display: none; margin-top: 5vh; width: 100%; max-width: 560px; border-radius: 20px; padding: 26px; box-sizing: border-box;
+    background: linear-gradient(160deg, rgba(20, 26, 40, .86), rgba(8, 10, 16, .9)); border: 1px solid rgb(var(--a400) / .35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 24px 70px rgba(0,0,0,.55); animation: lpRise .5s ease-out both; }
+  #landing.inq .cards { display: none; } #landing.inq .contact { display: block; }
+  #landing .contact h2 { margin: 4px 0 6px; font: 700 30px Rajdhani, sans-serif; color: #fff; }
+  #landing .contact > p { margin: 0 0 16px; font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.64); }
+  #landing .contact label { display: block; margin: 12px 0 5px; font: 700 11.5px Rajdhani, sans-serif; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  #landing .contact input, #landing .contact textarea, #landing .contact select { width: 100%; box-sizing: border-box; font: 14.5px Inter, sans-serif; color: #fff; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 10px 12px; outline: none; transition: border-color .2s; }
+  #landing .contact select option { background: #0b0d12; }
+  #landing .contact input:focus, #landing .contact textarea:focus, #landing .contact select:focus { border-color: rgb(var(--a400)); }
+  #landing .contact textarea { min-height: 120px; resize: vertical; }
+  #landing .contact .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #landing .contact .topics { display: flex; flex-wrap: wrap; gap: 6px; }
+  #landing .contact .topics button { font: 700 12.5px Rajdhani, sans-serif; letter-spacing: .1em; text-transform: uppercase; padding: 7px 12px; border-radius: 999px; cursor: pointer; color: rgba(255,255,255,.75); background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.14); }
+  #landing .contact .topics button.on { color: #04131a; background: rgb(var(--a400)); border-color: rgb(var(--a400)); }
+  #landing .contact .acts { display: flex; gap: 10px; margin-top: 18px; align-items: center; flex-wrap: wrap; }
+  #landing .btn { font: 700 14px Rajdhani, sans-serif; letter-spacing: .16em; text-transform: uppercase; border-radius: 10px; padding: 11px 18px; cursor: pointer; border: 1px solid rgba(255,255,255,.16); color: rgba(255,255,255,.8); background: transparent; }
+  #landing .btn.main { color: #04131a; background: rgb(var(--a400)); border-color: rgb(var(--a400)); box-shadow: 0 8px 26px rgb(var(--a400) / .3); }
+  #landing .btn:hover { filter: brightness(1.1); }
+  #landing .note { font-size: 13px; color: rgb(var(--a200)); min-height: 1em; }
+  @media (max-width: 760px) { #landing .cards { grid-template-columns: 1fr; } #landing .contact .row { grid-template-columns: 1fr; } #landing .card { padding: 22px 20px 20px; } #landing .wrap { padding-top: 5vh; } }
+  @media (prefers-reduced-motion: reduce) { #landing .floor, #landing .stars { animation: none; } }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <div id="photo-hint">PHOTO MODE · DRAG TO FRAME · P OR ESC TO EXIT</div>
+
+<!-- Landing page: plain HTML so it shows instantly while the garage loads underneath -->
+<div id="landing">
+  <div class="sky"></div><div class="stars"></div><div class="sun"></div>
+  <svg class="ridge" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 200 L0 130 L70 96 L130 120 L210 58 L280 104 L340 84 L420 128 L500 70 L560 98 L640 40 L720 110 L790 86 L860 122 L930 64 L1010 104 L1080 80 L1140 118 L1200 96 L1200 200 Z" fill="#070a12" />
+    <path d="M0 130 L70 96 L130 120 L210 58 L280 104 L340 84 L420 128 L500 70 L560 98 L640 40 L720 110 L790 86 L860 122 L930 64 L1010 104 L1080 80 L1140 118 L1200 96" fill="none" stroke="rgb(var(--a400))" stroke-opacity=".45" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+  </svg>
+  <div class="floor"></div><div class="horizon"></div>
+  <div class="wrap">
+    <div class="brand"><img id="lp-logo" alt="" /><div class="word">DAYGO<b>CUSTOMS</b></div></div>
+    <div class="tag">Build it · Lift it · Send it</div>
+
+    <div class="cards">
+      <button class="card primary" id="lp-garage">
+        <svg class="art" viewBox="0 0 300 130" aria-hidden="true"><path fill="currentColor" d="M8 92 L8 58 L136 58 L141 24 Q143 17 151 17 L197 17 Q204 17 208 23 L228 52 L284 56 Q293 57 293 65 L293 88 Q293 92 289 92 Z" /><path fill="#0b0f17" opacity=".8" d="M150 25 L176 25 L176 50 L147 50 Z M182 25 L198 25 Q202 25 204 29 L218 50 L182 50 Z" /><circle cx="62" cy="96" r="25" fill="currentColor" /><circle cx="62" cy="96" r="12" fill="#0b0f17" /><circle cx="240" cy="96" r="25" fill="currentColor" /><circle cx="240" cy="96" r="12" fill="#0b0f17" /></svg>
+        <div class="kick">The 3D garage</div>
+        <h2>Daygo Customs 3D</h2>
+        <p>Build your dream 1st-gen Tundra (paint, lifts, long travel, wheels, lights, interior), then take it to the dunes, the drift lot or the jump track with friends.</p>
+        <div class="chips"><span>Customize</span><span>Off-road</span><span>Multiplayer</span></div>
+        <div class="go">Enter the garage <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
+      </button>
+      <button class="card secondary" id="lp-inq">
+        <svg class="art" viewBox="0 0 120 90" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"><rect x="8" y="14" width="104" height="68" rx="10" /><path d="M12 20 L60 54 L108 20" /></svg>
+        <div class="kick">Talk to me</div>
+        <h2>Personal inquiries</h2>
+        <p>Got a tip, a build idea, a bug you found, or something business-related? Send it my way.</p>
+        <div class="chips"><span>Tips</span><span>Ideas</span><span>Work</span></div>
+        <div class="go">Get in touch <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div>
+      </button>
+    </div>
+
+    <form class="contact" id="lp-form" novalidate>
+      <div class="kick" style="font:700 12px Rajdhani,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:rgb(var(--a300))">Personal inquiries</div>
+      <h2>Send me tips here</h2>
+      <p>Tips, build requests, bug reports or work stuff. Pick a topic, write it up, and hit send.</p>
+      <label>Topic</label>
+      <div class="topics" id="lp-topics"><button type="button" class="on">Tip</button><button type="button">Build idea</button><button type="button">Bug report</button><button type="button">Work / business</button><button type="button">Other</button></div>
+      <div class="row">
+        <div><label for="lp-name">Your name</label><input id="lp-name" autocomplete="name" maxlength="60" /></div>
+        <div><label for="lp-reply">Your email (for a reply)</label><input id="lp-reply" type="email" autocomplete="email" maxlength="120" placeholder="optional" /></div>
+      </div>
+      <label for="lp-msg">Message</label>
+      <textarea id="lp-msg" maxlength="4000" placeholder="What's on your mind?"></textarea>
+      <div class="acts"><button type="submit" class="btn main">Send it</button><button type="button" class="btn" id="lp-back">Back</button><span class="note" id="lp-note"></span></div>
+    </form>
+
+    <div class="foot">willdidthis.com · Daygo Customs</div>
+  </div>
+</div>
+<script>
+  (function () {
+    var L = document.getElementById('landing');
+    // invite links, the Spotify sign-in return and a refresh after entering go straight to the garage
+    if (/[?&](join|code|error)=/.test(location.search) || location.hash === '#garage') { L.remove(); return; }
+    document.getElementById('lp-logo').src = document.querySelector('link[rel="icon"]').href;
+    // the garage's keyboard shortcuts (photo mode, lights…) stay quiet while this page is up; typing still works
+    var hush = function (e) { e.stopPropagation(); };
+    window.addEventListener('keydown', hush, true); window.addEventListener('keyup', hush, true);
+    L.querySelectorAll('.card').forEach(function (c) { c.addEventListener('pointermove', function (e) { var r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); }); });
+    document.getElementById('lp-garage').addEventListener('click', function () {
+      window.removeEventListener('keydown', hush, true); window.removeEventListener('keyup', hush, true);
+      try { history.replaceState(null, '', location.pathname + location.search + '#garage'); } catch (e) { /* ignore */ }
+      L.classList.add('leaving'); setTimeout(function () { L.remove(); }, 650);
+    });
+    var note = document.getElementById('lp-note'), topic = 'Tip';
+    document.getElementById('lp-inq').addEventListener('click', function () { L.classList.add('inq'); L.scrollTop = 0; setTimeout(function () { document.getElementById('lp-msg').focus(); }, 60); });
+    document.getElementById('lp-back').addEventListener('click', function () { L.classList.remove('inq'); note.textContent = ''; });
+    document.querySelectorAll('#lp-topics button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('#lp-topics button').forEach(function (o) { o.classList.toggle('on', o === b); }); topic = b.textContent; }); });
+    document.getElementById('lp-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = document.getElementById('lp-name').value.trim(), reply = document.getElementById('lp-reply').value.trim(), msg = document.getElementById('lp-msg').value.trim();
+      if (!msg) { note.textContent = 'Write a message first.'; return; }
+      var to = (window.SITE_CONTACT_EMAIL || '').trim();
+      if (!to) { note.textContent = 'The inbox opens soon. A work email is on the way, so check back!'; return; }
+      var subject = '[Daygo Customs] ' + topic + (name ? ' from ' + name : '');
+      var body = msg + '\n\n— ' + (name || 'Anonymous') + (reply ? ' (' + reply + ')' : '');
+      location.href = 'mailto:' + to + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      note.textContent = 'Opening your email app…';
+    });
+  })();
+</script>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -484,6 +650,8 @@ const BODY_LABEL = { pickup: 'Crew-cab pickup', suv: '4-door body-on-frame SUV',
 const OH_FRAC = { pickup: 0.40, suv: 0.46, suv2: 0.50, crossover: 0.50 };
 const FRAME_OFF = { pickup: 5, suv: 4, suv2: 4, crossover: 1.5 };
 const INCH = 0.0254;
+// gravity on an airborne truck (m/s²): a bit over 1 g — at true 9.81 the jumps read floaty at game scale and you sailed too far
+const AIR_G = 12.6;
 
 function parseTire(size) {
   let m = String(size).match(/^(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*R\s*(\d+)/i);
@@ -523,6 +691,10 @@ function makeVehicle(make, model, genIdx, year, trimIdx, cfg) {
 }
 // One stored 3D model per vehicle generation (custom-spec vehicles key on their names).
 const vehicleKey = (v) => [v.make, v.model, v.gen || 'custom'].join('|');
+// 1st-gen Tundra styling by year / cab (null for any other vehicle): early = the 2000–02 front; earlyTail = the narrow
+// amber / red / clear taillights every Regular & Access Cab wore (the Double Cab, 2004+, had its own bigger lamps)
+const tundraEra = (v) => (v && v.make === 'Toyota' && v.model === 'Tundra' && v.gen === '1st Gen'
+  ? { early: (v.year || 2005) <= 2002, earlyTail: v.cab !== 'double', v8: /V8/i.test(v.engine || ''), cab: v.cab || 'double' } : null);
 
 /* =====================================================================
    FACTORY CONFIGURATOR — 1st-gen Toyota Tundra (2000–2006)
@@ -799,6 +971,8 @@ const GRILLES = {
   mesh:      { label: 'Black wire-mesh grille insert + emblem', brand: 'Aftermarket', price: 260, insert: 'mesh', emblem: true, desc: 'Stainless woven mesh insert, black powder coat, with the Toyota emblem.' },
   'mesh-chrome': { label: 'Chrome mesh grille insert + emblem', brand: 'Aftermarket', price: 300, insert: 'mesh', chrome: true, emblem: true, desc: 'Polished stainless woven mesh in a chrome surround — the 2000–06 "Limited" street look.' },
 };
+// the 2000–02 factory grille (shown in place of the modeled 2003–06 one when the model year is 2000–02 and the grille is stock)
+const EARLY_GRILLE = { label: 'Factory 2000–02 grille', insert: 'early', chrome: true };
 // Fiberglass widebody (FiberwerX-style pre-runner parts: ~4" bulge, 2.5" rise, trophy-style bedsides)
 const BULGE_FIXED = ['headlights', 'taillights', 'grille', 'mirrors', 'mirrorGlass', 'fogs', 'handles', 'guard'];
 const FIBERGLASS = {
@@ -3132,7 +3306,7 @@ function buildOutdoor(renderer) {
   // that varies jump to jump (18° mellow … 34° steep), the gap, then a long landing ramp (~18° at the knuckle, easing out)
   // so a jump hit at the posted speed lands on the slope. A sign at each run-up gives that takeoff speed.
   const jumpTrack = (RW) => (S, LEN) => {
-    const r = mulberry32(4242), DR = Math.PI / 180, feats = [], tan = (d) => Math.tan(d * DR), G9 = 9.81;
+    const r = mulberry32(4242), DR = Math.PI / 180, feats = [], tan = (d) => Math.tan(d * DR), G9 = AIR_G;
     // the lip speed (m/s) that lands a jump on the sweet spot of its landing: the trajectory the drive sim flies (forward
     // speed u, upward u·sin(lip)·1.02 off the lip) through a point on the landing ramp
     const idealU = (h, lip, X, ys) => X * Math.sqrt((0.5 * G9) / Math.max(0.5, h + 1.02 * X * Math.sin(lip * DR) - ys));
@@ -4163,11 +4337,20 @@ function buildBumpers(M, P, b) {
     put(rbox(R - 0.032, R - 0.026, ry - 0.022, ry + 0.022, -0.022, 0.022, M.boot, 0.002));
     [1, -1].forEach((s) => put(dRing(M, R + 0.02, rb + 0.24, s * 0.4, -1)));
   }
+  // 2000–02 factory bumper: the black rubber rub strip across the middle of its face (following the bumper's measured curve,
+  // bridging the centre slot)
+  if (P.era && P.era.early && FB.factory && P.rubStrip && P.rubStrip.length > 6) {
+    const pts = P.rubStrip.filter(([z]) => Math.abs(z) <= 0.82), y = P.rubStripY, hh = 0.021, pos = [], idx = [];
+    pts.forEach(([z, x]) => pos.push(x + 0.005, y + hh, z, x + 0.005, y - hh, z, x - 0.014, y + hh, z, x - 0.014, y - hh, z));
+    for (let i = 0; i < pts.length - 1; i++) { const a = 4 * i, n = a + 4; idx.push(a, a + 1, n, a + 1, n + 1, n, a + 2, a, n + 2, a, n, n + 2, a + 1, a + 3, n + 1, a + 3, n + 3, n + 1); }
+    const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); sg.setIndex(idx); sg.computeVertexNormals();
+    put(mk(sg, new THREE.MeshStandardMaterial({ color: 0x1b1c1e, roughness: 0.72, metalness: 0.05, side: THREE.DoubleSide })));
+  }
   // license plates: rear in the factory bumper's centre notch (or on the face of a steel bumper), optional front on the
   // factory bumper. 12" × 6" US plate in a thin black frame.
-  const PL = PLATES[b.plate] || PLATES.none;
-  if (PL.draw) {
-    const tex = plateTex(b.plate, b.plateText || 'DGC 4124'), face = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.4, metalness: 0.15 });
+  const PLS = plateStyleOf(b);
+  if (PLS) {
+    const tex = plateTex(PLS, b.plateText || 'DGC 4124'), face = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.4, metalness: 0.15 });
     const plate = (x, y, dir) => { // dir −1: facing back, +1: facing forward
       const gp = new THREE.Group(); gp.position.set(x, y, 0); gp.rotation.y = dir < 0 ? -Math.PI / 2 : Math.PI / 2;
       const fr = mk(new THREE.BoxGeometry(0.325, 0.172, 0.008), M.boot); fr.position.z = -0.004; gp.add(fr);
@@ -4177,33 +4360,125 @@ function buildBumpers(M, P, b) {
     const R = P.rear + 0.03, rb = P.rearBumperY;
     if (rt === 'stock' || rt === 'oemBlack') plate(P.rear + 0.075, rb + 0.15, -1);
     else plate(R - 0.035, rb + (rt === 'prerunner' ? 0.2 : rt === 'tube' ? 0.125 : rt === 'slim' ? 0.195 : 0.15), -1);
-    if (b.plateFront && FB.factory && P.bumperFace) plate(P.bumperFace.x + 0.012, P.bumperFace.y - 0.02, 1);
+    // front: raised over the bumper's centre gap and stood 3 cm off its face (measured across the plate's whole footprint,
+    // so the bumper's curve never pokes through), on two short black brackets bolted into the bumper
+    if (b.plateFront && FB.factory && P.bumperFace) {
+      const pm = P.plateMount || { x: P.bumperFace.x, y: P.bumperFace.y + 0.04 }, px = Math.max(pm.x, !FB.noGuard && pm.guardX != null ? pm.guardX : -Infinity) + 0.034;
+      plate(px, pm.y, 1);
+      [-0.1, 0.1].forEach((z) => { put(rbox(pm.x - 0.03, px - 0.004, pm.y - 0.018, pm.y + 0.018, z - 0.012, z + 0.012, M.boot, 0.004)); const bolt = cylAxis(0.007, 0.006, M.chrome, 'x', 10); bolt.position.set(px + 0.004, pm.y + 0.0, z); put(bolt); });
+    }
   }
   return { group: g, anchors };
 }
-// license plate styles — simplified state-style plates (not replicas): background, top banner, text colours, motto
+// license plates — simplified state-style plates (inspired by, not replicas of, the real ones). Each state has a few styles
+// (current issue, legacy / black, specialty). A style: bg = top→bottom gradient, bands = coloured blocks [colour, x, y, w, h],
+// top = state name (font: 'script' | 'serif' | 'bold'), txt = number colour (+ outline), motto, deco = drawn scenery
 const PLATES = {
-  none:       { label: 'No license plate', price: 0 },
-  texas:      { label: 'Texas-style plate', price: 0, draw: { bg: ['#f7f7f2', '#eef0f2'], top: 'TEXAS', topC: '#1b1b1b', txt: '#111', motto: 'THE LONE STAR STATE', star: true } },
-  california: { label: 'California-style plate', price: 0, draw: { bg: ['#fbfbfb', '#f1f3f6'], top: 'California', topC: '#c4161c', script: true, txt: '#16246b', motto: 'DMV.CA.GOV' } },
-  kentucky:   { label: 'Kentucky-style plate', price: 0, draw: { bg: ['#ffffff', '#e6eef8'], top: 'KENTUCKY', topC: '#ffffff', band: '#1d3f8f', txt: '#1d3f8f', motto: 'UNBRIDLED SPIRIT' } },
-  florida:    { label: 'Florida-style plate', price: 0, draw: { bg: ['#ffffff', '#f4f7ef'], top: 'FLORIDA', topC: '#1f6b34', txt: '#1f6b34', motto: 'SUNSHINE STATE', orange: true } },
-  arizona:    { label: 'Arizona-style plate', price: 0, draw: { bg: ['#f4d9a6', '#d97f3e'], top: 'ARIZONA', topC: '#6b1d1d', txt: '#6b1d1d', motto: 'GRAND CANYON STATE' } },
+  none: { label: 'No license plate', price: 0 },
+  texas: { label: 'Texas', styles: {
+    classic: { label: 'Classic', bg: ['#f7f7f2', '#eef0f2'], top: 'TEXAS', topC: '#1b1b1b', txt: '#111', motto: 'THE LONE STAR STATE', deco: [['star', '#1b1b1b', 106, 34, 16]] },
+    black: { label: 'Black & silver', bg: ['#141416', '#050506'], top: 'TEXAS', topC: '#cfd3d8', txt: '#e6e8eb', motto: 'THE LONE STAR STATE', mottoC: '#9aa0a6', border: '#9aa0a6', deco: [['star', '#cfd3d8', 106, 34, 16]] },
+    flag: { label: 'Lone Star flag', bg: ['#ffffff', '#f2f2f2'], bands: [['#002868', 0, 0, 90, 256], ['#bf0a30', 90, 196, 422, 60]], top: 'TEXAS', topC: '#002868', txt: '#002868', motto: 'TEXAS STRONG', mottoC: '#ffffff', deco: [['star', '#ffffff', 45, 128, 26]] },
+  } },
+  california: { label: 'California', styles: {
+    modern: { label: 'Modern', bg: ['#fbfbfb', '#f1f3f6'], top: 'California', font: 'script', topC: '#c4161c', txt: '#16246b', motto: 'DMV.CA.GOV' },
+    black: { label: 'Legacy black (1963)', bg: ['#141414', '#060606'], top: 'CALIFORNIA', topC: '#f2c200', txt: '#f2c200', motto: '', border: '#f2c200' },
+    yellow: { label: 'Legacy yellow (1956)', bg: ['#f2c200', '#e2b000'], top: 'CALIFORNIA', topC: '#111', txt: '#111', motto: '', border: '#111' },
+    blue: { label: 'Legacy blue (1970)', bg: ['#123a8c', '#0b2763'], top: 'CALIFORNIA', topC: '#f2c200', txt: '#f2c200', motto: '', border: '#f2c200' },
+  } },
+  arizona: { label: 'Arizona', styles: {
+    classic: { label: 'Copper sunset', bg: ['#f4d9a6', '#d97f3e'], top: 'ARIZONA', topC: '#6b1d1d', txt: '#6b1d1d', motto: 'GRAND CANYON STATE', deco: [['sun', '#f7b23b', 256, 150, 60, 0.35], ['mtn', '#9a3d1f', 0.45]] },
+    canyon: { label: 'Grand Canyon', bg: ['#6f8fc9', '#f0b36a'], top: 'ARIZONA', topC: '#ffffff', txt: '#2b1a4d', motto: 'GRAND CANYON STATE', deco: [['mtn', '#8a3b22', 0.7]] },
+    black: { label: 'Black copper', bg: ['#151515', '#070707'], top: 'ARIZONA', topC: '#c97b4a', txt: '#e2a26f', motto: 'GRAND CANYON STATE', mottoC: '#c97b4a', border: '#c97b4a' },
+  } },
+  nevada: { label: 'Nevada', styles: {
+    home: { label: 'Home Means Nevada', bg: ['#cfe2f3', '#f6f3e6'], top: 'NEVADA', topC: '#1b3d7a', txt: '#1b3d7a', motto: 'HOME MEANS NEVADA', deco: [['mtn', '#7f93ad', 0.55]] },
+    silver: { label: 'Silver state', bg: ['#e4e6e9', '#b9bdc3'], top: 'NEVADA', topC: '#1b3d7a', txt: '#1b3d7a', motto: 'THE SILVER STATE' },
+    black: { label: 'Classic black', bg: ['#161616', '#080808'], top: 'NEVADA', topC: '#d8d8d8', txt: '#ffffff', motto: 'BATTLE BORN', mottoC: '#9b9b9b', border: '#bbbbbb' },
+  } },
+  colorado: { label: 'Colorado', styles: {
+    mountains: { label: 'Green mountains', bg: ['#ffffff', '#ffffff'], bands: [['#1d6b3a', 0, 200, 512, 56]], top: 'COLORADO', topC: '#1d6b3a', txt: '#1d6b3a', motto: '', deco: [['mtn', '#1d6b3a', 0.95, 190]] },
+    blackwhite: { label: 'Black & white', bg: ['#111', '#000'], top: 'COLORADO', topC: '#fff', txt: '#fff', motto: '', border: '#fff' },
+  } },
+  utah: { label: 'Utah', styles: {
+    arch: { label: 'Delicate Arch', bg: ['#f6dcb3', '#e8a46a'], top: 'UTAH', topC: '#7a2d14', txt: '#22264a', motto: 'LIFE ELEVATED', deco: [['arch', '#b0461f']] },
+    ski: { label: 'Ski Utah', bg: ['#dceaf6', '#ffffff'], top: 'UTAH', topC: '#1e4f9a', txt: '#1e4f9a', motto: 'GREATEST SNOW ON EARTH', deco: [['mtn', '#7aa1cf', 0.5]] },
+  } },
+  newmexico: { label: 'New Mexico', styles: {
+    yellow: { label: 'Zia yellow', bg: ['#f6d33a', '#efc21a'], top: 'NEW MEXICO', topC: '#b51f1f', txt: '#b51f1f', motto: 'LAND OF ENCHANTMENT', deco: [['zia', '#b51f1f']] },
+    turquoise: { label: 'Turquoise', bg: ['#6fd0cf', '#2aa3a8'], top: 'NEW MEXICO', topC: '#ffffff', txt: '#0b3d4a', motto: 'LAND OF ENCHANTMENT', deco: [['zia', '#f2c200']] },
+  } },
+  oregon: { label: 'Oregon', styles: {
+    tree: { label: 'Tree', bg: ['#cfe6f2', '#f5f0dc'], top: 'OREGON', topC: '#2a3d8f', txt: '#2a3d8f', motto: '', deco: [['mtn', '#9fb6c9', 0.55], ['tree', '#2f6b3a']] },
+    black: { label: 'Black', bg: ['#141414', '#070707'], top: 'OREGON', topC: '#f2f2f2', txt: '#f2f2f2', motto: '', border: '#cccccc' },
+  } },
+  washington: { label: 'Washington', styles: {
+    rainier: { label: 'Mt. Rainier', bg: ['#e8f1fb', '#ffffff'], top: 'Washington', font: 'script', topC: '#1e4a9a', txt: '#1e4a9a', motto: '', deco: [['mtn', '#9cb4d6', 0.55]] },
+    black: { label: 'Black', bg: ['#121212', '#060606'], top: 'WASHINGTON', topC: '#ffffff', txt: '#ffffff', motto: '', border: '#cccccc' },
+  } },
+  idaho: { label: 'Idaho', styles: {
+    classic: { label: 'Classic', bg: ['#e9f0fa', '#cfd9ee'], top: 'IDAHO', topC: '#b11a1a', txt: '#1a2f73', motto: 'FAMOUS POTATOES', deco: [['mtn', '#8aa0c8', 0.4]] },
+  } },
+  montana: { label: 'Montana', styles: {
+    sky: { label: 'Big Sky', bg: ['#7fb4e6', '#f2f2f2'], top: 'MONTANA', topC: '#ffffff', txt: '#1f3355', motto: 'BIG SKY COUNTRY', deco: [['mtn', '#5d7a9a', 0.5]] },
+    black: { label: 'Classic black', bg: ['#141414', '#070707'], top: 'MONTANA', topC: '#ffffff', txt: '#ffffff', motto: 'TREASURE STATE', mottoC: '#9a9a9a', border: '#cfcfcf' },
+  } },
+  wyoming: { label: 'Wyoming', styles: {
+    rider: { label: 'Bucking horse', bg: ['#f3f1ea', '#d9d4c3'], top: 'WYOMING', topC: '#6b1d1d', txt: '#2a2a2a', motto: '', deco: [['mtn', '#7c8a9a', 0.4], ['horse', '#3a2a1a']] },
+  } },
+  newyork: { label: 'New York', styles: {
+    excelsior: { label: 'Excelsior', bg: ['#f2c94c', '#e9b51f'], bands: [['#1d3a82', 0, 0, 512, 54]], top: 'NEW YORK', topC: '#f2c94c', txt: '#1d3a82', motto: 'EXCELSIOR', mottoC: '#1d3a82' },
+    empire: { label: 'Empire Gold', bg: ['#f7f7f2', '#f0e6c4'], top: 'NEW YORK', topC: '#1d3a82', txt: '#1d3a82', motto: 'THE EMPIRE STATE', mottoC: '#1d3a82' },
+  } },
+  florida: { label: 'Florida', styles: {
+    classic: { label: 'Classic', bg: ['#ffffff', '#f4f7ef'], top: 'FLORIDA', topC: '#1f6b34', txt: '#1f6b34', motto: 'SUNSHINE STATE', deco: [['sun', '#f08a24', 256, 128, 34, 0.25]] },
+    gator: { label: 'Orange & blue', bg: ['#0b3d91', '#06296b'], bands: [['#f26a1b', 0, 200, 512, 56]], top: 'FLORIDA', topC: '#f26a1b', txt: '#ffffff', motto: 'SUNSHINE STATE', mottoC: '#ffffff' },
+  } },
+  georgia: { label: 'Georgia', styles: {
+    peach: { label: 'Peach', bg: ['#ffffff', '#fdf3e8'], top: 'GEORGIA', topC: '#1a1a1a', txt: '#1a1a1a', motto: 'IN GOD WE TRUST', deco: [['peach', '#f28a3a']] },
+  } },
+  tennessee: { label: 'Tennessee', styles: {
+    classic: { label: 'Classic', bg: ['#e8f0e4', '#c9dcc2'], top: 'TENNESSEE', topC: '#1f3a6b', txt: '#1f3a6b', motto: 'THE VOLUNTEER STATE', deco: [['mtn', '#8fae8a', 0.45]] },
+  } },
+  kentucky: { label: 'Kentucky', styles: {
+    unbridled: { label: 'Unbridled spirit', bg: ['#ffffff', '#e6eef8'], bands: [['#1d3f8f', 0, 0, 512, 54]], top: 'KENTUCKY', topC: '#ffffff', txt: '#1d3f8f', motto: 'UNBRIDLED SPIRIT' },
+  } },
+  alaska: { label: 'Alaska', styles: {
+    gold: { label: 'Gold rush', bg: ['#f6d24a', '#e3b21b'], top: 'ALASKA', topC: '#1a3a7a', txt: '#1a3a7a', motto: 'THE LAST FRONTIER', deco: [['mtn', '#c49316', 0.5]] },
+  } },
+  hawaii: { label: 'Hawaii', styles: {
+    rainbow: { label: 'Rainbow', bg: ['#ffffff', '#ffffff'], top: 'HAWAII', topC: '#1a1a1a', txt: '#1a1a1a', motto: 'ALOHA STATE', deco: [['rainbow']] },
+  } },
 };
+const plateStyleOf = (b) => { const st = PLATES[b.plate] || PLATES.none; if (!st.styles) return null; return st.styles[b.plateStyle] || Object.values(st.styles)[0]; };
 const plateTexCache = new Map();
-function plateTex(style, text) {
-  const key = style + '|' + text; if (plateTexCache.has(key)) return plateTexCache.get(key);
-  const D = (PLATES[style] || PLATES.texas).draw, cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const x = cv.getContext('2d');
+function plateTex(D, text) {
+  const key = JSON.stringify(D) + '|' + text; if (plateTexCache.has(key)) return plateTexCache.get(key);
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const x = cv.getContext('2d');
   const gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, D.bg[0]); gr.addColorStop(1, D.bg[1]); x.fillStyle = gr; x.fillRect(0, 0, 512, 256);
-  if (D.band) { x.fillStyle = D.band; x.fillRect(0, 0, 512, 54); }
-  if (D.orange) { x.fillStyle = '#f08a24'; x.beginPath(); x.arc(256, 128, 34, 0, Math.PI * 2); x.globalAlpha = 0.25; x.fill(); x.globalAlpha = 1; }
-  x.strokeStyle = 'rgba(0,0,0,0.35)'; x.lineWidth = 6; x.strokeRect(6, 6, 500, 244);
-  [[40, 30], [472, 30], [40, 226], [472, 226]].forEach(([bx, by]) => { x.fillStyle = 'rgba(0,0,0,0.25)'; x.beginPath(); x.arc(bx, by, 9, 0, Math.PI * 2); x.fill(); }); // bolt holes
-  x.textAlign = 'center'; x.fillStyle = D.topC; x.font = D.script ? 'italic bold 46px "Brush Script MT", Georgia, serif' : 'bold 38px Arial, sans-serif'; x.fillText(D.top, 256, D.script ? 56 : 44);
-  if (D.star) { x.fillStyle = '#1b1b1b'; x.font = '30px Arial'; x.fillText('★', 106, 44); }
-  x.fillStyle = D.txt; x.font = 'bold 112px "Arial Narrow", Arial, sans-serif'; const t = String(text).slice(0, 8).toUpperCase(); let w = x.measureText(t).width;
-  x.save(); x.translate(256, 178); if (w > 440) x.scale(440 / w, 1); x.fillText(t, 0, 0); x.restore();
-  x.fillStyle = D.topC === '#ffffff' ? D.txt : D.topC; x.font = 'bold 22px Arial, sans-serif'; x.fillText(D.motto, 256, 232);
+  (D.bands || []).forEach(([c, bx, by, bw, bh]) => { x.fillStyle = c; x.fillRect(bx, by, bw, bh); });
+  // scenery, drawn under the lettering
+  (D.deco || []).forEach(([kind, c, a, b, r, alpha]) => {
+    x.save(); x.fillStyle = c; x.strokeStyle = c;
+    if (kind === 'mtn') { x.globalAlpha = a ?? 0.5; const base = b || 236; x.beginPath(); x.moveTo(0, base); [[60, 150], [120, 190], [190, 120], [250, 175], [320, 110], [390, 170], [450, 140], [512, 180]].forEach(([px, py]) => x.lineTo(px, py + (base - 236) * 0.3)); x.lineTo(512, base); x.closePath(); x.fill(); }
+    if (kind === 'sun') { x.globalAlpha = alpha ?? 0.3; x.beginPath(); x.arc(a, b, r, 0, Math.PI * 2); x.fill(); }
+    if (kind === 'star') { x.translate(a, b); x.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * 0.42 : r, an = -Math.PI / 2 + (i * Math.PI) / 5; x.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); } x.closePath(); x.fill(); }
+    if (kind === 'arch') { x.globalAlpha = 0.45; x.lineWidth = 16; x.beginPath(); x.arc(420, 230, 55, Math.PI, 0); x.stroke(); }
+    if (kind === 'zia') { x.globalAlpha = 0.35; x.beginPath(); x.arc(256, 140, 26, 0, Math.PI * 2); x.fill(); x.lineWidth = 6; [[0, -1], [0, 1], [-1, 0], [1, 0]].forEach(([dx, dy]) => { for (let k = -1.5; k <= 1.5; k++) { const ox = dy ? k * 10 : 0, oy = dx ? k * 10 : 0; x.beginPath(); x.moveTo(256 + dx * 32 + ox, 140 + dy * 32 + oy); x.lineTo(256 + dx * 70 + ox, 140 + dy * 70 + oy); x.stroke(); } }); }
+    if (kind === 'tree') { x.globalAlpha = 0.55; x.beginPath(); x.moveTo(256, 70); x.lineTo(226, 150); x.lineTo(286, 150); x.closePath(); x.fill(); x.fillRect(250, 150, 12, 18); }
+    if (kind === 'horse') { x.globalAlpha = 0.6; x.font = '64px serif'; x.textAlign = 'center'; x.fillText('🐎', 70, 150); }
+    if (kind === 'peach') { x.globalAlpha = 0.5; x.beginPath(); x.arc(256, 140, 34, 0, Math.PI * 2); x.fill(); x.fillStyle = '#3f8f3a'; x.beginPath(); x.ellipse(272, 104, 14, 7, -0.5, 0, Math.PI * 2); x.fill(); }
+    if (kind === 'rainbow') { ['#e23b3b', '#f08a24', '#f2c200', '#3aa34a', '#2a6fd6', '#7a3bbf'].forEach((col, i) => { x.globalAlpha = 0.55; x.strokeStyle = col; x.lineWidth = 9; x.beginPath(); x.arc(256, 250, 200 - i * 9, Math.PI, 0); x.stroke(); }); }
+    x.restore();
+  });
+  x.strokeStyle = D.border || 'rgba(0,0,0,0.35)'; x.lineWidth = 6; x.strokeRect(6, 6, 500, 244);
+  [[40, 30], [472, 30], [40, 226], [472, 226]].forEach(([bx, by]) => { x.fillStyle = 'rgba(0,0,0,0.28)'; x.beginPath(); x.arc(bx, by, 9, 0, Math.PI * 2); x.fill(); }); // bolt holes
+  x.textAlign = 'center'; x.fillStyle = D.topC;
+  x.font = D.font === 'script' ? 'italic bold 46px "Brush Script MT", Georgia, serif' : D.font === 'serif' ? 'bold 36px Georgia, serif' : 'bold 38px Arial, sans-serif';
+  x.fillText(D.top, 256, D.font === 'script' ? 56 : 44);
+  x.fillStyle = D.txt; x.font = 'bold 112px "Arial Narrow", Arial, sans-serif'; const t = String(text).slice(0, 8).toUpperCase(), w = x.measureText(t).width;
+  x.save(); x.translate(256, 178); if (w > 440) x.scale(440 / w, 1); if (D.txtStroke) { x.lineWidth = 5; x.strokeStyle = D.txtStroke; x.strokeText(t, 0, 0); } x.fillText(t, 0, 0); x.restore();
+  if (D.motto) { x.fillStyle = D.mottoC || (D.topC === '#ffffff' ? D.txt : D.topC); x.font = 'bold 22px Arial, sans-serif'; x.fillText(D.motto, 256, 232); }
   const tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4; plateTexCache.set(key, tex); return tex;
 }
 
@@ -4439,8 +4714,8 @@ function buildExtras(M, P, b, info, gBox) {
   const g = new THREE.Group();
   const put = (o, part = 'armor') => { tag(o, part); g.add(o); return o; };
   const zc = b.zoneColors || {};
-  // --- aftermarket grille
-  const G = GRILLES[b.grille] || GRILLES.stock;
+  // --- aftermarket grille (or, on a 2000–02 truck, the original factory grille over the modeled 2003–06 one)
+  const era = info && info.era, G0 = GRILLES[b.grille] || GRILLES.stock, G = G0 === GRILLES.stock && era && era.early ? EARLY_GRILLE : G0;
   if (G.insert && gBox && !gBox.isEmpty()) {
     gBox = gBox.clone(); // keep to the grille opening (between the bumper top and the hood edge)
     gBox.min.y = Math.max(gBox.min.y, P.hoodY - 0.42); gBox.max.y = Math.min(gBox.max.y, P.hoodY - 0.03, info && info.hoodEdgeY ? info.hoodEdgeY - 0.005 : 9); // visible opening: under the hood's front edge
@@ -4450,15 +4725,25 @@ function buildExtras(M, P, b, info, gBox) {
     if (zc.grille && zc.grille.finish === 'chrome') { frameMat.metalness = 1; frameMat.roughness = 0.06; }
     put(rbox(fx - 0.04, fx - 0.032, gBox.min.y, gBox.max.y, gBox.min.z, gBox.max.z, G.insert === 'honeycomb' ? new THREE.MeshStandardMaterial({ color: 0x55585c, roughness: 0.45, metalness: 0.6 }) : M.boot, 0.004)); // (TRD-style grilles show grey through the hex cells) // backing (in front of the factory grille surround) so nothing shows through the mesh
     // replacement shell: its surround is wide enough to cover the factory grille surround
-    const fr = faceFrame(W + 0.08, H + 0.05, W - 0.05, H - 0.05, 0.05, 0.045, frameMat); fr.position.set(fx - 0.045, cy - 0.01, czg); put(fr);
+    const fr = G.insert === 'early' ? faceFrame(W + 0.06, H + 0.04, W - 0.035, H - 0.035, 0.05, 0.04, frameMat) : faceFrame(W + 0.08, H + 0.05, W - 0.05, H - 0.05, 0.05, 0.045, frameMat); fr.position.set(fx - 0.045, cy - 0.01, czg); put(fr);
     // TRD-Pro-style mesh: big horizontally stretched hex cells with a thick web (seamless 512×256 tile, 8 cells × 4 rows)
     const tex = G.insert === 'honeycomb' ? extraTex('hex2', 512, 256, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = '#000'; x.lineWidth = 14; x.lineJoin = 'round'; const cw = w / 8, rh = h / 4; for (let row = -1; row <= 4; row++) for (let col = -1; col <= 8; col++) { const cxp = col * cw + (row % 2 ? cw / 2 : 0), cyp = row * rh + rh / 2; x.beginPath(); [[-0.5, 0], [-0.3, -0.62], [0.3, -0.62], [0.5, 0], [0.3, 0.62], [-0.3, 0.62]].forEach(([u, v], k) => { const px = cxp + u * cw, py = cyp + v * rh * 0.8; if (k) x.lineTo(px, py); else x.moveTo(px, py); }); x.closePath(); x.stroke(); } }, [W / 0.95, H / 0.42])
       : G.insert === 'mesh' ? extraTex('mesh', 128, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = '#000'; x.lineWidth = 7; for (let i = -128; i < 256; i += 26) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 128, 128); x.stroke(); x.beginPath(); x.moveTo(i + 128, 0); x.lineTo(i, 128); x.stroke(); } }, [W * 9, H * 9]) : null;
     if (tex) {
       const ins = mk(new THREE.PlaneGeometry(W - 0.06, H - 0.05), G.chrome && !zc.grille ? new THREE.MeshStandardMaterial({ map: tex, color: 0xe4e7ea, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.12, metalness: 1 }) : new THREE.MeshStandardMaterial({ map: tex, color: 0x18191b, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.55, metalness: 0.3 }));
       ins.rotation.y = Math.PI / 2; ins.position.set(fx - 0.02, cy, czg); put(ins);
+    } else if (G.insert === 'early') {
+      // 2000–02: a chrome surround around three deep black slots split by two thick chrome bars, the Toyota emblem on the
+      // centre of the upper bar and a small V8 badge in the lower right slot
+      const tb = Math.min(0.034, H * 0.16), yb = [gBox.min.y + 0.025 + (H - 0.05) / 3, gBox.min.y + 0.025 + (2 * (H - 0.05)) / 3];
+      yb.forEach((y) => { put(rbox(fx - 0.05, fx - 0.004, y - tb / 2, y + tb / 2, gBox.min.z + 0.03, gBox.max.z - 0.03, frameMat, Math.min(0.012, tb * 0.4))); });
+      if (era && era.v8 && b.oem) { const v8 = mk(new THREE.PlaneGeometry(0.075, 0.03), new THREE.MeshStandardMaterial({ map: extraTex('v8-badge', 256, 96, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#dfe3e7'; x.font = 'italic bold 84px Arial Black, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('V8', w / 2, h / 2 + 4); }), transparent: true, alphaTest: 0.4, metalness: 0.85, roughness: 0.2 }));
+        v8.rotation.y = Math.PI / 2; v8.position.set(fx - 0.026, gBox.min.y + 0.025 + (H - 0.05) / 6, czg - (W / 2) * 0.68); put(v8); }
     } else { const nb = G.bars || 6, bh = Math.min(0.012, (H - 0.08) / nb / 3.2); for (let i = 0; i < nb; i++) { const y = gBox.min.y + 0.04 + (i * (H - 0.08)) / (nb - 1); put(rbox(fx - 0.03, fx - 0.008, y - bh, y + bh, gBox.min.z + 0.04, gBox.max.z - 0.04, frameMat, 0.003)); } }
-    if (G.emblem && b.oem) { // Toyota emblem (three overlapping ellipses), kept on the grille up top as on the 2003–06 trucks
+    if (G.insert === 'early' && b.oem) { // (emblem on the upper bar, a touch proud of it)
+      const em = mk(new THREE.CircleGeometry(0.066, 40), new THREE.MeshStandardMaterial({ map: extraTex('toyota-emblem', 256, 256, (x, w, hh) => { x.clearRect(0, 0, w, hh); x.fillStyle = '#121316'; x.beginPath(); x.ellipse(128, 128, 126, 126, 0, 0, Math.PI * 2); x.fill(); x.strokeStyle = '#e9ecef'; x.lineWidth = 15; x.beginPath(); x.ellipse(128, 128, 108, 108, 0, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.ellipse(128, 98, 66, 30, 0, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.ellipse(128, 138, 26, 72, 0, 0, Math.PI * 2); x.stroke(); }), metalness: 0.85, roughness: 0.22 }));
+      em.scale.set(1, 0.72, 1); em.rotation.y = Math.PI / 2; em.position.set(fx + 0.001, gBox.min.y + 0.025 + (2 * (H - 0.05)) / 3, czg); put(em);
+    } else if (G.emblem && b.oem) { // Toyota emblem (three overlapping ellipses), kept on the grille up top as on the 2003–06 trucks
       const em = mk(new THREE.CircleGeometry(0.068, 40), new THREE.MeshStandardMaterial({ map: extraTex('toyota-emblem', 256, 256, (x, w, hh) => { x.clearRect(0, 0, w, hh); x.fillStyle = '#121316'; x.beginPath(); x.ellipse(128, 128, 126, 126, 0, 0, Math.PI * 2); x.fill(); x.strokeStyle = '#e9ecef'; x.lineWidth = 15; x.beginPath(); x.ellipse(128, 128, 108, 108, 0, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.ellipse(128, 98, 66, 30, 0, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.ellipse(128, 138, 26, 72, 0, 0, Math.PI * 2); x.stroke(); }), metalness: 0.85, roughness: 0.22 }));
       em.scale.set(1, 0.7, 1); em.rotation.y = Math.PI / 2; em.position.set(fx - 0.012, gBox.max.y - Math.min(0.08, H * 0.3), czg); put(em);
     }
@@ -4584,7 +4869,7 @@ function buildExtras(M, P, b, info, gBox) {
     });
     // moonroof: tinted glass in the roof opening (or slid back under the roof when open). Wider than long, like the factory
     // panel; inside, just a slim trim ring flush with the headliner (no deep box hanging into the cab)
-    const SR = b.sunroof || 'none', LN = D.liner, LIN = 0.045; // (headliner sits 45 mm under the roof skin — room for the moonroof glass to slide back between)
+    const SR = D.sunX == null ? 'none' : b.sunroof || 'none', LN = D.liner, LIN = 0.045; // (headliner sits 45 mm under the roof skin — room for the moonroof glass to slide back between)
     const xa = D.sunX - SUN_HL, xb = D.sunX + SUN_HL, zw = SUN_HW;
     if (SR !== 'none') {
       const y = D.sunY, fr = new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.6 });
@@ -4594,7 +4879,7 @@ function buildExtras(M, P, b, info, gBox) {
       const gl = rbox(xa + 0.01, xb - 0.01, y - 0.012, y - 0.004, -zw + 0.01, zw - 0.01, new THREE.MeshPhysicalMaterial({ color: 0x07090c, transparent: true, opacity: 0.72, roughness: 0.04, clearcoat: 1, envMapIntensity: 1.6, depthWrite: false }), 0.01);
       // (the stage opens / closes it: drops a hair, then slides back between the roof skin and the headliner — and tints it)
       // (dropBack: how far the roof skin falls away over the slid-back spot, so the glass follows the roof's curve inside it)
-      const slide = -(xb - xa) - 0.03, roofAt = (x, z) => { if (!LN) return y; const i = Math.round(((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx), j = Math.round(((z + LN.lz) / (2 * LN.lz)) * LN.nz), v = LN.y[THREE.MathUtils.clamp(i, 0, LN.nx) * (LN.nz + 1) + THREE.MathUtils.clamp(j, 0, LN.nz)]; return isNaN(v) ? y : v; };
+      const slide = -Math.min(xb - xa + 0.03, Math.max(0.12, xa - (D.cabRear ?? -9) - 0.06)), roofAt = (x, z) => { if (!LN) return y; const i = Math.round(((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx), j = Math.round(((z + LN.lz) / (2 * LN.lz)) * LN.nz), v = LN.y[THREE.MathUtils.clamp(i, 0, LN.nx) * (LN.nz + 1) + THREE.MathUtils.clamp(j, 0, LN.nz)]; return isNaN(v) ? y : v; };
       let low = y; [xa + slide, D.sunX + slide, xb + slide].forEach((x) => [-zw, 0, zw].forEach((z) => { low = Math.min(low, roofAt(x, z)); })); // lowest roof over the slid-back glass
       gl.name = 'moonroofGlass'; Object.assign(gl.userData, { base: gl.position.clone(), slide, drop: -0.01, dropBack: Math.min(-0.01, low - y - 0.003) }); // (glass top stays under the skin)
       put(gl, 'body');
@@ -4604,6 +4889,10 @@ function buildExtras(M, P, b, info, gBox) {
     // cab it's the kick panels behind the dash ends, from the engine bay the firewall
     { const fw = new THREE.Mesh(new THREE.PlaneGeometry(2 * (P.halfW - 0.035), P.cowlY - 0.06 - (P.rockerY + 0.04)), new THREE.MeshStandardMaterial({ color: 0x232427, roughness: 0.85, side: THREE.DoubleSide }));
       fw.rotation.y = Math.PI / 2; fw.position.set(P.cowlX - 0.02, (P.cowlY - 0.06 + P.rockerY + 0.04) / 2, 0); fw.castShadow = false; put(fw, 'body'); }
+    // cowl filler: a deep-black panel sloping from under the cowl's lip to under the hood's back edge — no slot down into the bay
+    if (D && D.cowlFill) { const cf = D.cowlFill, x0 = P.cowlX + cf.dx0, x1 = P.cowlX + cf.dx1, len = Math.hypot(x1 - x0, cf.y1 - cf.y0);
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(len, 2 * cf.zw), new THREE.MeshStandardMaterial({ color: 0x060607, roughness: 0.6, metalness: 0.02, side: THREE.DoubleSide }));
+      pl.rotation.set(-Math.PI / 2, 0, 0); pl.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), Math.atan2(cf.y1 - cf.y0, x1 - x0)); pl.position.set((x0 + x1) / 2, (cf.y0 + cf.y1) / 2, 0); pl.castShadow = false; put(pl, 'body'); }
     // headliner: our own fabric ceiling laid just under the roof skin (measured grid), with the moonroof opening left out
     if (LN) {
       const HL = HEADLINERS[b.headliner] || HEADLINERS.oem, SL = STARLIGHTS[b.starlight] || STARLIGHTS.none, IC = INTERIOR_COLORS[b.intColor] || {};
@@ -5000,7 +5289,8 @@ function buildEngineBay(M, P, b, bay) {
     put(tubeMesh([[bay.xB + 0.075, top - 0.2, -0.43], [bay.xB + 0.02, Math.min(top, ceil) - 0.04, -0.36], [xF + 0.12, Math.min(top, ceil) - 0.02, -0.12], [xF + 0.03, Math.min(top, ceil) - 0.03, 0.02]], 0.035, polished, 24));   // cold side → throttle body
   } else {
     // intake: airbox in the passenger-front corner → tube with an accordion section → throttle / supercharger inlet
-    const ax = bay.xB - 0.12, az = 0.48, ay = top - 0.13; // passenger (+z) front corner
+    // (passenger front corner, but inboard of and behind the headlight housing — further out it poked through the corner lamp)
+    const ax = bay.xB - 0.34, az = 0.45, ay = top - 0.13;
     if (IN === 'kn') { const cone = cylAxis(0.085, 0.2, new THREE.MeshStandardMaterial({ color: 0xa31818, roughness: 0.85 }), 'x', 22, 0.06); cone.position.set(ax + 0.02, ay, az); put(cone); const cap = cylAxis(0.062, 0.01, polished, 'x', 20); cap.position.set(ax + 0.125, ay, az); put(cap); }
     else { put(rbox(ax - 0.12, ax + 0.1, ay - 0.12, ay + 0.1, az - 0.13, az + 0.11, blackP, 0.03)); if (IN === 'trd' && b.oem) textPlate(0.14, 0.05, letters('TRD', null, '#d12a2a'), ax, ay + 0.101, az); }
     const tubeM = IN === 'kn' ? polished : IN === 'trd' ? alu : rubber;
@@ -5009,8 +5299,9 @@ function buildEngineBay(M, P, b, bay) {
     if (IN === 'snorkel') put(tubeMesh([[ax - 0.1, ay + 0.08, az - 0.05], [bay.xA + 0.2, top + 0.02, P.halfW - 0.22], [bay.xA + 0.05, bay.hoodY - 0.02, P.halfW - 0.12]], 0.04, blackP, 16));
   }
   // battery (driver-front), brake booster + master cylinder (driver side firewall), coolant overflow, radiator cap
-  put(rbox(bay.xB - 0.27, bay.xB - 0.04, top - 0.32, top - 0.1, -0.58, -0.36, blackP, 0.015));
-  put(rbox(bay.xB - 0.25, bay.xB - 0.17, top - 0.1, top - 0.07, -0.45, -0.38, new THREE.MeshStandardMaterial({ color: 0xc8171d, roughness: 0.5 }), 0.008)); // + terminal cover
+  // (battery: behind the headlight & inboard of the fender — further out it showed through the driver-side corner lamp)
+  put(rbox(bay.xB - 0.5, bay.xB - 0.27, top - 0.32, top - 0.1, -0.55, -0.36, blackP, 0.015));
+  put(rbox(bay.xB - 0.48, bay.xB - 0.4, top - 0.1, top - 0.07, -0.45, -0.38, new THREE.MeshStandardMaterial({ color: 0xc8171d, roughness: 0.5 }), 0.008)); // + terminal cover
   const bst = cylAxis(0.15, 0.12, blackP, 'x', 28); bst.position.set(bay.xA + 0.07, top - 0.12, -0.42); put(bst);
   const mc = cylAxis(0.035, 0.18, alu, 'x', 16); mc.position.set(bay.xA + 0.22, top - 0.1, -0.42); put(mc);
   put(rbox(bay.xA + 0.15, bay.xA + 0.27, top - 0.07, top + 0.0, -0.47, -0.37, new THREE.MeshStandardMaterial({ color: 0x5c4c22, roughness: 0.3 }), 0.01));
@@ -5802,6 +6093,7 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     rearL.bulbR.forEach((b) => { b.material.emissiveIntensity = rev ? 8 * k : 0; });
     if (!model || !model.zones) return;
     (model.zones.taillights || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
+      if (mt && mt.userData && mt.userData.revU) mt.userData.revU.value = rev ? k : 0; // (early 3-section lens: its clear band is the reverse lamp)
       if (!mt || !mt.emissive || mt.metalness > 0.7 || !mt.color || !(mt.color.r > mt.color.g * 1.6 && mt.color.r > 0.2)) return; // (just the red lens)
       mt.emissive.setHex(0xff1408); mt.emissiveIntensity = (brake ? 0.9 : head ? 0.3 : 0) * k; // (the lens glows from the bulb behind it)
     }));
@@ -5879,7 +6171,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const rec = P && model && recessBox(P, build);
     if (rec) list.push([[rec.face - 0.25, rec.y0, rec.z0], [rec.face + 0.3, rec.y1, rec.z1]]); // bumper cut-out for a recessed bar
     const dsh = model && model.bedInfo && model.bedInfo.dash; // moonroof opening through the roof skin & headliner
-    if (dsh && (build.sunroof || 'none') !== 'none') list.push([[dsh.sunX - SUN_HL, dsh.sunY - 0.045, -SUN_HW], [dsh.sunX + SUN_HL, dsh.sunY + 0.12, SUN_HW]]); // (just the roof skin — the headliner is ours, built with the opening)
+    if (dsh && dsh.sunX != null && (build.sunroof || 'none') !== 'none') list.push([[dsh.sunX - SUN_HL, dsh.sunY - 0.045, -SUN_HW], [dsh.sunX + SUN_HL, dsh.sunY + 0.12, SUN_HW]]); // (just the roof skin — the headliner is ours, built with the opening)
     cutU.uBoxN.value = list.length;
     list.forEach(([a, c], i) => { cutU.uBoxMin.value[i].set(...a); cutU.uBoxMax.value[i].set(...c); });
   }
@@ -6107,6 +6399,12 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const glassBot = gls.length > 20 ? gls.reduce((m, q) => Math.min(m, q[0]), 1e9) : P.cowlY; // the side windows' lower edge (the sill)
     model.glassFit = { gm, gk, bot: glassBot }; // (the paint shader's cab-trim rule uses the same glass line)
     // hood skin height along the truck (probed before the split): the hood's inner frame is what sits just under it
+    // the cowl filler: between the cowl panel's front lip and the hood's back edge there's a slot you could see straight down
+    // into the engine bay through. A black panel just under the surfaces there closes it (from the lowest of the cowl / hood
+    // tops across the width, so it never shows above either). Kept relative to the cowl line so it follows cab changes.
+    { const dx0 = 0.09, dx1 = 0.25, topAt = (x) => { let lo = Infinity; [-0.6, -0.3, 0, 0.3, 0.6].forEach((z) => { raycaster.set(V(x, prof.roofTop + 1, z), V(0, -1, 0)); raycaster.far = 4; const h = raycaster.intersectObjects(model.probeTargets, false).find((q) => q.point.y < P.cowlY + 0.03 && !meshMats(q.object).some((m) => glassSet.has(m))); if (h && h.point.y > P.hoodY - 0.2) lo = Math.min(lo, h.point.y); }); return lo; };
+      const y0 = topAt(P.cowlX + dx0), y1 = topAt(P.cowlX + dx1);
+      model.cowlFill = Number.isFinite(y0) && Number.isFinite(y1) ? { dx0, dx1, y0: y0 - 0.012, y1: y1 - 0.012, zw: Math.min(0.64, P.halfW - 0.3) } : null; }
     const hoodTops = []; for (let i = 0; i <= 16; i++) { const x = P.cowlX - 0.1 + ((P.front - P.cowlX) * i) / 16, h = probe(V(x, prof.roofTop + 1, 0.3), V(0, -1, 0)); hoodTops.push([x, h && h.point.y > P.hoodY - 0.25 ? h.point.y : null]); }
     // steering wheel: the dominant non-paint material around where a 1st-gen Tundra's wheel hub sits (driver side is −z)
     const steerC0 = V(P.cowlX - 0.5, P.cowlY - 0.18, -0.41 * P.halfW), steerCount = new Map(), sv = V(0, 0, 0);
@@ -6148,6 +6446,8 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     { let top = -1e9; model.parts.meshes.forEach((m) => { if (Array.isArray(m.material) || paintSet.has(m.material) || glassSet.has(m.material)) return; const pa = m.geometry.attributes.position; if (!pa) return; m.updateMatrixWorld(true);
         for (let k = 0; k < pa.count; k++) { lv.fromBufferAttribute(pa, k).applyMatrix4(m.matrixWorld); if (lv.x < P.rear + 0.32 && Math.abs(lv.z) < 0.5 && lv.y < P.rearBumperY + 0.27 && lv.y > P.rearBumperY - 0.2) top = Math.max(top, lv.y); } });
       if (top > -1e9) rbPadTop = top; }
+    // (kept for the 2000–02 amber corner lamps — relative to the nose, so it follows a cab change's shift)
+    model.lensBox = Object.fromEntries([1, -1].filter((s) => !lensBox[s].isEmpty()).map((s) => [s, { dx0: lensBox[s].min.x - P.front, dx1: lensBox[s].max.x - P.front, y0: lensBox[s].min.y, y1: lensBox[s].max.y, z0: lensBox[s].min.z, z1: lensBox[s].max.z }]));
     const behindCornerLens = (cx, cy, cz) => { const lb = lensBox[cz > 0 ? 1 : -1]; if (lb.isEmpty()) return false; const z0 = Math.min(Math.abs(lb.min.z), Math.abs(lb.max.z)), z1 = Math.max(Math.abs(lb.min.z), Math.abs(lb.max.z)), az = Math.abs(cz);
       return cx > lb.min.x - 0.22 && cx < lb.max.x && cy > lb.min.y - 0.04 && cy < lb.max.y + 0.01 && az > z0 + (z1 - z0) * 0.3 && az < z1 + 0.01; }; // (the outer part: the corner lamp)
     const hoodTopAt = (x) => { let best = null, bd = 1e9; hoodTops.forEach(([hx, hy]) => { if (hy !== null && Math.abs(hx - x) < bd) { bd = Math.abs(hx - x); best = hy; } }); return best === null ? P.hoodY : best; };
@@ -6177,7 +6477,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       if (!isP && !isG && !isChrome(mt) && cx > P.cowlX - 0.2 && cx < P.cowlX + 0.16 && cy > P.hoodY - 0.12 && cy < P.cowlY + 0.08 && az < P.halfW - 0.12) return 'cowl';
       if (!isP && !isG && behindCornerLens(cx, cy, cz)) return 'headlights'; // (the corner lamp's housing, seen through its lens)
       // the engine & everything else under the hood (behind the radiator support, below the hood skin)
-      if (!isG && !ctx.meshFront && cx > P.cowlX - 0.16 && cx < P.front - 0.44 && cy > P.wheelY0 - 0.05 && cy < P.hoodY - (isP ? 0.1 : 0.035) && az < (isP ? Math.min(0.6, P.halfW - 0.3) : P.halfW - 0.1) && !(az > 0.42 && Math.hypot(cx - P.xF, cy - P.wheelY0) < P.R0 + 0.4)) return 'engine'; // (not the wheel-well liners)
+      if (!isG && !ctx.meshFront && cx > P.cowlX - 0.16 && cx < P.front - 0.44 && cy > P.wheelY0 - 0.05 && cy < P.hoodY - (isP ? 0.1 : 0.035) && az < (isP ? Math.min(0.6, P.halfW - 0.3) : Math.min(0.66, P.halfW - 0.1)) && !(az > 0.42 && Math.hypot(cx - P.xF, cy - P.wheelY0) < P.R0 + 0.4)) return 'engine'; // (not the wheel-well liners)
       if (!isP && isChrome(mt) && !ctx.meshFront && az < 0.51 && cx > P.front - 0.5 && cy > P.hoodY - 0.46 && cy < P.hoodY + 0.02) return 'grille'; // chrome grille surround (not the lamps beside it)
       if (!isP && cx > P.front - 0.55 && cy > P.hoodY - 0.45 && cy < P.hoodY - 0.04 && az > 0.4 && az < P.halfW + 0.08) return 'headlights';
       if (!isP && cx < P.rear + 0.35 && cy > P.rearBumperY + 0.2 && cy < prof.roofTop - 0.25 && az > P.halfW - 0.32) return 'taillights';
@@ -6208,7 +6508,9 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         if (!isP && (mt.map || lumOf(mt) > 0.7) && !isChrome(mt) && az > 0.5 && cy < P.bumperY + 0.3) return 'fogs';
         return cy < P.bumperY + 0.1 && !ctx.meshFront ? 'fbLower' : 'frontBumper';
       }
-      if (cx < P.rear + 0.32 && allY((y) => y < P.rearBumperY + 0.27) && !(isP && cy > rbPadTop - 0.004)) return 'rearBumper'; // (painted skin above the step pad is the tailgate's lip, not bumper)
+      // (painted skin above the step pad is the tailgate's lip, and painted side-facing skin out at the corners is the
+      // bedside — neither is bumper, so a bumper colour no longer spills onto the bed)
+      if (cx < P.rear + 0.32 && allY((y) => y < P.rearBumperY + 0.27) && !(isP && (cy > rbPadTop - 0.004 || (Math.abs(normal().z) > 0.7 && az > P.halfW - 0.25) || cx > P.rear + 0.22))) return 'rearBumper';
       // (the housing's inboard end, toward the door, sits inside halfW: dark plastic well outboard of the glass line is mirror too)
       if (cx > P.cowlX - 0.75 && cx < P.cowlX + 0.06 && cy > P.cowlY - 0.32 && cy < P.cowlY + 0.36 && (az > P.halfW + 0.015 || (!isP && az > Math.max(P.cowlZ, glassZ(cy)) + 0.05))) return normal().x < -0.6 ? 'mirrorGlass' : 'mirrors'; // the glass faces back and stays a mirror
       if (ctx.meshThin && !isP && az > P.halfW - 0.07 && cy > P.cowlY - 0.42 && cy < P.cowlY - 0.1) return 'handles';
@@ -6314,12 +6616,16 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         });
       }
     }
+    // the taillight lamps' height (the side units only — not the strip along the tailgate top): the early 3-section lens bands by it
+    { const tb = new THREE.Box3(); (model.zones.taillights || []).forEach((p) => { const bx = pieceBox(p); if (bx.max.z - bx.min.z < 0.5) tb.union(bx); }); model.tailY = tb.isEmpty() ? null : [tb.min.y, tb.max.y]; }
     // window records: own glass material (clipped at the belt line) so each window rolls independently
     model.windows = {};
     Object.entries(WINDOW_OF).forEach(([zid, wid]) => {
       const pieces = model.zones[zid]; if (!pieces || !pieces.length) return;
       const bb = new THREE.Box3(); pieces.forEach((p) => bb.union(pieceBox(p)));
-      const plane = new THREE.Plane(), belt = bb.min.y + 0.004;
+      // (side glass: the clip line sits 6 cm down inside the door, and each pane gets a skirt of glass reaching down to it —
+      // the model's glass stopped exactly at the belt, so at a glancing angle you could see through the slit between them)
+      const sideW = wid !== 'rear', plane = new THREE.Plane(), belt = bb.min.y + 0.004 - (sideW ? 0.06 : 0);
       const localPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(belt - model.holder.position.y));
       pieces.forEach((p) => {
         const mk1 = (bm) => { const m = bm.clone(); m.clippingPlanes = [plane]; m.clipShadows = true; model.glassMats.push(m); if (model.orig.has(bm)) model.orig.set(m, model.orig.get(bm)); return m; };
@@ -6334,9 +6640,41 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       p.material = Array.isArray(p.material) ? p.material.map(mk1) : mk1(p.material); p.userData.baseMat = p.material;
     });
     refreshMaterials();
+    rebuildSkirts();
     updateBedInfo();
     const found = PAINT_ZONES.filter((z) => model.zones[z.id]).map((z) => z.label.toLowerCase());
     model.report.push({ lvl: 'fix', text: `Split the body into individually paintable parts (${found.join(', ') || 'none found'})${model.zones.headlights ? ', headlights' : ''}${model.zones.taillights ? ', taillights' : ''}, ${Object.keys(model.windows).length} roll-down windows and cut lines for bumpers & fender trimming.` });
+  }
+  // Side-window skirts: the model's door glass stops exactly at the belt line, so at a glancing angle you could see through the
+  // slit between the glass and the door top. Each pane gets a strip of the same glass running from its bottom edge 7.5 cm down
+  // inside the door (the clip line sits 6 cm down, so it never shows below the belt). Rebuilt from the glass as it is after
+  // every refit (a cab change re-proportions the panes); a pane squeezed out of existence by a shorter cab gets none.
+  function rebuildSkirts() {
+    if (!model || !model.windows) return;
+    (model.skirts || []).forEach((s) => { if (s.parent) s.parent.remove(s); s.geometry.dispose(); }); model.skirts = [];
+    model.holder.updateMatrixWorld(true);
+    ['fl', 'fr', 'rl', 'rr'].forEach((wid) => {
+      const w = model.windows[wid]; if (!w || !w.pieces.length) return;
+      const pts = []; w.pieces.forEach((pc) => { pc.updateMatrixWorld(true); const pa = pc.geometry.attributes.position, ix = pc.geometry.index, n = ix ? ix.count : pa.count; for (let k = 0; k < n; k++) pts.push(V(0, 0, 0).fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(pc.matrixWorld)); });
+      if (pts.length < 6) return;
+      // the pane's lower edge (it can rise a little toward the mirror): slice the glass's triangles across the truck every
+      // ~4 cm and take the lowest point of each slice (the glass is low-poly, so vertices alone are too sparse)
+      const yb = Math.min(...pts.map((q) => q.y)), s = Math.sign(pts.reduce((a, q) => a + q.z, 0)) || 1;
+      const lowX = pts.filter((q) => q.y < yb + 0.09).map((q) => q.x), xs0 = Math.min(...lowX) + 0.006, xs1 = Math.max(...lowX) - 0.006;
+      if (xs1 - xs0 < 0.06) return;
+      const edgeAt = (x) => { let best = null; for (let t = 0; t + 2 < pts.length; t += 3) { const tri = [pts[t], pts[t + 1], pts[t + 2]];
+        for (let e = 0; e < 3; e++) { const p = tri[e], q = tri[(e + 1) % 3]; if ((p.x - x) * (q.x - x) > 0 || p.x === q.x) continue; const u = (x - p.x) / (q.x - p.x), y = p.y + (q.y - p.y) * u; if (!best || y < best.y) best = { y, z: Math.abs(p.z + (q.z - p.z) * u) }; } }
+        return best; };
+      const NX = Math.max(2, Math.ceil((xs1 - xs0) / 0.04)), cols = [];
+      for (let i = 0; i <= NX; i++) { const x = xs0 + ((xs1 - xs0) * i) / NX, e = edgeAt(x); if (e && e.y < yb + 0.09) cols.push([x, e]); }
+      if (cols.length < 2) return;
+      const gk = model.glassFit ? model.glassFit.gk : 0, yB = yb - 0.075, pos = [], idx = [];
+      cols.forEach(([x, e], i) => { const yT = e.y + 0.004, z0 = e.z - 0.002;
+        [[yT, z0], [yB, z0 + gk * (yB - e.y)]].forEach(([y, az]) => pos.push(x, y, s * az)); if (i) { const a = 2 * (i - 1); idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } });
+      const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); sg.setIndex(idx); sg.computeVertexNormals();
+      const pm = Array.isArray(w.pieces[0].material) ? w.pieces[0].material[0] : w.pieces[0].material, skirt = new THREE.Mesh(sg, pm);
+      skirt.userData.noScan = true; skirt.renderOrder = w.pieces[0].renderOrder; scene.add(skirt); skirt.updateMatrixWorld(true); w.pieces[0].attach(skirt); model.skirts.push(skirt);
+    });
   }
   // bed geometry for covers / toppers / racks / tents (re-measured on every refit, e.g. after a cab / bed change) + grille opening
   function updateBedInfo() {
@@ -6359,7 +6697,22 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     // factory bumper face below the grille (for a recessed light bar): first non-guard surface straight ahead
     { const by = P.bumperY + 0.17; raycaster.set(V(P.front + 1, by, 0.12), V(-1, 0, 0)); raycaster.far = 2.5;
       const bh = raycaster.intersectObjects(model.probeTargets, false).find((h) => isVisibleChain(h.object) && !['guard', 'grille'].includes(h.object.userData.zone));
-      P.bumperFace = { x: bh ? bh.point.x : P.front - 0.05, y: by }; }
+      P.bumperFace = { x: bh ? bh.point.x : P.front - 0.05, y: by };
+      // front plate: a little higher, over the bumper's centre gap; its mount is the bumper's most-forward point anywhere
+      // behind the plate's 12" × 6" footprint
+      // (gx: the add-on grille guard's crossbar runs across that footprint too — the plate stands off it when the guard is on)
+      const yC = by + 0.045; let fx = -Infinity, gx = -Infinity;
+      for (const z of [-0.16, -0.08, 0, 0.08, 0.16]) for (const dy of [-0.08, -0.04, 0, 0.04, 0.08]) {
+        raycaster.set(V(P.front + 1, yC + dy, z), V(-1, 0, 0)); raycaster.far = 2.5; const hs = raycaster.intersectObjects(model.probeTargets, false);
+        const h = hs.find((x) => isVisibleChain(x.object) && !['guard', 'grille'].includes(x.object.userData.zone)); if (h) fx = Math.max(fx, h.point.x);
+        const hg = hs.find((x) => x.object.userData.zone === 'guard'); if (hg) gx = Math.max(gx, hg.point.x);
+      }
+      P.plateMount = { x: Number.isFinite(fx) ? Math.min(fx, P.bumperFace.x + 0.08) : P.bumperFace.x, y: yC, guardX: Number.isFinite(gx) ? Math.min(gx, P.bumperFace.x + 0.14) : null };
+      // the factory bumper's face across its width at the height of the 2000–02 rub strip (its most-forward point within ±4 cm,
+      // so the strip bridges the centre slot), for the early bumper's black insert
+      const ry = by + 0.04; P.rubStrip = [];
+      for (let z = -0.94; z <= 0.941; z += 0.04) { let best = -Infinity; for (const dy of [-0.04, -0.02, 0, 0.02, 0.04]) { raycaster.set(V(P.front + 1, ry + dy, z), V(-1, 0, 0)); raycaster.far = 2.5; const h = raycaster.intersectObjects(model.probeTargets, false).find((x) => isVisibleChain(x.object) && !['guard', 'grille'].includes(x.object.userData.zone)); if (h && h.point.x > P.front - 0.45) best = Math.max(best, h.point.x); } if (Number.isFinite(best)) P.rubStrip.push([z, best]); }
+      P.rubStripY = ry; P.era = tundraEra(base.vehicle); }
     let hoodX = P.front - 0.3, hoodEdgeY = P.hoodY; // hood leading edge (for the bug deflector)
     for (let x = P.front; x > P.cowlX; x -= 0.01) { const h = probe(V(x, prof.roofTop + 1, 0.32), V(0, -1, 0)); if (h && h.point.y > P.hoodY - 0.09) { hoodX = x; hoodEdgeY = h.point.y; break; } }
     // outer edge of the bed rail caps (mid-bed): the widest z where a probe still lands on the rail top
@@ -6413,7 +6766,10 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const badgeAt = { tgY, lowY, low: [[backX(lowY, -0.45), -0.45], [backX(lowY, 0.42), 0.42]], tg: [[backX(tgY, -0.36), -0.36], [backX(tgY, 0.36), 0.36], [backX(tgY - 0.13, -0.36), -0.36], [backX(tgY - 0.13, 0.36), 0.36]],
       trd: { x: P.xR - P.R0 - 0.42, y: P.wheelY0 + 0.32, z: [1, -1].map((s) => skinZ(P.xR - P.R0 - 0.55, P.xR - P.R0 - 0.29, P.wheelY0 + 0.32, s, 0.03)) },
       sr5: { x: P.xF - P.R0 - 0.22, y: P.wheelY0 + 0.33, z: [1, -1].map((s) => skinZ(P.xF - P.R0 - 0.3, P.xF - P.R0 - 0.14, P.wheelY0 + 0.33, s, 0.02)) } };
-    model.bedInfo = { badgeAt, heads, cabFloor, b3, cabBack, cabSurf, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw };
+    model.bedInfo = { badgeAt, heads, cabFloor, b3, cabBack, cabSurf, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw,
+      // model-year styling for the 1st-gen Tundra: 2000–02 front (bar grille, amber corner lamps, rub-strip bumper with
+      // rectangular fogs); Regular / Access Cab beds keep the original 3-section taillights through 2006
+      era: tundraEra(base.vehicle), lensBox: model.lensBox || null };
     // grille opening: only the grille's own surface just under the hood's leading edge (not guard tubes or bumper bits out front)
     const gbx = new THREE.Box3();
     ((model.zones && model.zones.grille) || []).forEach((m) => { const gg = m.geometry, p = gg.attributes.position, ix = gg.index, n = ix ? ix.count : p.count; m.updateMatrixWorld(true); for (let i = 0; i < n; i++) { fv.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); if (fv.y > P.hoodY - 0.45) gbx.expandByPoint(fv); } });
@@ -6429,7 +6785,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
   const zoneMatCache = new Map();  function finishMat(bm, hex, finish) {
     const key = `${bm.uuid}|${hex}|${finish}`;
     if (zoneMatCache.has(key)) return zoneMatCache.get(key);
-    const f = { gloss: [0, 0.22, 1], satin: [0.2, 0.45, 0.25], matte: [0, 0.82, 0], chrome: [1, 0.05, 0] }[finish] || [0, 0.3, 0.5];
+    const f = { gloss: [0, 0.22, 1], satin: [0.2, 0.45, 0.25], matte: [0, 0.82, 0], chrome: [1, 0.05, 0], metallic: [0.5, 0.3, 1] }[finish] || [0, 0.3, 0.5];
     const m = ensureCut(new THREE.MeshPhysicalMaterial({ color: hex, metalness: f[0], roughness: f[1], clearcoat: f[2], clearcoatRoughness: 0.05, normalMap: bm.normalMap || null, side: bm.side, envMapIntensity: 1.1 }));
     zoneMatCache.set(key, m); return m;
   }
@@ -6544,7 +6900,16 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       // gentle bends (hard edges over ~50° stay crisp), once per mesh
       ['interior', 'dash', 'steer'].forEach((zid) => (Z[zid] || []).forEach((m) => { if (!m.userData.smoothN && m.geometry) { smoothNormals(m.geometry, 50); m.userData.smoothN = true; } })); }
     // engine bay (the model's untextured engine renders as chrome / bare grey): cast aluminium + black plastics & hoses, as on the 2UZ
-    [...(Z.engine || []), ...(Z.cowl || [])].forEach((m) => setMat(m, (bm) => {
+    // the cowl panel under the windshield (where the wipers park): deep black textured plastic, like a new factory one
+    (Z.cowl || []).forEach((m) => setMat(m, (bm) => {
+      const key = `${bm.uuid}|cowl`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const fm = bm.clone(); if (fm.map) fm.map = null;
+      if (bm.metalness > 0.7) { fm.color.setHex(0x111214); fm.metalness = 0.5; fm.roughness = 0.4; } // (wiper arms: black steel)
+      else { fm.color.setHex(0x060607); fm.metalness = 0.02; fm.roughness = 0.58; }
+      if (fm.userData.paintU) fm.userData = {}; fm.clearcoat = 0;
+      ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm;
+    }));
+    (Z.engine || []).forEach((m) => setMat(m, (bm) => {
       const key = `${bm.uuid}|bay`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
       const chrome = bm.metalness > 0.7, lum = bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0;
       if (!chrome && lum < 0.1) return bm; // already dark
@@ -6566,7 +6931,48 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const greyPlastic = (bm) => !model.paintMats.includes(bm) && !!bm.color && !(bm.metalness > 0.7) && 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b > 0.12;
     ['trimF1', 'trimF2', 'trimR1', 'trimR2'].forEach((id) => (Z[id] || []).forEach((m) => setMat(m, (bm) => (greyPlastic(bm) ? finishMat(bm, lc.hex, lc.finish) : bm))));
     (Z.headlights || []).forEach((m) => setMat(m, (bm) => lampMat(bm, 'head', b.headlights)));
-    (Z.taillights || []).forEach((m) => setMat(m, (bm) => lampMat(bm, 'tail', b.taillights)));
+    const era = model.bedInfo && model.bedInfo.era;
+    if (era && era.early) (Z.headlights || []).forEach((m) => setMat(m, (bm) => earlyHeadMat(lampMat(bm, 'head', b.headlights))));
+    (Z.taillights || []).forEach((m) => setMat(m, (bm) => { const lm = lampMat(bm, 'tail', b.taillights); return era && era.earlyTail ? earlyTailMat(lm) : lm; }));
+  }
+  // 2000–02 headlamps: the wrap-around corner lens (the outboard ~quarter of the lamp, round the fender's corner) is amber — the
+  // 2003–06 trucks went to a clear corner. Tinted in the clear lens's own shader, by how far out it sits.
+  function earlyHeadMat(mt) {
+    if (!mt || !mt.transparent || mt.metalness > 0.7 || !model.lensBox) return mt;
+    const key = `${mt.uuid}|earlyHead`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+    const lb = model.lensBox[1] || model.lensBox[-1], a0 = Math.min(Math.abs(lb.z0), Math.abs(lb.z1)), a1 = Math.max(Math.abs(lb.z0), Math.abs(lb.z1)), zc = a0 + (a1 - a0) * 0.73;
+    const basePrev = mt.userData.cutPrev || null, nm = mt.clone(); nm.userData = {};
+    nm.onBeforeCompile = function (sh, r) {
+      if (basePrev) basePrev.call(this, sh, r);
+      sh.uniforms.uCornerZ = { value: zc };
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uCornerZ;')
+        .replace('#include <color_fragment>', `#include <color_fragment>
+          float kA = smoothstep(uCornerZ - 0.006, uCornerZ + 0.006, abs(vCutP.z));
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0, 0.46, 0.04), kA); diffuseColor.a = mix(diffuseColor.a, 0.72, kA);`);
+    };
+    nm.customProgramCacheKey = () => 'earlyHead';
+    ensureCut(nm); nm.needsUpdate = true; zoneMatCache.set(key, nm); return nm;
+  }
+  // The 2000–06 Regular / Access Cab taillight: one tall lens in three sections — amber turn signal on top, red tail / brake in
+  // the middle, clear reverse lamp at the bottom (the Double Cab's own lamps are red over clear). The red lens is re-banded
+  // by height in its shader: only the red band glows with the tail / brake lights, the clear band with reverse.
+  function earlyTailMat(mt) {
+    if (!mt || !mt.color || mt.metalness > 0.7 || !(mt.color.r > mt.color.g * 1.6 && mt.color.r > 0.2) || !model.tailY) return mt; // (just the red lens)
+    const key = `${mt.uuid}|earlyTail`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+    const [y0, y1] = model.tailY, basePrev = mt.userData.cutPrev || null, nm = mt.clone(), revU = { value: 0 };
+    nm.userData = { revU };
+    nm.onBeforeCompile = function (sh, r) {
+      if (basePrev) basePrev.call(this, sh, r);
+      sh.uniforms.uTY = { value: new THREE.Vector2(y0, y1) }; sh.uniforms.uRevOn = revU;
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec2 uTY; uniform float uRevOn;')
+        .replace('#include <color_fragment>', `#include <color_fragment>
+          float tY = clamp((vCutP.y - uTY.x) / max(uTY.y - uTY.x, 1e-3), 0.0, 1.0);
+          float bAmb = smoothstep(0.655, 0.675, tY), bClr = 1.0 - smoothstep(0.275, 0.295, tY), bRed = max(0.0, 1.0 - bAmb - bClr);
+          diffuseColor.rgb = diffuseColor.rgb * bRed + vec3(1.0, 0.42, 0.03) * bAmb + vec3(0.82, 0.84, 0.88) * bClr * 0.6;`)
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance = totalEmissiveRadiance * bRed + vec3(1.0, 0.98, 0.94) * uRevOn * bClr * 1.6;');
+    };
+    nm.customProgramCacheKey = () => 'earlyTail';
+    ensureCut(nm); nm.needsUpdate = true; zoneMatCache.set(key, nm); return nm;
   }
 
   function applyBuild(b, opts = {}, instant = false) {
@@ -6601,7 +7007,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
           exitQ: bi && bi.qZ ? { x: bi.qX, y: bi.qY, z: bi.qZ.map((z, i) => z + (model.bulgeAt ? Math.abs((model.bulgeAt(bi.qX, bi.qY, (i ? -1 : 1) * z) || [0, 0, 0])[2]) : 0)) } : null });
     }
     if (model && acc) {
-      const bk = [b.frontBumper, b.rearBumper, b.skid, JSON.stringify((b.zoneColors || {}).rearBumper || null), b.plate, b.plateText, b.plateFront].join('|');
+      const bk = [b.frontBumper, b.rearBumper, b.skid, JSON.stringify((b.zoneColors || {}).rearBumper || null), b.plate, b.plateStyle, b.plateText, b.plateFront].join('|');
       if (bk !== bumpersKey || !bumpers) {
         bumpersKey = bk;
         if (bumpers) { model.holder.remove(bumpers.group); bumpers.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
@@ -6865,7 +7271,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const src = cfg.spec(Math.max(spec.year, cfg.cabs[id.cab].years[0]), { ...spec.cfg, cab: id.cab });
     const dWB = spec.wb - src.wb, dLen = spec.len - src.len, dBed = spec.bedIn - src.bedIn;
     const s1 = dBed - (dLen - dWB), c = s1 - dWB;
-    return { s1: s1 * INCH, c: c * INCH, src, from: cfg.cabs[id.cab].label, to: cfg.cabs[spec.cab].label };
+    return { s1: s1 * INCH, c: c * INCH, src, from: cfg.cabs[id.cab].label, to: cfg.cabs[spec.cab].label, fromCab: id.cab, toCab: spec.cab };
   }
   // ---- FiberwerX-style widebody: the truck's OWN fenders / bedsides are pushed outward around the wheel openings (and the
   // openings raised), fading back to the stock surface at the door, cab, hood / bed-rail line and bumpers — so it stays the
@@ -6962,11 +7368,29 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const cabRear = (tops.find(([x, y]) => x > xR && y > roofTop - 0.25) || [null])[0];
     let roofFront = -Infinity; tops.forEach(([x, y]) => { if (y > roofTop - 0.08) roofFront = Math.max(roofFront, x); });
     if (cabRear === null || roofFront - cabRear < 0.6) { model.morphNote = `Couldn't find the cab on this model — showing it as the ${plan.from}.`; return; }
-    const Lc = 0.5 * (roofFront - cabRear);
-    const c = Math.min(Math.max(plan.c, 0), 0.9 * Lc), s1 = plan.s1 - (plan.c - c);
-    const b0 = xR + R + 0.1, b1 = cabRear - 0.04, c0 = cabRear + 0.06, c1 = c0 + Lc;
+    const Lc = 0.5 * (roofFront - cabRear), Lr = roofFront - cabRear;
+    // A four-door cab becomes a shorter one by taking a slice OUT of it (the cut faces close up), not by squashing it — a
+    // squeezed rear door kept its handle, window and seams, just narrower, and read as a shrunken Double Cab.
+    //   Access Cab: a slice out of the middle of the rear door — a short rear-hinged "suicide" door is left, and its handle is
+    //   moved from the back edge up to the front edge, right behind the front door's (rear-hinged doors open from the front).
+    //   Regular Cab: the whole rear door goes; the cab's back corner closes up right behind the front door.
+    const splice = plan.fromCab === 'double' && plan.c > 0.05 && (plan.toCab === 'access' || plan.toCab === 'regular') ? plan.toCab : null;
+    let c, s1, ka = 0, kb = 0, b0 = xR + R + 0.1, b1 = cabRear - 0.04;
+    if (splice) {
+      if (splice === 'regular') { ka = cabRear - 0.05; kb = cabRear + 0.53 * Lr; c = kb - ka; } // (rear door's back seam → its front seam at the B-pillar)
+      else { c = Math.min(plan.c, 0.4 * Lr); ka = cabRear + 0.07 * Lr; kb = ka + c; } // (just ahead of the back glass's top edge)
+      s1 = plan.s1 - (plan.c - c); // (the wheelbase stays the spec's; the bed takes up any difference)
+      b0 = xR + R + 0.13; b1 = Math.min(cabRear - 0.16, ka - 0.02); // bed stretch: the plain bedside between the rear arch's lip and the bed's front wall
+    } else { c = Math.min(Math.max(plan.c, 0), 0.9 * Lc); s1 = plan.s1 - (plan.c - c); }
+    const c0 = cabRear + 0.06, c1 = c0 + Lc;
     if (b1 - b0 < 0.08) { model.morphNote = `Rear wheel too close to the cab to re-proportion the bed — showing it as the ${plan.from}.`; return; }
-    const f = (x) => (x < b0 ? x : x < b1 ? x + (s1 * (x - b0)) / (b1 - b0) : x < c0 ? x + s1 : x < c1 ? x + s1 - (c * (x - c0)) / (c1 - c0) : x + s1 - c);
+    const f = splice
+      ? (x) => (x < b0 ? x : x < b1 ? x + (s1 * (x - b0)) / (b1 - b0) : x < ka ? x + s1 : x < kb ? ka + s1 : x + s1 - c)
+      : (x) => (x < b0 ? x : x < b1 ? x + (s1 * (x - b0)) / (b1 - b0) : x < c0 ? x + s1 : x < c1 ? x + s1 - (c * (x - c0)) / (c1 - c0) : x + s1 - c);
+    // the door handles (their own thin part along the belt): the rear door's handle is moved forward (Access) or dropped (Regular)
+    const bbH = (bb.max.z - bb.min.z) / 2, hx0 = cabRear - 0.06, hx1 = cabRear + 0.36, Bx = cabRear + 0.55 * Lr;
+    const handleOwner = (m, arr) => { if (!splice) return false; const hb = new THREE.Box3(), q = new THREE.Vector3(); for (let i = 0; i < arr.length; i += 3) hb.expandByPoint(q.set(arr[i], arr[i + 1], arr[i + 2]).applyMatrix4(m.matrixWorld));
+      const sz = hb.getSize(new THREE.Vector3()); return sz.y < 0.15 && sz.x < 2.2 && hb.min.y > 0.4 * roofTop && hb.max.y < 0.75 * roofTop && Math.max(Math.abs(hb.min.z), Math.abs(hb.max.z)) > 0.8 * bbH && hb.min.x - hp.x < hx1 && hb.max.x - hp.x > hx0; };
     // vertices: one pass per position attribute (meshes that share an attribute but sit elsewhere get their own copy first)
     model.holder.updateMatrixWorld(true);
     if (!model.morphOrig) {
@@ -6984,9 +7408,16 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const v = new THREE.Vector3(), inv = new THREE.Matrix4();
     model.morphOrig.forEach((arr, a) => {
       const m = a.userData.owner; inv.copy(m.matrixWorld).invert();
+      let hd = null; // (a handle part: where its rear-door handle goes)
+      if (handleOwner(m, arr)) { let hmax = -Infinity, ys = 0, n = 0; for (let i = 0; i < a.count; i++) { v.set(arr[3 * i], arr[3 * i + 1], arr[3 * i + 2]).applyMatrix4(m.matrixWorld); const x = v.x - hp.x; if (x > hx0 && x < hx1) { hmax = Math.max(hmax, x); ys += v.y; n++; } }
+        if (n) hd = { dx: Bx - 0.06 - hmax, y: ys / n }; }
       for (let i = 0; i < a.count; i++) {
         v.set(arr[3 * i], arr[3 * i + 1], arr[3 * i + 2]).applyMatrix4(m.matrixWorld);
-        v.x = hp.x + f(v.x - hp.x); v.applyMatrix4(inv); a.setXYZ(i, v.x, v.y, v.z);
+        const x = v.x - hp.x;
+        if (hd && x > hx0 && x < hx1) { // rear-door handle: up to the door's front edge (Access) / gone, folded to a point inside the body (Regular)
+          if (splice === 'access') v.x = hp.x + f(x + hd.dx); else v.set(hp.x + ka + s1, hd.y, 0);
+        } else v.x = hp.x + f(x);
+        v.applyMatrix4(inv); a.setXYZ(i, v.x, v.y, v.z);
       }
       a.needsUpdate = true;
     });
@@ -7063,7 +7494,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     if (bumpers) { model.holder.remove(bumpers.group); bumpers = null; }
     if (extras) { model.holder.remove(extras.group); extras = null; }
     if (bayParts) { if (bayParts.group.parent) bayParts.group.parent.remove(bayParts.group); bayParts = null; }
-    if (!fresh && model.zones) updateBedInfo();
+    if (!fresh && model.zones) { rebuildSkirts(); updateBedInfo(); }
     if (chassis) { model.holder.remove(chassis.frame); truck.remove(chassis.links); [chassis.frame, chassis.links].forEach((g) => g.traverse((o) => o.geometry && o.geometry.dispose())); }
     chassis = buildChassis(M, base.P, { fourWD: /4x4|4wd|awd/i.test(spec.drive || '') });
     chassis.frame.position.copy(restOff); model.holder.add(chassis.frame); truck.add(chassis.links);
@@ -7420,7 +7851,11 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
     const skip = new Set((model.zones.steer || [])), targets = model.probeTargets.filter((m) => !skip.has(m) && !(Array.isArray(m.material) ? m.material : [m.material]).some((mt) => model.glassMats.includes(mt)));
     const fwd = h.getWorldQuaternion(new THREE.Quaternion()), dirX = V(1, 0, 0).applyQuaternion(fwd);
     const ahead = (r, fb) => { raycaster.set(fromRest(r), dirX); raycaster.far = 1.2; const hit = raycaster.intersectObjects(targets, false).find((x) => isVisibleChain(x.object)); return hit ? toRest(hit.point).x : fb; };
-    const sunX = (bi.roofFront + bi.cabRear) / 2 + 0.18, rt = probe(fromRest(V(sunX, bi.roofTop + 1, 0)), V(0, -1, 0));
+    // moonroof: well forward, its front edge ~22 cm behind the windshield header like the factory one (not back over the rear
+    // seat), on shorter cabs never closer than 12 cm to the back of the roof. Its height stays where it always sat.
+    // (a Regular Cab's roof is too short for the panel: none there)
+    const sunX0 = (bi.roofFront + bi.cabRear) / 2 + 0.18, sunX1 = Math.min(bi.roofFront - 0.22 - SUN_HL, sunX0 + 0.14), sunX = sunX1 - SUN_HL > bi.cabRear + 0.1 ? sunX1 : null;
+    const rt = probe(fromRest(V(sunX0, bi.roofTop + 1, 0)), V(0, -1, 0));
     // the underside of the roof skin on a grid (the model has no headliner of its own — from inside you'd see the back of the
     // painted roof): the headliner and the starlight are laid just under it. NaN where there's no roof overhead.
     const lx0 = bi.cabRear + 0.03, lx1 = bi.roofFront - 0.03, nx = Math.max(4, Math.round((lx1 - lx0) / 0.05)), nz = 34, lz = 0.85;
@@ -7452,7 +7887,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       glass = { ys, yTop: yHi, front: ys.map((y) => band(fv, y)), rear: ys.map((y) => band(rv, y)) };
       if (glass.front.some((b) => !b) || glass.rear.some((b) => !b)) glass = null;
     }
-    bi.dash = { sc, clusterX: ahead(V(sc.x - 0.25, sc.y + 0.12, sc.z), sc.x + 0.2), stackX: ahead(V(sc.x - 0.3, sc.y - 0.02, 0), sc.x + 0.28), sunX, sunY: rt ? toRest(rt.point).y : bi.roofTop,
+    bi.dash = { sc, clusterX: ahead(V(sc.x - 0.25, sc.y + 0.12, sc.z), sc.x + 0.2), stackX: ahead(V(sc.x - 0.3, sc.y - 0.02, 0), sc.x + 0.28), sunX, cabRear: bi.cabRear, cowlFill: model.cowlFill || null, sunY: rt ? toRest(rt.point).y : bi.roofTop,
       liner: { x0: lx0, x1: lx1, nx, nz, lz, y: ly }, glass };
   }
   // sound system: where you're listening from (driver's seat / outside), how far the windows are down, and how far away you are
@@ -7570,6 +8005,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       armor:      [[P.front + 3.9, 1.15 + dy * 0.5, 4.8], [mid + L * 0.15, 0.68 + dy * 0.5, 0]],
       lights:     [[P.front + 4.6, P.roofTop + dy + 0.9, 4.2], [P.cowlX - 0.2, P.hoodY + dy + 0.1, 0]],
       cargo:      [[P.rear - 3.6, P.roofTop + dy + 1.9, 4.4], [mid - 0.7, 1.25 + dy, 0]],
+      interior:   [[P.cowlX - 0.9, P.roofTop + dy + 0.35, 3.2], [P.cowlX - 1.3, 1.05 + dy, -0.1]], // (in through the open passenger doors)
       factory:    [[mid + 1.2, 1.6 + dy * 0.5, 9.4 * kL], [mid, 0.8 + dy * 0.5, 0]],
     }[name];
     if (!defs) return null;
@@ -7984,7 +8420,13 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       }
       d.ax = THREE.MathUtils.clamp(sumX / m, -9, 7);
     } else { d.r *= Math.pow(0.5, dt); d.ax = 0; }
-    d.u = THREE.MathUtils.clamp(d.u, -10, 62);
+    // (not in the air: a truck yawing round mid-flight keeps its speed — and one that lands going backwards fast scrubs it
+    // off over a second or so instead of stopping dead at the reverse limit)
+    if (!d.air) { const uc = THREE.MathUtils.clamp(d.u, -10, 62); d.u = d.u < -10 ? d.u + (uc - d.u) * Math.min(1, dt * 1.5) : uc; }
+    if (d.air) { // airborne: momentum is in the world, not the body — a truck that yaws in the air keeps flying the same way
+      const wx = cy * d.u + sy * d.vz, wz = -sy * d.u + cy * d.vz, ny = d.yaw + d.r * dt, c2 = Math.cos(ny), s2 = Math.sin(ny);
+      d.u = c2 * wx - s2 * wz; d.vz = s2 * wx + c2 * wz;
+    }
     d.yaw += d.r * dt;
     d.x += (cy * d.u + sy * d.vz) * dt; d.z += (-sy * d.u + cy * d.vz) * dt;
     if (A.clamp(d)) { d.u *= -0.25; d.vz *= 0.3; d.r *= 0.4; handlers.current.onLand && handlers.current.onLand(6); }
@@ -8031,7 +8473,7 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
         const s8 = Math.atan2(H(rx, rz) - H(rx - 8 * sgn * cy, rz + 8 * sgn * sy), 8);
         // (off a real ramp it leaves with the ramp's own upward speed — the body, held back by its springs, was lagging it)
         const lipA = Math.min(Math.max(d.pitch * sgn, slopeR), Math.max(0, (d.rampA || 0) * sgn, s8) + 0.12); d.air = true; d.airT = 0; d.vy = Math.max(Math.min(d.vy, 1.2 + Math.abs(d.u) * 0.11, 5.5), Math.abs(d.u) * Math.sin(Math.max(0, lipA)) * 1.02); }
-      d.vy -= g * dt; d.vy *= Math.pow(0.97, dt); d.airT += dt;
+      d.vy -= AIR_G * dt; d.vy *= Math.pow(0.97, dt); d.airT += dt;
     }
     // (touching down on a down-slope, the body may follow it straight away — a smooth landing. Coming down short onto the
     // up-face of a landing (casing it) is a wall, not a ramp: it stops you dead instead of flicking you skyward)
@@ -8195,19 +8637,28 @@ for (int bi = 0; bi < 4; bi++) { if (bi >= uBoxN) break; if (all(greaterThan(vCu
       const hq = model.holder.getWorldQuaternion(new THREE.Quaternion());
       // your head is a weight on your neck, not bolted to the cab: it lags the body's heave (bumps, whoops, landings), nods
       // with hits and leans with cornering — so the cab stays steady in view and you see your head move inside it
-      const hb = d.head || (d.head = { y: 0, vy: 0, z: 0, vz: 0, p: 0, vp: 0, prevVy: null });
-      const acc = hb.prevVy === null || d.air ? 0 : THREE.MathUtils.clamp((d.vy - hb.prevVy) / Math.max(dt, 1e-3), -45, 45); hb.prevVy = d.vy;
-      const neck = (x, v, k, push) => v + (-k * x - 2 * 0.45 * Math.sqrt(k) * v + push) * dt; // (a soft, slightly bouncy spring)
-      hb.vy = neck(hb.y, hb.vy, 70, -acc * 0.3); hb.y = THREE.MathUtils.clamp(hb.y + hb.vy * dt, -0.07, 0.05);
-      hb.vz = neck(hb.z, hb.vz, 45, -(d.ayPrev || 0) * 0.35); hb.z = THREE.MathUtils.clamp(hb.z + hb.vz * dt, -0.07, 0.07);
-      hb.vp = neck(hb.p, hb.vp, 60, -acc * 0.03 + (d.pitchV || 0) * 1.2); hb.p = THREE.MathUtils.clamp(hb.p + hb.vp * dt, -0.07, 0.07);
+      // Your whole upper body rides on the seat cushion and your spine: every hit throws you up off the seat and slams you back
+      // down, whoops thrash you up and down and side to side, and off a jump your weight sinks into the seat as the truck
+      // pushes up the lip (face drops) and floats back up once you're flying — then compresses hard into the landing.
+      const hb = d.head || (d.head = { y: 0, vy: 0, z: 0, vz: 0, p: 0, vp: 0, x: 0, vx: 0, prevVy: null, prevPv: 0, prevRv: 0 });
+      const acc = hb.prevVy === null || d.air ? 0 : THREE.MathUtils.clamp((d.vy - hb.prevVy) / Math.max(dt, 1e-3), -60, 60); hb.prevVy = d.vy;
+      const pAcc = THREE.MathUtils.clamp(((d.pitchV || 0) - hb.prevPv) / Math.max(dt, 1e-3), -30, 30), rAcc = THREE.MathUtils.clamp(((d.rollV || 0) - hb.prevRv) / Math.max(dt, 1e-3), -30, 30);
+      hb.prevPv = d.pitchV || 0; hb.prevRv = d.rollV || 0;
+      const neck = (x, v, k, push, z = 0.32) => v + (-k * x - 2 * z * Math.sqrt(k) * v + push) * dt; // (soft and bouncy: you keep moving after the hit)
+      // (the seat sits behind the axle line's middle: pitching the nose up drops your seat, and the cab rocking side to side
+      // throws your head the other way)
+      hb.vy = neck(hb.y, hb.vy, 48, -acc * 0.62 + pAcc * 0.012); hb.y = THREE.MathUtils.clamp(hb.y + hb.vy * dt, -0.17, 0.13);
+      hb.vz = neck(hb.z, hb.vz, 38, -(d.ayPrev || 0) * 0.45 + rAcc * 0.05 + (d.chop || 0) * (Math.random() - 0.5) * 6); hb.z = THREE.MathUtils.clamp(hb.z + hb.vz * dt, -0.12, 0.12);
+      hb.vx = neck(hb.x, hb.vx, 40, -(d.ax || 0) * 0.05 + pAcc * 0.02); hb.x = THREE.MathUtils.clamp(hb.x + hb.vx * dt, -0.1, 0.1);
+      hb.vp = neck(hb.p, hb.vp, 42, -acc * 0.075 - pAcc * 0.03 + (d.pitchV || 0) * 0.8); hb.p = THREE.MathUtils.clamp(hb.p + hb.vp * dt, -0.22, 0.16);
       // (eye height: a seated adult's, a little above the old one. Looking round behind you, you lean forward and in toward the
       // middle, as you would — otherwise the eye sat inside the headrest)
       const yawL = THREE.MathUtils.clamp(camOrbit.yaw, -2.3, 2.3), lean = THREE.MathUtils.smoothstep(Math.abs(yawL), 0.9, 2.1);
-      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), inward = model.holder.worldToLocal(c.clone()).z < 0 ? 1 : -1, eye = c.add(V(-0.6 + 0.2 * lean, 0.41 + hb.y, hb.z + inward * 0.3 * lean).applyQuaternion(hq));
+      const c = sr.pivot.parent.localToWorld(sr.pivot.position.clone()), inward = model.holder.worldToLocal(c.clone()).z < 0 ? 1 : -1, eye = c.add(V(-0.6 + 0.2 * lean + hb.x, 0.41 + hb.y, hb.z + inward * 0.3 * lean).applyQuaternion(hq));
       camera.position.copy(eye);
       const pitchL = THREE.MathUtils.clamp(camOrbit.pitch, -0.9, 1.35) - 0.1 + hb.p; // (far enough up to look out through the moonroof)
-      camera.quaternion.copy(hq).multiply(new THREE.Quaternion().setFromAxisAngle(YAX, -Math.PI / 2 + yawL)).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitchL));
+      camera.quaternion.copy(hq).multiply(new THREE.Quaternion().setFromAxisAngle(YAX, -Math.PI / 2 + yawL)).multiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), pitchL))
+        .multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), -hb.z * 1.1)); // (your head tips as it's thrown sideways)
       controls.target.copy(V(0, 0, -2).applyQuaternion(camera.quaternion).add(camera.position));
       if (camera.near !== 0.04) { camera.near = 0.04; }
       if (d.baseFov === undefined) d.baseFov = camera.fov;
@@ -10347,6 +10798,7 @@ const CATEGORIES = [
   { id: 'wheels',     label: 'Wheels & Tires',      short: 'Wheels',     icon: 'CircleDot',   view: 'wheels',     desc: 'Tire sizes with live wheel-well fitment math, Method / Raceline wheel designs and finishes.' },
   { id: 'suspension', label: 'Suspension',          short: 'Suspension', icon: 'ArrowUpDown', view: 'suspension', desc: 'Lift kits, shocks by body diameter, control arms and rear springs.' },
   { id: 'paint',      label: 'Paint / Wrap / Tint', short: 'Paint',      icon: 'Paintbrush',  view: 'paint',      desc: 'Factory colors, finishes, vinyl wraps, window tint and scanned-damage repair.' },
+  { id: 'interior',   label: 'Interior',            short: 'Interior',   icon: 'Armchair',    view: 'interior',   desc: 'Upholstery, interior color, dash trim, headliner, starlight, moonroof, sound system and subwoofers.' },
   { id: 'armor',      label: 'Bumpers & Armor',     short: 'Armor',      icon: 'Shield',      view: 'armor',      desc: 'Pre-runner & winch bumpers, skid plate, rear steel bumpers, flares and rock sliders.' },
   { id: 'fab',        label: 'Fab & Cutting',       short: 'Fab',        icon: 'Scissors',    view: 'armor',      desc: 'Trim the fenders, cut the bed corners, cab-mount chop — clearance for big tires.' },
   { id: 'cargo',      label: 'Bed & Roof',          short: 'Bed/Roof',   icon: 'Tent',        view: 'cargo',      desc: 'Bed cover, Softopper / Leer shells, bed racks, bed tents, roof racks and rooftop tents.' },
@@ -10427,11 +10879,12 @@ function App() {
 
   const goView = useCallback((v) => { setView(v); stageRef.current && stageRef.current.setView(v); }, []);
   const openCategory = useCallback((id) => {
-    if (id === null) { setCategory((cur) => { if (cur === 'engine') setHoodOpen(false); return null; }); setPreview(null); goView('full'); return; }
+    if (id === null) { setCategory((cur) => { if (cur === 'engine') setHoodOpen(false); if (cur === 'interior') setDoorsOpen(false); return null; }); setPreview(null); goView('full'); return; }
     const c = CATEGORIES.find((x) => x.id === id);
-    setCategory((cur) => { if (cur === 'engine' && id !== 'engine') setHoodOpen(false); return id; });
+    setCategory((cur) => { if (cur === 'engine' && id !== 'engine') setHoodOpen(false); if (cur === 'interior' && id !== 'interior') setDoorsOpen(false); return id; });
     setPreview(null); goView(c.view);
     if (id === 'engine') setHoodOpen(true);
+    if (id === 'interior') setDoorsOpen(true); // (the doors swing open so you can see the cabin)
   }, [goView]);
   const back = useCallback(() => openCategory(null), [openCategory]);
   const applyPatch = useCallback((p) => { setApplied((a) => ({ ...a, ...p })); setPreview(null); }, []);
@@ -10924,12 +11377,21 @@ function App() {
                     style={{ background: s.finish === 'chrome' ? 'linear-gradient(145deg,#f4f6f8 20%,#8b9096 50%,#f4f6f8 80%)' : s.finish === 'matte' ? s.hex : `linear-gradient(145deg, ${s.hex} 35%, rgba(255,255,255,.45) 52%, ${s.hex} 70%)` }} />
                 ))}
               </div>
+              {(vehicle.colors || []).length > 0 && (<>
+                <div className="hud text-[10.5px] tracking-[0.2em] uppercase text-white/45 mt-2.5 mb-1">Factory colors</div>
+                <div className="grid grid-cols-9 gap-1">
+                  {vehicle.colors.map((c) => { const fin = c.metallic ? 'metallic' : 'gloss', on = cur && cur.hex === c.hex; return (
+                    <button key={c.code || c.name} title={`${c.name}${c.code ? ` (${c.code})` : ''}`} onMouseEnter={() => { UISound.hover(); setZone({ hex: c.hex, finish: fin }, true); }} onClick={() => { UISound.select(); setZone({ hex: c.hex, finish: fin }); }}
+                      className={`aspect-square rounded-full transition-transform hover:scale-110 ${on ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-black' : 'ring-1 ring-white/20'}`}
+                      style={{ background: c.metallic ? `radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), ${c.hex} 45%, ${c.hex})` : c.hex }} />); })}
+                </div>
+              </>)}
               <div className="flex items-center gap-2 mt-2.5">
                 <label className="flex items-center gap-2 text-[12px] text-white/70">Custom
                   <input type="color" value={cur ? cur.hex : applied.color} onChange={(e) => setZone({ hex: e.target.value, finish: cur ? cur.finish : 'gloss' })} className="w-8 h-6 bg-transparent border border-white/20 rounded" />
                 </label>
                 <div className="flex gap-1 ml-auto">
-                  {['gloss', 'satin', 'matte', 'chrome'].map((f) => (
+                  {['gloss', 'metallic', 'satin', 'matte', 'chrome'].map((f) => (
                     <button key={f} disabled={!cur} onClick={() => { UISound.select(); setZone({ hex: cur.hex, finish: f }); }}
                       className={`rounded px-2 py-0.5 text-[11px] font-bold border capitalize disabled:opacity-30 ${cur && cur.finish === f ? 'bg-amber-400 text-black border-amber-400' : 'border-white/15 text-white/70 hover:bg-white/10'}`}>{f}</button>
                   ))}
@@ -11011,9 +11473,21 @@ function App() {
           <div className="text-[11.5px] text-white/45 mt-2">Ceramic film — most states allow only a top strip or 70%+ on the windshield; 20% and 5% are show / off-road only.</div>
         </div>
       ) },
-      { kind: 'header', label: 'Interior · Upholstery' },
+      { kind: 'header', label: 'Custom Emblem / Decal' },
+      { kind: 'item', icon: 'ImagePlus', label: applied.decal ? 'Change / remove your decal' : 'Upload Custom Emblem / Decal', right: <Icon name="ChevronRight" size={18} />, desc: 'Your own PNG / JPEG on the grille or the tailgate (processed locally, never uploaded).', action: () => setDecalOpen(true) },
+      ...(damage.length ? [
+        { kind: 'header', label: 'Scanned Body Damage' },
+        { kind: 'item', icon: 'Hammer', label: `Repair ${damage.length} Damage Spot${damage.length > 1 ? 's' : ''}`, price: damageCost(damage), installed: applied.repairDamage, patch: { repairDamage: !applied.repairDamage },
+          desc: damage.map((d) => `${d.severity} ${d.type.toLowerCase()} — ${d.label} ($${d.cost})`).join(' · ') },
+      ] : []),
+    ];
+  } else if (category === 'interior') {
+    title = 'Interior';
+    defaultDesc = 'Seats, color, dash, headliner, starlight, moonroof and audio — the doors open so you can see in.';
+    items = [
+      { kind: 'header', label: 'Upholstery' },
       ...Object.entries(INTERIOR_TRIMS).map(([id, x]) => ({ kind: 'item', icon: 'Armchair', label: x.label, price: x.price, installed: (applied.intTrim || 'cloth') === id, patch: { intTrim: id }, desc: x.desc })),
-      { kind: 'header', label: 'Interior · Color' },
+      { kind: 'header', label: 'Color' },
       { kind: 'custom', render: () => (
         <div>
           <div className="grid grid-cols-4 gap-1.5" onMouseLeave={() => setPreview(null)}>
@@ -11031,11 +11505,9 @@ function App() {
           <div className="text-[11px] text-white/45 mt-2">Seats, door panels, console & dash trim. Black also darkens the rest of the cabin.</div>
         </div>
       ) },
-      { kind: 'header', label: 'Custom Emblem / Decal' },
-      { kind: 'item', icon: 'ImagePlus', label: applied.decal ? 'Change / remove your decal' : 'Upload Custom Emblem / Decal', right: <Icon name="ChevronRight" size={18} />, desc: 'Your own PNG / JPEG on the grille or the tailgate (processed locally, never uploaded).', action: () => setDecalOpen(true) },
-      { kind: 'header', label: 'Interior · Dash Trim' },
+      { kind: 'header', label: 'Dash Trim' },
       ...Object.entries(DASH_TRIMS).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: x.label, price: x.price, installed: (applied.dashTrim || 'match') === id, patch: { dashTrim: id }, desc: x.desc })),
-      { kind: 'header', label: 'Interior · Headliner' },
+      { kind: 'header', label: 'Headliner' },
       { kind: 'custom', render: () => (
         <div>
           <div className="grid grid-cols-4 gap-1.5" onMouseLeave={() => setPreview(null)}>
@@ -11053,20 +11525,15 @@ function App() {
           <div className="text-[11px] text-white/45 mt-2">The ceiling and all the interior pillar & roof-rail trim. "Match seats" follows your interior color (black with a starlight on factory cloth).</div>
         </div>
       ) },
-      { kind: 'header', label: 'Interior · Starlight Headliner' },
+      { kind: 'header', label: 'Starlight Headliner' },
       ...Object.entries(STARLIGHTS).map(([id, x]) => ({ kind: 'item', icon: 'Sparkles', label: x.label, price: x.price, installed: (applied.starlight || 'none') === id, patch: { starlight: id }, desc: x.desc })),
-      { kind: 'header', label: 'Interior · Moonroof' },
+      { kind: 'header', label: 'Moonroof' },
       ...Object.entries(SUNROOFS).filter(([, x]) => !x.hidden).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id || (id === 'closed' && applied.sunroof === 'open'), patch: { sunroof: id }, desc: x.desc })),
       ...((applied.sunroof || 'none') !== 'none' ? [{ kind: 'item', icon: !!applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: !!applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'Slides the glass back into the roof (also in the drive HUD → Windows).', action: () => applyPatch({ sunroof: 'closed', sunroofOpen: !!!applied.sunroofOpen }) }] : []),
-      { kind: 'header', label: 'Interior · Sound System (play music from the drive HUD → Audio)' },
+      { kind: 'header', label: 'Sound System (play music from the drive HUD → Audio)' },
       ...Object.entries(AUDIO_SYSTEMS).map(([id, x]) => ({ kind: 'item', icon: 'Speaker', label: x.label, price: x.price, installed: (applied.audio || 'factory') === id, patch: { audio: id }, desc: x.desc })),
-      { kind: 'header', label: 'Interior · Subwoofers' },
+      { kind: 'header', label: 'Subwoofers' },
       ...Object.entries(SUB_SETUPS).map(([id, x]) => ({ kind: 'item', icon: 'Disc3', label: x.label, price: x.price, installed: (applied.subs || 'none') === id, patch: { subs: id }, desc: x.desc })),
-      ...(damage.length ? [
-        { kind: 'header', label: 'Scanned Body Damage' },
-        { kind: 'item', icon: 'Hammer', label: `Repair ${damage.length} Damage Spot${damage.length > 1 ? 's' : ''}`, price: damageCost(damage), installed: applied.repairDamage, patch: { repairDamage: !applied.repairDamage },
-          desc: damage.map((d) => `${d.severity} ${d.type.toLowerCase()} — ${d.label} ($${d.cost})`).join(' · ') },
-      ] : []),
     ];
   } else if (category === 'wheels') {
     title = 'Wheels & Tires';
@@ -11262,7 +11729,27 @@ function App() {
         </div>
       ) },
       { kind: 'header', label: 'License Plate' },
-      ...Object.entries(PLATES).map(([id, p]) => ({ kind: 'item', icon: 'RectangleHorizontal', label: p.label, price: p.price, installed: (applied.plate || 'none') === id, patch: { plate: id }, desc: id === 'none' ? 'No plate.' : 'Mounted in the rear bumper\'s center notch (or on the face of a steel bumper).' })),
+      { kind: 'custom', render: () => { // state, then that state's plate styles (little previews of the real plate texture)
+        const st = PLATES[applied.plate || 'none'] || PLATES.none, cur = st.styles ? (st.styles[applied.plateStyle] ? applied.plateStyle : Object.keys(st.styles)[0]) : null;
+        const thumb = (s) => { const tx = plateTex(s, applied.plateText || 'DGC 4124'); return tx.userData.url || (tx.userData.url = tx.image.toDataURL('image/png')); };
+        return (
+          <div>
+            <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1">State</div>
+            <select value={applied.plate || 'none'} onChange={(e) => applyPatch({ plate: e.target.value, plateStyle: null })} className="w-full bg-black/60 border border-white/15 rounded px-2 py-1.5 text-[14px] text-white">
+              {Object.entries(PLATES).map(([id, p]) => <option key={id} value={id} className="bg-neutral-900">{p.label}</option>)}
+            </select>
+            {st.styles && (<>
+              <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mt-2.5 mb-1">Plate style</div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {Object.entries(st.styles).map(([sid, s]) => (
+                  <button key={sid} onClick={() => applyPatch({ plateStyle: sid })} className={`rounded p-1 border text-left ${cur === sid ? 'border-amber-400 bg-white/10' : 'border-white/10 hover:bg-white/5'}`}>
+                    <img src={thumb(s)} alt="" className="w-full rounded-sm" /><span className="hud text-[11px] text-white/80">{s.label}</span>
+                  </button>))}
+              </div>
+              <div className="text-[10.5px] text-white/40 mt-1">State-style designs inspired by the real plates (not exact replicas). Rear plate in the bumper's center notch, or on a steel bumper's face.</div>
+            </>)}
+          </div>);
+      } },
       ...((applied.plate || 'none') !== 'none' ? [{ kind: 'custom', render: () => (
         <div>
           <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1">Plate number</div>
@@ -11735,14 +12222,7 @@ function App() {
         <div className={`absolute z-40 bottom-24 left-1/2 -translate-x-1/2 glass-panel border rounded-full px-4 py-2 text-[13px] fade-up ${toast.error ? 'border-red-400/40 text-red-200' : 'border-emerald-400/40 text-emerald-200'}`}>{toast.error || toast.text}</div>
       )}
 
-      {!ready && !error && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#07080b]">
-          <div className="text-center">
-            <div className="hud italic font-bold text-[34px] text-white">DAYGO<span className="text-amber-400">CUSTOMS</span></div>
-            <div className="hud tracking-[0.3em] text-[13px] text-white/50 pulse mt-1">HEADING OUTSIDE</div>
-          </div>
-        </div>
-      )}
+      {!ready && !error && <LoadingScreen />}
       {error && (
         <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#07080b] p-6">
           <div className="max-w-md text-center">
@@ -11752,6 +12232,25 @@ function App() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// first-load screen: the wordmark, a sweeping bar and a rotating line of shop talk
+const LOAD_LINES = ['Customizing to your dream', 'Mixing your paint', 'Torquing the lug nuts', 'Bolting on the lift', 'Airing down the tires', 'Warming up the V8', 'Polishing the chrome', 'Dialing in the shocks'];
+function LoadingScreen() {
+  const [i, setI] = useState(0);
+  useEffect(() => { const t = setInterval(() => setI((n) => (n + 1) % LOAD_LINES.length), 1500); return () => clearInterval(t); }, []);
+  return (
+    <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#07080b] overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(900px 420px at 50% 115%, rgb(var(--a500) / .22), transparent 65%), linear-gradient(180deg, #05060a, #0a0f1d)' }} />
+      <div className="relative text-center px-4">
+        <div className="hud italic font-bold text-[40px] leading-none text-white">DAYGO<span className="text-amber-400">CUSTOMS</span></div>
+        <div className="relative mx-auto mt-5 h-[3px] w-56 rounded-full bg-white/10 overflow-hidden">
+          <div className="absolute inset-y-0 w-1/3 rounded-full bg-amber-400 load-sweep" style={{ boxShadow: '0 0 14px rgb(var(--a400))' }} />
+        </div>
+        <div key={i} className="hud tracking-[0.3em] text-[13px] uppercase text-white/60 mt-4 fade-up">{LOAD_LINES[i]}…</div>
+      </div>
     </div>
   );
 }

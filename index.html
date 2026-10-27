@@ -374,6 +374,62 @@ const CATALOG = {
         { name: 'Fire Agate Pearl', hex: '#8a2a18', metallic: true }, { name: 'Deep Sea Mica', hex: '#1d2c45', metallic: true }, { name: 'Molten Pearl', hex: '#c0561e', metallic: true },
       ] },
     ],
+    // (the ES 350 / 300h: front-wheel drive; the 3D model is the hybrid, the V6 trim is the 350)
+    DS: [
+      { gen: '7th Gen', years: [2019, 2024], body: 'sedan', fs: 'ifs', dims: [113.0, 195.9, 72.4, 56.9], trims: [
+        ['DS 350 F Sport-style', '3.5L V6', 302, 267, '235/40R19', 5.9, 13, 16, 12, 3655, 'FWD'],
+        ['DS 300h Hybrid', '2.5L I4 Hybrid', 215, 163, '235/45R18', 5.9, 13, 16, 12, 3610, 'FWD'],
+      ], colors: [
+        { name: 'Eminent White Pearl', hex: '#eeeee8', metallic: true }, { name: 'Ultra White', hex: '#f4f4f2' }, { name: 'Atomic Silver', hex: '#b4b6b8', metallic: true },
+        { name: 'Silver Lining Metallic', hex: '#c4c7cb', metallic: true }, { name: 'Iridium', hex: '#8e9194', metallic: true }, { name: 'Nebula Gray Pearl', hex: '#5a5d61', metallic: true },
+        { name: 'Cloudburst Gray', hex: '#6f7478' }, { name: 'Caviar', hex: '#121315', metallic: true }, { name: 'Obsidian', hex: '#0c0d10' },
+        { name: 'Matador Red Mica', hex: '#7c1018', metallic: true }, { name: 'Ruby Flare Pearl', hex: '#8f1620', metallic: true }, { name: 'Nightfall Mica', hex: '#1b2438', metallic: true },
+        { name: 'Grecian Water', hex: '#6f8f97', metallic: true }, { name: 'Sunlit Green', hex: '#4e5a3f', metallic: true }, { name: 'Ultrasonic Blue Mica 2.0', hex: '#2a4fb0', metallic: true },
+      ] },
+    ],
+    // (the LS 500: a 3.5 twin-turbo V6 — the LS 460 before it had the V8; rear-drive)
+    LD: [
+      { gen: '5th Gen', years: [2018, 2024], body: 'sedan', fs: 'ifs', dims: [123.0, 206.1, 74.8, 57.1], trims: [
+        ['LD 500', '3.5L Twin-Turbo V6', 416, 442, '245/50R19', 5.3, 13, 16, 11, 4707, 'RWD'],
+        ['LD 500 F Sport-style', '3.5L Twin-Turbo V6', 416, 442, '245/45R20', 5.3, 13, 16, 11, 4795, 'RWD'],
+      ], colors: [
+        { name: 'Eminent White Pearl', hex: '#eeeee8', metallic: true }, { name: 'Atomic Silver', hex: '#b4b6b8', metallic: true }, { name: 'Sonic Titanium', hex: '#9a9a96', metallic: true },
+        { name: 'Manganese Luster', hex: '#5d5f63', metallic: true }, { name: 'Nebula Gray Pearl', hex: '#5a5d61', metallic: true }, { name: 'Caviar', hex: '#121315', metallic: true },
+        { name: 'Obsidian', hex: '#0c0d10' }, { name: 'Matador Red Mica', hex: '#7c1018', metallic: true }, { name: 'Nightfall Mica', hex: '#1b2438', metallic: true },
+        { name: 'Deep Blue Mica', hex: '#1f3a6e', metallic: true }, { name: 'Sonic Iridium', hex: '#7f8387', metallic: true }, { name: 'Sonic Chrome', hex: '#a9adb1', metallic: true },
+      ] },
+    ],
+  },
+  // made-up "DMW" (the coupes and the wagon modelled on the real cars)
+  DMW: {
+    '1D': [
+      { gen: 'D82', years: [2011, 2012], body: 'coupe', fs: 'ifs', dims: [104.7, 172.2, 70.0, 55.4], trims: [
+        ['1D Coupe', '3.0L Twin-Turbo I6', 335, 332, '245/35R19', 4.9, 12, 16, 11, 3296, 'RWD'],
+      ], colors: [ // (the real car came in just three)
+        { name: 'Valencia Orange Metallic', hex: '#d2581a', metallic: true }, { name: 'Alpine White', hex: '#f2f2ef' }, { name: 'Black Sapphire Metallic', hex: '#101215', metallic: true },
+      ] },
+    ],
+    D3: [
+      { gen: 'D92', years: [2008, 2013], body: 'coupe', fs: 'ifs', dims: [108.7, 181.8, 71.1, 55.6], trims: [
+        ['D3 Coupe', '4.0L V8', 414, 295, '245/40R18', 4.6, 13, 16, 11, 3704, 'RWD'],
+        ['D3 Coupe Competition', '4.0L V8', 414, 295, '245/35R19', 4.4, 13, 16, 11, 3704, 'RWD'],
+      ], colors: [
+        { name: 'Alpine White', hex: '#f2f2ef' }, { name: 'Mineral White Metallic', hex: '#e6e6e0', metallic: true }, { name: 'Jerez Black Metallic', hex: '#141619', metallic: true },
+        { name: 'Black Sapphire Metallic', hex: '#101215', metallic: true }, { name: 'Silver Grey Metallic', hex: '#a7abae', metallic: true }, { name: 'Space Grey Metallic', hex: '#5c6064', metallic: true },
+        { name: 'Interlagos Blue Metallic', hex: '#1f3f86', metallic: true }, { name: 'Le Mans Blue Metallic', hex: '#2b4a9a', metallic: true }, { name: 'Monte Carlo Blue Metallic', hex: '#1d4f7a', metallic: true },
+        { name: 'Melbourne Red Metallic', hex: '#8e1a1e', metallic: true }, { name: 'Dakar Yellow', hex: '#e9b81c' }, { name: 'Frozen Black (matte)', hex: '#1a1b1e' },
+      ] },
+    ],
+    'D3 Touring': [
+      { gen: 'D81', years: [2023, 2025], body: 'hatchback', fs: 'ifs', dims: [112.5, 189.1, 74.3, 57.6], trims: [
+        ['D3 Touring Competition xDrive', '3.0L Twin-Turbo I6', 503, 479, '275/35R19', 4.7, 13, 17, 11, 4045, 'AWD'],
+      ], colors: [
+        { name: 'Alpine White', hex: '#f2f2ef' }, { name: 'Black Sapphire Metallic', hex: '#101215', metallic: true }, { name: 'Brooklyn Grey Metallic', hex: '#8b8f92', metallic: true },
+        { name: 'Isle of Man Green Metallic', hex: '#1f5a46', metallic: true }, { name: 'Portimao Blue Metallic', hex: '#1d4fa6', metallic: true }, { name: 'Frozen Portimao Blue', hex: '#2e5aa0' },
+        { name: 'Sao Paulo Yellow', hex: '#e6c21e' }, { name: 'Toronto Red Metallic', hex: '#9c1b1f', metallic: true }, { name: 'Dravit Grey Metallic', hex: '#4f5154', metallic: true },
+        { name: 'Skyscraper Grey Metallic', hex: '#9fa3a7', metallic: true }, { name: 'Frozen Deep Grey', hex: '#3b3d40' },
+      ] },
+    ],
   },
   Toyota: {
     Tacoma: [
@@ -734,9 +790,9 @@ const CATALOG = {
   },
 };
 
-const BODY_LABEL = { pickup: 'Crew-cab pickup', suv: '4-door body-on-frame SUV', suv2: '2-door SUV', crossover: 'Crossover / unibody SUV', sedan: 'Sports sedan' };
-const OH_FRAC = { pickup: 0.40, suv: 0.46, suv2: 0.50, crossover: 0.50, sedan: 0.42 };
-const FRAME_OFF = { pickup: 5, suv: 4, suv2: 4, crossover: 1.5, sedan: 1 };
+const BODY_LABEL = { pickup: 'Crew-cab pickup', suv: '4-door body-on-frame SUV', suv2: '2-door SUV', crossover: 'Crossover / unibody SUV', sedan: 'Sedan', coupe: 'Coupe', wagon: 'Wagon', hatchback: 'Wagon / hatchback' };
+const OH_FRAC = { pickup: 0.40, suv: 0.46, suv2: 0.50, crossover: 0.50, sedan: 0.42, coupe: 0.44, wagon: 0.46, hatchback: 0.46 };
+const FRAME_OFF = { pickup: 5, suv: 4, suv2: 4, crossover: 1.5, sedan: 1, coupe: 1, wagon: 1, hatchback: 1 };
 const INCH = 0.0254;
 // gravity on an airborne truck (m/s²): a bit over 1 g — at true 9.81 the jumps read floaty at game scale and you sailed too far
 const AIR_G = 13.2;
@@ -801,13 +857,26 @@ const LINEUP = [
       { gen: '13th Gen Daptor', label: '13th Gen Daptor', years: '2017–2020', note: 'Crew Cab · desert runner / Pursuit' }, { gen: '14th Gen', label: '14th Gen Daptor', years: '2021–2024', note: 'Crew Cab · Daptor R' }] },
   { type: 'sedan', make: 'Dexus', model: 'ISD', blurb: '416 hp V8 sports sedan: superchargers, coilovers, camber, BBS / HRE / Volk wheels and more.',
     gens: [{ gen: '2nd Gen', label: '2nd Gen', years: '2008–2014', note: '5.0 V8 · 8-speed · RWD' }] },
+  { type: 'sedan', make: 'Dexus', model: 'DS', blurb: 'The quiet luxury cruiser: 3.5 V6 or hybrid, front-wheel drive. Wheels, bags, aero, lights, tint & exhaust.',
+    gens: [{ gen: '7th Gen', label: '7th Gen', years: '2019–2024', note: '3.5 V6 · 8-speed · FWD' }] },
+  { type: 'sedan', make: 'Dexus', model: 'LD', blurb: 'The flagship: 416 hp twin-turbo V6, 10-speed, rear-drive — turbo kits, tuning, bags and a moonroof.',
+    gens: [{ gen: '5th Gen', label: '5th Gen · LD 500', years: '2018–2024', note: '3.5 TT V6 · 10-speed · RWD' }] },
+  { type: 'coupe', make: 'DMW', model: '1D', blurb: 'The little monster: twin-turbo straight-six, six-speed manual, flared arches — turbos, tuning, coilovers.',
+    gens: [{ gen: 'D82', label: 'D82', years: '2011–2012', note: '3.0 TT I6 · 6-speed manual · RWD' }] },
+  { type: 'coupe', make: 'DMW', model: 'D3', blurb: 'The 8,400 rpm V8 coupe with the carbon roof — superchargers, tuning, everything.',
+    gens: [{ gen: 'D92', label: 'D92', years: '2008–2013', note: '4.0 V8 · 6-speed manual · RWD' }] },
+  { type: 'hatchback', make: 'DMW', model: 'D3 Touring', blurb: '503 hp xDrive super-wagon: a lift-up tailgate, AWD you can switch to 2WD, turbos and tuning.',
+    gens: [{ gen: 'D81', label: 'D81 Touring', years: '2023–2025', note: '3.0 TT I6 · 8-speed · xDrive AWD' }] },
 ];
 // the vehicle a lineup generation opens with (its first catalog trim, latest year)
 const lineupVehicle = (make, model, gen) => { const gens = CATALOG[make][model], gi = Math.max(0, gens.findIndex((g) => g.gen === gen)); return makeVehicle(make, model, gi, gens[gi].years[1], 0, make === 'Doyoda' ? { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' } : undefined); };
 const lineupOf = (v) => LINEUP.find((e) => v && e.make === v.make && e.model === v.model) || null;
 const isLocked = (v) => !!(lineupOf(v) && lineupOf(v).locked); // (drive-only for now: no customizing)
 // a car (sedan) rather than a truck: its own build, menus (no lift / armor / bed / fab) and driving (see the stage's DRIVELINES)
-const isCarV = (v) => !!v && v.body === 'sedan';
+const CAR_BODIES = ['sedan', 'coupe', 'wagon', 'hatchback'];
+const isCarV = (v) => !!v && CAR_BODIES.includes(v.body);
+const hatchOf = (v) => !!v && (v.body === 'wagon' || v.body === 'hatchback'); // (a lift-up tailgate instead of a trunk lid)
+const driveLayoutLabel = (v) => ({ FWD: 'FRONT-WHEEL DRIVE', AWD: 'ALL-WHEEL DRIVE' }[(v && v.drive) || 'RWD'] || 'REAR-WHEEL DRIVE');
 const CAR_CATS = ['factory', 'engine', 'wheels', 'suspension', 'aero', 'paint', 'interior', 'lights', 'character'];
 // The Dexus ISD's part map: its pieces are named (LOD_A_DOOR_LEFT_REAR_…, LOD_A_BOOT_…) and its parts share texture sheets,
 // so each piece is sorted by name rather than by the truck's position rules — clean edges, nothing half one part and half
@@ -816,6 +885,9 @@ const CAR_CATS = ['factory', 'engine', 'wheels', 'suspension', 'aero', 'paint', 
 function isdZone(name, mat, t) {
   const n = name.replace(/^LOD_A_/, ''), P = t.P;
   if (/^GLASS_mm_windows/.test(n)) return 'moonroof';
+  // each door's own glass by name (the general split at the B-pillar put half the rear pane in the front window: rolling
+  // them, the halves slid through each other)
+  if (/^GLASS_(LEFT|RIGHT)(_REAR)?_mm_windows_Vehicle/.test(n)) return (/_REAR/.test(n) ? 'winR' : 'winF') + (/LEFT/.test(n) ? 'D' : 'P');
   if (/^GLASS_/.test(n)) return mat === 'glass_surr' ? 'glassFrame' : undefined;
   if (/^HEADLIGHT_LENS/.test(n)) return 'headLens';
   if (/^TAILLIGHT_LENS/.test(n)) return 'tailLens';
@@ -837,7 +909,7 @@ function isdZone(name, mat, t) {
   if (/^FRONTBUMPER_mm_windows/.test(n)) return 'fogLens';
   if (/^FRONTBUMPER_mm_misc/.test(n)) return t.cy > P.hoodY - 0.45 ? (t.az < 0.42 ? 'grille' : null) : t.az > 0.5 ? 'fogs' : 'fbLower';
   if (/^REARBUMPER_mm_ext/.test(n)) return 'rearBumper';
-  if (/^REARBUMPER_mm_misc/.test(n)) return t.cy < P.rearBumperY + 0.05 ? 'diffuser' : null;
+  if (/^REARBUMPER_mm_misc/.test(n)) return t.cy < P.rearBumperY + 0.05 ? 'diffuser' : t.az > 0.35 ? 'rearReflector' : null; // (the red reflector strips under the rear lettering)
   if (/^REARBUMPER_/.test(n)) return null;
   if (/^BODY_mm_ext/.test(n)) {
     if (t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55) return 'roof';
@@ -863,6 +935,270 @@ function isdZone(name, mat, t) {
   if (/^INT_/.test(n)) return /^(White_Mat01|white_Mat03|Vehicle_Interior_mm_mat01)$/.test(mat) ? 'seats' : /mm_mat04$/.test(mat) ? 'carpet' : /mm_mat02$/.test(mat) ? null : 'dash';
   if (/^INTERIOR_mm_cab/.test(n)) return t.cx < (t.prof.cabRear - 0.12) ? 'trunkInner' : 'interiorRear';
   return null;
+}
+// what the truck rules call a bed, steps, guard or arch-trim band is plain body on a car
+const CAR_NO_ZONE = new Set(['bed', 'bedCut', 'bedCover', 'bumperCap', 'guard', 'guardMount', 'oemStrut', 'liner', 'steps', 'trimF1', 'trimF2', 'trimR1', 'trimR2', 'valance']);
+// The DMW 1D's part map. Its pieces are unnamed meshes under named groups (FRONT_BUMPER, REAR_BUMPER, MOTORHOOD, DOOR_L / R,
+// the cockpit, and lamp pieces like front_light_1), so each is sorted by its ancestry (t.path) and material. The trunk lid
+// is part of the body shell: its deck and its face between the lamps, by position.
+function dmw1Zone(name, mat, t) {
+  const p = t.path, P = t.P, rx = t.cx - P.rear;
+  if (/\b(SUSP|DISC)_|Sospensione|\bIN_rear_Glass\b/.test(p)) return null;
+  if (/\bSTEER_HR\b/.test(p)) return 'steer';
+  if (/\b(COCKPIT_HR|DOOR_[LR]1)\b/.test(p)) { // the cabin: seat & door-card leather / suede take the interior colour
+    if (mat === 'LIVREA' || mat === 'INT_Stoffa') return null;
+    return /^INT_(Skin|Velluto|Velluto_RIG|Cuciture_skinned)$/.test(mat) && (/\bDOOR_[LR]1\b/.test(p) || t.cx < P.cowlX - 0.62) ? 'seats' : 'dash';
+  }
+  // lamps: the corona rings & eyebrow are the running lights, the projectors the beams
+  if (/\bfront_light_1\b/.test(p)) return 'drlGlow';
+  if (/\bfront_light_[23]\b/.test(p)) return 'headGlow';
+  if (/\bpolymsh_detached105\b/.test(p)) return 'headLens';
+  if (/\bpolymsh262\b/.test(p)) return 'headlights';
+  if (/\bbrake_light_2\b/.test(p)) return 'brake3';
+  if (/\bbrake_light_1\b/.test(p)) return 'brakeGlow';
+  if (/\brear_light_[12]\b/.test(p)) return 'tailLens';
+  if (/\bretro_light_1\b/.test(p)) return 'revGlow';
+  if (/\bpolymsh_detached112\b/.test(p)) return 'tailGlass';
+  if (/\bpolymsh263\b/.test(p)) return 'taillights';
+  if (/\bWIPER_[LR]\b/.test(p)) return 'cowl';
+  if (/\bMOTORHOOD\b/.test(p)) return mat === 'LIVREA' ? 'hood' : null;
+  if (/\bFRONT_BUMPER\b/.test(p)) return mat === 'LIVREA' ? 'frontBumper' : mat === 'PLASTICA_Nera_lucida' ? 'fbLower' : null;
+  if (/\bREAR_BUMPER\b/.test(p)) return mat === 'LIVREA' ? 'rearBumper' : mat === 'PLASTICA_Nera_lucida' ? 'diffuser' : null;
+  if (/\bDOOR_[LR]\b/.test(p)) {
+    if (mat === 'VETRI_Fanali') return t.cz > 0 ? 'winFP' : 'winFD';
+    if (mat === 'MIRROR') return 'mirrorGlass';
+    const c = t.comp;
+    if (mat === 'LIVREA') return c && c.sx < 0.2 && c.sz > 0.12 ? 'mirrors' : c && c.sx < 0.3 && c.sy < 0.06 && c.sz < 0.06 ? 'handles' : null;
+    if (mat === 'PLASTICA_Nera_lucida') return t.cx > 0.28 && t.az > P.halfW - 0.08 ? 'mirrorBase' : 'winTrim';
+    return null;
+  }
+  // the body shell
+  if (mat === 'VETRI_Fanali') return t.cx > 0 ? 'winWs' : t.az < 0.62 && t.cx < -1.15 ? 'winRear' : null; // (the coupe's quarter windows stay put)
+  if (mat === 'Chassis_METAL') return t.cx > 0 ? 'grille' : 'exhaust';
+  if (mat === 'PLASTICA_Nera_lucida') return t.cy > P.cowlY - 0.05 ? 'winTrim' : null;
+  if (mat === 'Chassis') {
+    if (t.cx > P.front - 0.25 && t.cy > P.hoodY - 0.35 && t.az < 0.33) return 'grille'; // (the kidney slats)
+    return t.cx > P.cowlX - 0.1 && t.cx < P.front - 0.3 && t.cy < P.hoodY - 0.03 && t.cy > P.wheelY0 - 0.05 && t.az < P.halfW - 0.2 ? 'engine' : null;
+  }
+  if (mat !== 'LIVREA') return null;
+  if (t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55) return 'roof';
+  // the trunk lid: its deck (behind the back glass, inside the shut lines) and its face down to the bumper, between the lamps
+  if ((rx < 0.64 && t.cy > 0.93 && t.cy < 1.08 && t.az < 0.62) || (rx < 0.3 && t.cy > 0.69 && t.az < (t.cy > 0.93 ? 0.62 : 0.56))) return 'trunk'; // (along the slices' shut lines)
+  if (t.cy < P.rockerY + 0.17 && t.az > P.halfW - 0.13 && t.cx < P.xF - P.R0 - 0.04 && t.cx > P.xR + P.R0 + 0.04) return 'sideSkirt';
+  return null;
+}
+// The DMW D3 (D92)'s part map: each body panel is its own node (BMWBoot6_Mesh_008_M_…, BMWHeadLightL6_…), its materials
+// shared across them (BMWM_CarPaint_Max1, BMWM_LightBucket_Max1 — the lamp atlas), so pieces sort by panel + material; the
+// angel-eye rings and projector lenses are separate shells in the headlamp glass, told apart by size.
+function d92Zone(name, mat, t) {
+  const p = t.path, P = t.P, part = (p.match(/\bBMW([A-Za-z_]+?)\d_Mesh/) || [])[1] || '', m = mat.replace(/^BMWM_/, '').replace(/_(Max|Low)1$/, ''), c = t.comp;
+  if (!part || /^(BumperChassis|FendersChassis|Wheel)/.test(part)) return null;
+  if (part === 'SteeringWheel') return 'steer';
+  if (part === 'Interior') return m === 'Interior' && t.cx < P.cowlX - 0.62 && t.cy < P.cowlY + 0.2 ? 'seats' : 'dash';
+  if (/^Door[LR]_Glass$/.test(part)) return /^Glass/.test(m) ? (t.cz > 0 ? 'winFP' : 'winFD') : 'winTrim';
+  if (/^Door[LR]$/.test(part)) return m === 'Interior' ? (t.cy < P.cowlY + 0.05 ? 'seats' : 'dash') : /PlasticSmooth|Nickel/.test(m) && t.cy > P.cowlY - 0.08 && t.az > P.halfW - 0.12 ? 'winTrim' : null;
+  if (part === 'Glass') return /^Glass/.test(m) ? (t.cx > 0 ? 'winWs' : null) : 'winTrim'; // (the coupe's back & quarter glass stay put)
+  if (/^HeadLight/.test(part)) {
+    if (/^LightGlass/.test(m)) return c && c.sx < 0.035 ? (c.sy > 0.09 ? 'drlGlow' : 'headGlow') : 'headLens'; // (rings ~10–12 cm, projector lenses ~6–7 cm)
+    return 'headlights';
+  }
+  if (/^TailLight/.test(part)) return m === 'LightGlass_Red' ? 'tailLens' : /^Glass/.test(m) ? 'revGlow' : m === 'Chassis' ? null : 'taillights';
+  if (part === 'Boot') {
+    if (m === 'CarPaint') return 'trunk';
+    if (m === 'LightGlass_Red') return 'tailLens';
+    if (m === 'LightBucket') return 'taillights';
+    if (/^Glass/.test(m)) return t.az > 0.3 ? 'revGlow' : null;
+    return null;
+  }
+  if (part === 'Spoiler') return 'trunk';
+  if (part === 'Hood') return m === 'CarPaint' ? 'hood' : null;
+  if (part === 'BumperF') return m === 'CarPaint' ? 'frontBumper' : m === 'Opaque_PlasticRoughBlack' ? 'fbLower' : null;
+  if (part === 'BumperR') return m === 'CarPaint' ? 'rearBumper' : m === 'Opaque_PlasticRoughBlack' ? 'diffuser' : null;
+  if (part === 'Exhausts') return /Nickel/.test(m) ? 'exhaust' : null;
+  if (part === 'Grille') return 'grille';
+  if (/^MirrorBase/.test(part)) return 'mirrorBase';
+  if (/^Mirror[LR]$/.test(part)) return m === 'CarPaint' ? 'mirrors' : m === 'GlassOpaque_Mirror' ? 'mirrorGlass' : 'mirrorBase';
+  if (part === 'Skirts') return m === 'CarPaint' ? 'sideSkirt' : null;
+  if (/^Fender/.test(part)) return /^Glass/.test(m) ? 'lampLens' : null; // (the gill's turn-signal strip: a lamp, never window-tinted)
+  if (m === 'carbon') return t.cy > P.roofTop - 0.2 ? 'roof' : null; // (the M3's carbon roof)
+  if (m === 'CarPaint') return t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55 ? 'roof' : null;
+  if (m === 'Engine' || m === 'Chassis') return t.cx > P.cowlX - 0.1 && t.cx < P.front - 0.3 && t.cy < P.hoodY - 0.03 && t.cy > 0.15 && t.az < P.halfW - 0.2 ? 'engine' : null;
+  if (/^Opaque_Plastic/.test(m)) return t.cx > P.cowlX - 0.2 && t.cx < P.cowlX + 0.2 && t.cy > P.hoodY - 0.12 && t.az < P.halfW - 0.12 ? 'cowl' : null;
+  return null;
+}
+// The DMW D3 Touring (D81) is merged by material (one paint mesh, one window mesh, one lamp atlas…) but each panel is its own
+// shell: these name the shells that open — four doors (with their glass, handles & door cards), the hood, and the tailgate
+// with its glass, spoiler, inner lamps and third brake light. Metres in the fitted body's frame.
+const d81Mat = (mat) => mat.replace(/^BMW_M3TouringRewardRecycled_2022/, '').replace(/_Material$/, '');
+function d81Parts(s, F) {
+  const m = d81Mat(s.mat), side = s.c.z > 0 ? 'r' : 'l', maxAz = Math.max(Math.abs(s.min.z), Math.abs(s.max.z));
+  if (/Wheel|Calliper/.test(s.mat) || (s.size.x < 0.12 && s.size.y > 0.4)) return null; // (wheels; the seat belts hanging on the B-pillars)
+  if (s.minAz > F.halfW - 0.42 && s.min.y > F.bottom + 0.1 && s.max.y < F.top - 0.05 && s.max.y > F.bottom + 0.4) { // (not the sill trims below the doors)
+    if (s.min.x > -0.46 && s.max.x < 0.84 && s.c.x > -0.34) return 'door_f' + side;
+    if (s.min.x > -1.38 && s.max.x < -0.22) return 'door_r' + side;
+  }
+  if (s.min.x > 0.7 && s.min.y > 0.68 && s.size.x > 0.9 && s.size.y < 0.4 && s.minAz === 0) return 'hood';
+  if (s.min.x < F.rear + 0.62 && s.max.x < F.rear + 0.75 && s.size.x < 0.6 && s.min.y > 0.56 && maxAz < 0.7) return 'trunk';
+  void m; return null;
+}
+function d81Zone(name, mat, t) {
+  const P = t.P, m = d81Mat(mat), c = t.comp, part = (name.match(/^(door_[fr][lr]|hood|trunk)_/) || [])[1] || '';
+  const front = t.cx > P.front - 0.65 && t.cy < P.hoodY - 0.08, rear = t.cx < P.rear + 0.5, cabin = t.cx < P.cowlX - 0.62 && t.cx > P.xR + 0.1 && t.cy < P.cowlY + 0.2 && t.cy > P.rockerY + 0.28 && t.az < P.halfW - 0.1; // (seats, not the carpet)
+  if (m === 'Window') {
+    if (c && c.sz > 0.12 && t.cy > P.cowlY && t.az > P.halfW + 0.03) return 'mirrorGlass'; // (on the doors' front corners)
+    if (/^door_f/.test(part)) return t.cz > 0 ? 'winFP' : 'winFD';
+    if (/^door_r/.test(part)) return c && c.b.max.x < -1.0 ? null : t.cz > 0 ? 'winRP' : 'winRD'; // (the fixed pane at the back of each rear door)
+    if (front) return 'headLens';
+    if (rear && t.cy < 1.0) return c && c.sx < 0.05 && c.sz < 0.1 && t.az < 0.3 ? 'lampLens' : 'tailGlass';
+    if (part === 'trunk' && t.cy > 1.25 && t.az < 0.25 && c && c.sy < 0.04) return 'tailGlass'; // (the third brake light's cover)
+    return c && c.b.min.x > 0 && t.cy > P.hoodY ? 'winWs' : null; // (the quarter & back glass stay put)
+  }
+  if (m === 'LightA') {
+    // (the two LED modules — their light guides drawn on them — are the running lights; the lenses inside them the beams)
+    if (front) return c && c.sx > 0.08 && c.sx < 0.15 && c.sy < 0.13 && c.sz < 0.16 ? 'drlGlow' : c && c.sx < 0.05 && c.sy < 0.04 && c.sz < 0.1 ? 'headGlow' : 'headlights';
+    if (rear) return t.cy > 1.25 ? 'brake3' : t.cy < 0.65 ? 'rearReflector' : 'taillights';
+    return null;
+  }
+  if (m === 'RED_GLASS') return t.cy < 0.65 ? 'rearReflector' : 'tailLens';
+  if (m === 'Paint') {
+    if (part === 'hood' || part === 'trunk') return part;
+    if (part) return c && c.sx < 0.3 && c.sy < 0.08 && c.sz < 0.08 ? 'handles' : null;
+    if (t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55) return 'roof';
+    if (t.cx > P.front - 0.5 && t.cy < P.hoodY - 0.12) return 'frontBumper';
+    if (t.cx < P.rear + 0.45 && t.cy < 0.64) return 'rearBumper';
+    if (c && c.sx < 0.32 && c.sy < 0.22 && c.sz < 0.32 && t.cx > P.cowlX - 0.45 && t.cx < P.cowlX + 0.15 && t.cy > P.cowlY - 0.12 && t.az > P.halfW - 0.08) return 'mirrors';
+    if (t.cy < P.rockerY + 0.2 && t.az > P.halfW - 0.13 && t.cx < P.xF - P.R0 - 0.04 && t.cx > P.xR + P.R0 + 0.04) return 'sideSkirt';
+    return null;
+  }
+  if (m === 'Carbon1') return t.cy > P.roofTop - 0.12 ? 'roof' : front ? 'fbLower' : rear ? 'diffuser' : t.cy < P.rockerY + 0.2 ? 'sideSkirt' : t.cx > P.cowlX - 0.45 && t.cx < P.cowlX + 0.15 && t.az > P.halfW - 0.1 ? 'mirrors' : null;
+  if (m === 'Base') return front ? 'fbLower' : rear && t.cy < 0.64 ? 'diffuser' : t.cy > P.cowlY - 0.05 && t.az > t.glassZ(t.cy) - 0.07 ? 'winTrim' : null;
+  if (/^Grille/.test(m)) return front ? 'grille' : null;
+  if (m === 'EngineA') return t.cx > P.cowlX - 0.1 && t.cx < P.front - 0.3 && t.cy < P.hoodY && t.az < P.halfW - 0.2 ? 'engine' : null;
+  if (m === 'Coloured') { // (the contrast-black parts: roof, mirror caps, the roof spoiler — and the seat belts)
+    if (part === 'trunk') return null;
+    if (t.cy > P.roofTop - 0.16 && Math.abs(t.n.y) > 0.45) return 'roof';
+    if (t.cy > P.cowlY - 0.12 && t.az > P.halfW - 0.02 && t.cx > P.cowlX - 0.6 && t.cx < P.cowlX + 0.2) return 'mirrors';
+    return null;
+  }
+  if (m === 'InteriorA') return cabin || /^door/.test(part) ? 'seats' : null;
+  return null;
+}
+// The Dexus DS (a low-poly model merged by material): the body skin is "Meshpart1Mtl", the bumpers & under-layer "Part1Mtl".
+// Its doors and trunk lid are separate shells of the skin; the hood isn't (cut from the skin by position, in the zones).
+function dsParts(s, F) {
+  const side = s.c.z > 0 ? 'r' : 'l', maxAz = Math.max(Math.abs(s.min.z), Math.abs(s.max.z));
+  if (/^(Seats1Mtl|1Mtl|Union\dMtl)$/.test(s.mat)) return null;
+  if (s.minAz > F.halfW - 0.4 && s.min.y > F.bottom + 0.1 && s.max.y < F.top - 0.05 && s.max.y > F.bottom + 0.4) {
+    if (s.min.x > -0.42 && s.max.x < 0.92 && s.c.x > -0.36) return 'door_f' + side;
+    if (s.min.x > -1.6 && s.max.x < -0.3) return 'door_r' + side;
+  }
+  // (the emblems' round mounts, front & back: part of the maker's badge)
+  if (/^(Meshpart1Mtl|Part1Mtl)$/.test(s.mat) && maxAz < 0.1 && s.size.y < 0.12 && (s.min.x > F.front - 0.06 || s.max.x < F.rear + 0.15)) return 'badge';
+  if (s.min.x < F.rear + 0.6 && s.max.x < F.rear + 0.62 && s.size.x < 0.6 && s.min.y > 0.66 && maxAz < 0.7) return 'trunk';
+  return null;
+}
+function dsZone(name, mat, t) {
+  const P = t.P, c = t.comp, part = (name.match(/^(door_[fr][lr]|hood|trunk)_/) || [])[1] || '';
+  const front = t.cx > P.front - 0.75 && t.cy < P.hoodY, rear = t.cx < P.rear + 0.6 && t.cy < 1.0;
+  switch (mat) {
+    case 'Meshpart1Mtl': case 'Part1Mtl':
+      if (part === 'trunk') return 'trunk';
+      if (part) return c && c.sx < 0.3 && c.sy < 0.08 && c.sz < 0.1 && !(t.az > P.halfW + 0.04) ? 'handles' : t.az > P.halfW + 0.04 && t.cy > P.cowlY - 0.1 ? 'mirrors' : null;
+      if (t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55) return 'roof';
+      if (mat === 'Meshpart1Mtl' && t.cx > P.cowlX + 0.02 && t.cx < P.front - 0.15 && t.cy > P.hoodY - 0.12 && t.n.y > 0.45 && t.az < P.halfW - 0.16) return 'hood';
+      // (the spindle grille's insert: its own shell of the bumper skin, inside the chrome frame)
+      if (c && c.b.min.x > P.front - 0.25 && c.b.min.y > 0.25 && c.b.max.y < 0.76 && c.sy > 0.3 && Math.max(Math.abs(c.b.min.z), Math.abs(c.b.max.z)) < 0.58) return 'grille';
+      if (t.cx > P.front - 0.6 && t.cy < P.hoodY - 0.12) return 'frontBumper';
+      if (t.cx < P.rear + 0.5 && t.cy < 0.68) return 'rearBumper';
+      if (t.cy < P.rockerY + 0.17 && t.az > P.halfW - 0.13 && t.cx < P.xF - P.R0 - 0.04 && t.cx > P.xR + P.R0 + 0.04) return 'sideSkirt';
+      return null;
+    case 'Window3Mtl': case 'GlassRl1Mtl': case 'Glass21Mtl': case 'Glass11Mtl':
+      if (/^door_f/.test(part)) return t.cz > 0 ? 'winFP' : 'winFD';
+      if (/^door_r/.test(part)) return t.cz > 0 ? 'winRP' : 'winRD';
+      if (rear && t.cy < 0.95) return 'tailGlass';
+      return t.cx > 0.2 ? 'winWs' : t.cx < -1.4 && t.az < 0.65 ? 'winRear' : null;
+    case 'Lightglass1Mtl': return 'headLens';
+    case 'Fb1Mtl': return 'headGlow';
+    case 'Leftin1Mtl': case 'YellowThing1Mtl': return 'headlights';
+    case 'R1Mtl': return 'lampLens';
+    case 'Mesh1Mtl': return 'mirrorGlass';
+    case 'Rb2Mtl': return t.cy < 0.62 ? 'rearReflector' : 'tailLens';
+    case 'Rb31Mtl': return 'tailLens';
+    case 'Rb1Mtl': return 'brakeGlow';
+    case 'Rb41Mtl': return 'tailGlass';
+    case 'Reflectors1Mtl': return 'taillights';
+    case 'ChromeRl1Mtl': return front ? (t.az < 0.6 ? 'grilleFrame' : 'headlights') : rear ? 'taillights' : t.cy > P.cowlY - 0.1 ? 'winTrim' : null; // (the spindle's chrome frame stays chrome)
+    case 'Seats1Mtl': case 'InteriorRl2Mtl': return 'seats';
+    case '1Mtl': return t.cx > P.cowlX - 0.2 ? null : 'dash';
+    case 'InteriorRl1Mtl': return front ? 'fbLower' : rear ? null : t.cy > P.cowlY - 0.06 && t.az > t.glassZ(t.cy) - 0.07 ? 'winTrim' : null;
+    default: return null;
+  }
+}
+// its cabin textures came in half see-through (the seats showed the road through them) and its skin flat-shaded
+function dsFix(obj) {
+  obj.traverse((o) => { if (!o.isMesh || !o.material || Array.isArray(o.material)) return; const mt = o.material;
+    if (/^Interior(Rl)?2Mtl$/.test(mt.name)) { mt.transparent = false; mt.opacity = 1; mt.metalness = 0; mt.roughness = 0.7; mt.needsUpdate = true; }
+    if (/^(Meshpart1Mtl|Part1Mtl)$/.test(mt.name)) smoothNormals(o.geometry, 38); });
+  return 'Made the cabin solid and smoothed the body panels.';
+}
+// The Dexus LD: each panel its own mesh (mat296_car_body_0…) but all flat placeholder colours, so its chrome, dark-chrome
+// grille, lamp internals, steering wheel and wood are given real finishes by name; doors & hood are separate shells, the trunk
+// lid is cut from the body skin by position (its deck behind the back glass and its face down to the crease under the plate).
+const LD_FINISH = { grille: [0x2f3135, 0.85, 0.26], reflex: [0xdfe3e8, 1, 0.12], material_38: [0xd6dadf, 1, 0.14], material: [0xc9ccd1, 0.9, 0.24], light: [0xe2e6ea, 1, 0.1],
+  red_light: [0x2b2c30, 0.8, 0.22], Material: [0xd8891c, 0, 0.3], 'Material.001': [0x4a2c1a, 0, 0.42], wheel: [0x1b1b1d, 0, 0.55] };
+function ldFix(obj) {
+  const done = new Set(); obj.traverse((o) => { if (!o.isMesh || !o.material || Array.isArray(o.material)) return; const mt = o.material, f = LD_FINISH[mt.name]; if (!f || done.has(mt)) return; done.add(mt);
+    mt.color.setHex(f[0]); mt.metalness = f[1]; mt.roughness = f[2]; mt.needsUpdate = true; });
+  return 'Gave the chrome, the dark-chrome grille, the lamp internals, the steering wheel and the wood their finishes.';
+}
+function ldParts(s, F) {
+  const side = s.c.z > 0 ? 'r' : 'l';
+  if (/^(sets(\.\d+)?|belt|tire|interior.*|Material\.00[2-9]|black\.00\d)$/.test(s.mat)) return null;
+  if (s.minAz > F.halfW - 0.42 && s.min.y > F.bottom + 0.1 && s.max.y < F.top - 0.05 && s.max.y > F.bottom + 0.4) {
+    if (s.min.x > -0.34 && s.max.x < 0.96 && s.c.x > -0.28) return 'door_f' + side;
+    if (s.min.x > -1.5 && s.max.x < -0.2) return 'door_r' + side;
+  }
+  if (s.mat === 'car_body' && s.min.x > 0.9 && s.min.y > 0.7 && s.size.x > 1.0 && s.minAz === 0) return 'hood';
+  if (s.mat === 'reflex' && s.c.x > F.front - 0.15 && Math.max(Math.abs(s.min.z), Math.abs(s.max.z)) < 0.3 && s.c.y < 0.65) return 'badge'; // (the front plate's chrome holder)
+  return null;
+}
+function ldZone(name, mat, t) {
+  const P = t.P, c = t.comp, part = (name.match(/^(door_[fr][lr]|hood|trunk)_/) || [])[1] || '';
+  const front = t.cx > P.front - 0.6 && t.cy < P.hoodY, rear = t.cx < P.rear + 0.6 && t.cy < 1.05;
+  switch (mat) {
+    case 'car_body':
+      if (part === 'hood') return 'hood';
+      if (part) return t.az > P.halfW + 0.03 && t.cy > P.cowlY - 0.1 ? 'mirrors' : c && c.sx < 0.35 && c.sy < 0.08 && c.sz < 0.1 ? 'handles' : null;
+      if (t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55) return 'roof';
+      if ((t.cx < -2.42 && t.cy > 0.93 && t.az < 0.66) || (t.cx < P.rear + 0.25 && t.cy > 0.635 && t.az < 0.6)) return 'trunk';
+      if (t.cx > P.front - 0.6 && t.cy < P.hoodY - 0.15) return 'frontBumper';
+      if (t.cx < P.rear + 0.5 && t.cy < 0.63) return 'rearBumper';
+      if (t.cy < P.rockerY + 0.2 && t.az > P.halfW - 0.13 && t.cx < P.xF - P.R0 - 0.04 && t.cx > P.xR + P.R0 + 0.04) return 'sideSkirt';
+      return null;
+    case 'window': case 'window.001': case 'glass.001':
+      if (/^door_f/.test(part)) return t.cz > 0 ? 'winFP' : 'winFD';
+      if (/^door_r/.test(part)) return t.cz > 0 ? 'winRP' : 'winRD';
+      return t.cx > 0 ? 'winWs' : null;
+    case 'glass': return 'headLens';
+    case 'grille': return front ? 'grille' : null;
+    case 'reflex': case 'Material': return front ? 'headlights' : rear ? 'taillights' : null;
+    case 'light': return front ? 'headGlow' : null;
+    case 'material_43': return 'drlGlow';
+    case 'material_37': return t.cy > 1.2 ? 'brake3' : t.cy < 0.6 ? 'rearReflector' : 'tailLens';
+    case 'red.002': return 'brakeGlow';
+    case 'red.001': return 'tailLens';
+    case 'red_light': return rear ? 'taillights' : null;
+    case 'sets': case 'sets.001': case 'sets.002': return 'seats';
+    case 'black': return front && t.cy < P.hoodY - 0.25 ? 'fbLower' : t.cy > P.cowlY - 0.05 && t.az > t.glassZ(t.cy) - 0.07 ? 'winTrim' : null;
+    default: return null;
+  }
+}
+// the 1D's rear-window defroster layer is a black sheet with copper lines (drawn additively in its own game): just the lines,
+// faint and dark, so you see through the back glass
+function dmw1Fix(obj) {
+  let n = 0; obj.traverse((o) => { if (!o.isMesh || !o.material || o.material.name !== 'VETRI_defrost_interno' || !o.material.map) return;
+    const mt = o.material; mt.alphaMap = mt.map; mt.map = null; mt.color.setHex(0x24170c); mt.transparent = true; mt.opacity = 0.7; mt.depthWrite = false; mt.needsUpdate = true; n++; });
+  return n ? 'Made the rear-window defroster lines see-through.' : null;
 }
 // stock 3D model per generation (url relative to the page). prof: see prepModel
 const STOCK_MODELS = {
@@ -913,6 +1249,35 @@ const STOCK_MODELS = {
     // own glass; the trunk lid (and everything on it) swings up on its hinges
     doorGroups: [/(^|_)DOOR_LEFT_(?!REAR)/, /(^|_)DOOR_LEFT_REAR/, /(^|_)DOOR_RIGHT_(?!REAR)/, /(^|_)DOOR_RIGHT_REAR/], doorGlass: /GLASS_(LEFT|RIGHT)/, trunk: /BOOT/,
     trackIn: 0.025 } }, // (its wheels were modelled flush with the fender lips)
+  'Dexus|DS|7th Gen': { url: 'models/dexus-ds.glb', ident: {}, prof: { car: true, detailed: true, paint: /^(Meshpart1Mtl|Part1Mtl)$/, glass: /^(Glass11Mtl|Glass21Mtl|GlassRl1Mtl|Window3Mtl)$/,
+    notGlass: /^(Lightglass1Mtl|Interior(Rl)?2Mtl|Rb[34]1Mtl)$/,
+    badges: /\| (Meshpart3Mtl|Nummernschild\dMtl|Part3Mtl)$/, // (the L emblems front & back, the "ES HYBRID" plates)
+    fix: dsFix, parts: dsParts, zoneOf: dsZone, genericSteer: true, doorGroups: [/^door_fl_/, /^door_rl_/, /^door_fr_/, /^door_rr_/], trunk: /^trunk_/, tailHousingGlow: true,
+    zoneDefaults: { grille: { hex: '#0b0b0d', finish: 'gloss' } } } }, // (the spindle insert: gloss black from the factory)
+  'Dexus|LD|5th Gen': { url: 'models/dexus-ld.glb', ident: {}, prof: { car: true, detailed: true, paint: /^car_body$/, glass: /^(window|window\.001|glass|glass\.001)$/, notGlass: /^(light|light\.001)$/,
+    badges: /\| (logo(\.\d+)?|plate)$/, // (the L emblems, the LS 500 letters, the plates)
+    fix: ldFix, parts: ldParts, zoneOf: ldZone, genericSteer: true, doorGroups: [/^door_fl_/, /^door_rl_/, /^door_fr_/, /^door_rr_/],
+    // (the trunk lid's shut lines, cut exactly: deck front & sides, face sides & the crease under the plate, the corner step)
+    slices: [{ mats: /^car_body$/, planes: [{ axis: 'x', at: -2.42, box: { y: [0.9, 1.25], az: [0, 0.72] } }, { axis: 'az', at: 0.66, box: { x: [-2.95, -2.38], y: [0.9, 1.25] } },
+      { axis: 'az', at: 0.6, box: { x: [-2.95, -2.5], y: [0.6, 0.95] } }, { axis: 'y', at: 0.635, box: { x: [-2.95, -2.5], az: [0, 0.62] } }, { axis: 'y', at: 0.93, box: { x: [-2.95, -2.38], az: [0.57, 0.7] } }] }],
+    defaults: { sunroof: 'closed' } } }, // (no moonroof in the model: it comes with the power one)
+  'DMW|1D|D82': { url: 'models/dmw-1d.glb', ident: {}, prof: { car: true, detailed: true, paint: /^LIVREA$/, glass: /^VETRI_Fanali$/,
+    // the roundels (hood, trunk, wheel hub), the M letters (trunk, fenders, wheel); the centre caps' roundels painted out
+    // (the engine photo's cover roundel & lettering painted out too)
+    badges: /\| LOGHI_normal_MAP$/, texFill: [{ mat: /^LOGHI_RIM$/, size: 512, rects: [[0, 0, 512, 256, '#16171a']] },
+      { mat: /^Chassis$/, size: 512, rects: [[110, 333, 128, 362, '#47474b'], [95, 343, 106, 420, '#2c2c30'], [193, 396, 204, 424, '#202024']] }],
+    hide: /\bCINTURE_ON\b/, // (the worn seatbelts: nobody's in the seats — the stowed ones stay)
+    zoneOf: dmw1Zone, fix: dmw1Fix, tailHousingGlow: true,
+    // (the trunk lid's shut lines, cut exactly: deck front & sides, face sides & bottom, the corner step between them)
+    slices: [{ mats: /^LIVREA$/, planes: [{ axis: 'x', at: -1.654, box: { y: [0.9, 1.1], az: [0, 0.66] } }, { axis: 'az', at: 0.62, box: { x: [-2.35, -1.6], y: [0.9, 1.1] } },
+      { axis: 'az', at: 0.56, box: { x: [-2.35, -1.95], y: [0.66, 0.95] } }, { axis: 'y', at: 0.69, box: { x: [-2.35, -1.95], az: [0, 0.58] } }, { axis: 'y', at: 0.93, box: { x: [-2.35, -1.95], az: [0.53, 0.65] } }] }] } },
+  'DMW|D3|D92': { url: 'models/dmw-d3-d92.glb', ident: {}, prof: { car: true, detailed: true, paint: /CarPaint_Max1$/, glass: /Glass_Window(Front|Surround)/,
+    // the roundels (hood, trunk, wheel hub), M3 letters & the fender gills' badges; the centre caps' roundels painted out
+    badges: /\| BMWM_Badge_Max1$/, texFill: [{ mat: /^BMWM_RimBadge_Max1$/, size: 512, rects: [[0, 0, 512, 512, '#2a2b2e']] }, { mat: /^BMWM_Engine_Max1$/, size: 1024, rects: [[650, 78, 678, 126, '#efe9b8']] }],
+    zoneOf: d92Zone, trunk: /^BMW(Boot|Spoiler)\d/, headliner: true, tailHousingGlow: true } },
+  'DMW|D3 Touring|D81': { url: 'models/dmw-d3-touring.glb', ident: {}, prof: { car: true, detailed: true, paint: /Paint_Material$/, glass: /Window_Material$/,
+    badges: /\| BMW_M3TouringRewardRecycled_2022(BadgeA|ManufacturerPlateA)_Material$/, // (roundels, M3 letters, the maker's "M3 TOURING" plates)
+    parts: d81Parts, zoneOf: d81Zone, genericSteer: true, doorGroups: [/^door_fl_/, /^door_rl_/, /^door_fr_/, /^door_rr_/], trunk: /^trunk_/, tailHousingGlow: true } },
 };
 const stockModelFor = (v) => STOCK_MODELS[vehicleKey(v)] || null;
 // what the header & menus call a vehicle
@@ -1569,8 +1934,33 @@ const SUNROOFS = {
 };
 // 2×2 twill carbon weave, tileable greyscale (8 tows across): tows running one way read bright, the other way dark, each with
 // its fibre lines and a soft rounded crown (see carbonMat in the stage)
-let carbonTexCache = null;
-function carbonTex() {
+// the carbon finishes you can pick anywhere carbon is offered (paint zones, the body kit, spoilers): texture, gloss and size
+const CARBON_KINDS = {
+  carbon:       { label: 'Gloss carbon', sub: '2×2 twill, clear coat', tex: 'twill', rough: 0.34, coat: 1, env: 1.3, scale: 22, swatch: 'repeating-linear-gradient(45deg,#2c2e33 0 4px,#121315 4px 8px)' },
+  carbonMatte:  { label: 'Matte carbon', sub: '2×2 twill, no clear coat', tex: 'twill', rough: 0.66, coat: 0, env: 0.7, scale: 22, swatch: 'repeating-linear-gradient(45deg,#2a2b2e 0 4px,#1a1b1d 4px 8px)' },
+  carbonWeave:  { label: 'Woven carbon', sub: '1×1 plain weave, clear coat', tex: 'weave', rough: 0.3, coat: 1, env: 1.3, scale: 16, swatch: 'conic-gradient(#33353a 0 25%,#111214 0 50%,#33353a 0 75%,#111214 0) 0 0/8px 8px' },
+  carbonForged: { label: 'Forged carbon', sub: 'chopped fibre, marbled', tex: 'forged', rough: 0.3, coat: 1, env: 1.25, scale: 3, swatch: 'radial-gradient(circle at 30% 35%,#55575c 0 18%,transparent 19%),radial-gradient(circle at 70% 60%,#3d3f43 0 22%,transparent 23%),#17181a' },
+};
+const isCarbon = (f) => !!CARBON_KINDS[f];
+// kinds: 'twill' (above), 'weave' (1×1 plain weave — a checkerboard of tows, the classic "woven" look) and 'forged' (chopped
+// fibre pressed in a mould: a marbled field of grey flakes at every angle)
+let carbonTexCache = null; const carbonTexKinds = {};
+function carbonTex(kind = 'twill') {
+  if (kind === 'forged') { if (carbonTexKinds.forged) return carbonTexKinds.forged;
+    const N = 512, cv = document.createElement('canvas'); cv.width = cv.height = N; const x = cv.getContext('2d'), r = mulberry32(777);
+    x.fillStyle = '#3a3b3e'; x.fillRect(0, 0, N, N);
+    for (let i = 0; i < 1400; i++) { const cx = r() * N, cy = r() * N, L = 10 + r() * 46, W = 4 + r() * 16, a = r() * Math.PI, v = 40 + Math.floor(r() * 170);
+      x.save(); x.translate(cx, cy); x.rotate(a); x.fillStyle = `rgb(${v},${v},${v + 3})`; x.beginPath(); x.moveTo(-L / 2, 0); x.lineTo(-L / 4, -W / 2); x.lineTo(L / 3, -W / 3); x.lineTo(L / 2, 0); x.lineTo(L / 5, W / 2); x.lineTo(-L / 3, W / 3); x.closePath(); x.fill();
+      x.globalAlpha = 0.25; x.fillStyle = '#000'; for (let k = -W / 2 + 2; k < W / 2; k += 3) x.fillRect(-L / 2, k, L, 0.8); x.globalAlpha = 1; x.restore(); }
+    const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.MirroredRepeatWrapping; t.anisotropy = 8; carbonTexKinds.forged = t; return t; } // (mirrored tiling: no seams)
+  if (kind === 'weave') { if (carbonTexKinds.weave) return carbonTexKinds.weave;
+    const N = 256, T = N / 8, cv = document.createElement('canvas'); cv.width = cv.height = N; const x = cv.getContext('2d');
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { const horiz = (i + j) % 2 === 0, x0 = i * T, y0 = j * T;
+      const g = horiz ? x.createLinearGradient(0, y0, 0, y0 + T) : x.createLinearGradient(x0, 0, x0 + T, 0), hi = horiz ? 215 : 95, lo = horiz ? 110 : 45;
+      g.addColorStop(0, `rgb(${lo},${lo},${lo})`); g.addColorStop(0.5, `rgb(${hi},${hi},${hi})`); g.addColorStop(1, `rgb(${lo},${lo},${lo})`); x.fillStyle = g; x.fillRect(x0, y0, T, T);
+      x.globalAlpha = 0.2; x.fillStyle = '#000'; for (let k = 2; k < T; k += 3) { if (horiz) x.fillRect(x0, y0 + k, T, 1); else x.fillRect(x0 + k, y0, 1, T); } x.globalAlpha = 1;
+      x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(x0, y0, T, 1); x.fillRect(x0, y0, 1, T); } // (the tows' edges where they pass under)
+    const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; carbonTexKinds.weave = t; return t; }
   if (carbonTexCache) return carbonTexCache;
   const N = 256, T = N / 8, cv = document.createElement('canvas'); cv.width = cv.height = N; const x = cv.getContext('2d'), r = mulberry32(4242);
   for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) {
@@ -1685,7 +2075,7 @@ const SUPERCHARGER_PULLEYS = {
   p1:    { label: 'Smaller pulley (+2 psi)', price: 280, spin: 1.1, k: 1.15, desc: 'Spins the blower ~10% faster: about 15% more of its gain, a higher whine.' },
   p2:    { label: 'Race pulley (+4 psi, E85 tune)', price: 460, spin: 1.2, k: 1.3, desc: 'About 30% more of the blower\'s gain on E85 — screaming whine, hot intake air.' },
 };
-const engineBoost = (b) => { const s = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, i = INTAKES[b.intake] || INTAKES.stock, pk = s.hp ? (SUPERCHARGER_PULLEYS[b.scPulley] || SUPERCHARGER_PULLEYS.stock).k : 1;
+const engineBoost = (b) => { const s = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, i = INTAKES[b.intake] || INTAKES.stock, pk = s.hp && !s.turbo ? (SUPERCHARGER_PULLEYS[b.scPulley] || SUPERCHARGER_PULLEYS.stock).k : 1;
   // (a car's ECU tune: Stage 2 needs the freer intake & exhaust — without them it's Stage 1)
   const e = b.car ? (b.ecu === 's2' && !((b.intake || 'stock') !== 'stock' && (b.exhaust || 'stock') !== 'stock') ? CAR_ECU.s1 : CAR_ECU[b.ecu] || CAR_ECU.stock) : { hp: 0, tq: 0 };
   return { hp: s.hp * pk + i.hp + e.hp, tq: s.tq * pk + i.hp * 0.8 + e.tq }; };
@@ -1698,6 +2088,13 @@ const engineBoost = (b) => { const s = SUPERCHARGERS[b.supercharger] || SUPERCHA
 Object.assign(SUPERCHARGERS, {
   rotrex: { car: true, brand: 'RR Racing-style', label: 'Rotrex centrifugal supercharger kit', price: 9900, hp: 205, tq: 130, whine: 'centri', desc: 'Traction-drive Rotrex blower with an air-to-air intercooler — around 600 hp from the 5.0 V8. Boost builds with rpm, and the whistle climbs with it toward redline.' },
   tvs:    { car: true, brand: 'Harrop-style', label: 'TVS1900 roots supercharger (intercooled)', price: 8600, hp: 150, tq: 160, whine: 'roots', desc: 'Eaton TVS1900 rotors in a custom manifold between the banks, water-to-air intercooled: a wall of torque everywhere and the classic blower whine.' },
+});
+// a turbocharged engine's upgrades (the DMW straight-sixes, the Dexus LD's twin-turbo V6): bigger turbos, not a blower.
+// whine 'turbo': the engine's spool whistle gets louder (see engineCfg), the blow-off "pssh" when you lift
+Object.assign(SUPERCHARGERS, {
+  hybrid: { car: true, turbo: true, brand: 'Pure-style', label: 'Upgraded hybrid turbos + downpipes', price: 3400, hp: 95, tq: 110, whine: 'turbo', desc: 'Bigger compressor wheels in the factory housings, high-flow downpipes and a tune: a big jump everywhere, a little more lag.' },
+  big:    { car: true, turbo: true, brand: 'Pure-style', label: 'Stage 2 big twin turbos + E85 + intercooler', price: 6200, hp: 170, tq: 190, whine: 'turbo', desc: 'Big twins, a race intercooler and E85 flex fuel: savage top end, louder spool and blow-off.' },
+  single: { car: true, turbo: true, label: 'Big single-turbo conversion', price: 9800, hp: 260, tq: 240, whine: 'turbo', desc: 'One big turbo on a custom manifold — huge power once it spools (~4,000 rpm), a turbine whistle you hear from outside.' },
 });
 Object.assign(INTAKES, {
   'car-cai': { car: true, label: 'Dual cold-air intake (open cone filters)', price: 480, hp: 9, roar: 0.6, desc: 'Two open cones pulling from the fender wells — the V8\'s induction howl gets loud under throttle.' },
@@ -1793,6 +2190,27 @@ const CAR_ECU = {
   s2:    { label: 'Stage 2 tune (with intake + exhaust)', price: 1650, hp: 40, tq: 28, needs: true, desc: 'Mapped around a freer intake and exhaust — fit both for the full gain (Stage 1 numbers without them).' },
 };
 const CAR_FINALS = [[2.937, 'Factory 2.94'], [3.27, '3.27'], [3.58, '3.58'], [3.91, '3.91']]; // (the rear ring & pinion: shorter = harder launch, lower top speed)
+// Each car's engine, gearbox and chassis, from the real car it's modelled on: ratios, final drive, redline, limiter (vmax, m/s).
+// power: the game's factor on the real horsepower (0.9 → real 0–60 times on the game's tires). cyl / turbo: the engine's
+// voice. tune: performance & tuning menus (the Dexus DS is a luxury cruiser — styling, wheels, stance & exhaust only).
+// induction: 'na' (supercharger kits) or 'turbo' (bigger turbos). frontW: weight on the front axle.
+const CAR_SPECS = {
+  'Dexus|ISD|2nd Gen': { gears: [4.596, 2.724, 1.863, 1.464, 1.231, 1.0, 0.824, 0.685], rev: 3.21, final: 2.937, redline: 6800, up: 6550, down: 3000, vmax: 76, shiftT: 0.07, power: 0.9, cyl: 8, tune: true, induction: 'na', frontW: 0.53, box: '8-speed automatic',
+    voice: 'a high-revving cross-plane V8 with a dual-stage intake: it howls when the second intake port opens at about 3,600 rpm and pulls to 6,800.', exhaust: 'Factory quad-stack exhaust', exhaustDesc: 'The factory system out to the four stacked tips — already raspy at the top end.' },
+  'Dexus|DS|7th Gen': { gears: [5.519, 3.184, 2.05, 1.492, 1.235, 1.0, 0.801, 0.673], rev: 4.221, final: 2.995, redline: 6600, up: 6200, down: 2500, vmax: 58, shiftT: 0.13, power: 0.78, cyl: 6, tune: false, induction: null, frontW: 0.61, box: '8-speed automatic',
+    voice: 'the smooth 3.5 V6 — near-silent at a cruise, a clean snarl when you wind it out to 6,600.', exhaust: 'Factory dual exhaust (hidden tips)', exhaustDesc: 'Quiet and refined, the tips tucked behind the bumper.' },
+  'Dexus|LD|5th Gen': { gears: [4.923, 3.153, 2.349, 1.879, 1.462, 1.193, 1.0, 0.792, 0.64, 0.598], rev: 4.18, final: 3.133, redline: 6000, up: 5800, down: 2300, vmax: 61, shiftT: 0.09, power: 0.85, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.53, box: '10-speed automatic',
+    voice: 'a 3.5 twin-turbo V6: 442 lb-ft from 1,600 rpm — hushed, then a deep, effortless surge (a twin-turbo V6, not a V8: the LS 500 never had one).', exhaust: 'Factory dual exhaust', exhaustDesc: 'Big and quiet — a flagship murmur.' },
+  'DMW|1D|D82': { gears: [4.055, 2.396, 1.582, 1.192, 1.0, 0.872], rev: 3.678, final: 3.15, redline: 7000, up: 6800, down: 3300, vmax: 69, shiftT: 0.11, power: 0.77, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.52, box: '6-speed manual',
+    voice: 'the twin-turbo straight-six: torque everywhere, a raspy six-cylinder bark to 7,000 and a whoosh from the turbos.', exhaust: 'Factory quad exhaust', exhaustDesc: 'Four tips, two each side — a raspy straight-six.' },
+  'DMW|D3|D92': { gears: [4.055, 2.396, 1.582, 1.192, 1.0, 0.872], rev: 3.678, final: 3.846, redline: 8400, up: 8250, down: 4200, vmax: 69, shiftT: 0.1, power: 0.82, cyl: 8, tune: true, induction: 'na', frontW: 0.52, box: '6-speed manual',
+    voice: 'the 4.0 V8 with eight individual throttle bodies — it screams all the way to 8,400 rpm.', exhaust: 'Factory quad exhaust', exhaustDesc: 'Four round tips — a race-car V8 howl up top.' },
+  'DMW|D3 Touring|D81': { gears: [5.0, 3.2, 2.143, 1.72, 1.313, 1.0, 0.823, 0.64], rev: 3.478, final: 3.154, redline: 7200, up: 7000, down: 3000, vmax: 78, shiftT: 0.07, power: 0.83, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.53, box: '8-speed M Steptronic', awd: true,
+    voice: 'the twin-turbo straight-six: 479 lb-ft and a hard-edged howl to 7,200 — xDrive puts it all down.', exhaust: 'Factory quad exhaust', exhaustDesc: 'Four tips with flaps — loud in Sport.' },
+};
+const carSpecOf = (v) => (v && CAR_SPECS[vehicleKey(v)]) || CAR_SPECS['Dexus|ISD|2nd Gen'];
+// the ring & pinion swaps on offer for a car: its own factory ratio, then shorter (quicker, lower top speed)
+const carFinalsOf = (v) => { const f = carSpecOf(v).final; return [[f, `Factory ${f.toFixed(2)}`], ...[1.11, 1.22, 1.33].map((k) => [+(f * k).toFixed(2), (f * k).toFixed(2)])]; };
 const CAR_WEIGHT = {
   stock:  { label: 'Factory weight', price: 0, lb: 0, desc: 'Full interior, steel hood and trunk.' },
   light:  { label: 'Lightweight battery + rear seat delete', price: 950, lb: 120, desc: 'About 120 lb out of the car: quicker everywhere, a little more tail-happy.' },
@@ -1921,7 +2339,8 @@ const CAR_SPOILERS = {
   gt:       { label: 'GT wing (pedestal mounts)', price: 1350, wing: 'pedestal', desc: 'A big carbon wing on two uprights off the trunk lid, with end plates.' },
   swan:     { label: 'Swan-neck GT wing', price: 1650, wing: 'swan', desc: 'The race-car way: the wing hangs from swan-neck mounts over its top, clean air underneath.' },
 };
-const KIT_FINISHES = { carbon: { label: 'Carbon fibre' }, black: { label: 'Gloss black' }, body: { label: 'Body colour' } };
+const KIT_FINISHES = { carbon: { label: 'Gloss carbon', short: 'Carbon' }, carbonMatte: { label: 'Matte carbon', short: 'Matte CF' }, carbonWeave: { label: 'Woven carbon', short: 'Woven CF' }, carbonForged: { label: 'Forged carbon', short: 'Forged' },
+  black: { label: 'Gloss black', short: 'Black' }, body: { label: 'Body colour', short: 'Body' } };
 // an air freshener on a string from the rear-view mirror — it swings with the car (like the antenna, gentler)
 const FRESHENERS = {
   none:  { label: 'No air freshener', price: 0 },
@@ -1951,6 +2370,7 @@ const CAR_HEADLIGHTS = {
   quad:  { brand: 'VLAND-style', label: 'Triple-LED projector headlights (black)', price: 980, quad: true, drl: true, desc: 'Gloss-black housings with three LED projector cubes in a row and a full-length light bar underneath.' },
   halo:  { label: 'Halo (angel-eye) projector retrofit', price: 560, halo: true, desc: 'Glowing rings around the projector and the high beam, in the factory housings.' },
   black: { label: 'Blacked-out factory housings', price: 450, desc: 'The chrome inside the housings painted gloss black — the factory projectors stay.' },
+  clear: { label: 'All-clear "clean" headlights', price: 520, clearHousing: true, desc: 'Water-clear lenses over bright chrome housings — the amber corners and dark trim inside go clear and silver too. Nothing but chrome and the projector.' },
   light: { label: 'Light smoke tint', price: 180, desc: 'Light smoke film over the lenses (~35% darker).' },
   dark:  { label: 'Dark smoke tint', price: 220, desc: 'Dark smoke film — check local lighting laws.' },
   amber: { label: 'Selective yellow film', price: 200, desc: 'Yellow film for a retro rally look.' },
@@ -1970,7 +2390,8 @@ const HEAD_COLORS = {
   ice:     { label: 'Ice blue · 8000K', light: 0xc9dbff, glow: 0xd2e1ff },
   yellow:  { label: 'Selective yellow · 3000K', light: 0xffd060, glow: 0xffd56a },
 };
-const DRL_COLORS = { white: { label: 'White', c: 0xf4f8ff }, amber: { label: 'Amber', c: 0xffa21a }, ice: { label: 'Ice blue', c: 0x9fc2ff } };
+const DRL_COLORS = { white: { label: 'White', c: 0xf4f8ff, sw: '#f4f8ff' }, amber: { label: 'Amber', c: 0xffa21a, sw: '#ffa21a' }, red: { label: 'Red', c: 0xff2a1e, sw: '#ff3a2e' },
+  green: { label: 'Green', c: 0x25ff6a, sw: '#38f07a' }, blue: { label: 'Blue', c: 0x2f6bff, sw: '#3d78ff' }, ice: { label: 'Ice blue', c: 0x9fc2ff, sw: '#9fc2ff' } };
 // Individually paintable parts (split from the model by part / position)
 const PAINT_ZONES = [
   { id: 'roof', label: 'Roof' }, { id: 'hood', label: 'Hood' }, { id: 'bed', label: 'Bed & tailgate' },
@@ -1986,7 +2407,8 @@ const ZONE_SWATCHES = [
   { hex: '#d9dcdf', name: 'Chrome', finish: 'chrome' }, { hex: '#3d4248', name: 'Gunmetal', finish: 'satin' }, { hex: '#b8bcc2', name: 'Silver', finish: 'gloss' },
   { hex: '#e8eaec', name: 'White', finish: 'gloss' }, { hex: '#b3151b', name: 'Red', finish: 'gloss' }, { hex: '#8a6a3a', name: 'Bronze', finish: 'satin' },
   { hex: '#4f5b3a', name: 'Army Green', finish: 'matte' }, { hex: '#1f4fa3', name: 'Blue', finish: 'gloss' }, { hex: '#e0661b', name: 'Orange', finish: 'gloss' },
-  { hex: '#1b1c1f', name: 'Carbon Fiber', finish: 'carbon' }, { hex: '#5a2e8a', name: 'Purple', finish: 'gloss' }, { hex: '#e8b10c', name: 'Yellow', finish: 'gloss' },
+  { hex: '#1b1c1f', name: 'Carbon Fiber (gloss)', finish: 'carbon' }, { hex: '#5a2e8a', name: 'Purple', finish: 'gloss' }, { hex: '#e8b10c', name: 'Yellow', finish: 'gloss' },
+  { hex: '#1b1c1f', name: 'Matte Carbon', finish: 'carbonMatte' }, { hex: '#1b1c1f', name: 'Woven Carbon', finish: 'carbonWeave' }, { hex: '#1b1c1f', name: 'Forged Carbon', finish: 'carbonForged' },
 ];
 const ENGINE_ACCENTS = {
   red:      { label: 'Factory engine finish',      price: 0,   swatch: '#55585e' },
@@ -2249,7 +2671,7 @@ function computeTelemetry(b, v, g) {
   const offroad = clamp(100 * (0.18 * n(minClr, 6, 16) + 0.14 * n(approach, 15, 50) + 0.10 * n(departure, 15, 45) +
     0.12 * n(breakover, 12, 32) + 0.14 * n(t.dia, 27, 40) + 0.08 * n(sidewall, 4, 10) + 0.12 * sh.off + 0.07 * armorS +
     0.05 * (v.fs === 'solid' ? 1 : 0.5) + (hasUca ? 0.02 : 0) + lca.travel * 0.025));
-  const baseComfort = { crossover: 90, suv: 84, suv2: 80, pickup: 80, sedan: 92 }[v.body] || 84;
+  const baseComfort = { crossover: 90, suv: 84, suv2: 80, pickup: 80, sedan: 92, coupe: 86, wagon: 90, hatchback: 90 }[v.body] || 84;
   const onroad = clamp(baseComfort - (cg - g.cg0) * 2.4 - Math.max(0, newAsm - stockAsm) * 0.14 - Math.max(0, t.dia - v.stockDia) * 1.6 -
     L * 1.8 - Math.max(0, gearLoss - 5) * 0.8 - Math.max(0, 1.15 - ssf) * 60 + sh.comfort + (sidewall - 6) * 0.6 + (b.rearSpring === 'pack' ? 2 : 0), 5, 100);
 
@@ -5613,6 +6035,49 @@ function splitMesh(mesh, pred, { discard = false, shareMaterial = false } = {}) 
   mesh.parent.add(cut);
   return { cut, n };
 }
+// Cut a mesh's triangles exactly along planes (world space), so a panel cut out of a body skin by position — a trunk lid —
+// gets clean straight shut lines instead of a sawtooth of whole triangles. planes: { axis: 'x' | 'y' | 'az' (|z|), at, box }
+// where box ({ x, y, az }: [min, max]) limits which triangles are cut (by their centre). Every attribute is interpolated.
+function sliceGeo(geo, mw, planes) {
+  const ix0 = geo.index; if (!ix0 || !planes.length) return geo;
+  const names = Object.keys(geo.attributes), get = ['getX', 'getY', 'getZ', 'getW'];
+  const A = {}; names.forEach((k) => { const a = geo.attributes[k], sz = a.itemSize, arr = []; for (let i = 0; i < a.count; i++) for (let c = 0; c < sz; c++) arr.push(a[get[c]](i)); A[k] = { sz, arr }; });
+  const mats = new Int16Array(ix0.count / 3); (geo.groups.length ? geo.groups : [{ start: 0, count: ix0.count, materialIndex: 0 }]).forEach((g) => { for (let t = g.start / 3; t < (g.start + g.count) / 3; t++) mats[t] = g.materialIndex; });
+  let tris = []; for (let t = 0; t < ix0.count / 3; t++) tris.push([ix0.getX(3 * t), ix0.getX(3 * t + 1), ix0.getX(3 * t + 2), mats[t]]);
+  const P = A.position.arr, v = new THREE.Vector3(), W = [];
+  const world = (i) => { if (!W[i]) W[i] = v.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]).applyMatrix4(mw).toArray(); return W[i]; };
+  const lerpV = (i, j, f) => { const n = P.length / 3; names.forEach((k) => { const { sz, arr } = A[k]; for (let c = 0; c < sz; c++) arr.push(arr[i * sz + c] + (arr[j * sz + c] - arr[i * sz + c]) * f); }); return n; };
+  planes.forEach((pl) => {
+    const val = (w) => (pl.axis === 'x' ? w[0] : pl.axis === 'y' ? w[1] : Math.abs(w[2])) - pl.at, b = pl.box || {}, inB = (c) => (!b.x || (c[0] >= b.x[0] && c[0] <= b.x[1])) && (!b.y || (c[1] >= b.y[0] && c[1] <= b.y[1])) && (!b.az || (Math.abs(c[2]) >= b.az[0] && Math.abs(c[2]) <= b.az[1]));
+    const out = [], cache = new Map();
+    const cut = (i, j) => { const key = i < j ? i + ',' + j : j + ',' + i; if (cache.has(key)) return cache.get(key); const si = val(world(i)), sj = val(world(j)); const n = lerpV(i, j, si / (si - sj)); cache.set(key, n); return n; };
+    tris.forEach((t) => {
+      const w = [world(t[0]), world(t[1]), world(t[2])], s = w.map(val);
+      const c = [(w[0][0] + w[1][0] + w[2][0]) / 3, (w[0][1] + w[1][1] + w[2][1]) / 3, (w[0][2] + w[1][2] + w[2][2]) / 3];
+      if (!inB(c) || (s[0] >= 0 && s[1] >= 0 && s[2] >= 0) || (s[0] <= 0 && s[1] <= 0 && s[2] <= 0)) { out.push(t); return; }
+      // the lone vertex (on its own side of the plane) and the two others, kept in winding order
+      const k = s.findIndex((x, q) => (x > 0) !== (s[(q + 1) % 3] > 0) && (x > 0) !== (s[(q + 2) % 3] > 0)); if (k < 0) { out.push(t); return; }
+      const a = t[k], b2 = t[(k + 1) % 3], c2 = t[(k + 2) % 3], p = cut(a, b2), q = cut(a, c2);
+      out.push([a, p, q, t[3]], [p, b2, c2, t[3]], [p, c2, q, t[3]]);
+    });
+    tris = out;
+  });
+  const ng = new THREE.BufferGeometry();
+  names.forEach((k) => ng.setAttribute(k, new THREE.Float32BufferAttribute(A[k].arr, A[k].sz)));
+  tris.sort((p, q) => p[3] - q[3]); const ix = []; tris.forEach((t) => ix.push(t[0], t[1], t[2])); ng.setIndex(ix);
+  if (geo.groups.length) { let s = 0; while (s < tris.length) { let e = s; while (e < tris.length && tris[e][3] === tris[s][3]) e++; ng.addGroup(s * 3, (e - s) * 3, tris[s][3]); s = e; } }
+  ng.computeBoundingBox(); ng.computeBoundingSphere(); return ng;
+}
+// an indexed geometry rebuilt with only the vertices its triangles use (a split piece otherwise keeps the whole mesh's buffer)
+function compactGeo(g) {
+  const ix = g.index; if (!ix) return g;
+  const map = new Map(), order = [], nIx = new Uint32Array(ix.count);
+  for (let i = 0; i < ix.count; i++) { const o = ix.getX(i); let j = map.get(o); if (j === undefined) { j = order.length; map.set(o, j); order.push(o); } nIx[i] = j; }
+  const ng = new THREE.BufferGeometry(), get = ['getX', 'getY', 'getZ', 'getW'];
+  Object.keys(g.attributes).forEach((k) => { const a = g.attributes[k], sz = a.itemSize, arr = new Float32Array(order.length * sz); for (let q = 0; q < order.length; q++) for (let c = 0; c < sz; c++) arr[q * sz + c] = a[get[c]](order[q]); ng.setAttribute(k, new THREE.BufferAttribute(arr, sz, false)); }); // (getX already denormalizes)
+  ng.setIndex(new THREE.BufferAttribute(nIx, 1)); g.groups.forEach((gr) => ng.addGroup(gr.start, gr.count, gr.materialIndex));
+  ng.computeBoundingBox(); ng.computeBoundingSphere(); return ng;
+}
 const srgbToLin = (v) => (v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
 // Read a texture's pixels into a small canvas (cached) for colour analysis / picking.
 function textureCanvas(tex, cache, size = 256) {
@@ -7709,7 +8174,7 @@ function buildCarEngineBay(M, P, b, bay) {
   const blackP = new THREE.MeshStandardMaterial({ color: 0x111214, roughness: 0.62, metalness: 0.1 }), polished = new THREE.MeshStandardMaterial({ color: 0xe4e7ea, roughness: 0.06, metalness: 1 });
   const blueSil = new THREE.MeshStandardMaterial({ color: 0x1f4fd0, roughness: 0.5, metalness: 0.05 }), alu = new THREE.MeshStandardMaterial({ color: 0xbfc3c8, roughness: 0.3, metalness: 0.9 });
   const crinkle = new THREE.MeshStandardMaterial({ color: 0x161719, roughness: 0.88, metalness: 0.15 }), castAlu = new THREE.MeshStandardMaterial({ color: 0x9da1a7, roughness: 0.5, metalness: 0.75 });
-  const SC = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, IN = b.intake || 'stock';
+  const SC0 = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, SC = SC0.turbo ? SUPERCHARGERS.none : SC0, IN = b.intake || 'stock'; // (turbo kits: nothing new on top of the engine)
   // the hood's underside, bilinear over the measured grid (x from the firewall forward, |z| out from the centre line)
   const HM = bay.hood, flat = (bay.skinY || bay.hoodY) - 0.06;
   const hoodAt = (x, z) => {
@@ -8680,6 +9145,9 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     const flashOff = sw.strobe && !on, glow = (zone, k) => (model.zones[zone] || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
       if (!mt || !mt.emissive || mt.metalness > 0.7 || (mt.userData && mt.userData.noGlow)) return; mt.emissive.setHex(hc); mt.emissiveIntensity = flashOff ? 0 : k * TOD.lightK; }));
     glow('headlights', sw.head === 'high' ? 1.6 : sw.head === 'low' ? 0.9 : 0); glow('fogs', sw.oemFog ? 1.1 : 0);
+    glow('headGlow', sw.head === 'high' ? 3 : sw.head === 'low' ? 2.2 : 0); // (a car's projectors & bulbs)
+    { const dc = (DRL_COLORS[build.drlColor] || DRL_COLORS.white).c, hOn = !flashOff && (sw.head === 'low' || sw.head === 'high'); // (factory running-light rings: always on, brighter with the beams)
+      (model.zones.drlGlow || []).forEach((m) => { const mt = m.material; if (mt && mt.userData && mt.userData.drlGlow) { mt.emissive.setHex(dc); mt.emissiveIntensity = (hOn ? 2.4 : 1.5) * TOD.lightK; } }); }
     if (carLamps) { const hOn = !flashOff && (sw.head === 'low' || sw.head === 'high'); carLamps.drl.forEach((mt) => { mt.emissiveIntensity = (hOn ? 2.4 : 1.4) * TOD.lightK; }); carLamps.beams.forEach((mt) => { mt.emissive.setHex(hc); mt.emissiveIntensity = hOn ? (sw.head === 'high' ? 3.4 : 2.4) * TOD.lightK : 0.05; }); }
     setRearLamps(rearState.brake, rearState.rev); // (tail running lights follow the headlights)
   }
@@ -8706,6 +9174,12 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     const h = model.holder;
     if (rearL.g.parent !== h) { h.add(rearL.g); } // (rides with the body: lift, pitch, roll)
     rearL.g.position.set(-h.position.x, -model.baseY, -h.position.z);
+    const Zc = model.zones, carLit = !!(model.prof && model.prof.car && (Zc.brakeGlow || Zc.tailLens || Zc.tailGlass));
+    if (!model.tailSpots && carLit) { // a car's lamps (one mesh may hold both sides): per side, from the lens's own triangles; the bulbs sit 6 cm in from its face
+      h.updateWorldMatrix(true, true); const off = V(h.position.x, model.baseY, h.position.z), bx = { 1: new THREE.Box3(), [-1]: new THREE.Box3() }, v = V(0, 0, 0), w = V(0, 0, 0);
+      (Zc.tailGlass || [...(Zc.brakeGlow || []), ...(Zc.tailLens || [])]).forEach((m) => { m.updateMatrixWorld(true); const p = m.geometry.attributes.position, ix = m.geometry.index, n = ix ? ix.count : p.count; for (let k = 0; k < n; k++) { w.fromBufferAttribute(p, ix ? ix.getX(k) : k).applyMatrix4(m.matrixWorld); v.copy(h.worldToLocal(w)).add(off); bx[v.z > 0 ? 1 : -1].expandByPoint(v); } });
+      model.tailSpots = [-1, 1].filter((s) => !bx[s].isEmpty()).map((s) => { const B = bx[s], zc = s * (Math.abs(B.min.z) + Math.abs(B.max.z)) / 2; return { x: B.min.x + 0.13, x0: B.min.x, cy: (B.min.y + B.max.y) / 2 - 0.04, y0: B.min.y - 0.02, z: zc }; });
+    }
     if (!model.tailSpots) { // each red lens (rest space): centre + bottom
       h.updateWorldMatrix(true, true); const off = V(h.position.x, model.baseY, h.position.z);
       model.tailSpots = (model.zones.taillights || []).filter((m) => { const mt = m.userData.baseMat || m.material; return !Array.isArray(mt) && mt.transparent; }).map((m) => {
@@ -8715,7 +9189,9 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     }
     model.tailSpots.forEach((t, i) => {
       const xi = Math.max(t.x - 0.07, t.x0 + 0.03); // a few cm inside the lens (a shallow lens: just ahead of its face, never out behind it)
-      rearL.bulbB[i].position.set(xi, t.cy + 0.04, t.z); rearL.red[i].position.set(xi - 0.02, t.cy + 0.04, t.z);
+      // (a car's red light sits just behind its lamp and reaches less far: lights don't cast shadows here, so from inside the
+      // lamp it lit the whole cabin red through the body)
+      rearL.bulbB[i].position.set(xi, t.cy + 0.04, t.z); rearL.red[i].position.set(carLit ? t.x0 - 0.2 : xi - 0.02, t.cy + 0.04, t.z); rearL.red[i].distance = carLit ? 2.4 : 4;
       rearL.bulbR[i].position.set(xi, t.y0 + 0.09, t.z); rearL.rev[i].position.set(xi + 0.02, t.y0 + 0.09, t.z); rearL.rev[i].target.position.set(xi - 6, t.y0 - 1.2, t.z * 1.3);
     });
   }
@@ -8725,8 +9201,9 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     const k = TOD.lightK, head = (build.head || 'off') !== 'off';
     rearL.rev.forEach((l) => { l.intensity = rev ? 7 * k : 0; });
     rearL.red.forEach((l) => { l.intensity = (brake ? 0.9 : head ? 0.25 : 0) * k; });
-    rearL.bulbB.forEach((b) => { b.material.emissiveIntensity = (brake ? 7 : head ? 2 : 0) * k; b.visible = brake || head; }); // (an unlit bulb is just a dark bead — where a lens is clear or shallow it showed)
-    rearL.bulbR.forEach((b) => { b.material.emissiveIntensity = rev ? 8 * k : 0; b.visible = rev; });
+    const ownLamps = !!(model && model.prof && model.prof.car && model.zones && (model.zones.brakeGlow || model.zones.tailLens)); // (a car's own lamp pieces glow: no bead bulbs)
+    rearL.bulbB.forEach((b) => { b.material.emissiveIntensity = (brake ? 7 : head ? 2 : 0) * k; b.visible = (brake || head) && !ownLamps; }); // (an unlit bulb is just a dark bead — where a lens is clear or shallow it showed)
+    rearL.bulbR.forEach((b) => { b.material.emissiveIntensity = rev ? 8 * k : 0; b.visible = rev && !ownLamps; });
     if (!model || !model.zones) return;
     (model.zones.taillights || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
       if (mt && mt.userData && mt.userData.revU) mt.userData.revU.value = rev ? k : 0; // (early 3-section lens: its clear band is the reverse lamp)
@@ -8736,7 +9213,8 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     // a car's own lamp pieces (its part map): the brake glow inside the tail lamps and the lenses — tail lights with the
     // headlights, bright on the brakes — and the third brake light, only on the brakes
     const glow = (zid, lvl) => (model.zones[zid] || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => { if (mt && 'emissiveIntensity' in mt) mt.emissiveIntensity = lvl; }));
-    glow('brakeGlow', (brake ? 1.9 : head ? 0.45 : 0) * k); glow('tailLens', (brake ? 1.1 : head ? 0.4 : 0) * k); glow('brake3', brake ? 2.4 * k : 0);
+    glow('brakeGlow', (brake ? 1.9 : head ? 0.45 : 0) * k); glow('tailLens', (brake ? 1.1 : head ? 0.4 : 0) * k); glow('brake3', brake ? 2.4 * k : 0); glow('revGlow', rev ? 2.2 * k : 0);
+    (model.zones.taillights || []).forEach((m) => { const mt = m.material; if (mt && mt.userData && mt.userData.housingGlow) mt.emissiveIntensity = (brake ? 1.6 : head ? 0.6 : 0) * k; });
     if (carLamps) carLamps.bars.forEach((mt) => { mt.emissiveIntensity = (brake ? 3.2 : head ? 1.3 : 0.2) * k; }); // (LED light-bar tail lamps)
   }
   function padLights() {
@@ -9318,9 +9796,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       for (let k = 0; k < ix.count; k += 3) { const r0 = find(rep[ix.getX(k)]); for (let j = 1; j < 3; j++) { const r = find(rep[ix.getX(k + j)]); if (r !== r0) par[r] = r0; } }
       const boxes = new Map(), v = V(0, 0, 0);
       for (let k = 0; k < ix.count; k++) { const r = find(rep[ix.getX(k)]); let bx = boxes.get(r); if (!bx) boxes.set(r, (bx = new THREE.Box3())); bx.expandByPoint(v.fromBufferAttribute(p, ix.getX(k)).applyMatrix4(me.matrixWorld)); }
-      const out = []; for (let k = 0; k < ix.count; k += 3) { const s = boxes.get(find(rep[ix.getX(k)])).getSize(V(0, 0, 0)); out.push({ sx: s.x, sy: s.y, sz: s.z }); }
+      const out = []; for (let k = 0; k < ix.count; k += 3) { const bx = boxes.get(find(rep[ix.getX(k)])), s = bx.getSize(V(0, 0, 0)); out.push({ sx: s.x, sy: s.y, sz: s.z, b: bx }); }
       return out;
     };
+    // (a car's part map also gets each piece's ancestry — the 1D's bumpers, hood & doors are named groups above unnamed meshes)
+    const lineageOf = (o) => { const t = []; for (let p = o; p && p !== model.obj; p = p.parent) if (p.name) t.push(p.name); return t.join(' '); };
+    const isCarModel = !!(model.prof && model.prof.car), prof0 = model.prof || {};
     const paintSet = new Set(model.paintMats), glassSet = new Set(model.glassMats);
     const isChrome = (mt) => !!mt && (mt.metalness > 0.7 || /chrome/i.test(mt.name || ''));
     const lumOf = (mt) => (mt && mt.color ? 0.2126 * mt.color.r + 0.7152 * mt.color.g + 0.0722 * mt.color.b : 1);
@@ -9406,7 +9887,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const normal = () => { e1.subVectors(b, a); e2.subVectors(c, a); return e1.cross(e2).normalize(); };
       // a model with its own part map (the Dexus: every piece named) says where each triangle goes — undefined falls through to
       // the truck rules below (e.g. the side glass split), null is plain body
-      if (ctx.own) { const z = ctx.own(ctx.name, mt.name || '', { cx, cy, cz, az, n: normal(), P, prof, isP, isG, comp: ctx.comp ? ctx.comp[ctx.t] : null }); if (z !== undefined) return z; }
+      // (a merged model's part map can't name its steering wheel: the measured wheel goes first — the cabin, the moonroof and
+      // the seat heights are all measured from it)
+      if (ctx.own && prof0.genericSteer && steerMat && !isP && !isG && wheelN && onWheel(V(cx, cy, cz)) && (mt === steerMat || V(cx, cy, cz).distanceTo(wheelC) < 0.1)) return 'steer';
+      if (ctx.own) { const z = ctx.own(ctx.name, mt.name || '', { cx, cy, cz, az, n: normal(), P, prof, isP, isG, comp: ctx.comp ? ctx.comp[ctx.t] : null, path: ctx.path, glassZ, bPillar }); if (z !== undefined) return z; }
       if (ctx.antenna) return 'antenna';
       if (ctx.cover && !isP && !isG) return 'bedCover';
       // bed cover: flat, non-body-color panel spanning the bed at rail height — right back to the tailgate (its rear lip used to stay
@@ -9510,12 +9994,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const mb = new THREE.Box3().setFromObject(me), msz = mb.getSize(V(0, 0, 0));
       const pb = pieceBox(me);
       const ctx = { cover: pb.min.x > P.rear + 0.15 && pb.max.x < cabRear + 0.08 && pb.min.y > railY - 0.25 && pb.max.y < railY + 0.2 && pb.max.z - pb.min.z > P.halfW, meshFront: mb.min.x > P.front - 0.5 && mb.max.x > P.front - 0.09 && mb.max.y < P.hoodY - 0.1, meshThin: msz.y < 0.15, antenna: msz.y > 0.35 && msz.x < 0.08 && msz.z < 0.08 && mb.min.y > P.cowlY - 0.3,
-        own: ownZones, name: me.name || '', comp: ownZones ? compSizes(me) : null, t: 0 };
+        own: ownZones, name: me.name || '', comp: ownZones ? compSizes(me) : null, path: ownZones ? lineageOf(me) : '', t: 0 };
       const I = (k) => (idx ? idx.getX(k) : k), zones = new Array(tri);
       let any = false;
       for (let t = 0; t < tri; t++) {
         a.fromBufferAttribute(pos, I(3 * t)).applyMatrix4(me.matrixWorld); b.fromBufferAttribute(pos, I(3 * t + 1)).applyMatrix4(me.matrixWorld); c.fromBufferAttribute(pos, I(3 * t + 2)).applyMatrix4(me.matrixWorld);
-        ctx.t = t; zones[t] = zoneOf(mats[matOf[t]] || mats[0], ctx); if (zones[t]) any = true;
+        ctx.t = t; zones[t] = zoneOf(mats[matOf[t]] || mats[0], ctx);
+        if (isCarModel && zones[t] && CAR_NO_ZONE.has(zones[t])) zones[t] = null; // (a car has no bed, steps or guard: what the truck rules call those is plain body)
+        if (zones[t]) any = true;
       }
       if (!ownZones) { // the rear headrests' backs reach past the roof's rear edge toward the back glass: in a material this mesh otherwise
         // wears inside the cab, they're interior too (they kept the factory fabric when the interior colour changed)
@@ -9815,22 +10301,24 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const key = `${bm.uuid}|${hex}|${finish}|${keepMap}`;
     if (zoneMatCache.has(key)) return zoneMatCache.get(key);
     const cut = keepMap ? { map: bm.map, transparent: bm.transparent, alphaTest: bm.alphaTest, opacity: bm.opacity, depthWrite: bm.depthWrite } : {};
-    if (finish === 'carbon') { const cm = carbonMat(hex, bm.side, cut); zoneMatCache.set(key, cm); return cm; }
+    if (isCarbon(finish)) { const cm = carbonMat(hex, bm.side, cut, finish); zoneMatCache.set(key, cm); return cm; }
     const f = { gloss: [0, 0.22, 1], satin: [0.2, 0.45, 0.25], matte: [0, 0.82, 0], chrome: [1, 0.05, 0], metallic: [0.5, 0.3, 1] }[finish] || [0, 0.3, 0.5];
     const m = ensureCut(new THREE.MeshPhysicalMaterial({ color: hex, metalness: f[0], roughness: f[1], clearcoat: f[2], clearcoatRoughness: 0.05, normalMap: bm.normalMap || null, side: bm.side, envMapIntensity: 1.1, ...cut }));
     zoneMatCache.set(key, m); return m;
   }
   // carbon fibre: a 2×2 twill weave projected from the part's own position (in metres, so it rides with the panel and is the
   // same size on every part — no UVs needed), under a deep clear coat. The tows catch the light differently each way.
-  function carbonMat(hex, side, extra) {
-    const tex = carbonTex(), m = new THREE.MeshPhysicalMaterial({ color: hex || '#1b1c1f', metalness: 0.3, roughness: 0.34, clearcoat: 1, clearcoatRoughness: 0.03, side: side ?? THREE.FrontSide, envMapIntensity: 1.3, ...(extra || {}) });
+  // (finishes: 'carbon' gloss twill, 'carbonMatte' the same weave with no clear coat, 'carbonWeave' 1×1 plain weave, 'carbonForged')
+  function carbonMat(hex, side, extra, finish = 'carbon') {
+    const C = CARBON_KINDS[finish] || CARBON_KINDS.carbon, tex = carbonTex(C.tex);
+    const m = new THREE.MeshPhysicalMaterial({ color: hex || '#1b1c1f', metalness: 0.3, roughness: C.rough, clearcoat: C.coat, clearcoatRoughness: 0.03, side: side ?? THREE.FrontSide, envMapIntensity: C.env, ...(extra || {}) });
     m.extensions = { derivatives: true };
     m.onBeforeCompile = function (sh) {
-      sh.uniforms.uCarb = { value: tex };
-      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D uCarb;')
+      sh.uniforms.uCarb = { value: tex }; sh.uniforms.uCarbS = { value: C.scale };
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D uCarb; uniform float uCarbS;')
         .replace('#include <map_fragment>', `#include <map_fragment>
           vec3 cN = abs(normalize(cross(dFdx(vCutP), dFdy(vCutP)))); cN = pow(cN, vec3(6.0)); cN /= (cN.x + cN.y + cN.z + 1e-5);
-          vec3 cq = vCutP * 22.0;
+          vec3 cq = vCutP * uCarbS;
           float cw = texture2D(uCarb, cq.yz).r * cN.x + texture2D(uCarb, cq.xz).r * cN.y + texture2D(uCarb, cq.xy).r * cN.z;
           diffuseColor.rgb *= 0.4 + 1.6 * cw;`)
         .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor + (0.55 - cw) * 0.4, 0.05, 1.0);');
@@ -10090,12 +10578,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const body = new THREE.Group(), lid = new THREE.Group(); h.add(body); h.add(lid);
     carKit = { groups: [body, lid] };
     const blackM = new THREE.MeshPhysicalMaterial({ color: 0x0c0d0f, roughness: 0.32, metalness: 0.15, clearcoat: 0.6 });
-    const finM = (which) => { const f = which || 'carbon'; if (f === 'carbon') return carbonMat('#1b1c1f'); if (f === 'body') { const tw = bodyPaintTwin(); if (tw) return tw; return new THREE.MeshPhysicalMaterial({ color: b.color, clearcoat: 1, roughness: 0.3 }); } return blackM; };
+    const finM = (which) => { const f = which || 'carbon'; if (isCarbon(f)) return carbonMat('#1b1c1f', undefined, undefined, f); if (f === 'body') { const tw = bodyPaintTwin(); if (tw) return tw; return new THREE.MeshPhysicalMaterial({ color: b.color, clearcoat: 1, roughness: 0.3 }); } return blackM; };
     const P = base.P;
     // --- front lip / splitter: along the bumper's bottom edge (the lowest height where a ray from the front still hits it)
     const fbl = [...(Z.frontBumper || []), ...(Z.fbLower || []), ...(Z.fogs || [])];
     if (LP.out && fbl.length) {
-      const fb = boxOf(Z.frontBumper || []), zw = Math.min(fb.max.z, -fb.min.z) - 0.03, mat = finM(LP.mat === 'carbon' ? (b.kitFinish || 'carbon') : LP.mat === 'black' && b.kitFinish === 'carbon' ? 'carbon' : LP.mat === 'black' ? 'black' : b.kitFinish);
+      const fb = boxOf(Z.frontBumper || []), zw = Math.min(fb.max.z, -fb.min.z) - 0.03, mat = finM(LP.mat === 'carbon' ? (b.kitFinish || 'carbon') : LP.mat === 'black' && isCarbon(b.kitFinish) ? b.kitFinish : LP.mat === 'black' ? 'black' : b.kitFinish);
       const edge = []; let yRef = null;
       for (let z = -zw; z <= zw + 1e-6; z += 0.04) {
         let hit = null; for (let y = fb.min.y - 0.02; y < fb.min.y + 0.3; y += 0.006) { const p = cast(fbl, [P.front + 1, y, z], [-1, 0, 0]); if (p && p.x > P.front - 0.45) { hit = p; break; } }
@@ -10125,7 +10613,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // --- rear diffuser (under the bumper, between the tips) / rear spats
     const rbl = [...(Z.rearBumper || []), ...(Z.diffuser || [])];
     if ((DF.fins || DF.spats) && rbl.length) {
-      const mat = finM(DF.mat === 'carbon' ? (b.kitFinish || 'carbon') : 'black'), df = boxOf(Z.diffuser && Z.diffuser.length ? Z.diffuser : Z.rearBumper), ex = boxOf(Z.exhaust || []);
+      const mat = finM(DF.mat === 'carbon' ? (b.kitFinish || 'carbon') : isCarbon(b.kitFinish) ? b.kitFinish : 'black'), df = boxOf(Z.diffuser && Z.diffuser.length ? Z.diffuser : Z.rearBumper), ex = boxOf(Z.exhaust || []);
       const yb = df.min.y - 0.006, xr = df.min.x - 0.035, xf = xr + 0.42, zw = ex.isEmpty() ? 0.42 : Math.max(0.3, ex.max.z - 0.17);
       if (DF.fins) {
         body.add(loftMesh([[[xr, yb + 0.03, -zw], [xf, yb - 0.01, -zw], [xf, yb - 0.018, -zw], [xr, yb + 0.022, -zw]], [[xr, yb + 0.03, zw], [xf, yb - 0.01, zw], [xf, yb - 0.018, zw], [xr, yb + 0.022, zw]]], mat)); // the panel, rising toward the back
@@ -10244,6 +10732,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       else if (kind === 'smoke') { const k = red ? 0.4 : 0.55; d[i] *= k; d[i + 1] *= k * 0.85; d[i + 2] *= k * 0.85; }
       else if (kind === 'dark') { d[i] *= 0.15; d[i + 1] *= 0.1; d[i + 2] *= 0.1; }
       else if (kind === 'blackHousing') { if (!red && !(r > g * 1.3 && g > bl * 1.3)) { const v = L * 0.2; d[i] = v; d[i + 1] = v; d[i + 2] = v * 1.06; } } // chrome bowls → gloss black (amber stays)
+      else if (kind === 'clearHousing') { const v = Math.min(255, 70 + L * 1.6); d[i] = v; d[i + 1] = v; d[i + 2] = Math.min(255, v * 1.03); } // every bit — amber corners, black trim — clear & chrome-silver
     }
     x.putImageData(id, 0, 0);
     const t = tex.clone(); t.source = new THREE.Source(cv); t.needsUpdate = true; atlasCache.set(key, t); return t;
@@ -10273,10 +10762,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
   // the ISD's cabin sheet: the door cards and the seats (rear bench, front seat backs) — not the dash, console or wheel
   const ISD_CAB_RECTS = [[0, 200 / 512, 430 / 512, 330 / 512], [175 / 512, 330 / 512, 1, 1]];
+  // an untextured seat / door insert in the interior colour (leather: a soft satin)
+  function plainSeat(bm, hex) {
+    const key = `${bm.uuid}|seat|${hex}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+    const sm = bm.clone(); if (sm.color) sm.color.set(hex).multiplyScalar(0.85); if ('roughness' in sm) sm.roughness = Math.max(0.5, sm.roughness); if ('metalness' in sm) sm.metalness = 0;
+    ensureCut(sm); sm.needsUpdate = true; zoneMatCache.set(key, sm); return sm;
+  }
   function carZones(b, Z, setMat) {
     const k = TOD.lightK, own = model.prof || {}; void own;
     // headlamps: the lens is water-clear (it was solid black glass), so the chrome projector housing in the photo shows through
-    const HO = b.headlights || 'oem', lensTint = { oem: [0xf6f9ff, 0.1], light: [0x2a2d31, 0.5], dark: [0x0b0c0e, 0.82], black: [0xf6f9ff, 0.1], amber: [0xffc21a, 0.4], drl: [0xf6f9ff, 0.1], quad: [0xf6f9ff, 0.1], halo: [0xf6f9ff, 0.1] }[HO] || [0xf6f9ff, 0.1];
+    const HO = b.headlights || 'oem', lensTint = { oem: [0xf6f9ff, 0.1], light: [0x2a2d31, 0.5], dark: [0x0b0c0e, 0.82], black: [0xf6f9ff, 0.1], amber: [0xffc21a, 0.4], drl: [0xf6f9ff, 0.1], quad: [0xf6f9ff, 0.1], halo: [0xf6f9ff, 0.1], clear: [0xffffff, 0.04] }[HO] || [0xf6f9ff, 0.1];
     (Z.headLens || []).forEach((m) => setMat(m, (bm) => {
       const key = `${bm.uuid}|hlens|${HO}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
       const lm = new THREE.MeshPhysicalMaterial({ color: lensTint[0], transparent: true, opacity: lensTint[1], roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.01, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 1.4 });
@@ -10284,27 +10779,52 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }));
     // (the housings get their own materials: the sheet they're drawn on also carries the grille, the tail lamps… — lighting the
     // headlamps lit those too. Only the lamp pictures with a glow map light up; the plain trim around them doesn't)
-    const blackHousing = HO === 'black' || HO === 'quad';
+    const housing = HO === 'black' || HO === 'quad' ? 'blackHousing' : (CAR_HEADLIGHTS[HO] || {}).clearHousing ? 'clearHousing' : null;
     (Z.headlights || []).forEach((m) => setMat(m, (bm) => {
-      const key = `${bm.uuid}|hhouse|${blackHousing}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
-      const hm = bm.clone(); if (blackHousing && bm.map) { hm.map = atlasVariant(bm.map, 'blackHousing'); if (hm.emissiveMap) hm.emissiveMap = atlasVariant(bm.emissiveMap, 'blackHousing'); }
+      const key = `${bm.uuid}|hhouse|${housing}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const hm = bm.clone(); if (housing && bm.map) { hm.map = atlasVariant(bm.map, housing); if (hm.emissiveMap) hm.emissiveMap = atlasVariant(bm.emissiveMap, housing); }
+      if (housing === 'clearHousing' && !bm.map && hm.color) { hm.color.lerp(new THREE.Color(0xd8dde2), 0.7); if ('metalness' in hm) { hm.metalness = 0.9; hm.roughness = 0.12; } } // (an untextured housing: bright chrome)
       hm.userData = { noGlow: !bm.emissiveMap };
       ensureCut(hm); hm.needsUpdate = true; zoneMatCache.set(key, hm); return hm;
     }));
     // taillights: the lamp photos re-tinted (clear "Euro", smoked, blacked-out; the LED-bar kits are smoked with light bars)
     const TO = b.taillights || 'oem', tv = TO === 'clear' ? 'clear' : TO === 'smoke' || TO === 'led' || TO === 'seq' ? 'smoke' : TO === 'dark' ? 'dark' : null;
-    ['taillights', 'tailLens', 'brakeGlow'].forEach((zid) => (Z[zid] || []).forEach((m) => setMat(m, (bm) => {
-      const key = `${bm.uuid}|tail|${zid}|${tv}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
-      if (!tv && zid !== 'brakeGlow') return bm;
-      const tm = bm.clone(); if (tv && tm.map) tm.map = atlasVariant(bm.map, tv); if (tv && tm.emissiveMap) tm.emissiveMap = atlasVariant(bm.emissiveMap, tv === 'dark' ? 'smoke' : tv);
-      if (zid === 'brakeGlow' && 'emissiveIntensity' in tm) tm.emissiveIntensity = 0; // (lit by the brakes / headlights — see setRearLamps)
+    // (own.tailHousingGlow: a model whose tail-lamp graphics — light guides, LED rows — are drawn on the housing behind a plain
+    // red or smoked lens: the housing's picture glows red, so the lamp's own pattern lights up)
+    ['taillights', 'tailLens', 'brakeGlow', 'brake3', 'revGlow'].forEach((zid) => (Z[zid] || []).forEach((m) => setMat(m, (bm) => {
+      const lit = zid !== 'taillights' || (!!own.tailHousingGlow && !!bm.map), key = `${bm.uuid}|tail|${zid}|${tv}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      if (!tv && !lit) return bm;
+      const tm = bm.clone(); if (tv && tm.map && zid !== 'revGlow') tm.map = atlasVariant(bm.map, tv); if (tv && tm.emissiveMap) tm.emissiveMap = atlasVariant(bm.emissiveMap, tv === 'dark' ? 'smoke' : tv);
+      // (a lamp piece with no glow map of its own glows through its picture: red, or white for reverse)
+      // (a deep red: brighter washes out to orange once the night boost & tone mapping get to it)
+      if (lit && tm.emissive && (!bm.emissiveMap || zid === 'brake3')) { tm.emissive.setHex(zid === 'revGlow' ? 0xb4b8c0 : bm.emissiveMap ? 0xff2010 : 0x8a0400); tm.emissiveMap = tm.emissiveMap || tm.map || null; }
+      if (lit && 'emissiveIntensity' in tm) tm.emissiveIntensity = 0; // (lit by the brakes / headlights / reverse — see setRearLamps)
+      if (lit && tm.transparent) tm.depthWrite = false; // (a lens never hides the clear cover just in front of it — they z-fought in a sawtooth)
+      if (lit && zid === 'taillights') tm.userData = { ...tm.userData, housingGlow: true };
       ensureCut(tm); tm.needsUpdate = true; zoneMatCache.set(key, tm); return tm;
     })));
-    // third brake light: its own material, dark until you brake (it was glowing all the time)
-    (Z.brake3 || []).forEach((m) => setMat(m, (bm) => {
-      const key = `${bm.uuid}|brake3`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
-      const tm = bm.clone(); if ('emissiveIntensity' in tm) tm.emissiveIntensity = 0; if (tm.emissive) tm.emissive.setHex(0xff2010);
-      ensureCut(tm); tm.needsUpdate = true; zoneMatCache.set(key, tm); return tm;
+    // small lamp lenses (side repeaters): their own glass, so the window tint never reaches them
+    // (both are water-clear glass of their own — the models share their dark window glass with them, which hid the lamps)
+    const clearLens = (tint, op) => new THREE.MeshPhysicalMaterial({ color: tint, transparent: true, opacity: op, roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.01, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 1.3 });
+    (Z.lampLens || []).forEach((m) => setMat(m, (bm) => { const key = `${bm.uuid}|lampLens`; if (zoneMatCache.has(key)) return zoneMatCache.get(key); const lm = clearLens(0xf4f6f8, 0.1); lm.userData = { noGlow: true }; ensureCut(lm); zoneMatCache.set(key, lm); return lm; }));
+    // the clear outer lens over the tail lamps: its own glass (window tint never reaches it), smoked with the lamps
+    (Z.tailGlass || []).forEach((m) => setMat(m, (bm) => {
+      const key = `${bm.uuid}|tglass|${TO}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const gm = tv === 'dark' ? clearLens(0x0b0c0e, 0.8) : tv === 'smoke' ? clearLens(0x1c1d20, 0.5) : clearLens(0xf6f7f8, 0.08); gm.userData = { noGlow: true };
+      ensureCut(gm); zoneMatCache.set(key, gm); return gm;
+    }));
+    // headlamp emitters (projectors, bulbs) and factory running-light rings: their own materials, lit in setLights
+    ['headGlow', 'drlGlow'].forEach((zid) => (Z[zid] || []).forEach((m) => setMat(m, (bm) => {
+      const key = `${bm.uuid}|${zid}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const gm = new THREE.MeshStandardMaterial({ color: bm.color ? bm.color.clone() : 0xffffff, map: bm.map || null, emissive: 0xffffff, emissiveMap: bm.emissiveMap || bm.map || null, emissiveIntensity: 0, roughness: 0.25, metalness: 0, transparent: !!bm.transparent, opacity: bm.opacity, side: bm.side });
+      gm.userData = { [zid]: true }; ensureCut(gm); zoneMatCache.set(key, gm); return gm;
+    })));
+    // the rear bumper's red reflector strips: factory, smoked or blacked out
+    const RR = b.rearReflectors || 'oem';
+    (Z.rearReflector || []).forEach((m) => setMat(m, (bm) => {
+      if (RR === 'oem') return bm; const key = `${bm.uuid}|refl|${RR}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const rm = bm.clone(); if (rm.map) rm.map = atlasVariant(bm.map, RR === 'black' ? 'dark' : 'smoke'); else if (rm.color) rm.color.multiplyScalar(RR === 'black' ? 0.12 : 0.45);
+      ensureCut(rm); rm.needsUpdate = true; zoneMatCache.set(key, rm); return rm;
     }));
     // the fog housings are drawn on the trim sheet (window chrome, arch lips, the grille surround): their own copy that never
     // glows, or switching the fogs on lit all of that trim white — the lens below carries the light
@@ -10324,15 +10844,15 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // the factory tips go when an aftermarket set is fitted (built with the body kit)
     (Z.exhaust || []).forEach((m) => { m.visible = carTipsOf(b) === 'stock'; });
     // the V8's plastic cover comes off for a supercharger (the blower & its plumbing sit where it was — buildCarEngineBay)
-    (Z.engineCover || []).forEach((m) => { m.visible = !(SUPERCHARGERS[b.supercharger] || {}).whine; });
+    (Z.engineCover || []).forEach((m) => { m.visible = !['roots', 'centri'].includes((SUPERCHARGERS[b.supercharger] || {}).whine); }); // (bigger turbos hide under it)
     // …and the factory airbox & duct for the Rotrex (its head unit sits there) or an aftermarket intake
     (Z.engineIntake || []).forEach((m) => { m.visible = (SUPERCHARGERS[b.supercharger] || {}).whine !== 'centri' && !/^car-/.test(b.intake || 'stock'); });
     // carbon hood / trunk from the weight package, unless that panel has a colour of its own
     if (b.carWeight === 'carbon') ['hood', 'trunk'].forEach((zid) => { if (!(b.zoneColors || {})[zid]) (Z[zid] || []).forEach((m) => setMat(m, (bm) => finishMat(bm, '#1b1c1f', 'carbon'))); });
     // the cabin: seats & door inserts, the rear bench & door cards (in their shared sheet) take the interior colour
     const IC = b.intColor || 'stock', hex = IC === 'stock' ? null : (INTERIOR_COLORS[IC] || {}).hex;
-    (Z.seats || []).forEach((m) => setMat(m, (bm) => (hex && bm.map ? recolorMat(bm, hex, null, 0.9) : bm)));
-    (Z.interiorRear || []).forEach((m) => setMat(m, (bm) => (hex && bm.map ? recolorMat(bm, hex, ISD_CAB_RECTS, 0.85) : bm)));
+    (Z.seats || []).forEach((m) => setMat(m, (bm) => (!hex ? bm : bm.map ? recolorMat(bm, hex, null, 0.9) : plainSeat(bm, hex))));
+    (Z.interiorRear || []).forEach((m) => setMat(m, (bm) => (hex && bm.map ? recolorMat(bm, hex, own.cabRects || ISD_CAB_RECTS, 0.85) : bm)));
   }
   // 2000–02 headlamps: the wrap-around corner lens (the outboard ~quarter of the lamp, round the fender's corner) is amber — the
   // 2003–06 trucks went to a clear corner. Tinted in the clear lens's own shader, by how far out it sits.
@@ -10379,6 +10899,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     build = b;
     const P = base.P; if (!P) return;
     TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
+    if (model && model.headlinerMat) model.headlinerMat.color.set(headlinerHex(b)).multiplyScalar(0.6);
     TRIM_LOW.value.set((INTERIOR_COLORS[b.intColor] || INTERIOR_COLORS.stock).hex); // (door skins & the cab's back wall below the sill: the interior colour…)
     { const IT = INTERIOR_TRIMS[b.intTrim] || INTERIOR_TRIMS.cloth, k = IT.tex || 'vinylGrain'; // (…in the interior's own fabric / leather)
       TRIM_TEX.value = interiorDetailTex(k); TRIM_TEXF.value = { weave: 11, grain: 3.6, perf: 3.2, nap: 5, vinylGrain: 4.5 }[k] || 4; TRIM_TEXK.value = 1; }
@@ -10979,7 +11500,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       model.stretch.scale.set(1, clamp((spec.hgt * INCH) / sz.y, 0.85, 1.15), clamp((spec.wid * INCH) / sz.z, 0.85, 1.15));
       placeModel(scale, P0);
     }
-    if (fresh) buildRigs(); // hinges are recorded on the un-morphed body
+    if (fresh) { sliceModel(); cutModelParts(); buildRigs(); } // hinges are recorded on the un-morphed body
     // 3) cab / bed configuration
     if (plan) applyMorph(plan);
     placeModel(scale, Pt);
@@ -10990,7 +11511,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     measureModel(Pt);
     { const tIn = (model.prof || {}).trackIn || 0; // (its own wheels move in with the track — see measureModel)
       if (tIn && model.wheelFit) new Set([...(model.wheelFit.meshes || []), ...(model.wheelPieces || [])]).forEach((pc) => { pc.updateMatrixWorld(true); const c = new THREE.Box3().setFromObject(pc).getCenter(V(0, 0, 0)), s = Math.sign(c.z) || 1, w0 = pc.getWorldPosition(V(0, 0, 0)), l0 = pc.parent.worldToLocal(w0.clone()), l1 = pc.parent.worldToLocal(w0.clone().add(V(0, 0, -s * tIn))); pc.position.add(l1.sub(l0)); }); }
-    if (fresh) { setupPaint(); setupZones(); tightBounds(model.parts.meshes); rigZoneHood(); rigSteer(); setupUnderbody(); summarize(); }
+    if (fresh) { setupPaint(); setupZones(); tightBounds(model.parts.meshes); rigZoneHood(); rigZoneTrunk(); addHeadliner(); rigSteer(); setupUnderbody(); summarize(); }
     if (model.underbody) { model.underbody.visible = true; placeUnderbody(); }
     applyRigAngles();
     const restOff = V(-model.holder.position.x, -model.holder.position.y, -model.holder.position.z);
@@ -11275,6 +11796,53 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     r.push({ lvl: 'ok', text: 'Frame, double-wishbone front & leaf-sprung solid rear axle, steel bumpers, armor and lighting fitted to the model\'s measured shape.' });
   }
 
+  // A merged model (one mesh per material — the Touring, the DS, the LD) whose panels are still separate shells: its profile's
+  // `parts` rule names the shells that are doors, the hood or the tailgate, and their triangles become meshes of their own
+  // (door_fl_…, hood_…, trunk_…) for the hinges below. s: a shell's world box, centre, size, smallest |z|, triangle count and
+  // material; F: the fitted body's frame (its ends, axle lines, half-width, roof & floor heights).
+  // a profile's shut-line cuts (prof.slices: { mats, planes } — see sliceGeo), made on the fitted body before its parts are sorted
+  function sliceModel() {
+    const sl = (model.prof || {}).slices; if (!sl) return;
+    model.obj.updateMatrixWorld(true);
+    model.parts.meshes.forEach((me) => { if (model.parts.wheelMeshes.includes(me) || me.isSkinnedMesh || !me.geometry.index) return; const mn = meshMats(me).map((m) => m.name || '');
+      sl.forEach((s) => { if (mn.some((n) => s.mats.test(n))) me.geometry = sliceGeo(me.geometry, me.matrixWorld, s.planes); }); });
+  }
+  function cutModelParts() {
+    const pr = model.prof || {}, parts = model.parts; if (!pr.parts) return;
+    const obj = model.obj; obj.updateMatrixWorld(true);
+    const bb = new THREE.Box3(); parts.meshes.forEach((me) => { if (!parts.wheelMeshes.includes(me)) bb.expandByObject(me); });
+    const w = model.wheelLocal ? wheelWorld() : [], ax = (k) => { const l = w.filter((p) => p.k[0] === k); return l.length ? l.reduce((a, p) => a + p.x, 0) / l.length : null; };
+    let n = 0; const v = V(0, 0, 0), yMid = (bb.min.y + bb.max.y) / 2;
+    // (the body's half-width below the mirrors — they stick out ~12 cm past it)
+    let hw = 0; parts.meshes.forEach((me) => { if (parts.wheelMeshes.includes(me)) return; const p = me.geometry.attributes.position; if (!p) return; me.updateMatrixWorld(true); const st = Math.max(1, Math.floor(p.count / 4000)); for (let i = 0; i < p.count; i += st) { v.fromBufferAttribute(p, i).applyMatrix4(me.matrixWorld); if (v.y < yMid) hw = Math.max(hw, Math.abs(v.z)); } });
+    const F = { front: bb.max.x, rear: bb.min.x, xF: ax('F') ?? bb.max.x - 0.9, xR: ax('B') ?? bb.min.x + 0.9, halfW: hw || Math.max(bb.max.z, -bb.min.z), top: bb.max.y, bottom: bb.min.y };
+    [...parts.meshes, ...(model.badges || [])].forEach((me) => { // (badges & plates too: the ones on the tailgate go up with it)
+      if (parts.wheelMeshes.includes(me) || me.isSkinnedMesh || !me.geometry.index) return;
+      const g = me.geometry, p = g.attributes.position, ix = g.index, tri = ix.count / 3, mats = Array.isArray(me.material) ? me.material : [me.material];
+      const matOf = new Int16Array(tri); (g.groups.length ? g.groups : [{ start: 0, count: ix.count, materialIndex: 0 }]).forEach((gr) => { for (let k = gr.start / 3; k < (gr.start + gr.count) / 3; k++) matOf[k] = gr.materialIndex; });
+      const km = new Map(), rep = new Int32Array(p.count), par = new Int32Array(p.count);
+      for (let i = 0; i < p.count; i++) { const k = `${Math.round(p.getX(i) * 1e4)},${Math.round(p.getY(i) * 1e4)},${Math.round(p.getZ(i) * 1e4)}`; if (!km.has(k)) km.set(k, i); rep[i] = km.get(k); par[i] = i; }
+      const find = (i) => { while (par[i] !== i) { par[i] = par[par[i]]; i = par[i]; } return i; };
+      for (let k = 0; k < ix.count; k += 3) { const r0 = find(rep[ix.getX(k)]); for (let j = 1; j < 3; j++) { const r = find(rep[ix.getX(k + j)]); if (r !== r0) par[r] = r0; } }
+      const sh = new Map(); me.updateMatrixWorld(true);
+      for (let t = 0; t < tri; t++) { const r = find(rep[ix.getX(3 * t)]); let s = sh.get(r); if (!s) sh.set(r, (s = { box: new THREE.Box3(), n: 0, mat: (mats[matOf[t]] || mats[0] || {}).name || '' })); s.n++; for (let j = 0; j < 3; j++) s.box.expandByPoint(v.fromBufferAttribute(p, ix.getX(3 * t + j)).applyMatrix4(me.matrixWorld)); }
+      sh.forEach((s) => { const c = s.box.getCenter(V(0, 0, 0)), z = s.box.getSize(V(0, 0, 0)); s.part = pr.parts({ min: s.box.min, max: s.box.max, c, size: z, minAz: s.box.min.z > 0 ? s.box.min.z : s.box.max.z < 0 ? -s.box.max.z : 0, n: s.n, mat: s.mat }, F) || null; });
+      let cur = []; for (let t = 0; t < tri; t++) cur.push(sh.get(find(rep[ix.getX(3 * t)])).part);
+      [...new Set(cur.filter(Boolean))].forEach((id) => {
+        const list = cur; let k = 0;
+        const { cut } = splitMesh(me, () => list[k++] === id, { shareMaterial: true });
+        cur = list.filter((z) => z !== id);
+        if (!cut) return;
+        cut.geometry = compactGeo(cut.geometry); // (its own vertices only: its box — and so its hinge — is the panel's, not the whole body's)
+        cut.name = `${id}_${me.name || 'part'}`; cut.castShadow = me.castShadow; cut.receiveShadow = me.receiveShadow;
+        cut.userData.part = /^door/.test(id) ? 'door' : id;
+        // ('badge': a maker's mark or plate holder found by shape — developer mode only, like the named badges)
+        if (me.userData.badge || id === 'badge') { cut.userData.badge = true; cut.userData.badgeFill = me.userData.badgeFill; (model.badges = model.badges || []).push(cut); return; }
+        parts.meshes.push(cut); if (id === 'hood') parts.hoodNodes.push(cut); n++;
+      });
+    });
+    if (n) { refreshMaterials(); model.report.push({ lvl: 'fix', text: `Cut the doors, hood & ${hatchOf(base.vehicle) ? 'tailgate' : 'trunk lid'} out of the merged body (${n} pieces) so they open.` }); } // (the measuring probes must see the new pieces — the hood above all)
+  }
   function buildRigs() {
     const { obj, parts } = model;
     obj.updateMatrixWorld(true);
@@ -11306,7 +11874,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     if (pr.trunk) { // the trunk lid swings up from its front edge (rear: the hinge is ahead of the lid, so it turns the other way)
       const nodes = allMeshes.filter((o) => pr.trunk.test(o.name || '')), b = new THREE.Box3(); nodes.forEach((n) => b.expandByObject(n));
-      if (nodes.length) { model.trunk = makePivot(nodes, V(b.max.x + 0.04, b.max.y - 0.05, 0), V(0, 0, 1), -1, 1.12); nodes.forEach((n) => { n.userData.part = 'trunk'; }); }
+      // (the hinge's height: the lid's front edge, not its top — a ducktail lip at the back can stand higher)
+      let yF = -1e9; const v = V(0, 0, 0); nodes.forEach((n) => { const p = n.geometry && n.geometry.attributes.position; if (!p) return; for (let k = 0; k < p.count; k++) { v.fromBufferAttribute(p, k).applyMatrix4(n.matrixWorld); if (v.x > b.max.x - 0.06) yF = Math.max(yF, v.y); } });
+      if (nodes.length) { model.trunk = makePivot(nodes, V(b.max.x + 0.04, (yF > -1e9 ? Math.min(yF + 0.01, b.max.y) : b.max.y) - 0.05, 0), V(0, 0, 1), -1, hatchOf(base.vehicle) ? 1.35 : 1.12); nodes.forEach((n) => { n.userData.part = 'trunk'; }); }
     }
     if (!pr.doorGroups) [1, -1].forEach((s) => {
       const side = parts.doorNodes.filter((n) => { const cz = new THREE.Box3().setFromObject(n).getCenter(new THREE.Vector3()).z; return s > 0 ? cz > 0 : cz <= 0; });
@@ -11320,6 +11890,58 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         model.doors.push({ ...makePivot(nodes, V(b.max.x, (b.min.y + b.max.y) / 2, s > 0 ? b.max.z : b.min.z), V(0, 1, 0), s, 1.05), k: 0 });
       });
     });
+  }
+  // a car whose roof is a single skin with nothing under it (the D92's carbon roof): a cloth lining 1.5 cm below it, drawn only
+  // from inside (its back faces) in the headliner colour — from the cabin you saw the carbon weave overhead
+  function addHeadliner() {
+    const pr = model.prof || {}, roof = (model.zones && model.zones.roof) || []; if (!pr.headliner || !roof.length) return;
+    const mat = new THREE.MeshStandardMaterial({ color: 0x2a2a2c, roughness: 0.95, metalness: 0, side: THREE.BackSide }); ensureCut(mat); model.headlinerMat = mat;
+    roof.forEach((r) => {
+      const g = r.geometry.clone(), p = g.attributes.position, n = g.attributes.normal; if (!n) return;
+      const pa = p.clone(), d = 0.015 / Math.max(1e-6, r.matrixWorld.getMaxScaleOnAxis()); for (let i = 0; i < pa.count; i++) pa.setXYZ(i, pa.getX(i) - n.getX(i) * d, pa.getY(i) - n.getY(i) * d, pa.getZ(i) - n.getZ(i) * d);
+      g.setAttribute('position', pa); const hm = new THREE.Mesh(g, mat); hm.position.copy(r.position); hm.quaternion.copy(r.quaternion); hm.scale.copy(r.scale); hm.userData.noScan = true; hm.castShadow = false; r.parent.add(hm);
+    });
+  }
+  // A car whose trunk lid is part of the body shell (its 'trunk' zone): the lid becomes a part, hinged at its front edge
+  // under the back glass, and the lamp pieces, badges and lip set into it ride along — pieces that straddle its shut line
+  // (one mesh for both sides' tail lamps) are split along the lid's outline.
+  function rigZoneTrunk() {
+    const pr = model.prof || {}, Z = model.zones || {}, skin = Z.trunk || [], obj = model.obj;
+    if (!pr.car || model.trunk || !skin.length) return;
+    obj.updateMatrixWorld(true);
+    const v = V(0, 0, 0), band = new Map(), lb = new THREE.Box3(), bandOf = (y) => Math.round(y / 0.02);
+    skin.forEach((n) => { const p = n.geometry.attributes.position, ix = n.geometry.index; if (!ix) return; for (let k = 0; k < ix.count; k++) { v.fromBufferAttribute(p, ix.getX(k)).applyMatrix4(n.matrixWorld); lb.expandByPoint(v); const e = band.get(bandOf(v.y)) || { z: 0, x0: 1e9, x1: -1e9 }; e.z = Math.max(e.z, Math.abs(v.z)); e.x0 = Math.min(e.x0, v.x); e.x1 = Math.max(e.x1, v.x); band.set(bandOf(v.y), e); } });
+    if (lb.isEmpty()) return;
+    const reach = (y) => { let r = null; for (let d = -1; d <= 1; d++) { const e = band.get(bandOf(y) + d); if (e) r = r ? { z: Math.max(r.z, e.z), x0: Math.min(r.x0, e.x0), x1: Math.max(r.x1, e.x1) } : { ...e }; } return r; };
+    // (depth: how far in from the lid's skin a piece may sit — lamp internals go deep; trim & emblems hug the skin)
+    const onLid = (x, y, z, depth) => { if (y < lb.min.y - 0.01 || y > lb.max.y + 0.01) return false; const e = reach(y); return !!e && Math.abs(z) < e.z + 0.012 && x > e.x0 - 0.02 && x < e.x1 + depth; };
+    const RIDE = new Set(['taillights', 'tailLens', 'tailGlass', 'brakeGlow', 'brake3', 'revGlow', 'trunkInner']);
+    const glassSet = new Set(model.glassMats), paintSet = new Set(model.paintMats);
+    const riders = [];
+    [...model.parts.meshes, ...(model.badges || [])].forEach((me) => {
+      if (skin.includes(me) || !me.geometry || !me.geometry.index || me.isSkinnedMesh || model.wheelPieces.includes(me)) return;
+      const lamp = RIDE.has(me.userData.zone) || me.userData.badge;
+      // (and the lid's own chrome strip / plate holder: zone-less trim right on its skin — it stayed floating when the lid rose)
+      if (!lamp && (me.userData.zone || meshMats(me).some((mt) => glassSet.has(mt) || paintSet.has(mt)))) return;
+      const depth = lamp ? 0.13 : 0.035;
+      me.updateMatrixWorld(true); const p = me.geometry.attributes.position, ix = me.geometry.index, a = V(0, 0, 0), b = V(0, 0, 0), c = V(0, 0, 0);
+      let nIn = 0; const tri = ix.count / 3;
+      for (let t = 0; t < tri; t++) { a.fromBufferAttribute(p, ix.getX(3 * t)).applyMatrix4(me.matrixWorld); b.fromBufferAttribute(p, ix.getX(3 * t + 1)).applyMatrix4(me.matrixWorld); c.fromBufferAttribute(p, ix.getX(3 * t + 2)).applyMatrix4(me.matrixWorld); if (onLid((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3, (a.z + b.z + c.z) / 3, depth)) nIn++; }
+      if (!nIn) return;
+      if (nIn === tri) { riders.push(me); return; }
+      const { cut } = splitMesh(me, (a2, b2, c2) => onLid((a2.x + b2.x + c2.x) / 3, (a2.y + b2.y + c2.y) / 3, (a2.z + b2.z + c2.z) / 3, depth), { shareMaterial: true });
+      if (!cut) return;
+      cut.userData = { ...me.userData, pos0: cut.position.clone() }; cut.material = me.material; cut.castShadow = me.castShadow; cut.receiveShadow = me.receiveShadow;
+      if (me.userData.badge) (model.badges = model.badges || []).push(cut); else { model.parts.meshes.push(cut); if (me.userData.zone) (Z[me.userData.zone] = Z[me.userData.zone] || []).push(cut); }
+      riders.push(cut);
+    });
+    // the hinge: just ahead of & under the lid's front edge
+    let yF = -1e9; skin.forEach((n) => { const p = n.geometry.attributes.position, ix = n.geometry.index; for (let k = 0; k < ix.count; k++) { v.fromBufferAttribute(p, ix.getX(k)).applyMatrix4(n.matrixWorld); if (v.x > lb.max.x - 0.05) yF = Math.max(yF, v.y); } });
+    const pivot = new THREE.Group(); obj.add(pivot); pivot.position.copy(obj.worldToLocal(V(lb.max.x + 0.03, yF - 0.03, 0)));
+    obj.updateMatrixWorld(true);
+    [...skin, ...riders].forEach((n) => { pivot.attach(n); n.userData.pos0 = n.position.clone(); n.userData.part = 'trunk'; });
+    const axis = V(0, 0, 1).applyQuaternion(obj.getWorldQuaternion(new THREE.Quaternion()).invert()).normalize();
+    model.trunk = { pivot, axis, sign: -1, maxAngle: hatchOf(base.vehicle) ? 1.35 : 1.12, pos0: pivot.position.clone() };
   }
   // Models without a separate hood part: the painted hood skin (its own zone) becomes the hood — hinged at the cowl, with a
   // painted underside (stamped bracing + insulation pad) and a prop rod from the radiator support. Also measures the engine bay.
@@ -11395,9 +12017,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // frames' tops at every pillar and the overhead bits at the B-pillar — the liner sagged into a wave along the doors and had
     // holes where those probes came back too low)
     const ly = new Float32Array((nx + 1) * (nz + 1)).fill(NaN), isGlassHit = (o) => meshMats(o).some((mt) => model.glassMats.includes(mt));
+    // (lyAny: the roof or a moonroof's glass — what a head would meet — for the seat height; the liner itself skips the glass)
+    const lyAny = new Float32Array((nx + 1) * (nz + 1)).fill(NaN);
     for (let i = 0; i <= nx; i++) for (let j = 0; j <= nz; j++) {
       const x = lx0 + ((lx1 - lx0) * i) / nx, z = -lz + (2 * lz * j) / nz, hit = probe(fromRest(V(x, bi.roofTop + 1, z)), V(0, -1, 0));
-      const y = hit && !isGlassHit(hit.object) ? toRest(hit.point).y : NaN; if (y > bi.roofTop - 0.16 && y < bi.roofTop + 0.02) ly[i * (nz + 1) + j] = y;
+      const ya = hit ? toRest(hit.point).y : NaN, y = hit && !isGlassHit(hit.object) ? ya : NaN; if (y > bi.roofTop - 0.16 && y < bi.roofTop + 0.02) ly[i * (nz + 1) + j] = y;
+      if (ya > bi.roofTop - 0.2 && ya < bi.roofTop + 0.02) lyAny[i * (nz + 1) + j] = ya - (isGlassHit(hit.object) ? 0.03 : 0);
     }
     { // a light blur over the skin's seams, never above the skin itself
       const N1 = nz + 1, raw = ly.slice();
@@ -11419,7 +12044,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (glass.front.some((b) => !b) || glass.rear.some((b) => !b)) glass = null;
     }
     bi.dash = { sc, clusterX: ahead(V(sc.x - 0.25, sc.y + 0.12, sc.z), sc.x + 0.2), stackX: ahead(V(sc.x - 0.3, sc.y - 0.02, 0), sc.x + 0.28), sunX, cabRear: bi.cabRear, cowlFill: model.cowlFill || null, sunY: rt ? toRest(rt.point).y : bi.roofTop,
-      liner: { x0: lx0, x1: lx1, nx, nz, lz, y: ly }, glass };
+      liner: { x0: lx0, x1: lx1, nx, nz, lz, y: ly, yAny: lyAny }, glass };
   }
   // sound system: where you're listening from (driver's seat / outside), how far the windows are down, and how far away you are
   let bassS = 0; // (smoothed bass thump on the body)
@@ -11922,10 +12547,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const rx = reg ? cr - 0.45 : cr + 0.37, out = P.halfW + 0.6;
     // (under a low roof — a sedan — the seat sits lower, so the head clears the headliner: eye ~0.75 m over the hip, + head & cap)
     const LN = D && D.liner, ceilAt = (x, z) => { if (!LN) return null; const NZ = LN.nz + 1, fi = THREE.MathUtils.clamp(((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx, 0, LN.nx - 1e-6), fj = ((z + LN.lz) / (2 * LN.lz)) * LN.nz, i = Math.floor(fi), j = Math.floor(fj);
-      if (j < 0 || j >= LN.nz) return null; const at = (a, c) => LN.y[a * NZ + c], u = fi - i, v = fj - j, y = (at(i, j) * (1 - u) + at(i + 1, j) * u) * (1 - v) + (at(i, j + 1) * (1 - u) + at(i + 1, j + 1) * u) * v; return isNaN(y) ? null : y; };
+      if (j < 0 || j >= LN.nz) return null; const u = fi - i, v = fj - j, lerp = (G) => { const at = (a, c) => G[a * NZ + c]; return (at(i, j) * (1 - u) + at(i + 1, j) * u) * (1 - v) + (at(i, j + 1) * (1 - u) + at(i + 1, j + 1) * u) * v; };
+      const y = lerp(LN.y), ya = LN.yAny ? lerp(LN.yAny) : NaN; return !isNaN(y) ? (isNaN(ya) ? y : Math.min(y, ya)) : isNaN(ya) ? null : ya; }; // (under a moonroof: its glass)
     const under = (x, y) => { const c = ceilAt(x - 0.1, zs); return c === null ? y : Math.min(y, c - 0.915); };
     const fyS = under(fx, fy), ry = under(rx, reg ? (bi.floorY || fy) + 0.1 : fy);
-    const list = [[fx, fyS, -zs], [fx, fyS, zs], [rx, ry, -zs * 0.95], [rx, ry, zs * 0.95]].map(([x, y, z], i) => ({ i, hip: V(x, y, z), door: V(i < 2 ? fx - 0.15 : rx + 0.05, 0, Math.sign(z) * out), side: Math.sign(z) }));
+    const list = [[fx, fyS, -zs], [fx, fyS, zs], [rx, ry, -zs * 0.95], [rx, ry, zs * 0.95]].map(([x, y, z], i) => ({ i, hip: V(x, y, z), door: V(i < 2 ? fx - 0.15 : rx + 0.05, 0, Math.sign(z) * out), side: Math.sign(z), ceil: ceilAt(x - 0.1, zs) }));
     if (D) bi.seats = { list, n: reg ? 2 : 4 }; // (measured once the cabin is: kept with this fit)
     return { list, n: reg ? 2 : 4 };
   }
@@ -11935,8 +12561,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const theirTruck = (r) => (r && r.g && r.holder ? { holder: r.holder, baseY: r.baseY, steer: r.steer, steerA: -((r.pose && r.pose.steer) || 0) * 15 } : null);
   const qTurn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2); // (a character faces +z; the truck, +x)
   const seatSlide = (C, i) => (i === 0 && C && C.scale < 1 ? (1 - C.scale) * 0.32 : 0); // (a shorter driver moves the seat up)
+  // (a taller driver under a low roof: the seat drops — up to 6 cm, a real seat's height range — so the head clears the
+  // headliner. A 6'0" driver fits a sedan's roof; at 6'4" the hair brushes it)
+  const seatDrop = (C, seat) => (seat.ceil == null ? 0 : THREE.MathUtils.clamp(seat.hip.y + 0.915 * C.scale + 0.012 - seat.ceil, 0, 0.06));
   function seatChar(C, tk, seat, mode, o) {
-    C.root.position.copy(tkW(tk, V(seat.hip.x + seatSlide(C, seat.i), seat.hip.y - 0.875 * C.scale, seat.hip.z)));
+    C.root.position.copy(tkW(tk, V(seat.hip.x + seatSlide(C, seat.i), seat.hip.y - 0.875 * C.scale - seatDrop(C, seat), seat.hip.z)));
     tk.holder.getWorldQuaternion(C.root.quaternion).multiply(qTurn); C.root.updateMatrixWorld(true);
     if ('bob' in o) { // (your own driver: where your eyes are in the truck — sitting still, looking ahead — for the first-person camera)
       C.update(mode, { ...o, bob: null, lookYaw: 0, lookPitch: 0 }); const h = tk.holder;
@@ -12303,7 +12932,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (envState.gp) envState.gp.position.set(camera.position.x, 0, camera.position.z); sky.position.set(camera.position.x, 0, camera.position.z);
     // the engine sound and the gauges follow the recording
     gaugeTick(fr.mph, fr.rpm, dt);
-    replay.tick += dt; if (replay.tick > 0.1) { replay.tick = 0; replayInfo(); handlers.current.onDrive && handlers.current.onDrive({ mph: fr.mph, rpm: fr.rpm, redline: DL.redline, vmax: DL.vmax * 2.237, car: (base.vehicle || {}).body === 'sedan', gear: fr.gear, manual: false, air: fr.air, airT: 0, maxAir: drive.maxAir || 0, throttle: fr.thr, drift: 0, spinning: false, diff: build.diff || 'open', tc: tcModeOf(build), tcLit: false, flipped: false, canReset: false, resetHold: 0 }); }
+    replay.tick += dt; if (replay.tick > 0.1) { replay.tick = 0; replayInfo(); handlers.current.onDrive && handlers.current.onDrive({ mph: fr.mph, rpm: fr.rpm, redline: DL.redline, vmax: DL.vmax * 2.237, car: isCarV(base.vehicle), gear: fr.gear, manual: false, air: fr.air, airT: 0, maxAir: drive.maxAir || 0, throttle: fr.thr, drift: 0, spinning: false, diff: build.diff || 'open', tc: tcModeOf(build), tcLit: false, flipped: false, canReset: false, resetHold: 0 }); }
   }
   const avg = (arr) => arr.reduce((a, b) => a + b, 0) / Math.max(1, arr.length);
   // the drive HUD's analog dials (DriveGauges): their needles are turned here every frame — smooth, where the rest of the HUD
@@ -12326,13 +12955,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const thr = live && ign && (keys.w || keys.arrowup) ? 1 : 0, rev = live && (keys.s || keys.arrowdown) ? 1 : 0, stIn = live ? (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0) : 0, hand = (live && !!keys[' ']) || (!drv && !d.flipped) || (drv && !ign);
     // burnout: gas + brake together at a crawl — the brakes hold the fronts, the throttle lights up the rears (instead of
     // reversing). Steering swings the tail round the planted front axle.
-    const burn = !!(thr && rev && Math.abs(d.u) < 4 && !d.air);
+    // (only a rear-driven car or truck: front-drive can't, and AWD only once xDrive is in 2WD)
+    const rearDriven = !(isCarV(veh) && (veh.drive === 'FWD' || (veh.drive === 'AWD' && (b.awdMode || 'awd') !== 'rwd')));
+    const burn = !!(thr && rev && Math.abs(d.u) < 4 && !d.air && rearDriven);
     // rear lamps: brake lights whenever the brake / reverse pedal (S) is down; white reverse lights only while rolling backward
     const brakeLit = !!rev, revLit = d.u < -0.3 && !burn;
     if (brakeLit !== d.brakeLit || revLit !== d.revLit) { d.brakeLit = brakeLit; d.revLit = revLit; setRearLamps(brakeLit, revLit); }
     // a car (the sedan): its own driveline, a low center of gravity (lower still on coilovers), stiff short-travel suspension,
     // sticky street tires and quick steering — see the `car ?` branches below
-    const car = veh.body === 'sedan', CS = car ? carSuspOf(b) : null, lowerIn = car ? carLowerOf(b) : 0; DL = car ? DRIVELINES.car : DRIVELINES.truck;
+    const car = isCarV(veh), CS = car ? carSuspOf(b) : null, lowerIn = car ? carLowerOf(b) : 0; DL = car ? carSpecOf(veh) : DRIVELINES.truck; // (each car its own gearbox & redline)
+    const fwdCar = car && veh.drive === 'FWD', awdCar = car && veh.drive === 'AWD' && (b.awdMode || 'awd') !== 'rwd'; // (an AWD car's xDrive can be switched to 2WD)
     // (static camber on a car: a few degrees helps the outside tire in a corner, a lot costs grip and straight-line bite)
     const cgF = car ? camberGrip(b.camberF) : null, cgR = car ? camberGrip(b.camberR) : null;
     // 4L at a crawl: a tire meeting a ledge walks up its face (traction on the face, the sidewall wrapping the edge) instead of
@@ -12396,19 +13028,20 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // tire on an axle is spinning so the torque goes across to the one that has grip — front and rear, an open diff then pulls
     // nearly like a locker; it doesn't cut power)
     const tcMode = tcModeOf(b), atrac = tcMode === 'atrac';
-    const XF = TRANSFER[b.xfer] || TRANSFER['4h'], fourWD = /4x4|4wd|awd/i.test(veh.drive || '') && XF.fourWD, crawl = fourWD && XF.crawl; // transfer case: 4H / 4L drive the front axle too
+    const XF = TRANSFER[b.xfer] || TRANSFER['4h'], fourWD = car ? awdCar : /4x4|4wd|awd/i.test(veh.drive || '') && XF.fourWD, crawl = !car && fourWD && XF.crawl; // transfer case: 4H / 4L drive the front axle too (a car: AWD or not)
     // front axle (open diff): like the rear, it can only push about twice what its lighter tire holds — a front wheel off the
     // ground or on ice and the front drive is gone, unless A-TRAC brakes that wheel
     const fIdx = P.spots.map((sp, i) => i).filter((i) => fr[i]), sFL = share(fIdx.find((i) => P.spots[i].s < 0)), sFR = share(fIdx.find((i) => P.spots[i].s > 0));
     const NfL = sFL + sFR > 0 ? (Nf * sFL) / (sFL + sFR) : Nf / 2, nLightF = Math.min(NfL, Nf - NfL);
     const frontAx = atrac ? 2 * nLightF + (Nf - 2 * nLightF) * 0.85 : Math.min(Nf, 2 * nLightF * 1.08 + Nf * 0.15);
-    const frontT = fourWD && !d.air ? mu * frontAx * (crawl ? 1 : 0.85) : 0;
+    // (a car: front-drive pulls with the fronts alone (open diff); AWD splits it — xDrive's sport mode sends more to the rear)
+    const frontT = (fourWD || fwdCar) && !d.air ? mu * frontAx * (crawl ? 1 : fwdCar ? 1 : car ? ((b.awdMode || 'awd') === 'sport' ? 0.5 : 0.8) : 0.85) : 0;
     // open diff: equal torque to both sides, so the axle can only push as hard as twice what the LIGHTER tire can hold. In
     // a corner the body leans onto the outside tire and the inside one goes light — it lights up ("one-tire fire") while
     // the loaded outside tire keeps rolling and gripping, so you can't steer it with the throttle. (A locker / LSD can.)
     const SWr = SWAY_BARS[b.sway] || SWAY_BARS.stock, dNr = ((m * Math.abs(d.ayPrev || 0) * 0.78) / (2 * Math.max(0.7, P.track || 0.8))) * (1 - SWr.front);
     const nLight = Math.max(0.04 * Nr, Math.min(nMin, Nr / 2 - dNr));
-    const rearT = !groundedR ? 0 : mu * (diff === 'locker' ? Nr : atrac ? 2 * nLight + (Nr - 2 * nLight) * 0.85 : diff === 'lsd' ? 2 * nMin + (Nr - 2 * nMin) * (car ? b.lsdLock ?? 0.6 : 0.6) : 2 * nLight * 1.08); // (a few % of carrier friction; a car's LSD lock-up is tunable)
+    const rearT = !groundedR || fwdCar ? 0 : mu * (diff === 'locker' ? Nr : atrac ? 2 * nLight + (Nr - 2 * nLight) * 0.85 : diff === 'lsd' ? 2 * nMin + (Nr - 2 * nMin) * (car ? b.lsdLock ?? 0.6 : 0.6) : 2 * nLight * 1.08); // (a few % of carrier friction; a car's LSD lock-up is tunable)
     // (A-TRAC working: an axle whose light tire is well short of its share, under power — the dash light comes on)
     d.tcLit = atrac && thr && !d.air && (nLight < Nr * 0.38 || (fourWD && nLightF < Nf * 0.38)) && diff !== 'locker';
     // 4L at a crawl: the tyres turn slowly enough to find grip and bite — the more so the bigger they are (37s climb near-wall
@@ -12419,7 +13052,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const tracLim = (rearT + frontT) * 1.15 * crawlK * (car ? 1.7 * cgR.lon : 1), rearShare = rearT + frontT > 0 ? rearT / (rearT + frontT) : 1;
     // final drive from the rear ring & pinion (× low range in 4L); the tire radius is in Rw, so bigger tires = taller effective gearing
     d.drift = d.drift || 0;
-    const finalR = (car ? b.finalCar || DL.final : b.gearR || DL.final) * (fourWD ? XF.low : 1), gearR = (d.u < -0.3 || (rev && !burn && d.u < 0.8) ? DL.rev : DL.gears[Math.min(d.gear, DL.gears.length - 1)]) * finalR, Rw = Math.max(0.2, rig.wy);
+    const finalR = (car ? b.finalCar || DL.final : b.gearR || DL.final) * (fourWD && !car ? XF.low : 1), gearR = (d.u < -0.3 || (rev && !burn && d.u < 0.8) ? DL.rev : DL.gears[Math.min(d.gear, DL.gears.length - 1)]) * finalR, Rw = Math.max(0.2, rig.wy);
     const boost = engineBoost(b), hpE = veh.hp + boost.hp, tqE = veh.tq + boost.tq; // supercharger / intake gains
     const Fmax = Math.min((tqE * 1.356 * DL.power * gearR) / Rw, (hpE * 745.7 * DL.power) / Math.max(2, Math.abs(d.u)));
     d.shiftT = Math.max(0, (d.shiftT || 0) - dt);
@@ -12450,7 +13083,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const SW = SWAY_BARS[b.sway] || SWAY_BARS.stock, trackW = 2 * Math.max(0.7, P.track || 0.8), ayAbs = Math.abs(d.ayPrev || 0);
     const dN = (m * ayAbs * hcg) / trackW, sens = (dNa, Na) => 1 - 0.32 * Math.min(0.6, (dNa / Math.max(1, Na)) ** 2);
     const kF = sens(dN * SW.front, Nf / 2), kR = sens(dN * (1 - SW.front), Nr / 2);
-    const sF = d.air ? 0 : 1, capF = mu * Nf * sF * (brake ? 0.75 : 1) * kF * (car ? cgF.lat : 1);
+    const sF = d.air ? 0 : 1, capF0 = mu * Nf * sF * (brake ? 0.75 : 1) * kF * (car ? cgF.lat : 1);
+    // (a car's driven fronts — front-drive or AWD — spend grip pulling: full throttle out of a corner, the nose pushes wide)
+    const capF = car && rearShare < 0.999 ? Math.sqrt(Math.max(0, capF0 * capF0 - (Math.abs(Fx) * (1 - rearShare) * 0.85) ** 2)) : capF0;
     // dry pavement: once it's already sideways at low speed the rear lets go a bit more easily (easy slow drifts), fading out by ~45 mph
     const lowSlide = paved && wth === 'dry' && diff !== 'open' && (d.drift || 0) > 8 ? 1 - 0.08 * (1 - THREE.MathUtils.clamp(Math.abs(d.u) / 20, 0, 1)) : 1;
     // dry pavement: a real tire's grip peaks just before it lets go and falls off a little once it's sliding — so it takes
@@ -12670,7 +13305,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const excess = spinning ? (Math.abs(Fdem) - tracLim) / Math.max(800, tracLim) : 0; // wheelspin grows with how far torque exceeds grip
     // (burnout: the rears spin up to ~5000 rpm in first and hold there — just under the limiter)
     d.spinX += ((burn ? 5000 / (9.549 * gearR) : d.air && thr ? 40 : Math.min(42, excess * 16)) - d.spinX) * Math.min(1, dt * (burn ? 2.5 : 4));
-    const wg = d.u / Rw, heavyL = NrL >= NrR, extra = (i) => { if (fr[i]) return 0; const left = P.spots[i].s < 0; if (diffV === 'locker' || d.air) return d.spinX; const light = left !== heavyL; return diffV === 'lsd' ? d.spinX * (light ? 1.4 : 0.6) : light ? d.spinX * 2 : 0; };
+    // (the driven wheels spin up: the fronts on a front-driver, all four with AWD)
+    const wg = d.u / Rw, heavyL = NrL >= NrR, extra = (i) => { if (fwdCar ? !fr[i] : awdCar ? false : fr[i]) return 0; const left = P.spots[i].s < 0; if (diffV === 'locker' || d.air) return d.spinX; const light = left !== heavyL; return diffV === 'lsd' ? d.spinX * (light ? 1.4 : 0.6) : light ? d.spinX * 2 : 0; };
     // camber: rear tires lean with the axle housing; IFS fronts pick up a little camber gain through their travel
     const rIx = P.spots.map((_, i) => i).filter((i) => !fr[i]), zr = Math.max(0.5, Math.abs(P.spots[rIx[0]] ? P.spots[rIx[0]].z : 0.8));
     const axleTilt = rIx.length === 2 ? Math.atan2(rig.susp[rIx.find((i) => P.spots[i].s > 0)] - rig.susp[rIx.find((i) => P.spots[i].s < 0)], 2 * zr) : 0;
@@ -12758,7 +13394,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     d.tick += dt; gaugeTick(Math.hypot(d.u, d.vz) * 2.237, d.rpm, dt);
     if (d.tick > 0.1) { d.tick = 0; const nr = ctl.mode === 'walk' ? ctl.near : null;
-      handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, redline: DL.redline, vmax: DL.vmax * 2.237, car: veh.body === 'sedan', gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0,
+      handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, redline: DL.redline, vmax: DL.vmax * 2.237, car: isCarV(veh), gear: d.u < -0.3 ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0,
         ctl: ctl.mode, fp: ctl.fp, run: !!keys.shift, near: nr ? (nr.mine ? 'mine' : nr.seat < 0 ? 'full' : 'ride') : null, nearName: nr && !nr.mine ? nr.name || 'player' : '', host: ctl.mode === 'ride' ? ((remotes.get(ctl.host) || {}).name || 'player') : '', hint: performance.now() < ctl.hintT ? ctl.hint : '' }); }
     if (landed > 3) handlers.current.onLand && handlers.current.onLand(landed);
   }
@@ -12961,7 +13597,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     setPaintTolerance: (v) => { if (model) model.paintMats.forEach((m) => { if (m.userData.paintMode === 'keyed') m.userData.paintU.uTol.value = v; }); },
     setPickPaint: (on) => { pickPaint = !!on && !!model; el.style.cursor = pickPaint ? 'crosshair' : 'grab'; },
     modelInfo,
-    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: () => { Object.assign(winCur, winTarget); applyWindowsAt(winCur); }, ctl, meC: () => meC, seatsOf, remotes, gripsOf, myTruck, veiled: () => veiled }), // console inspection
+    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: (k = 1) => { Object.keys(winTarget).forEach((id) => { winCur[id] = (winTarget[id] || 0) * k; }); applyWindowsAt(winCur); }, rearLamps: setRearLamps, ctl, meC: () => meC, seatsOf, remotes, gripsOf, myTruck, veiled: () => veiled }), // console inspection
     startDrive, stopDrive, isDriving: () => drive.on, recenterCam, renderVariants, setCutaway,
     setCutMode: (on, r) => { cutMode = !!on && !!model; if (r) cutR = r; controls.enabled = !cutMode && !drive.on; el.style.cursor = cutMode ? 'crosshair' : 'grab'; },
     setEngine: (s) => { Object.assign(engine, s); },
@@ -13495,7 +14131,7 @@ function TelemetryPanel({ vehicle, geom, applied, effective, onClose, customMode
           <div className="grid grid-cols-2 gap-2">
             <Metric label="0–60 mph (est.)" e={E.t60} a={A.t60} s={S.t60} unit="s" better="lower" />
             {E.mpg ? <Metric label={`MPG city / hwy (${E.mpg.src})`} e={E.mpg.city} a={A.mpg.city} s={S.mpg.city} unit={`/ ${E.mpg.hwy.toFixed(1)}`} /> : <div className="rounded bg-white/[0.045] px-2.5 py-2 text-[11px] text-white/50">Electric — range not modeled</div>}
-            {vehicle.body === 'sedan' ? (<>{/* (a car: power and top speed, not payload & towing) */}
+            {isCarV(vehicle) ? (<>{/* (a car: power and top speed, not payload & towing) */}
               <Metric label="Power" e={E.power} a={A.power} s={S.power} unit="hp" digits={0} />
               <Metric label="Top speed (limited)" e={170} a={170} s={170} unit="mph" digits={0} />
             </>) : (<>
@@ -14776,10 +15412,10 @@ const EngineAudio = (() => {
           const pul = s.pul || 1, open = 1 + 0.9 * (s.roar || 0), r = this.rpm / 5600, f = (s.centri ? 900 + 5200 * r * r : this.rpm * 0.42) * pul;
           this.wp = ((this.wp || 0) + f / sr) % 1;
           const tone = Math.sin(2 * Math.PI * this.wp) + (0.35 + 0.25 * (s.roar || 0)) * Math.sin(4 * Math.PI * this.wp) + 0.12 * (s.roar || 0) * Math.sin(6 * Math.PI * this.wp);
-          const lvl = (s.centri ? 0.05 * r * r * (0.3 + this.thr) : 0.035 * s.sc * Math.min(1, this.rpm / 1800) * (0.35 + this.thr * 0.9)) * open * (1 + (pul - 1) * 2.5);
+          const lvl = (s.centri ? 0.05 * s.centri * r * r * (0.3 + this.thr) : 0.035 * s.sc * Math.min(1, this.rpm / 1800) * (0.35 + this.thr * 0.9)) * open * (1 + (pul - 1) * 2.5); // (centri: 1 a supercharger, ~0.3 a factory turbo's spool)
           v += tone * lvl * this.g;
           // lifting off under boost: the bypass / blow-off valve vents — a sharp "pssh" (loud through an open intake)
-          if (this.thr < 0.2 && (this.thrHi || 0) > 0.6 && this.rpm > 2800) { this.bov = s.centri ? 1 : 0.45; this.thrHi = 0; }
+          if (this.thr < 0.2 && (this.thrHi || 0) > 0.6 && this.rpm > 2800) { this.bov = s.centri ? Math.min(1, s.centri * 1.4) : 0.45; this.thrHi = 0; }
           if (this.thr > 0.6) this.thrHi = this.thr;
           if ((this.bov || 0) > 0.002) { const nz = Math.random() * 2 - 1; this.bv = (this.bv || 0) + (nz - (this.bv || 0)) * 0.55; v += (nz - this.bv) * this.bov * 0.16 * open * this.g; this.bov *= 0.99965; }
         }
@@ -15276,8 +15912,9 @@ function App() {
 
   // ---- Engine: start / stop, rev (hold R or the Rev button), exhaust sound follows the build
   const engineCfg = () => { const sc = SUPERCHARGERS[effective.supercharger] || SUPERCHARGERS.none, ik = INTAKES[effective.intake] || INTAKES.stock; // exhaust tone + blower whine + intake roar
-    const car = isCarV(vehicle), ex = EXHAUSTS[effective.exhaust] || EXHAUSTS.stock; // (a car: its own modelled V8 voice, 6,800 rpm redline)
-    return { cyl: /V8/i.test(vehicle.engine) ? 8 : 6, car, redline: car ? 6800 : 6200, snd: { ...(car ? (ex.car ? ex.snd : CAR_STOCK_SND) : ex.snd), sc: sc.whine === 'roots' ? (sc.hp > 70 ? 1 : 0.7) : 0, centri: sc.whine === 'centri' ? 1 : 0, roar: ik.roar,
+    const car = isCarV(vehicle), ex = EXHAUSTS[effective.exhaust] || EXHAUSTS.stock, cs = car ? carSpecOf(vehicle) : null; // (a car: its own engine's voice & redline — V8, V6 or straight-six; a turbo spools)
+    const cyl = car ? cs.cyl : /V8/i.test(vehicle.engine) ? 8 : /I4|4-cyl|Flat-4/i.test(vehicle.engine) ? 4 : 6;
+    return { cyl, car, redline: car ? cs.redline : 6200, snd: { ...(car ? (ex.car ? ex.snd : CAR_STOCK_SND) : ex.snd), sc: sc.whine === 'roots' ? (sc.hp > 70 ? 1 : 0.7) : 0, centri: sc.whine === 'centri' ? 1 : sc.whine === 'turbo' ? 0.65 : car && cs.turbo ? 0.3 : 0, roar: ik.roar,
       pul: sc.whine ? (SUPERCHARGER_PULLEYS[effective.scPulley] || SUPERCHARGER_PULLEYS.stock).spin : 1 } }; };
   // (the ignition is the stage's too: no engine, no drive — even where the browser won't play the sound)
   const toggleEngine = useCallback(() => {
@@ -15297,6 +15934,19 @@ function App() {
     window.addEventListener('keydown', dn); window.addEventListener('keyup', up);
     return () => { window.removeEventListener('keydown', dn); window.removeEventListener('keyup', up); };
   }, [driving, toggleEngine]);
+  // ---- air ride: the bags fill or dump toward a target height, ~2" a second, parked or on the move — [ lowers, ] raises
+  // (also the drive HUD's AIR RIDE buttons and presets)
+  const [airTarget, setAirTarget] = useState(null);
+  const airRef = useRef({ applied: null, target: null }); airRef.current.target = airTarget; airRef.current.applied = applied; airRef.current.car = isCarV(vehicle);
+  useEffect(() => { if (airTarget === null) return; const id = setInterval(() => {
+    const a = airRef.current.applied, cur = (a && a.lower) || 0, d = airTarget - cur; if (Math.abs(d) < 0.01) { setAirTarget(null); return; }
+    applyPatch({ lower: Math.round((cur + Math.sign(d) * Math.min(0.2, Math.abs(d))) * 100) / 100 }); }, 100); return () => clearInterval(id); }, [airTarget]);
+  const airTo = useCallback((v) => { const cs = CAR_SUSP.air; setAirTarget(Math.round(THREE.MathUtils.clamp(v, cs.lower[0], cs.lower[1]) * 4) / 4); }, []);
+  useEffect(() => {
+    const dn = (e) => { if (/input|select|textarea/i.test((e.target && e.target.tagName) || '')) return; const a = airRef.current.applied;
+      if ((e.key === '[' || e.key === ']') && a && airRef.current.car && a.carSusp === 'air') { const cur = airRef.current.target ?? (a.lower || 0); airTo(cur + (e.key === '[' ? 0.5 : -0.5)); } };
+    window.addEventListener('keydown', dn); return () => window.removeEventListener('keydown', dn);
+  }, [airTo]);
   // ---- Drive mode (desert course)
   const startDrive = useCallback(() => {
     const st = stageRef.current; if (!st) return;
@@ -15377,9 +16027,11 @@ function App() {
   // never land on the sedan, the sedan's coilovers never on a truck)
   const kindBuilds = useRef({}), vehicleNow = useRef(vehicle); vehicleNow.current = vehicle;
   const loadVehicle = useCallback((v) => {
-    const ko = isCarV(vehicleNow.current) ? 'car' : 'truck', kn = isCarV(v) ? 'car' : 'truck';
+    // (the trucks share one build — their parts fit them all; each car keeps its own: a Dexus's final drive, kit or wheels
+    // don't carry over to a DMW, and every car starts in its own factory colour)
+    const kindOf = (x) => (isCarV(x) ? 'car:' + vehicleKey(x) : 'truck'), ko = kindOf(vehicleNow.current), kn = kindOf(v);
     setVehicle(v);
-    if (ko !== kn) setApplied((a) => { kindBuilds.current[ko] = a; return kindBuilds.current[kn] || (kn === 'car' ? CAR_DEFAULT_BUILD : DEFAULT_BUILD); });
+    if (ko !== kn) setApplied((a) => { kindBuilds.current[ko] = a; return kindBuilds.current[kn] || (isCarV(v) ? { ...CAR_DEFAULT_BUILD, ...(v.colors && v.colors[0] ? { color: v.colors[0].hex, finish: v.colors[0].metallic ? 'metallic' : 'gloss' } : {}), ...(((stockModelFor(v) || {}).prof || {}).defaults || {}) } : DEFAULT_BUILD); }); // (+ that car's own factory fit, e.g. the LD's moonroof)
     else setApplied((a) => ({ ...a, tire: 'stock' }));
     setPreview(null); setDamage([]);
   }, []);
@@ -15578,7 +16230,8 @@ function App() {
   // a car (sedan) has its own menus for the running gear — engine, wheels & tires, suspension, lights — and no truck parts
   const isCar = isCarV(vehicle), cats = isCar ? CAR_CATS.map((id) => CATEGORIES.find((c) => c.id === id)).filter(Boolean) : CATEGORIES.filter((c) => !c.car);
   // a moonroof to open: the truck's add-on one, or one the car's model came with
-  const factoryRoof = !!(customModel && (customModel.zones || []).includes('moonroof')), hasMoonroof = (applied.sunroof || 'none') !== 'none' || factoryRoof;
+  const hasZone = (z) => !!(customModel && (customModel.zones || []).includes(z));
+  const factoryRoof = hasZone('moonroof'), hasMoonroof = (applied.sunroof || 'none') !== 'none' || factoryRoof;
   const carMenu = (category) => {
     const btnRow = (vals, cur, fmt, onPick, onHover) => (
       <div className="flex gap-1 mt-1.5" onMouseLeave={() => setPreview(null)}>
@@ -15587,30 +16240,33 @@ function App() {
       </div>);
     const labeled = (label, value, row) => ({ kind: 'custom', render: () => (<div><div className="flex justify-between hud text-[12.5px]"><span className="text-white/80 font-semibold">{label}</span><span className="text-amber-300 font-bold">{value}</span></div>{row}</div>) });
     if (category === 'engine') {
-      const sc = SUPERCHARGERS[applied.supercharger] || SUPERCHARGERS.none, ik = INTAKES[applied.intake] || INTAKES.stock;
-      return { title: 'Hood / Engine', defaultDesc: `${vehicle.engine} · ${vehicle.hp + sc.hp + ik.hp} hp / ${vehicle.tq + sc.tq + Math.round(ik.hp * 0.8)} lb-ft · 8-speed automatic`, items: [
+      const cs = carSpecOf(vehicle), tuneOK = cs.tune, ind = cs.induction, sc = SUPERCHARGERS[applied.supercharger] || SUPERCHARGERS.none, ik = INTAKES[applied.intake] || INTAKES.stock;
+      return { title: 'Hood / Engine', defaultDesc: `${vehicle.engine} · ${vehicle.hp + sc.hp + ik.hp} hp / ${vehicle.tq + sc.tq + Math.round(ik.hp * 0.8)} lb-ft · ${cs.box} · ${driveLayoutLabel(vehicle).toLowerCase()}`, items: [
         { kind: 'header', label: 'Engine' },
-        { kind: 'item', icon: 'Key', label: engineOn ? 'Shut the engine off' : 'Start the engine', right: <span className={`hud font-bold text-[13px] ${engineOn ? 'text-emerald-400' : 'text-white/45'}`}>{engineOn ? `${Math.round(engineRpm)} RPM` : 'OFF'}</span>, action: toggleEngine, desc: `${vehicle.engine} — a high-revving cross-plane V8 with a dual-stage intake: it howls when the second intake port opens at about 3,600 rpm and pulls to 6,800.` },
+        { kind: 'item', icon: 'Key', label: engineOn ? 'Shut the engine off' : 'Start the engine', right: <span className={`hud font-bold text-[13px] ${engineOn ? 'text-emerald-400' : 'text-white/45'}`}>{engineOn ? `${Math.round(engineRpm)} RPM` : 'OFF'}</span>, action: toggleEngine, desc: `${vehicle.engine} — ${cs.voice}` },
         ...(engineOn ? [{ kind: 'custom', render: () => (
           <div>
             <button onPointerDown={() => EngineAudio.setThrottle(1)} onPointerUp={() => EngineAudio.setThrottle(0)} onPointerLeave={() => EngineAudio.setThrottle(0)}
               className="w-full rounded-md py-2.5 hud text-[16px] font-bold tracking-widest uppercase bg-red-600 hover:bg-red-500 text-white select-none active:scale-[0.98]">Hold to Rev</button>
-            <div className="relative h-2 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${Math.min(100, (engineRpm / 6800) * 100)}%` }} /></div>
-            <div className="text-[11px] text-white/45 mt-1">Or hold <b>R</b> on the keyboard. Redline 6,800 rpm.</div>
+            <div className="relative h-2 mt-2 rounded bg-white/10 overflow-hidden"><div className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style={{ width: `${Math.min(100, (engineRpm / cs.redline) * 100)}%` }} /></div>
+            <div className="text-[11px] text-white/45 mt-1">Or hold <b>R</b> on the keyboard. Redline {cs.redline.toLocaleString()} rpm.</div>
           </div>) }] : []),
-        { kind: 'header', label: 'Supercharger' },
-        ...Object.entries(SUPERCHARGERS).filter(([id, x]) => id === 'none' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id }, desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear it.'}` : 'The factory 5.0 V8, naturally aspirated.' })),
-        ...((applied.supercharger || 'none') !== 'none' ? [{ kind: 'header', label: 'Supercharger Pulley' }, ...Object.entries(SUPERCHARGER_PULLEYS).map(([id, x]) => ({ kind: 'item', icon: 'Disc', label: x.label, price: x.price, installed: (applied.scPulley || 'stock') === id, patch: { scPulley: id }, desc: `${x.desc}${id !== 'stock' ? ` (≈ +${Math.round(((SUPERCHARGERS[applied.supercharger] || {}).hp || 0) * (x.k - 1))} hp more)` : ''}` }))] : []),
-        { kind: 'header', label: 'Air Intake' },
-        ...Object.entries(INTAKES).filter(([id, x]) => id === 'stock' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Fan', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.intake || 'stock') === id, patch: { intake: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp)` : ''}` })),
+        ...(ind ? [{ kind: 'header', label: ind === 'turbo' ? 'Turbochargers' : 'Supercharger' },
+          ...Object.entries(SUPERCHARGERS).filter(([id, x]) => id === 'none' || (x.car && !!x.turbo === (ind === 'turbo'))).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: id === 'none' ? (ind === 'turbo' ? 'Factory twin turbos' : 'Naturally aspirated (factory)') : x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id }, desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear it.'}` : `The factory ${vehicle.engine}.` }))] : []),
+        ...(ind === 'na' && (applied.supercharger || 'none') !== 'none' && !(SUPERCHARGERS[applied.supercharger] || {}).turbo ? [{ kind: 'header', label: 'Supercharger Pulley' }, ...Object.entries(SUPERCHARGER_PULLEYS).map(([id, x]) => ({ kind: 'item', icon: 'Disc', label: x.label, price: x.price, installed: (applied.scPulley || 'stock') === id, patch: { scPulley: id }, desc: `${x.desc}${id !== 'stock' ? ` (≈ +${Math.round(((SUPERCHARGERS[applied.supercharger] || {}).hp || 0) * (x.k - 1))} hp more)` : ''}` }))] : []),
+        ...(tuneOK ? [{ kind: 'header', label: 'Air Intake' },
+          ...Object.entries(INTAKES).filter(([id, x]) => id === 'stock' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Fan', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.intake || 'stock') === id, patch: { intake: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp)` : ''}` }))] : []),
         { kind: 'header', label: 'Exhaust' },
-        ...Object.entries(EXHAUSTS).filter(([id, x]) => id === 'stock' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Wind', label: id === 'stock' ? 'Factory quad-stack exhaust' : x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.exhaust || 'stock') === id, patch: { exhaust: id }, desc: `${id === 'stock' ? 'The factory system out to the four stacked tips — already raspy at the top end.' : x.desc}${engineOn ? '' : ' Start the engine to hear it.'}` })),
-        { kind: 'header', label: 'Differential' },
-        ...[['open', 'Open differential', 'Power goes to the rear tire with the least grip — the inside one lights up out of a slow corner.'], ['lsd', 'Torsen limited-slip (factory)', 'Shares the torque across the rear axle: clean exits, easy power slides.'], ['locker', 'Welded differential (drift)', 'Both rear tires locked together: the rear steps out the moment you ask and holds the slide.']]
-          .map(([id, label, desc]) => ({ kind: 'item', icon: 'Cog', label, price: id === 'locker' ? 120 : 0, installed: (applied.diff || 'lsd') === id, patch: { diff: id }, desc })),
-        { kind: 'header', label: 'Tuning' },
+        ...Object.entries(EXHAUSTS).filter(([id, x]) => id === 'stock' || x.car).map(([id, x]) => ({ kind: 'item', icon: 'Wind', label: id === 'stock' ? cs.exhaust : x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.exhaust || 'stock') === id, patch: { exhaust: id }, desc: `${id === 'stock' ? cs.exhaustDesc : x.desc}${engineOn ? '' : ' Start the engine to hear it.'}` })),
+        ...(vehicle.drive === 'AWD' ? [{ kind: 'header', label: 'xDrive' },
+          ...[['awd', 'AWD (factory)', 'Rear-biased all-wheel drive: launches hard, stable in the wet.'], ['sport', 'AWD Sport', 'Sends most of the torque to the rear: it rotates and will slide on the throttle.'], ['rwd', '2WD (rear only)', 'Front axle disconnected: a pure rear-drive car — burnouts and drifts, all on you.']]
+            .map(([id, label, desc]) => ({ kind: 'item', icon: 'Cog', label, price: 0, installed: (applied.awdMode || 'awd') === id, patch: { awdMode: id }, desc }))] : []),
+        ...(tuneOK ? [{ kind: 'header', label: 'Differential' },
+          ...[['open', 'Open differential', `Power goes to the ${vehicle.drive === 'FWD' ? 'front' : 'rear'} tire with the least grip — the inside one lights up out of a slow corner.`], ['lsd', vehicle.drive === 'FWD' ? 'Helical limited-slip' : 'Limited-slip (factory)', 'Shares the torque across the axle: clean exits, easy power slides.'], ['locker', 'Welded differential (drift)', 'Both tires locked together: the rear steps out the moment you ask and holds the slide.']]
+            .map(([id, label, desc]) => ({ kind: 'item', icon: 'Cog', label, price: id === 'locker' ? 120 : 0, installed: (applied.diff || 'lsd') === id, patch: { diff: id }, desc }))] : []),
+        ...(tuneOK ? [{ kind: 'header', label: 'Tuning' },
         ...Object.entries(CAR_ECU).map(([id, x]) => ({ kind: 'item', icon: 'Cpu', label: x.label, price: x.price, installed: (applied.ecu || 'stock') === id, patch: { ecu: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp / +${x.tq} lb-ft)` : ''}` })),
-        labeled('Final drive (rear gears)', `${(applied.finalCar || 2.937).toFixed(2)}:1`, btnRow(CAR_FINALS.map((f) => f[0]), applied.finalCar || 2.937, (v) => CAR_FINALS.find((f) => f[0] === v)[1], (v) => applyPatch({ finalCar: v }))),
+        labeled(`Final drive (${vehicle.drive === 'FWD' ? 'front' : vehicle.drive === 'AWD' ? 'axle' : 'rear'} gears)`, `${(applied.finalCar || carSpecOf(vehicle).final).toFixed(2)}:1`, btnRow(carFinalsOf(vehicle).map((f) => f[0]), applied.finalCar || carSpecOf(vehicle).final, (v) => carFinalsOf(vehicle).find((f) => f[0] === v)[1], (v) => applyPatch({ finalCar: v }))),
         { kind: 'custom', render: () => <div className="text-[11px] text-white/45">Shorter gears (a bigger number) launch harder and pull each gear quicker; it hits the limiter sooner in top gear.</div> },
         ...((applied.diff || 'lsd') === 'lsd' ? [{ kind: 'custom', render: () => (
           <div>
@@ -15625,8 +16281,8 @@ function App() {
             <div className="text-[11px] text-white/45 mt-1">64% is the sweet spot. More rear and it rotates (and gets loose) under braking; more front and it stops longer but dead straight.</div>
           </div>) },
         { kind: 'custom', render: () => <div className="text-[11px] text-white/45">Brake kits & caliper colors are under Wheels & Tires › Brakes.</div> },
-        ...Object.entries(CAR_WEIGHT).map(([id, x]) => ({ kind: 'item', icon: 'Feather', label: x.label, price: x.price, installed: (applied.carWeight || 'stock') === id, patch: { carWeight: id }, desc: x.desc })),
-        { kind: 'header', label: 'Hood, Doors & Trunk' },
+        ...Object.entries(CAR_WEIGHT).map(([id, x]) => ({ kind: 'item', icon: 'Feather', label: x.label, price: x.price, installed: (applied.carWeight || 'stock') === id, patch: { carWeight: id }, desc: x.desc }))] : []),
+        { kind: 'header', label: hatchOf(vehicle) ? 'Hood, Doors & Tailgate' : 'Hood, Doors & Trunk' },
         customModel && customModel.hood ? { kind: 'item', icon: hoodOpen ? 'ChevronsDown' : 'ChevronsUp', label: hoodOpen ? 'Close Hood' : 'Open Hood', desc: 'You can also click the hood on the car.', right: null, action: () => setHoodOpen((h) => !h) } : null,
         ...(customModel && customModel.doors && (customModel.doorIds || []).every(Boolean) ? [{ kind: 'custom', render: () => (
           <div>
@@ -15640,7 +16296,9 @@ function App() {
             <div className="text-[11px] text-white/45 mt-1">Each door swings on its own hinges — or click a door on the car.</div>
           </div>) }]
           : customModel && customModel.doors ? [{ kind: 'item', icon: 'DoorOpen', label: doorsOpen ? 'Close Doors' : 'Open Doors', desc: 'Swings the doors open on their hinges.', right: null, action: () => setDoorsOpen((d) => !d) }] : []),
-        customModel && customModel.trunk ? { kind: 'item', icon: trunkOpen ? 'ChevronsDown' : 'ChevronsUp', label: trunkOpen ? 'Close the trunk' : 'Open the trunk', desc: 'The lid swings up on its hinges (the inner taillights go with it). You can also click the trunk.', right: null, action: () => setTrunkOpen((t) => !t) } : null,
+        customModel && customModel.trunk ? (hatchOf(vehicle)
+          ? { kind: 'item', icon: trunkOpen ? 'ChevronsDown' : 'ChevronsUp', label: trunkOpen ? 'Close the tailgate' : 'Open the tailgate', desc: 'The whole tailgate — glass and all — lifts up on its roof hinges on gas struts. You can also click it.', right: null, action: () => setTrunkOpen((t) => !t) }
+          : { kind: 'item', icon: trunkOpen ? 'ChevronsDown' : 'ChevronsUp', label: trunkOpen ? 'Close the trunk' : 'Open the trunk', desc: 'The lid swings up on its hinges (the inner taillights go with it). You can also click the trunk.', right: null, action: () => setTrunkOpen((t) => !t) }) : null,
       ].filter(Boolean) };
     }
     if (category === 'wheels') {
@@ -15708,7 +16366,7 @@ function App() {
     }
     if (category === 'aero') {
       const opt = (tbl, key, icon, def = 'none') => Object.entries(tbl).map(([id, x]) => ({ kind: 'item', icon, label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied[key] || def) === id, patch: { [key]: id }, desc: x.desc || '' }));
-      const finRow = (key, label, def) => labeled(label, (KIT_FINISHES[applied[key] || def] || {}).label, btnRow(Object.keys(KIT_FINISHES), applied[key] || def, (id) => ({ carbon: 'Carbon', black: 'Black', body: 'Body' }[id]), (id) => applyPatch({ [key]: id }), (id) => setPreview({ [key]: id })));
+      const finRow = (key, label, def) => labeled(label, (KIT_FINISHES[applied[key] || def] || {}).label, btnRow(Object.keys(KIT_FINISHES), applied[key] || def, (id) => KIT_FINISHES[id].short, (id) => applyPatch({ [key]: id }), (id) => setPreview({ [key]: id })));
       return { title: 'Body Kit & Aero', defaultDesc: 'Lips, splitters, canards, diffusers, spoilers and wings — fitted to the car\'s own bumpers and trunk lid. Hover to preview.', items: [
         { kind: 'header', label: 'Front Lip / Splitter' },
         ...opt(CAR_LIPS, 'lip', 'ChevronsDown'),
@@ -15733,12 +16391,16 @@ function App() {
         { kind: 'header', label: 'Headlights' },
         ...Object.entries(CAR_HEADLIGHTS).map(([id, o]) => ({ kind: 'item', icon: 'Lamp', label: o.brand ? `${o.brand} ${o.label}` : o.label, price: o.price, installed: (applied.headlights || 'oem') === id, patch: { headlights: id }, desc: o.desc })),
         labeled('Bulb color', (HEAD_COLORS[applied.headColor] || HEAD_COLORS.hid).label, btnRow(Object.keys(HEAD_COLORS), applied.headColor || 'hid', (id) => ({ hid: 'HID', halogen: '3200K', white: '6000K', ice: '8000K', yellow: 'Yellow' }[id]), (id) => applyPatch({ headColor: id, head: (applied.head || 'off') === 'off' ? 'low' : applied.head }), (id) => setPreview({ headColor: id }))),
-        ...((CAR_HEADLIGHTS[applied.headlights] || {}).drl || (CAR_HEADLIGHTS[applied.headlights] || {}).halo ? [labeled('DRL / halo color', (DRL_COLORS[applied.drlColor] || DRL_COLORS.white).label, btnRow(Object.keys(DRL_COLORS), applied.drlColor || 'white', (id) => DRL_COLORS[id].label, (id) => applyPatch({ drlColor: id }), (id) => setPreview({ drlColor: id })))] : []),
+        ...((CAR_HEADLIGHTS[applied.headlights] || {}).drl || (CAR_HEADLIGHTS[applied.headlights] || {}).halo ? [{ kind: 'header', label: 'DRL / Halo Color' },
+          ...Object.entries(DRL_COLORS).map(([id, c]) => ({ kind: 'item', icon: 'Lamp', label: `${c.label} daytime running lights`, swatch: c.sw, price: id === 'white' ? 0 : 90, installed: (applied.drlColor || 'white') === id, patch: { drlColor: id }, desc: 'The LED light guide / halo rings — lit whenever the car is on, brighter with the headlights.' }))] : []),
         { kind: 'header', label: 'Fog Lights' },
         { kind: 'item', icon: 'Power', label: applied.fogsOn ? 'Fog lights on' : 'Fog lights off', right: <span className={`hud font-bold text-[13px] ${applied.fogsOn ? 'text-emerald-400' : 'text-white/45'}`}>{applied.fogsOn ? 'ON' : 'OFF'}</span>, patch: { fogsOn: !applied.fogsOn, lightSwitch: { ...(applied.lightSwitch || {}), oemFog: !applied.fogsOn } }, desc: 'The bumper fog lamps.' },
         ...[['clear', 'White (factory clear)'], ['yellow', 'Selective yellow']].map(([id, label]) => ({ kind: 'item', icon: 'Lamp', label, swatch: id === 'yellow' ? '#ffc21a' : '#eef3f8', price: id === 'yellow' ? 120 : 0, installed: (fogY ? 'yellow' : 'clear') === id, patch: { fogTint: id }, desc: id === 'yellow' ? 'Yellow lenses and a warm yellow beam — the rally look.' : 'Clear lenses, white light.' })),
         { kind: 'header', label: 'Taillights' },
         ...Object.entries(CAR_TAILLIGHTS).map(([id, o]) => ({ kind: 'item', icon: 'Lamp', label: o.brand ? `${o.brand} ${o.label}` : o.label, price: o.price, installed: (applied.taillights || 'oem') === id, patch: { taillights: id }, desc: o.desc })),
+        ...(hasZone('rearReflector') ? [{ kind: 'header', label: 'Rear Bumper Reflectors' },
+          ...[['oem', 'Factory red reflectors', '#b3141c', 0, 'The red reflector strips in the rear bumper.'], ['smoke', 'Smoked reflectors', '#4a1416', 60, 'Smoked over — a dark red that still reflects at night.'], ['black', 'Blacked-out reflectors', '#141416', 80, 'Blacked out to match smoked or black trim.']]
+            .map(([id, label, sw, price, desc]) => ({ kind: 'item', icon: 'Lamp', label, swatch: sw, price, installed: (applied.rearReflectors || 'oem') === id, patch: { rearReflectors: id }, desc }))] : []),
         { kind: 'header', label: 'Underglow' },
         { kind: 'item', icon: 'Lightbulb', label: 'LED underglow pods', price: 299, installed: applied.rockLights, patch: { rockLights: !applied.rockLights, ...(!applied.rockLights ? { lightsOn: true } : {}) }, desc: 'LED pods under the sills light the ground around the car.' },
         ...(applied.rockLights ? Object.entries(ROCK_COLORS).map(([id, hex]) => ({ kind: 'item', label: `Underglow · ${id}`, swatch: '#' + hex.toString(16).padStart(6, '0'), price: 0, installed: applied.rockColor === id, patch: { rockColor: id, lightsOn: true }, desc: 'Underglow color.' })) : []),
@@ -15840,6 +16502,7 @@ function App() {
     items = [
       { kind: 'header', label: 'Height & build' },
       { kind: 'custom', render: () => <CharHeightRow value={cs.heightIn} roof={hts.roof} onChange={(v) => setCharSpec((c) => ({ ...c, heightIn: v }))} /> },
+      { kind: 'custom', render: () => <div className="text-[11px] text-white/45 leading-snug -mt-1 mb-1">Fits behind the wheel of every car up to about <b className="text-white/70">6'2"</b> — the seat drops for taller drivers. At 6'4" and up your head brushes a sedan's or coupe's roof (the trucks fit anyone).</div> },
       ...opt('build', CHAR_BUILDS, 'PersonStanding', 'Build · '),
       { kind: 'header', label: 'Skin & face' },
       colors('skin', 'Skin tone', CHAR_SKINS), colors('eyes', 'Eye color', CHAR_EYE_COLORS),
@@ -15979,7 +16642,7 @@ function App() {
                 {ZONE_SWATCHES.map((s) => (
                   <button key={s.name} title={`${s.name} (${s.finish})`} onMouseEnter={() => { UISound.hover(); setZone({ hex: s.hex, finish: s.finish }, true); }} onClick={() => { UISound.select(); setZone({ hex: s.hex, finish: s.finish }); }}
                     className={`aspect-square rounded transition-transform hover:scale-110 ${cur && cur.hex === s.hex && cur.finish === s.finish ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-black' : 'ring-1 ring-white/15'}`}
-                    style={{ background: s.finish === 'chrome' ? 'linear-gradient(145deg,#f4f6f8 20%,#8b9096 50%,#f4f6f8 80%)' : s.finish === 'carbon' ? 'repeating-linear-gradient(45deg,#2c2e33 0 4px,#121315 4px 8px)' : s.finish === 'matte' ? s.hex : `linear-gradient(145deg, ${s.hex} 35%, rgba(255,255,255,.45) 52%, ${s.hex} 70%)` }} />
+                    style={{ background: s.finish === 'chrome' ? 'linear-gradient(145deg,#f4f6f8 20%,#8b9096 50%,#f4f6f8 80%)' : isCarbon(s.finish) ? CARBON_KINDS[s.finish].swatch : s.finish === 'matte' ? s.hex : `linear-gradient(145deg, ${s.hex} 35%, rgba(255,255,255,.45) 52%, ${s.hex} 70%)` }} />
                 ))}
               </div>
               {(vehicle.colors || []).length > 0 && (<>
@@ -16134,9 +16797,10 @@ function App() {
       ) },
       { kind: 'header', label: 'Starlight Headliner' },
       ...Object.entries(STARLIGHTS).map(([id, x]) => ({ kind: 'item', icon: 'Sparkles', label: x.label, price: x.price, installed: (applied.starlight || 'none') === id, patch: { starlight: id }, desc: x.desc })),
-      ...(isCar ? [] : [{ kind: 'header', label: 'Moonroof' }]),
-      ...Object.entries(isCar ? {} : SUNROOFS).filter(([, x]) => !x.hidden).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id || (id === 'closed' && applied.sunroof === 'open'), patch: { sunroof: id }, desc: x.desc })),
-      ...(!isCar && (applied.sunroof || 'none') !== 'none' ? [{ kind: 'item', icon: !!applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: !!applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'Slides the glass back into the roof (also in the drive HUD → Windows).', action: () => applyPatch({ sunroof: 'closed', sunroofOpen: !!!applied.sunroofOpen }) }] : []),
+      // (a car that came without one — the LD — gets the add-on power moonroof too)
+      ...(isCar && factoryRoof ? [] : [{ kind: 'header', label: 'Moonroof' }]),
+      ...Object.entries(isCar && factoryRoof ? {} : SUNROOFS).filter(([, x]) => !x.hidden).map(([id, x]) => ({ kind: 'item', icon: 'Sun', label: x.label, price: x.price, installed: (applied.sunroof || 'none') === id || (id === 'closed' && applied.sunroof === 'open'), patch: { sunroof: id }, desc: isCar ? (id === 'none' ? 'Solid roof.' : 'A tinted glass panel over the front seats that slides back under the roof. Open / close it below or from the drive HUD (Windows).') : x.desc })),
+      ...(!(isCar && factoryRoof) && (applied.sunroof || 'none') !== 'none' ? [{ kind: 'item', icon: !!applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: !!applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'Slides the glass back into the roof (also in the drive HUD → Windows).', action: () => applyPatch({ sunroof: 'closed', sunroofOpen: !!!applied.sunroofOpen }) }] : []),
       ...(isCar && factoryRoof ? [{ kind: 'header', label: 'Moonroof' }, { kind: 'item', icon: applied.sunroofOpen ? 'PanelTopClose' : 'PanelTopOpen', label: applied.sunroofOpen ? 'Close the moonroof' : 'Open the moonroof', desc: 'The factory glass moonroof drops a touch and slides back under the roof (also in the drive HUD → Windows). It takes the window tint.', action: () => applyPatch({ sunroofOpen: !applied.sunroofOpen }) }] : []),
       ...(isCar ? [{ kind: 'header', label: 'Air Freshener (rear-view mirror)' }, ...Object.entries(FRESHENERS).map(([id, x]) => ({ kind: 'item', icon: 'TreePine', label: x.label, price: x.price, swatch: x.color, installed: (applied.freshener || 'none') === id, patch: { freshener: id }, desc: id === 'none' ? 'Nothing hanging off the mirror.' : 'Hangs off the mirror on a string and swings as you drive — back when you launch, forward when you brake, out of the corners.' }))] : []),
       { kind: 'header', label: 'Sound System (play music from the drive HUD → Audio)' },
@@ -16813,7 +17477,22 @@ function App() {
               {hudPop === 'volume' && <MixerPanel />}
               {hudPop === 'drive' && (
                 <div className="w-[230px]">
-                  {isCar ? <div className="hud text-[10.5px] tracking-[0.18em] text-white/45 mb-1">REAR-WHEEL DRIVE</div> : ( // (the sedan: rear-drive only — no transfer case)
+                  {isCar && applied.carSusp === 'air' && (() => { const low = applied.lower || 0, tgt = airTarget ?? low; return (
+                    <div className="mb-2">
+                      <div className="hud text-[10.5px] tracking-[0.18em] text-white/45 mb-1 flex justify-between"><span>AIR RIDE  [ / ]</span><span className="text-amber-300">−{low.toFixed(1)}"{airTarget !== null ? ' …' : ''}</span></div>
+                      <div className="flex gap-1">
+                        <button onClick={() => airTo(tgt - 0.5)} className="flex-1 rounded py-1 hud text-[11px] font-bold border border-white/15 text-white/80 hover:bg-white/10 flex items-center justify-center gap-1"><Icon name="ChevronUp" size={13} />UP</button>
+                        <button onClick={() => airTo(tgt + 0.5)} className="flex-1 rounded py-1 hud text-[11px] font-bold border border-white/15 text-white/80 hover:bg-white/10 flex items-center justify-center gap-1"><Icon name="ChevronDown" size={13} />DOWN</button>
+                      </div>
+                      <div className="flex gap-1 mt-1">
+                        {[['MAX UP', CAR_SUSP.air.lower[0]], ['DRIVE', 1.5], ['LOW', 2.75], ['AIRED OUT', CAR_SUSP.air.lower[1]]].map(([l, v]) => (
+                          <button key={l} onClick={() => airTo(v)} className={`flex-1 rounded py-1 hud text-[10px] font-bold border ${Math.abs(tgt - v) < 0.13 ? 'bg-amber-400/20 border-amber-400/70 text-amber-200' : 'border-white/12 text-white/55'}`}>{l}</button>
+                        ))}
+                      </div>
+                    </div>); })()}
+                  {isCar ? (<><div className="hud text-[10.5px] tracking-[0.18em] text-white/45 mb-1">{driveLayoutLabel(vehicle)}</div>
+                    {vehicle.drive === 'AWD' && <div className="flex gap-1 mb-2">{[['awd', 'AWD'], ['sport', 'AWD SPORT'], ['rwd', '2WD']].map(([id, l]) => (
+                      <button key={id} onClick={() => applyPatch({ awdMode: id })} className={`flex-1 rounded px-1 py-1 hud text-[11px] font-bold border ${(applied.awdMode || 'awd') === id ? 'bg-amber-400/20 border-amber-400/70 text-amber-200' : 'border-white/12 text-white/55'}`}>{l}</button>))}</div>}</>) : ( // (a car: its own drive layout — no transfer case)
                   <div className="flex gap-1">
                     {Object.entries(TRANSFER).map(([id, x]) => (
                       <button key={id} onClick={() => applyPatch({ xfer: id })} className={`flex-1 rounded px-1 py-1 hud text-[11px] font-bold border ${(applied.xfer || '4h') === id ? 'bg-amber-400/20 border-amber-400/70 text-amber-200' : 'border-white/12 text-white/55'}`}>{x.label}</button>

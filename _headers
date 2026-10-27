@@ -1,3 +1,6 @@
 /car.glb
   Content-Type: model/gltf-binary
   Cache-Control: public, max-age=3600
+/models/*
+  Content-Type: model/gltf-binary
+  Cache-Control: public, max-age=3600

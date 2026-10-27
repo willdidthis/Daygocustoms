@@ -335,18 +335,42 @@ const CATALOG = {
         ['TRD Off-Road V8', '4.7L i-Force V8', 245, 315, '265/70R16', 10.6, 31, 25, 20, 4600],
       ] },
     ],
+    // (the 2003–09 body-on-frame SUV: the Dundra's 4.7 i-Force V8 — 260 hp / 306 lb-ft from 2005 — or the 4.0 V6; full-time
+    // 4WD on the V8 with a locking centre diff, part-time on the V6; 109.8" wheelbase)
+    'D-runner': [
+      { gen: '4th Gen', years: [2003, 2009], body: 'suv', fs: 'ifs', dims: [109.8, 188.9, 74.1, 71.3], trims: [
+        ['SR5 V8 4WD', '4.7L i-Force V8', 260, 306, '265/70R16', 9.1, 30, 25, 20, 4420],
+        ['Sport Edition V8 4WD', '4.7L i-Force V8', 260, 306, '265/65R17', 9.1, 30, 25, 20, 4460],
+        ['Limited V8 4WD', '4.7L i-Force V8', 260, 306, '265/65R17', 9.1, 30, 25, 20, 4620],
+        ['SR5 V6 4WD', '4.0L V6 (1GR-FE)', 236, 266, '265/70R16', 9.1, 30, 25, 20, 4260],
+        ['Trail Edition V6 4WD', '4.0L V6 (1GR-FE)', 236, 266, '265/70R17', 9.3, 31, 25, 21, 4400],
+      ], colors: [ // the real 4th gen's palette (approximations)
+        { name: 'Black', hex: '#0d0d0f' }, { name: 'Natural White', hex: '#eceeea' }, { name: 'Titanium Metallic', hex: '#b5b6b4', metallic: true },
+        { name: 'Galactic Gray Mica', hex: '#5c5f63', metallic: true }, { name: 'Salsa Red Pearl', hex: '#8e1a1c', metallic: true }, { name: 'Pacific Blue Metallic', hex: '#28466a', metallic: true },
+        { name: 'Driftwood Pearl', hex: '#a39882', metallic: true }, { name: 'Shoreline Blue Pearl', hex: '#3e5d70', metallic: true }, { name: 'Speedway Blue', hex: '#1d3f8f', metallic: true },
+        { name: 'Stratosphere Mica', hex: '#7c8b97', metallic: true }, { name: 'Pewter Pearl', hex: '#8e8f8a', metallic: true }, { name: 'Classic Silver Metallic', hex: '#c4c6c7', metallic: true },
+      ] },
+    ],
   },
   Dord: {
     'D-D50': [
       { gen: '12th Gen', years: [2009, 2014], body: 'pickup', fs: 'ifs', dims: [144.5, 231.7, 78.9, 76.0], cab: 'crew', trims: [
+        // (every engine of the generation: the 4.6 & 5.4 V8s 2009–10, then the 3.7 V6, 5.0 V8, 3.5 twin-turbo V6; the 6.2 V8 from 2010)
         ['DLT 5.0 V8 Crew Cab', '5.0L V8', 360, 380, '275/65R18', 8.9, 25.5, 26.2, 21.1, 5200],
-        ['DLT TurboBoost Crew Cab', '3.5L Twin-Turbo V6', 365, 420, '275/65R18', 8.9, 25.5, 26.2, 21.1, 5300],
+        ['DLT TurboBoost Crew Cab', '3.5L TurboBoost Twin-Turbo V6', 365, 420, '275/65R18', 8.9, 25.5, 26.2, 21.1, 5300],
         ['Dariat 6.2 Crew Cab', '6.2L V8', 411, 434, '275/55R20', 8.9, 24.8, 25.5, 20.9, 5550],
+        ['DL 3.7 V6 Crew Cab', '3.7L V6', 302, 278, '265/70R17', 8.9, 25.5, 26.2, 21.1, 5000],
+        ['DLT 5.4 V8 Crew Cab (2009–10)', '5.4L V8', 310, 365, '275/65R18', 8.9, 25.5, 26.2, 21.1, 5300],
+        ['DL 4.6 V8 Crew Cab (2009–10)', '4.6L V8', 292, 320, '265/70R17', 8.9, 25.5, 26.2, 21.1, 5100],
       ] },
       { gen: '13th Gen', years: [2015, 2020], body: 'pickup', fs: 'ifs', dims: [145.0, 231.9, 79.9, 77.2], cab: 'super', trims: [
         ['DL Super Cab', '3.5L V6', 282, 253, '245/70R17', 8.8, 24.8, 26.0, 21.0, 4400],
         ['DLT Super Cab', '2.7L TurboBoost V6', 325, 375, '265/70R17', 9.4, 25.5, 26.0, 21.0, 4600],
         ['DLT Sport 5.0 Super Cab', '5.0L V8', 385, 387, '275/55R20', 9.4, 24.8, 25.5, 20.9, 4900],
+        // (and the rest of the generation: the 3.5 twin-turbo V6, the 2018–20 3.3 V6 and 3.0 diesel)
+        ['Dariat TurboBoost Super Cab', '3.5L TurboBoost Twin-Turbo V6', 375, 470, '275/55R20', 9.4, 24.8, 25.5, 20.9, 5000],
+        ['DL 3.3 Super Cab (2018–20)', '3.3L V6', 290, 265, '245/70R17', 8.8, 24.8, 26.0, 21.0, 4450],
+        ['DLT Power Stroke Super Cab (2018–20)', '3.0L Power Stroke Turbo-Diesel V6', 250, 440, '265/70R17', 9.4, 25.5, 26.0, 21.0, 5050],
       ] },
       { gen: '13th Gen Daptor', years: [2017, 2020], body: 'pickup', fs: 'ifs', dims: [145.0, 231.9, 86.3, 78.5], cab: 'crew', trims: [
         ['Daptor Crew Cab', '3.5L HO TurboBoost V6', 450, 510, '315/70R17', 11.5, 30.2, 23.0, 22.9, 5525],
@@ -852,6 +876,8 @@ const LINEUP_TYPES = [
 const LINEUP = [
   { type: 'truck', make: 'Doyoda', model: 'Dundra', blurb: 'The one that started it all. Regular, Access & Double Cab, every factory option, fully modded.',
     gens: [{ gen: '1st Gen', label: '1st Gen', years: '2000–2006', note: 'Regular · Access · Double Cab' }] },
+  { type: 'suv', make: 'Doyoda', model: 'D-runner', blurb: 'The body-on-frame 4th-gen SUV with the Dundra\'s 4.7 V8: lifts, long travel, bumpers, a roll-down back glass and every truck mod that fits.',
+    gens: [{ gen: '4th Gen', label: '4th Gen', years: '2003–2009', note: '4.7 V8 · full-time 4WD' }] },
   { type: 'truck', make: 'Dord', model: 'D-D50', blurb: "America's full-size workhorse — three generations, from the 5.0 V8 Crew Cab to the 720 hp Daptor R.",
     gens: [{ gen: '12th Gen', label: '12th Gen', years: '2009–2014', note: 'Crew Cab · lifted on 35s' }, { gen: '13th Gen', label: '13th Gen', years: '2015–2020', note: 'Super Cab' },
       { gen: '13th Gen Daptor', label: '13th Gen Daptor', years: '2017–2020', note: 'Crew Cab · desert runner / Pursuit' }, { gen: '14th Gen', label: '14th Gen Daptor', years: '2021–2024', note: 'Crew Cab · Daptor R' }] },
@@ -869,12 +895,13 @@ const LINEUP = [
     gens: [{ gen: 'D81', label: 'D81 Touring', years: '2023–2025', note: '3.0 TT I6 · 8-speed · xDrive AWD' }] },
 ];
 // the vehicle a lineup generation opens with (its first catalog trim, latest year)
-const lineupVehicle = (make, model, gen) => { const gens = CATALOG[make][model], gi = Math.max(0, gens.findIndex((g) => g.gen === gen)); return makeVehicle(make, model, gi, gens[gi].years[1], 0, make === 'Doyoda' ? { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' } : undefined); };
+const lineupVehicle = (make, model, gen) => { const gens = CATALOG[make][model], gi = Math.max(0, gens.findIndex((g) => g.gen === gen)); return makeVehicle(make, model, gi, gens[gi].years[1], 0, make === 'Doyoda' && model === 'Dundra' ? { cab: 'double', trim: 'SR5', engine: 'v8', drive: '4x4' } : undefined); };
 const lineupOf = (v) => LINEUP.find((e) => v && e.make === v.make && e.model === v.model) || null;
 const isLocked = (v) => !!(lineupOf(v) && lineupOf(v).locked); // (drive-only for now: no customizing)
 // a car (sedan) rather than a truck: its own build, menus (no lift / armor / bed / fab) and driving (see the stage's DRIVELINES)
 const CAR_BODIES = ['sedan', 'coupe', 'wagon', 'hatchback'];
 const isCarV = (v) => !!v && CAR_BODIES.includes(v.body);
+const isSuvV = (v) => !!v && (v.body === 'suv' || v.body === 'suv2'); // (body-on-frame SUV: the truck mods, minus the bed)
 const hatchOf = (v) => !!v && (v.body === 'wagon' || v.body === 'hatchback'); // (a lift-up tailgate instead of a trunk lid)
 const driveLayoutLabel = (v) => ({ FWD: 'FRONT-WHEEL DRIVE', AWD: 'ALL-WHEEL DRIVE' }[(v && v.drive) || 'RWD'] || 'REAR-WHEEL DRIVE');
 const CAR_CATS = ['factory', 'engine', 'wheels', 'suspension', 'aero', 'paint', 'interior', 'lights', 'character'];
@@ -978,6 +1005,8 @@ function dmw1Zone(name, mat, t) {
   if (mat === 'PLASTICA_Nera_lucida') return t.cy > P.cowlY - 0.05 ? 'winTrim' : null;
   if (mat === 'Chassis') {
     if (t.cx > P.front - 0.25 && t.cy > P.hoodY - 0.35 && t.az < 0.33) return 'grille'; // (the kidney slats)
+    // (the bay's top is a photo of the engine on a sheet: it makes way for the engine built in 3D)
+    if (t.cx > P.cowlX - 0.1 && t.cx < P.front - 0.3 && t.cy > 0.55 && t.n.y > 0.3 && t.az < P.halfW - 0.12) return 'engineCover';
     return t.cx > P.cowlX - 0.1 && t.cx < P.front - 0.3 && t.cy < P.hoodY - 0.03 && t.cy > P.wheelY0 - 0.05 && t.az < P.halfW - 0.2 ? 'engine' : null;
   }
   if (mat !== 'LIVREA') return null;
@@ -1022,6 +1051,7 @@ function d92Zone(name, mat, t) {
   if (/^Fender/.test(part)) return /^Glass/.test(m) ? 'lampLens' : null; // (the gill's turn-signal strip: a lamp, never window-tinted)
   if (m === 'carbon') return t.cy > P.roofTop - 0.2 ? 'roof' : null; // (the M3's carbon roof)
   if (m === 'CarPaint') return t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55 ? 'roof' : null;
+  if (m === 'Engine' && c && c.b.min.y > 0.72 && c.b.min.x > 1.0 && c.b.max.x < 1.7 && Math.max(Math.abs(c.b.min.z), Math.abs(c.b.max.z)) < 0.42) return 'engineCover'; // (the carbon airbox over the throttle bodies: off for a blower)
   if (m === 'Engine' || m === 'Chassis') return t.cx > P.cowlX - 0.1 && t.cx < P.front - 0.3 && t.cy < P.hoodY - 0.03 && t.cy > 0.15 && t.az < P.halfW - 0.2 ? 'engine' : null;
   if (/^Opaque_Plastic/.test(m)) return t.cx > P.cowlX - 0.2 && t.cx < P.cowlX + 0.2 && t.cy > P.hoodY - 0.12 && t.az < P.halfW - 0.12 ? 'cowl' : null;
   return null;
@@ -1106,6 +1136,8 @@ function dsZone(name, mat, t) {
       if (part) return c && c.sx < 0.3 && c.sy < 0.08 && c.sz < 0.1 && !(t.az > P.halfW + 0.04) ? 'handles' : t.az > P.halfW + 0.04 && t.cy > P.cowlY - 0.1 ? 'mirrors' : null;
       if (t.cy > P.roofTop - 0.1 && Math.abs(t.n.y) > 0.55) return 'roof';
       if (mat === 'Meshpart1Mtl' && t.cx > P.cowlX + 0.02 && t.cx < P.front - 0.15 && t.cy > P.hoodY - 0.12 && t.n.y > 0.45 && t.az < P.halfW - 0.16) return 'hood';
+      // (a flat under-layer shelf across the bay, under the hood: it makes way for the engine built in 3D)
+      if (mat === 'Part1Mtl' && t.cx > P.cowlX + 0.04 && t.cx < P.front - 0.3 && t.cy > 0.55 && t.cy < P.hoodY + 0.05 && Math.abs(t.n.y) > 0.5 && t.az < P.halfW - 0.15) return 'engineCover';
       // (the spindle grille's insert: its own shell of the bumper skin, inside the chrome frame)
       if (c && c.b.min.x > P.front - 0.25 && c.b.min.y > 0.25 && c.b.max.y < 0.76 && c.sy > 0.3 && Math.max(Math.abs(c.b.min.z), Math.abs(c.b.max.z)) < 0.58) return 'grille';
       if (t.cx > P.front - 0.6 && t.cy < P.hoodY - 0.12) return 'frontBumper';
@@ -1193,6 +1225,64 @@ function ldZone(name, mat, t) {
     default: return null;
   }
 }
+// The Doyoda D-runner (4th-gen SUV): merged by material — each door skin is its own paint shell, but the side glass, window
+// frames, belt mouldings and door cards run across both doors as one shell each, so those are split at the B-pillar by position.
+// The liftgate: its skin, glass & frame; it lifts on hinges at the roof's back edge.
+const DR_B = -0.315; // (the B-pillar seam, model metres in the fitted frame)
+function drParts(s, F) {
+  const side = s.c.z > 0 ? 'r' : 'l', maxAz = Math.max(Math.abs(s.min.z), Math.abs(s.max.z));
+  if (/^(Tyres|Rims|Hub_Lock)$/.test(s.mat)) return null;
+  // the maker's marks (developer mode only): the grille emblem & V8 badge, the liftgate emblem and its two name plates, the trim
+  // lettering on the front doors
+  if (s.mat === 'Chrome') {
+    const az = Math.abs(s.c.z);
+    if (s.min.x > F.front - 0.25 && s.c.y > 0.92 && s.c.y < 1.1 && (az < 0.08 || (s.c.z < -0.28 && s.c.z > -0.41 && s.c.y < 0.98))) return 'badge';
+    if (s.max.x < F.rear + 0.15 && ((s.c.y > 1.18 && s.c.y < 1.28 && az < 0.07) || (s.c.y > 0.85 && s.c.y < 0.9 && az > 0.47 && az < 0.73))) return 'trunk_badge';
+    if (s.min.x > 0.37 && s.max.x < 0.68 && s.c.y > 0.88 && s.c.y < 0.93 && az > 0.87) return `door_f${s.c.z > 0 ? 'r' : 'l'}_badge`;
+  }
+  // the liftgate (behind the rear wheels' arch line, above the bumper, inside the tail lamps) — and the third brake light up in
+  // its roof spoiler, which lifts with it
+  if (s.min.x < F.rear + 0.25 && s.max.x < F.rear + 0.55 && s.min.y > 0.7 && maxAz < 0.86 && (!/^(Tail_Lights|Indicators)$/.test(s.mat) || s.min.y > 1.7)) return 'trunk';
+  if (s.mat === 'Main_Paint' && s.minAz > 0.7 && s.min.y > 0.45 && s.max.y < 1.36) {
+    if (s.min.x > DR_B - 0.06 && s.max.x < 0.82) return 'door_f' + side;
+    if (s.min.x > -1.3 && s.max.x < DR_B + 0.03) return 'door_r' + side;
+  }
+  if (s.min.x > -1.32 && s.max.x < 0.86 && s.minAz > 0.55 && s.min.y > 0.5 && s.max.y < 1.8 && s.size.x > 0.5) return 'split'; // (glass, frames, mouldings, door cards across both doors)
+  if (s.min.x > -1.32 && s.max.x < 0.86 && s.minAz > 0.6 && s.size.x < 0.5 && s.min.y > 0.5 && s.max.y < 1.4 && (s.c.x > DR_B + 0.03 || s.c.x < DR_B - 0.03)) return (s.c.x > DR_B ? 'door_f' : 'door_r') + side; // (handles, small trim on a door)
+  return null;
+}
+function drPartTri(x, y, z, F) {
+  if (Math.abs(z) < 0.6 || x < -1.3 || x > 0.85) return null;
+  return (x > DR_B ? 'door_f' : 'door_r') + (z > 0 ? 'r' : 'l');
+}
+// its glass and lamp lenses came in as mirror-metal (metalness 1): the windows read white from outside. Real glass & lenses.
+function drFix(obj) {
+  obj.traverse((o) => { if (!o.isMesh || !o.material || Array.isArray(o.material)) return; const mt = o.material;
+    if (mt.name === 'Glass') { mt.color.setHex(0x0b0d10); mt.metalness = 0.14; mt.roughness = 0.03; mt.opacity = 0.67; mt.transparent = true; }
+    if (mt.name === 'Tail_Lights') { mt.metalness = 0.1; mt.roughness = 0.05; mt.opacity = 0.78; mt.color.setHex(0xa8120a); }
+    if (mt.name === 'Indicators') { mt.metalness = 0.1; mt.roughness = 0.05; mt.opacity = 0.6; }
+    mt.needsUpdate = true; });
+  return 'Gave the windows and lamp lenses real glass (they were mirror-metal).';
+}
+// its part map: what the truck rules would call a bed is the SUV's back half (plain body), the liftgate is the trunk
+function drZone(name, mat, t) {
+  const P = t.P, part = (name.match(/^(door_[fr][lr]|hood|trunk)_/) || [])[1] || '';
+  if (part === 'trunk') {
+    if (t.cy > 1.76 && t.az < 0.22) return mat === 'Glass' ? 'lampLens' : mat === 'Tail_Lights' ? 'brake3' : null; // (the third brake light in the spoiler)
+    if (mat === 'Glass') return t.az < 0.66 && t.cy > 1.3 ? 'winRear' : null; // (the back glass rolls down into the gate)
+    if (mat === 'Main_Paint') return 'trunk';
+    return null;
+  }
+  // the factory roof rack: its two rails and crossbars up on the roof (comes off — or makes way for an aftermarket rack)
+  if (mat === 'Black' && t.comp && t.comp.b.min.y > 1.76 && t.comp.b.min.x > -1.9) return 'roofRack';
+  if (/^door_/.test(part) && mat === 'Glass') return (/^door_f/.test(part) ? 'winF' : 'winR') + (t.cz > 0 ? 'P' : 'D');
+  if (mat === 'Glass' && t.cx < -1.25 && t.cx > P.rear + 0.25 && t.cy > 1.3) return null; // (the quarter glass stays put)
+  if (mat === 'Tail_Lights') return 'taillights';
+  if (mat === 'Indicators') return t.cx > 0 ? 'headlights' : 'taillights';
+  // the factory fog lamps low in the bumper corners: the chrome bowl is the housing, the glass its lens (which carries the light)
+  if ((mat === 'Chrome' || mat === 'Glass') && t.cx > P.xF + 0.55 && t.cy < P.bumperY + 0.32 && t.az > 0.6) return mat === 'Glass' ? 'fogLens' : 'fogs';
+  return undefined; // (the truck rules: hood, grille, bumpers, mirrors, cabin…)
+}
 // the 1D's rear-window defroster layer is a black sheet with copper lines (drawn additively in its own game): just the lines,
 // faint and dark, so you see through the back glass
 function dmw1Fix(obj) {
@@ -1203,22 +1293,32 @@ function dmw1Fix(obj) {
 // stock 3D model per generation (url relative to the page). prof: see prepModel
 const STOCK_MODELS = {
   'Doyoda|Dundra|1st Gen': { url: 'car.glb', ident: { cab: 'double' } },
-  'Dord|D-D50|12th Gen': { url: 'models/dord-d50-12.glb', ident: { cab: 'crew' }, prof: {
+  'Doyoda|D-runner|4th Gen': { url: 'models/doyoda-drunner.glb', ident: {}, prof: { engine3d: true, suv: true, paint: /^Main_Paint$/, glass: /^Glass$/, notGlass: /^(Tail_Lights|Indicators)$/,
+    parts: drParts, partTri: drPartTri, zoneOf: drZone, doorGroups: [/^door_fl_/, /^door_rl_/, /^door_fr_/, /^door_rr_/], trunk: /^trunk_/,
+    hide: /^Object_15\b.*\| Black$/, // (its own axles & diffs: the 3D chassis — frame, IFS, solid rear axle — replaces them)
+    fix: drFix, wellTubs: true } }, // (its wheel wells are open to the sky: tubs over the tyres)
+  'Dord|D-D50|12th Gen': { url: 'models/dord-d50-12.glb', ident: { cab: 'crew' }, prof: { engine3d: true, rearBumperBox: { dx: 0.42, top: 0.845 }, // (its chrome step bumper isn't a named part)
     merge: true, rotY: Math.PI / 2, paint: /^Color_A17$/, glass: /^(Color_006|Translucent_Glass_Gray|material_45)$/,
     badges: /\| (Color_I11|Color_004_1)$/, // (the blue ovals & their rings)
     // the oval's chrome surround & the model badges (tailgate, both front fenders) — model inches
     cut: [[134.5, 51, -335, 149.5, 57.5, -331.6], [161.5, 51.5, -335, 179.5, 57.5, -331.6], [99, 58.5, -141.5, 102.9, 63.5, -122], [181.4, 58.5, -141.5, 185.3, 63.5, -122], [135.5, 49.5, -77.6, 148.8, 57, -73.8]]
       .map(([x0, y0, z0, x1, y1, z1]) => ({ node: /./, mat: /^(Color_00[0237]|Color_008|Color_A01_3)$/, min: [x0, y0, z0], max: [x1, y1, z1], badge: true })) } },
-  'Dord|D-D50|13th Gen': { url: 'models/dord-d50-13.glb', ident: { cab: 'super' }, prof: {
+  'Dord|D-D50|13th Gen': { url: 'models/dord-d50-13.glb', ident: { cab: 'super' }, prof: { engine3d: true,
     // the maker's ovals & model badges are painted into the atlases: those triangles become dev-mode badges; the wheels'
     // centre caps are painted plain silver
     uvCut: [{ mat: /^Material_1$/, size: 1024, rects: [[4, 408, 170, 482], [2, 482, 242, 550], [686, 474, 1020, 509]] }, { mat: /^Material_3$/, size: 1024, rects: [[930, 126, 1024, 182]] }],
     texFill: [{ mat: /^Material_1$/, size: 1024, round: true, rects: [[924, 652, 1012, 712, '#b9bdc2']] }],
+    // (the grille's oval: a body-colour ring round a dark insert on the centre bar — blanked with a colour-matched oval)
+    plug: [{ mat: /^Material_3$/, axis: 'x', disc: true, flat: true, min: [-7.73436, 2.79203, -0.53115], max: [-7.36698, 3.16495, 0.17364] }],
     // (its bumpers are in the body's white atlas, so the paint would take them: chrome from the factory)
-    zoneDefaults: { frontBumper: { hex: '#d9dcdf', finish: 'chrome' }, rearBumper: { hex: '#d9dcdf', finish: 'chrome' } } } },
-  'Dord|D-D50|13th Gen Daptor': { url: 'models/dord-d50-13-daptor.glb', ident: { cab: 'crew' }, prof: {
-    paint: /smallspecmap__PAINT_1_/, detailed: true, wheels: /\bhub_/, hide: /\bsuspension_\d/,
-    badges: /\| (Black|for_badge\.001)$/, // (grille & tailgate lettering, the steering-wheel badge)
+    zoneDefaults: { frontBumper: { hex: '#d9dcdf', finish: 'chrome' }, rearBumper: { hex: '#d9dcdf', finish: 'chrome' }, fbLower: { hex: '#18191b', finish: 'matte' } }, // (+ the black lower air dam)
+    // (the chrome bumper's bottom edge cut straight, so the black air dam under it meets it cleanly instead of in a sawtooth)
+    slices: [{ mats: /^Material_\d$/, planes: [{ axis: 'y', at: 0.64, box: { x: [2.1, 2.9], az: [0, 1.0] } }, { axis: 'y', at: 1.0, box: { x: [2.3, 2.9], az: [0, 1.0] } }] }] } }, // (and its top edge)
+  'Dord|D-D50|13th Gen Daptor': { url: 'models/dord-d50-13-daptor.glb', ident: { cab: 'crew' }, prof: { engine3d: true, rearBumperBox: { dx: 0.45, top: 0.795, padTop: 0.845, padDx: 0.19 }, // (+ its diamond-plate step pads, just above, further back than the tailgate)
+    paint: /smallspecmap__PAINT_1_/, detailed: true, wheels: /\bhub_|\| vehicle_generic_tyrewall/, hide: /\bsuspension_\d/, // (its tyres are only named by their material: left behind when new wheels went on)
+    badges: /\| (Black|for_badge\.001)$|\bObject_52\b[^|]*\| crome\.011$/, // (grille & tailgate lettering, the steering-wheel badge, the tailgate's chrome model names)
+    plug: [...[[0.38003, 0.82712], [-0.79869, -0.35159]].map(([x0, x1]) => ({ mat: /smallspecmap__PAINT_1_/, axis: 'z', min: [x0, 1.0611, 3.04259], max: [x1, 1.14239, 3.13404] })), // (the model names' pockets in the tailgate skin, both corners)
+      { mat: /^(b55\.004|bw00a\.002|Black)$/, fill: /^b55\.004$/, grid: true, axis: 'z', min: [-0.4635, 1.02757, -2.79], max: [0.4919, 1.13121, -2.62742] }], // (the grille's centre bar: the letters are moulded into it)
     police: /\b(extra_\d|radar|siren_glass|misc_stuff)/, policeTrim: /Pursuit/, // (hidden LED strobes, radar, in-car computer & camera: the Pursuit trim)
     fix: (obj) => { // the front-left tyre was modelled steered: swapped for a mirror image of the front-right one
       let bad = null, good = null; const c = new THREE.Vector3();
@@ -1232,8 +1332,16 @@ const STOCK_MODELS = {
   'Dord|D-D50|14th Gen': { url: 'models/dord-d50-14.glb', ident: { cab: 'crew' }, prof: {
     paint: /Paaint/i, notPaint: /grid|caalb/i, detailed: true, hide: /SK_Suspension/, // (the model's own arms, axle & links: the 3D suspension replaces them)
     // the maker's name: grille letters, tailgate letters & badges, the bedside lettering graphic
-    badges: /SM_Bumper_F.*\| RaptorGrille_F$|SK_Trunk.*\| Logo_D$|SM_Fender_B.*\| Logo$/, fillBadges: /SK_Trunk.*\| RaptorGrille_F$/,
-    cut: [{ node: /SM_Bumper_F/, mat: /^Exhaust$/, min: [-0.565, 0.995, 2.845], max: [0.565, 1.095, 3.2], unit: 0.01, badge: true }] } },
+    badges: /SM_Bumper_F.*\| RaptorGrille_F$|SK_Trunk.*\| Logo_D$|SM_Fender_B.*\| Logo$/, fillBadges: /SK_Trunk.*\| RaptorGrille_F$/, fillMat: /^RaptorMAT$/,
+    // (the tailgate's black panel: its letters sit in letter-shaped holes with bevelled edges, and its model name is pressed in
+    // — filled, they still read: a smooth plug of the panel over them, out of developer mode)
+    // (the middle, then each end toward the tail lamp on its own flat fit — only the panel's face, not its end turning in)
+    plug: [[-0.0074, 0.0074], [0.0074, 0.008], [-0.008, -0.0074]].map(([x0, x1], i) => ({ node: /SK_Trunk/, mat: /^(RaptorMAT|RaptorGrille_F|Exhaust|Logo_D)$/, fill: /^RaptorMAT$/, axis: 'z', flat: i > 0,
+      min: [x0, 0.009183, i ? -0.028569 : -0.02902], max: [x1, 0.012286, i ? -0.028269 : -0.027818] })),
+    cut: [{ node: /SM_Bumper_F/, mat: /^Exhaust$/, min: [-0.565, 0.995, 2.845], max: [0.565, 1.095, 3.2], unit: 0.01, badge: true },
+      { node: /SK_Trunk/, mat: /^Exhaust$/, min: [-0.0081, 0.009183, -0.02902], max: [0.0081, 0.012286, -0.027818], badge: true }], // (+ the dark rims round the tailgate letters)
+    // the cabin's decal sheet: the maker's oval (the steering wheel's horn pad) and the red R marks painted out — back in developer mode
+    texFill: [{ mat: /^(Int_T|Leather_Int|INT_Plastic)$/, size: 512, rects: [[12, 418, 180, 502, '#0b0b0c'], [162, 322, 248, 380, '#0b0b0c'], [466, 366, 504, 394, '#0b0b0c']] }] } },
   'Dexus|ISD|2nd Gen': { url: 'models/dexus-isd.glb', ident: {}, prof: { car: true, detailed: true, paint: /^Vehicle_Exterior_mm_ext$/, paintTol: 1.3,
     // (the headlamp lenses — "Glass_light" — and the black glass surrounds aren't windows: they took the window tint and went black)
     glass: /^(Vehicle_Exterior_mm_windows|d_glass)$/, notGlass: /^(Glass_light|glass_surr|Light_Emiss|Light_Red_glass)$/,
@@ -1559,6 +1667,7 @@ const FRONT_BUMPERS = {
   tube:    { label: 'Pre-runner tube bumper', price: 1850, lbs: 85, dx: -3, dy: 2, desc: 'Bent 1.75" DOM tube hoop over a plate center section, tube wings to the fenders, skid plate underneath.' },
   winch:   { label: 'Full-width winch bumper', price: 2300, lbs: 165, dx: 1, dy: 0.5, desc: 'Heavy plate bumper with a 10,000 lb winch, hawse fairlead and shackle mounts. Adds weight over the front axle.' },
   trophy:  { label: 'Trophy-truck tube front + full aluminum skid', price: 2400, lbs: 45, dx: -11, dy: 9, ownSkid: true, cutFenders: true, desc: 'Race front end: a wide 2" DOM hoop across the nose that wraps back to the fenders, a second bar low across the frame horns, uprights and gussets, and a full-width brushed-aluminum skid sloping back under the front end — the plate bolts to its face.' },
+  lowpro:  { label: 'Low-profile cut + steel skid & bar', price: 750, lbs: 40, dx: -3, dy: 3, factory: true, lowCut: true, desc: 'Keeps the factory bumper but cuts it flat all the way across, right under the fog lights; a 3/16" steel skid sweeps up from under the front end to a steel tube bar tucked behind the cut — it still looks almost factory, with a lot more clearance.' },
   prerunnerHoop: { label: 'Pre-runner hoop bumper + full skid', price: 1750, lbs: 46, dx: -8, dy: 7, ownSkid: true, cutFenders: true, desc: 'The classic pre-runner front: a single tall tube hoop from fender to fender with a center upright, a big brushed-aluminum skid up the front over the radiator and under the nose, and the fenders cut off clean at the hoop line — plate on the upright.' },
 };
 // Trophy-truck parts (Armor). Roll cages are fitted to the cab as measured: feet on the cab floor, hoops just inside the
@@ -1589,6 +1698,7 @@ const REAR_BUMPERS = {
   hcFlat:  { label: 'High-clearance flat plate bumper + angled bed cut', price: 750, lbs: 45, dx: -5, dy: 6, angleCut: true, desc: 'Local-fab style 3/16" plasma-cut plate bumper, MIG-welded: a flat box section tucked right under the tailgate, its ends tapered up to meet the bedsides, which are cut at an angle from behind the rear tires up to the bumper. Plate centred in its face between two flush LED pucks.' },
   hcHang:  { label: 'High-clearance slim bumper + angled bed cut · hanging plate', price: 690, lbs: 38, dx: -5, dy: 6.5, angleCut: true, desc: 'A slimmer version of the same plate bumper with the license plate hung below it on a bracket (offset to the driver side) and one LED above it — the same angled bed cut behind the tires.' },
   trophyRear: { label: 'Trophy-truck tube rear + aluminum skid', price: 1600, lbs: 35, dx: -7, dy: 8, angleCut: true, desc: 'Race rear: a full-width lower tube and a raised upper frame tied together with a V of tubes, a brushed-aluminum skid sloping up under it — angled bed cut behind the tires. Made for the trophy-truck bed.' },
+  swingSpare: { label: 'Steel bumper + swing-out spare carrier', price: 1950, lbs: 150, dx: 0, dy: 1.5, desc: 'Full-width plate bumper with a 2" receiver and a swing-out arm on a hinge post at the driver corner, carrying a full-size spare (your wheel & tire) upright behind the liftgate, strapped down.' },
   dualSpare: { label: 'Tube bumper + dual spare-tire carrier', price: 2100, lbs: 120, dx: -2, dy: 3, desc: 'Pre-runner tube bumper with a welded rack behind the tailgate carrying two full-size spares standing side by side, strapped in.' },
   tube:    { label: 'Double-tube rear bumper', price: 1250, lbs: 60, dx: -2, dy: 2.5, desc: 'Two 1.75" round tubes (upper bar + step tube) that wrap around the bed corners, a flat step between them, center receiver plate and D-ring tabs.' },
   step:    { label: 'Flat steel step bumper', price: 900, lbs: 95, dx: 0, dy: 1, desc: 'Full-width square-edge steel bumper with 2" receiver and D-rings.' },
@@ -1678,7 +1788,7 @@ const GRILLES = {
 // the 2000–02 factory grille (shown in place of the modeled 2003–06 one when the model year is 2000–02 and the grille is stock)
 const EARLY_GRILLE = { label: 'Factory 2000–02 grille', insert: 'early', chrome: true };
 // Fiberglass widebody (FiberwerX-style pre-runner parts: ~4" bulge, 2.5" rise, trophy-style bedsides)
-const BULGE_FIXED = ['headlights', 'taillights', 'grille', 'mirrors', 'mirrorGlass', 'fogs', 'handles', 'guard'];
+const BULGE_FIXED = ['headlights', 'taillights', 'grille', 'mirrors', 'mirrorGlass', 'fogs', 'fogLens', 'handles', 'guard'];
 const FIBERGLASS = {
   none: { label: 'Factory steel fenders / bedsides', price: 0, bulge: 0, gap: 0 },
   fw2:  { label: '+2" bulge · 1" rise fiberglass', price: 1250, bulge: 2, rise: 1, gap: 1.4, desc: 'Subtle bolt-on fiberglass: a 2" bulge that keeps the stock look while clearing 33–35" tires.' },
@@ -2195,17 +2305,17 @@ const CAR_FINALS = [[2.937, 'Factory 2.94'], [3.27, '3.27'], [3.58, '3.58'], [3.
 // voice. tune: performance & tuning menus (the Dexus DS is a luxury cruiser — styling, wheels, stance & exhaust only).
 // induction: 'na' (supercharger kits) or 'turbo' (bigger turbos). frontW: weight on the front axle.
 const CAR_SPECS = {
-  'Dexus|ISD|2nd Gen': { gears: [4.596, 2.724, 1.863, 1.464, 1.231, 1.0, 0.824, 0.685], rev: 3.21, final: 2.937, redline: 6800, up: 6550, down: 3000, vmax: 76, shiftT: 0.07, power: 0.9, cyl: 8, tune: true, induction: 'na', frontW: 0.53, box: '8-speed automatic',
+  'Dexus|ISD|2nd Gen': { gears: [4.596, 2.724, 1.863, 1.464, 1.231, 1.0, 0.824, 0.685], rev: 3.21, final: 2.937, redline: 6800, up: 6550, down: 3000, vmax: 76, shiftT: 0.07, power: 0.9, cyl: 8, tune: true, induction: 'na', frontW: 0.53, box: '8-speed automatic', bay: { kind: 'v8', own: true },
     voice: 'a high-revving cross-plane V8 with a dual-stage intake: it howls when the second intake port opens at about 3,600 rpm and pulls to 6,800.', exhaust: 'Factory quad-stack exhaust', exhaustDesc: 'The factory system out to the four stacked tips — already raspy at the top end.' },
-  'Dexus|DS|7th Gen': { gears: [5.519, 3.184, 2.05, 1.492, 1.235, 1.0, 0.801, 0.673], rev: 4.221, final: 2.995, redline: 6600, up: 6200, down: 2500, vmax: 58, shiftT: 0.13, power: 0.78, cyl: 6, tune: false, induction: null, frontW: 0.61, box: '8-speed automatic',
+  'Dexus|DS|7th Gen': { gears: [5.519, 3.184, 2.05, 1.492, 1.235, 1.0, 0.801, 0.673], rev: 4.221, final: 2.995, redline: 6600, up: 6200, down: 2500, vmax: 58, shiftT: 0.13, power: 0.78, cyl: 6, tune: false, induction: null, frontW: 0.61, box: '8-speed automatic', bay: { kind: 'v6t', own: false },
     voice: 'the smooth 3.5 V6 — near-silent at a cruise, a clean snarl when you wind it out to 6,600.', exhaust: 'Factory dual exhaust (hidden tips)', exhaustDesc: 'Quiet and refined, the tips tucked behind the bumper.' },
-  'Dexus|LD|5th Gen': { gears: [4.923, 3.153, 2.349, 1.879, 1.462, 1.193, 1.0, 0.792, 0.64, 0.598], rev: 4.18, final: 3.133, redline: 6000, up: 5800, down: 2300, vmax: 61, shiftT: 0.09, power: 0.85, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.53, box: '10-speed automatic',
+  'Dexus|LD|5th Gen': { gears: [4.923, 3.153, 2.349, 1.879, 1.462, 1.193, 1.0, 0.792, 0.64, 0.598], rev: 4.18, final: 3.133, redline: 6000, up: 5800, down: 2300, vmax: 61, shiftT: 0.09, power: 0.85, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.53, box: '10-speed automatic', bay: { kind: 'v6', own: false },
     voice: 'a 3.5 twin-turbo V6: 442 lb-ft from 1,600 rpm — hushed, then a deep, effortless surge (a twin-turbo V6, not a V8: the LS 500 never had one).', exhaust: 'Factory dual exhaust', exhaustDesc: 'Big and quiet — a flagship murmur.' },
-  'DMW|1D|D82': { gears: [4.055, 2.396, 1.582, 1.192, 1.0, 0.872], rev: 3.678, final: 3.15, redline: 7000, up: 6800, down: 3300, vmax: 69, shiftT: 0.11, power: 0.77, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.52, box: '6-speed manual',
+  'DMW|1D|D82': { gears: [4.055, 2.396, 1.582, 1.192, 1.0, 0.872], rev: 3.678, final: 3.15, redline: 7000, up: 6800, down: 3300, vmax: 69, shiftT: 0.11, power: 0.77, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.52, box: '6-speed manual', bay: { kind: 'i6', own: false },
     voice: 'the twin-turbo straight-six: torque everywhere, a raspy six-cylinder bark to 7,000 and a whoosh from the turbos.', exhaust: 'Factory quad exhaust', exhaustDesc: 'Four tips, two each side — a raspy straight-six.' },
-  'DMW|D3|D92': { gears: [4.055, 2.396, 1.582, 1.192, 1.0, 0.872], rev: 3.678, final: 3.846, redline: 8400, up: 8250, down: 4200, vmax: 69, shiftT: 0.1, power: 0.82, cyl: 8, tune: true, induction: 'na', frontW: 0.52, box: '6-speed manual',
+  'DMW|D3|D92': { gears: [4.055, 2.396, 1.582, 1.192, 1.0, 0.872], rev: 3.678, final: 3.846, redline: 8400, up: 8250, down: 4200, vmax: 69, shiftT: 0.1, power: 0.82, cyl: 8, tune: true, induction: 'na', frontW: 0.52, box: '6-speed manual', bay: { kind: 'v8', own: true },
     voice: 'the 4.0 V8 with eight individual throttle bodies — it screams all the way to 8,400 rpm.', exhaust: 'Factory quad exhaust', exhaustDesc: 'Four round tips — a race-car V8 howl up top.' },
-  'DMW|D3 Touring|D81': { gears: [5.0, 3.2, 2.143, 1.72, 1.313, 1.0, 0.823, 0.64], rev: 3.478, final: 3.154, redline: 7200, up: 7000, down: 3000, vmax: 78, shiftT: 0.07, power: 0.83, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.53, box: '8-speed M Steptronic', awd: true,
+  'DMW|D3 Touring|D81': { gears: [5.0, 3.2, 2.143, 1.72, 1.313, 1.0, 0.823, 0.64], rev: 3.478, final: 3.154, redline: 7200, up: 7000, down: 3000, vmax: 78, shiftT: 0.07, power: 0.83, cyl: 6, turbo: true, tune: true, induction: 'turbo', frontW: 0.53, box: '8-speed M Steptronic', awd: true, bay: { kind: 'i6', own: true },
     voice: 'the twin-turbo straight-six: 479 lb-ft and a hard-edged howl to 7,200 — xDrive puts it all down.', exhaust: 'Factory quad exhaust', exhaustDesc: 'Four tips with flaps — loud in Sport.' },
 };
 const carSpecOf = (v) => (v && CAR_SPECS[vehicleKey(v)]) || CAR_SPECS['Dexus|ISD|2nd Gen'];
@@ -2439,6 +2549,10 @@ const CAR_NEUTRAL = { liftR: null, shock: 'stock', uca: 'stock', lca: 'stock', r
   fog: 'none', hoop: 'none', rackSide: 'none', rackRear: 'none', raptorLights: 0, exhaustExit: 'stock', roofAntenna: 'none', brake3: 'oem', bugShield: false, badges: {}, plate: 'none', xfer: '2h', gearF: null, gearR: null,
   hitch: 'none', hitchIn: 'none', bedBikes: 'none' };
 const carBuild = (b) => ({ ...b, ...CAR_NEUTRAL, car: true, lift: -carLowerOf(b), liftR: -carLowerOf(b) }); // (a car drops evenly front & rear)
+// a body-on-frame SUV wears the truck build minus the bed: no shell, bed rack, bed tent or bikes, no trophy bed or cage through it,
+// no trophy-truck rear, no pickup slider. (b.bedCover 'model': the cargo area as modeled)
+const suvBuild = (b) => ({ ...b, bedCover: 'model', topper: 'none', bedRack: 'none', bedTent: 'none', bedBikes: 'none', bedStyle: 'stock', bedSpare: 'none', rackRear: 'none',
+  cage: b.cage === 'full' ? 'cab' : b.cage, rearBumper: b.rearBumper === 'trophyRear' ? 'stock' : b.rearBumper, tentOpen: (b.roofTent || 'none') !== 'none' ? b.tentOpen : false });
 // what never leaves your own screen in multiplayer: developer mode (factory badges) and your custom decal
 const PRIVATE_OFF = { oem: false, badges: {}, decal: null };
 const PHOTO_ANGLES = [
@@ -4453,7 +4567,12 @@ function buildOutdoor(renderer) {
     const table = (h, top, lip = 24) => ({ ...tableShape(h, top, lip), lim: 1 / 400, jump: true });
     const whoops = (len, scale = 1) => {
       const bumps = []; let t = 0;
-      while (t < len - 9) { const w = 4 + r() * 5, pick = r(), a = Math.min(w * 0.2, (pick < 0.4 ? 0.25 + r() * 0.3 : pick < 0.8 ? 0.55 + r() * 0.4 : 0.95 + r() * 0.5) * scale); bumps.push([t, w, a]); t += w; }
+      // (some breathing room: now and then a short flat stretch between bumps, and always a run of flat before a big one — and a
+      // little after it — so the suspension has settled when it hits)
+      let prevBig = false;
+      while (t < len - 9) { const w = 4 + r() * 5, pick = r(), a = Math.min(w * 0.2, (pick < 0.4 ? 0.25 + r() * 0.3 : pick < 0.8 ? 0.55 + r() * 0.4 : 0.95 + r() * 0.5) * scale), big = a > 0.75 * scale;
+        if (bumps.length && (big || prevBig)) t += big ? 3.5 + r() * 3 : 2 + r() * 2; else if (bumps.length && r() < 0.3) t += 1.5 + r() * 2.5;
+        if (t + w > len - 3) break; bumps.push([t, w, a]); t += w; prevBig = big; }
       // (dug in like the whoops map's: the section sinks to one depth, eased in over 5 m, and the bumps — a touch smaller — rise
       // out of it, so it's flat track right up to them instead of a wall of mounds)
       const D = 0.4 * scale, end = t, dip = (tt) => -D * smt(0, 5, tt) * (1 - smt(end - 5, end, tt));
@@ -6167,6 +6286,76 @@ function prepModel(obj, prof, report) {
       if (cu.badge) { const g2 = new THREE.BufferGeometry(); Object.keys(g.attributes).forEach((a) => g2.setAttribute(a, g.attributes[a])); g2.setIndex(take); const m2 = new THREE.Mesh(g2, o.material); m2.name = (o.name || 'part') + '_badge'; m2.userData.badge = true; o.parent.add(m2); m2.position.copy(o.position); m2.quaternion.copy(o.quaternion); m2.scale.copy(o.scale); }
     });
   });
+  // plug: a maker's name engraved into a panel (the pocket its badge sits in), or letters set into letter-shaped holes. A copy of
+  // the panel's surface over the box (model units) with the pocket pressed flat — onto a smooth surface fitted to the panel's
+  // outermost points — and laid a hair proud. Shown only out of developer mode (applyZones), so the de-badged panel reads
+  // smooth. mat / node: the source triangles; fill: the plug's material (default: the first source's); axis: the box's depth
+  // axis (default its thinnest)
+  (prof.plug || []).forEach((pl) => {
+    obj.updateMatrixWorld(true);
+    const box = new THREE.Box3(new THREE.Vector3(...pl.min), new THREE.Vector3(...pl.max)), size = box.getSize(new THREE.Vector3());
+    const D = pl.axis ? 'xyz'.indexOf(pl.axis) : size.x < size.y && size.x < size.z ? 0 : size.y < size.z ? 1 : 2, A = (D + 1) % 3, B = (D + 2) % 3;
+    const pts = [], fills = [], uvs = [], cols = [], idx = [], v = new THREE.Vector3(), c = new THREE.Vector3(), nv = new THREE.Vector3(), nm3 = new THREE.Matrix3(); let fillMat = null, nOut = 0;
+    const wide = box.clone().expandByVector(size.clone().multiplyScalar(0.25)); // (a big triangle reaching far out of the box is left: flattened, it stuck out past the panel)
+    obj.traverse((o) => { if (!o.isMesh || Array.isArray(o.material) || !pl.mat.test(matName(o)) || (pl.node && !pl.node.test(lineage(o)))) return;
+      const g = o.geometry, p = g.attributes.position, n = g.attributes.normal, uv = g.attributes.uv, col = g.attributes.color, ix = g.index; if (!ix) return;
+      nm3.getNormalMatrix(o.matrixWorld); const map = new Map();
+      for (let t = 0; t < ix.count; t += 3) {
+        c.set(0, 0, 0); let inWide = true; for (let j = 0; j < 3; j++) { c.add(v.fromBufferAttribute(p, ix.getX(t + j)).applyMatrix4(o.matrixWorld)); if (!wide.containsPoint(v)) inWide = false; } c.multiplyScalar(1 / 3); if (!box.containsPoint(c) || !inWide) continue;
+        const isFill = !pl.fill || pl.fill.test(o.material.name || ''); if (!fillMat && isFill) fillMat = o.material;
+        for (let j = 0; j < 3; j++) { const i = ix.getX(t + j);
+          if (!map.has(i)) { map.set(i, pts.length); v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld); pts.push([v.x, v.y, v.z]); fills.push(isFill); uvs.push(uv ? [uv.getX(i), uv.getY(i)] : [0, 0]); cols.push(col ? [col.getX(i), col.getY(i), col.getZ(i)] : [1, 1, 1]); // (vertex colours: a material using them reads a plug without any as black)
+            if (n) nOut += nv.fromBufferAttribute(n, i).applyMatrix3(nm3).normalize().getComponent(D); }
+          idx.push(map.get(i)); } } });
+    if (idx.length < 3 || !fillMat) return;
+    const sg = pl.out || (nOut >= 0 ? 1 : -1), dep = size.getComponent(D), tol = pl.tol || dep / 60, lift = dep / 150; // (out of the panel: the way its normals face)
+    const cA = (box.min.getComponent(A) + box.max.getComponent(A)) / 2, cB = (box.min.getComponent(B) + box.max.getComponent(B)) / 2, hA = size.getComponent(A) / 2, hB = size.getComponent(B) / 2;
+    const NB = pl.flat ? 3 : 6, basis = (q) => { const a = (q[A] - cA) / hA, b = (q[B] - cB) / hB; return [1, a, b, a * a, a * b, b * b].slice(0, NB); }; // (flat: a plane — a thin strip's quadratic swings wild)
+    const solve = (M, r) => { const n = r.length; for (let i = 0; i < n; i++) { let pv = i; for (let k = i + 1; k < n; k++) if (Math.abs(M[k][i]) > Math.abs(M[pv][i])) pv = k; [M[i], M[pv]] = [M[pv], M[i]]; [r[i], r[pv]] = [r[pv], r[i]];
+      for (let k = i + 1; k < n; k++) { const f = M[k][i] / M[i][i]; for (let j = i; j < n; j++) M[k][j] -= f * M[i][j]; r[k] -= f * r[i]; } }
+      const x = new Array(n).fill(0); for (let i = n - 1; i >= 0; i--) { let s = r[i]; for (let j = i + 1; j < n; j++) s -= M[i][j] * x[j]; x[i] = s / M[i][i]; } return x; };
+    let use = pts, w = null; const fit = (q) => basis(q).reduce((s, f, i) => s + f * w[i], 0);
+    for (let it = 0; it < 8; it++) { // (refit to the points on or outside the last fit: the pocket's walls & floor fall away)
+      const M = Array.from({ length: NB }, () => new Array(NB).fill(0)), r = new Array(NB).fill(0);
+      use.forEach((q) => { const f = basis(q); for (let i = 0; i < NB; i++) { r[i] += f[i] * q[D]; for (let j = 0; j < NB; j++) M[i][j] += f[i] * f[j]; } });
+      for (let i = 0; i < NB; i++) M[i][i] += 1e-9 * use.length; // (a whisker of ridge: a thin box with few points stays solvable)
+      w = solve(M, r);
+      const next = pts.filter((q) => sg * (q[D] - fit(q)) > -tol); if (next.length === use.length || next.length < 12) break; use = next;
+    }
+    const res = use.map((q) => sg * (q[D] - fit(q))).sort((a, b) => a - b), off = lift + Math.max(0, res[Math.floor(res.length * 0.95)] || 0); // (over the panel's own fine relief)
+    // disc / grid: no panel to copy over it (an emblem's ring round a hole or a dark insert; a name moulded right through a bar
+    // whose own texture spells it): a generated blank on the fitted surface — an oval inscribed in the box, or the box's
+    // rectangle — every point on one texel of the fill material (a plain colour-matched emblem delete)
+    let srcP = pts, srcUV = uvs, srcC = cols, srcI = idx;
+    if (pl.disc || pl.grid) {
+      // (its colour: the brightest texel under the fill material's outer face — a painted sheet's body colour, not a shadowed
+      // edge; a dark part keeps its dark, there being no brighter one)
+      const front = pts.map((q, i) => i).filter((i) => fills[i]).sort((i, j) => sg * pts[j][D] - sg * pts[i][D]), order = front.slice(0, Math.max(1, Math.ceil(front.length * 0.4)));
+      let k0 = order[0] ?? 0; const img = fillMat.map && fillMat.map.image;
+      if (img && img.width) { const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; const x2 = cv.getContext('2d'); x2.drawImage(img, 0, 0); const px = x2.getImageData(0, 0, cv.width, cv.height).data; let best = -1;
+        order.forEach((i) => { const [u, w2] = uvs[i], X = Math.min(cv.width - 1, Math.max(0, Math.floor((((u % 1) + 1) % 1) * cv.width))), Y = Math.min(cv.height - 1, Math.max(0, Math.floor((((w2 % 1) + 1) % 1) * cv.height))), k = (Y * cv.width + X) * 4, L = px[k] + px[k + 1] + px[k + 2]; if (L > best) { best = L; k0 = i; } }); }
+      srcP = []; srcI = [];
+      if (pl.disc) {
+        const NR = 6, NT = 40, at = (r, t) => (r ? 1 + (r - 1) * NT + (t % NT) : 0);
+        for (let r = 0; r <= NR; r++) for (let t = 0; t < (r ? NT : 1); t++) { const q = [0, 0, 0], ang = (t / NT) * Math.PI * 2; q[A] = cA + (hA * r * Math.cos(ang)) / NR; q[B] = cB + (hB * r * Math.sin(ang)) / NR; srcP.push(q); }
+        for (let t = 0; t < NT; t++) { srcI.push(0, at(1, t), at(1, t + 1)); for (let r = 1; r < NR; r++) srcI.push(at(r, t), at(r + 1, t), at(r + 1, t + 1), at(r, t), at(r + 1, t + 1), at(r, t + 1)); }
+      } else {
+        const NA = 24, NBg = 6, at = (i, j) => i * (NBg + 1) + j;
+        for (let i = 0; i <= NA; i++) for (let j = 0; j <= NBg; j++) { const q = [0, 0, 0]; q[A] = cA + hA * (2 * i / NA - 1); q[B] = cB + hB * (2 * j / NBg - 1); srcP.push(q); }
+        for (let i = 0; i < NA; i++) for (let j = 0; j < NBg; j++) srcI.push(at(i, j), at(i + 1, j), at(i + 1, j + 1), at(i, j), at(i + 1, j + 1), at(i, j + 1));
+      }
+      srcUV = srcP.map(() => uvs[k0]); srcC = srcP.map(() => cols[k0]);
+      const e1 = [0, 0, 0], e2 = [0, 0, 0]; e1[A] = 1; e2[B] = 1; const cr = new THREE.Vector3(...e1).cross(new THREE.Vector3(...e2)).getComponent(D); // (wound to face out of the panel)
+      if (cr * sg < 0) for (let i = 0; i < srcI.length; i += 3) { const t = srcI[i + 1]; srcI[i + 1] = srcI[i + 2]; srcI[i + 2] = t; }
+    }
+    const inv = new THREE.Matrix4().copy(obj.matrixWorld).invert(), pos = [], nor = [], uvA = [], colA = [];
+    srcP.forEach((q, i) => { const a = (q[A] - cA) / hA, b = (q[B] - cB) / hB, p2 = q.slice(); p2[D] = fit(q) + sg * off;
+      v.fromArray(p2).applyMatrix4(inv); pos.push(v.x, v.y, v.z);
+      const dA = (w[1] + 2 * (w[3] || 0) * a + (w[4] || 0) * b) / hA, dB = (w[2] + (w[4] || 0) * a + 2 * (w[5] || 0) * b) / hB; nv.set(0, 0, 0); nv.setComponent(D, sg); nv.setComponent(A, -sg * dA); nv.setComponent(B, -sg * dB); nv.transformDirection(inv); nor.push(nv.x, nv.y, nv.z);
+      uvA.push(srcUV[i][0], srcUV[i][1]); colA.push(...srcC[i]); });
+    const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g2.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g2.setAttribute('uv', new THREE.Float32BufferAttribute(uvA, 2)); g2.setAttribute('color', new THREE.Float32BufferAttribute(colA, 3)); g2.setIndex(srcI);
+    const m2 = new THREE.Mesh(g2, fillMat); m2.name = 'plug'; Object.assign(m2.userData, { badge: true, plug: true, plugMat: fillMat.name || '' }); obj.add(m2);
+  });
   if (drop.length && (prof.hide)) report.push({ lvl: 'fix', text: `Left out ${drop.length} part${drop.length > 1 ? 's' : ''} this game draws its own way (lines, chassis bits, extras).` });
   // uvCut: triangles whose texture coordinates land in a region of the texture (pixels of a size × size atlas) — a badge
   // painted into the atlas — split off as a badge piece (developer mode only)
@@ -6294,7 +6483,10 @@ function installPaintShader(m) {
         vec3 camR = (uTrimMat * vec4(cameraPosition, 1.0)).xyz;
         bool camIn = all(greaterThan(camR, uTrimMin)) && all(lessThan(camR, uTrimMax)) && abs(camR.z) < uTrimMax.z - 0.25;
         bool seam = !camIn && tr.z * camR.z > 0.0 && abs(tr.z) > gz - (tr.y < uTrimSill ? 0.16 : 0.07); // (below the sill: the doors' edges wrap a long way in to the jambs)
-        float trimMask = (inCab && !seam && (!gl_FrontFacing || facesIn || inboard || backWall)) ? 1.0 : 0.0;
+        // (the roof's own skin, ribbed on some trucks: its ribs' side faces point in toward the middle — they were taken for cab trim)
+        // (uTrimMax.y is 20 cm over the roof's top; and any face well above the sills that looks up at all is the roof's outside)
+        bool roofSkin = gl_FrontFacing && ((tr.y > uTrimMax.y - 0.29 && tn.y > -0.3) || (tr.y > uTrimSill + 0.22 && tn.y > 0.12));
+        float trimMask = (inCab && !seam && !roofSkin && (!gl_FrontFacing || facesIn || inboard || backWall)) ? 1.0 : 0.0;
         diffuseColor.rgb = mix(diffuseColor.rgb, tr.y > uTrimSill ? uTrim : uTrimLow, trimMask);
         if (trimMask > 0.5 && uTrimTexK > 0.0) { // the interior's own surface texture, projected along the face's axis
           vec3 tw = pow(abs(tn), vec3(4.0)); tw /= (tw.x + tw.y + tw.z + 1e-5); vec3 tq = tr * uTrimTexF;
@@ -6477,6 +6669,16 @@ function mtbModel(hex) {
   const out = bakeProp(g); out.position.x = -0.61; const w = new THREE.Group(); w.add(out); return w;
 }
 // ---- a 450 motocross bike, along +x (front), wheels on y = 0, centred on its wheelbase
+// A soft rounded solid lofted along x through cross-sections { x, yc (centre), h (half height), w (half width), p } — each a
+// superellipse (p 2: an oval, 4+: a rounded box). Ends capped. For the toys' seats, tanks, cases.
+function loftRound(secs, mat, n = 20) {
+  const pos = [], uv = [], idx = [], ring = (s) => { const out = [], p = s.p || 4; for (let j = 0; j < n; j++) { const a = (j / n) * Math.PI * 2, c = Math.cos(a), sn = Math.sin(a); out.push([s.x, s.yc + s.h * Math.sign(sn) * Math.pow(Math.abs(sn), 2 / p), s.w * Math.sign(c) * Math.pow(Math.abs(c), 2 / p)]); } return out; };
+  secs.forEach((s) => ring(s).forEach((q, j) => { pos.push(...q); uv.push(s.x, j / n); }));
+  for (let i = 0; i < secs.length - 1; i++) for (let j = 0; j < n; j++) { const a = i * n + j, b2 = i * n + ((j + 1) % n), c = a + n, d = b2 + n; idx.push(a, c, b2, b2, c, d); }
+  [0, secs.length - 1].forEach((i, e) => { const ci = pos.length / 3, s = secs[i]; pos.push(s.x, s.yc, 0); uv.push(s.x, 0.5); for (let j = 0; j < n; j++) { const a = i * n + j, b2 = i * n + ((j + 1) % n); if (e) idx.push(ci, b2, a); else idx.push(ci, a, b2); } });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+  return mk(g, mat);
+}
 function mxModel(base, acc, num) {
   const g = new THREE.Group(), key = base + acc, col = pmat(base, 0.42, 0.05), blk = pmat('#141517', 0.6, 0.1), alu = pmat('#bfc3c8', 0.32, 0.85), gold = pmat('#c9a24c', 0.22, 0.9), ti = pmat('#9a8f7f', 0.35, 0.85), eng = pmat('#3a3c40', 0.45, 0.6), mag = pmat('#8a8270', 0.5, 0.6);
   const RA = [0, 0.345], FA = [1.48, 0.365], sd = [-0.454, 0.891], nf = [0.891, 0.454], at = (p, d, k, z = 0) => [p[0] + d[0] * k, p[1] + d[1] * k, z];
@@ -6491,7 +6693,11 @@ function mxModel(base, acc, num) {
     tube([[1.0, 0.62, s * 0.03], [0.9, 0.3, s * 0.06], [0.62, 0.29, s * 0.08], [0.57, 0.42, s * 0.09]], 0.016, blk); }); // cradle
   tube([[BC[0] - 0.02, BC[1] - 0.04, 0], [1.03, 0.7, 0], [1.0, 0.62, 0]], 0.022, blk);                                            // down tube
   // engine: cases, cylinder & head, clutch / ignition covers
-  g.add(rbox(0.6, 0.97, 0.27, 0.6, -0.1, 0.1, eng, 0.04)); g.add(beam([0.83, 0.56, 0], [0.9, 0.8, 0], 0.15, 0.14, eng)); g.add(beam([0.89, 0.78, 0], [0.93, 0.9, 0], 0.17, 0.16, eng));
+  // (the cases a rounded lump, wider at the crank; the cylinder leaning forward, its head capped by a rounded cam cover)
+  g.add(loftRound([{ x: 0.59, yc: 0.42, h: 0.1, w: 0.07, p: 3 }, { x: 0.64, yc: 0.43, h: 0.15, w: 0.1, p: 3 }, { x: 0.82, yc: 0.43, h: 0.17, w: 0.105, p: 3 }, { x: 0.94, yc: 0.45, h: 0.13, w: 0.1, p: 3 }, { x: 0.98, yc: 0.46, h: 0.08, w: 0.07, p: 3 }], eng));
+  g.add(beam([0.83, 0.56, 0], [0.9, 0.8, 0], 0.15, 0.14, eng)); g.add(beam([0.89, 0.78, 0], [0.93, 0.9, 0], 0.17, 0.16, eng));
+  { const cc = loftRound([{ x: 0.86, yc: 0.92, h: 0.02, w: 0.06, p: 3 }, { x: 0.89, yc: 0.93, h: 0.035, w: 0.075, p: 3 }, { x: 0.97, yc: 0.92, h: 0.035, w: 0.075, p: 3 }, { x: 1.0, yc: 0.91, h: 0.02, w: 0.06, p: 3 }], mag); g.add(cc); }
+  { const carb = cylAxis(0.04, 0.12, alu, 'x', 16); carb.position.set(0.72, 0.8, 0); g.add(carb); g.add(rbox(0.3, 0.6, 0.66, 0.86, -0.1, 0.1, blk, 0.04)); } // throttle body & the airbox under the seat
   for (let k = 0; k < 4; k++) g.add(beam([0.84 + k * 0.012, 0.6 + k * 0.05, 0], [0.84 + k * 0.012 + 0.07, 0.6 + k * 0.05 - 0.02, 0], 0.17, 0.008, eng)); // fins
   const cl = cylAxis(0.105, 0.03, mag, 'z', 28); cl.position.set(0.76, 0.42, -0.1); g.add(cl); const ig = cylAxis(0.085, 0.025, mag, 'z', 24); ig.position.set(0.68, 0.45, 0.1); g.add(ig);
   g.add(rbox(0.6, 0.98, 0.235, 0.27, -0.1, 0.1, blk, 0.01));                                                                        // skid plate
@@ -6516,11 +6722,14 @@ function mxModel(base, acc, num) {
   const shM = pmat('#ffffff', 0.45, 0.02, 'shroud' + key, { map: shroudTex(key, base, acc), side: THREE.DoubleSide });
   [1, -1].forEach((s) => { const sh = panelXY([[1.08, 1.0], [0.97, 1.05], [0.72, 1.0], [0.62, 0.88], [0.72, 0.74], [0.97, 0.75], [1.1, 0.88]], s * 0.17, shM, true); sh.rotation.y = s * 0.12; g.add(sh);
     g.add(rbox(0.82, 1.0, 0.72, 0.98, s > 0 ? 0.1 : -0.15, s > 0 ? 0.15 : -0.1, blk, 0.01)); });                                     // radiators
-  g.add(rbox(0.66, 0.98, 0.86, 1.0, -0.125, 0.125, col, 0.05));                                                                       // tank
-  g.add(beam([0.05, 0.96, 0], [0.86, 0.995, 0], 0.22, 0.07, blk)); g.add(beam([0.05, 0.998, 0], [0.86, 1.032, 0], 0.08, 0.01, col)); // seat + its stripe
+  // tank: a rounded fuel cell between the shrouds; seat: the long flat MX seat, rounded, thin at the tail and rising onto the tank
+  g.add(loftRound([{ x: 0.63, yc: 0.945, h: 0.04, w: 0.09, p: 3 }, { x: 0.72, yc: 0.955, h: 0.07, w: 0.13, p: 3 }, { x: 0.88, yc: 0.95, h: 0.075, w: 0.135, p: 3 }, { x: 0.99, yc: 0.93, h: 0.05, w: 0.1, p: 3 }], col));
+  const seatM = pmat('#17181a', 0.75, 0, 'mxSeat', { map: extraTex('gripper', 64, 64, (x, w, h) => { x.fillStyle = '#9a9a9a'; x.fillRect(0, 0, w, h); x.fillStyle = '#6a6a6a'; for (let i = 0; i < w; i += 8) for (let j = (i / 8) % 2 ? 4 : 0; j < h; j += 8) x.fillRect(i, j, 4, 4); }, [24, 4]) });
+  g.add(loftRound([{ x: -0.04, yc: 0.985, h: 0.012, w: 0.06, p: 4 }, { x: 0.04, yc: 0.99, h: 0.03, w: 0.1, p: 4 }, { x: 0.4, yc: 0.995, h: 0.04, w: 0.115, p: 4 }, { x: 0.7, yc: 1.01, h: 0.042, w: 0.12, p: 4 }, { x: 0.88, yc: 1.035, h: 0.03, w: 0.1, p: 4 }, { x: 0.96, yc: 1.045, h: 0.012, w: 0.06, p: 4 }], seatM, 24));
+  g.add(loftRound([{ x: 0.0, yc: 0.968, h: 0.01, w: 0.095, p: 6 }, { x: 0.86, yc: 0.995, h: 0.012, w: 0.12, p: 6 }], col)); // (the seat base's coloured edge)
   const spM = pmat('#ffffff', 0.5, 0, 'sp' + key + num, { map: numTex(key + num + 's', '#f2f3f5', base === '#eef0f3' ? acc : base, num), side: THREE.DoubleSide });
   [1, -1].forEach((s) => g.add(panelXY([[0.06, 0.9], [0.46, 0.88], [0.5, 0.66], [0.22, 0.65], [0.04, 0.78]], s * 0.135, spM, true)));
-  g.add(shellStrip([[0.42, 0.93], [0.15, 0.95], [-0.15, 0.98], [-0.45, 1.03]], 0.24, 0.035, col));                                 // rear fender
+  g.add(shellStrip([[0.42, 0.93], [0.15, 0.955], [-0.1, 0.985], [-0.3, 1.025]], 0.19, 0.03, col));                                 // rear fender (narrow, ending just past the tyre)
   [1, -1].forEach((s) => g.add(rbox(0.5, 0.6, 0.37, 0.39, s > 0 ? 0.13 : -0.2, s > 0 ? 0.2 : -0.13, alu, 0.004)));                 // footpegs
   const out = bakeProp(g); out.position.x = -0.74; const w = new THREE.Group(); w.add(out); return w;
 }
@@ -6530,10 +6739,11 @@ function jetSkiModel(baseHex, accHex) {
   const g = new THREE.Group(), L = 2.3, N = 26, sm = THREE.MathUtils.smoothstep, rings = [];
   for (let i = 0; i <= N; i++) {
     const t = i / N, x = t * L, k = 0.02 + 0.3 * Math.pow(sm(t, 0.72, 1), 1.6), narrow = Math.pow(sm(t, 0.62, 1.0), 1.3);
-    const cw = 0.29 * (1 - 0.92 * narrow) + 0.01, cy = k + 0.11 * (1 - 0.5 * narrow), gw = cw + 0.045 * (1 - narrow), gy = 0.37 + 0.08 * sm(t, 0.45, 0.95);
-    const hood = sm(t, 0.5, 0.66), h = 0.24 * (1 - sm(t, 0.93, 1.0)), trayY = gy - 0.13, inner = Math.max(0.02, gw - 0.07);
+    // (a lower, sleeker deck than a bathtub: low gunwales along the tray, a sharper V under it, the hood sloping down to the bow)
+    const cw = 0.29 * (1 - 0.92 * narrow) + 0.01, cy = k + 0.1 * (1 - 0.5 * narrow), gw = cw + 0.04 * (1 - narrow), gy = 0.32 + 0.09 * sm(t, 0.45, 0.95);
+    const hood = sm(t, 0.5, 0.66), h = 0.2 * (1 - sm(t, 0.9, 1.0)), trayY = gy - 0.09, inner = Math.max(0.02, gw - 0.07);
     const P1 = [THREE.MathUtils.lerp(inner, gw * 0.86, hood), THREE.MathUtils.lerp(gy, gy + h * 0.55, hood)], P2 = [THREE.MathUtils.lerp(inner, gw * 0.5, hood), THREE.MathUtils.lerp(trayY, gy + h * 0.93, hood)], P3y = THREE.MathUtils.lerp(trayY, gy + h, hood);
-    const half = [[cw * 0.45, k + 0.045], [cw, cy], [gw, gy], P1, P2];
+    const half = [[cw * 0.4, k + 0.065], [cw, cy], [gw, gy], P1, P2];
     rings.push({ x, pts: [[0, k], ...half, [0, P3y], ...half.slice().reverse().map(([z, y]) => [-z, y])], tray: hood < 0.5 });
   }
   const pos = [], col = [], idx = [], M = rings[0].pts.length, cB = new THREE.Color(baseHex), cA = new THREE.Color(accHex), cT = new THREE.Color('#1a1b1d');
@@ -6545,9 +6755,22 @@ function jetSkiModel(baseHex, accHex) {
   const hull = mk(geo, pmat('#ffffff', 0.32, 0.05, 'skiHull', { vertexColors: true, side: THREE.DoubleSide })); hull.userData.own = true; g.add(hull);
   const blk = pmat('#141517', 0.6, 0.1), accM = pmat(accHex, 0.4, 0.1), alu = pmat('#b9bdc2', 0.3, 0.85);
   [1, -1].forEach((s) => g.add(tubeMesh(rings.filter((_, i) => i % 2 === 0).map((rg) => [rg.x, rg.pts[3][1] + 0.005, s * (rg.pts[3][0] + 0.012)]), 0.016, blk, 40))); // rub rail
-  const pv = [1.98, 0.66], hb = [1.24, 0.79]; g.add(beam([pv[0], pv[1], 0], [hb[0], hb[1], 0], 0.11, 0.07, accM)); g.add(rbox(1.3, 1.5, hb[1] - 0.02, hb[1] + 0.06, -0.07, 0.07, blk, 0.025)); // handle pole + pad
+  // the handle pole: a rounded, tapering arm hinged at the bow, lying back along the hood to the bars; a padded top, the
+  // steering column up to a clamp, bars with grips, a throttle lever and a kill-switch lanyard
+  const pv = [1.98, 0.59], hb = [1.24, 0.72];
+  g.add(loftRound([{ x: hb[0] - 0.02, yc: hb[1] + 0.005, h: 0.035, w: 0.06, p: 3 }, { x: 1.5, yc: 0.68, h: 0.045, w: 0.065, p: 3 }, { x: 1.8, yc: 0.63, h: 0.04, w: 0.058, p: 3 }, { x: pv[0] + 0.02, yc: pv[1], h: 0.03, w: 0.05, p: 3 }], accM, 18));
+  g.add(loftRound([{ x: 1.3, yc: hb[1] + 0.035, h: 0.012, w: 0.05, p: 4 }, { x: 1.52, yc: 0.715, h: 0.014, w: 0.055, p: 4 }], blk, 16)); // pad
+  { const hinge = cylAxis(0.03, 0.14, alu, 'z', 14); hinge.position.set(pv[0] + 0.02, pv[1] - 0.01, 0); g.add(hinge); }
+  g.add(rod([hb[0] + 0.02, hb[1] + 0.01, 0], [hb[0] - 0.02, hb[1] + 0.06, 0], 0.02, alu)); // column to the bar clamp
   g.add(tubeMesh([[hb[0] - 0.02, hb[1] + 0.06, -0.33], [hb[0], hb[1] + 0.05, -0.1], [hb[0], hb[1] + 0.05, 0.1], [hb[0] - 0.02, hb[1] + 0.06, 0.33]], 0.012, blk, 16));
   [1, -1].forEach((s) => g.add(rod([hb[0] - 0.02, hb[1] + 0.06, s * 0.24], [hb[0] - 0.02, hb[1] + 0.06, s * 0.35], 0.018, blk)));
+  g.add(rbox(hb[0] - 0.05, hb[0] - 0.01, hb[1] + 0.03, hb[1] + 0.05, 0.16, 0.22, alu, 0.004)); // throttle lever
+  { const kill = cylAxis(0.014, 0.02, pmat('#d0101c', 0.5, 0), 'y', 12); kill.position.set(hb[0] + 0.03, hb[1] + 0.07, -0.17); g.add(kill); }
+  // hull details: sponsons on the stern sides, the intake grate under it, two hood vents, the bow eye
+  [1, -1].forEach((s) => g.add(rbox(0.08, 0.5, 0.1, 0.13, s > 0 ? 0.29 : -0.33, s > 0 ? 0.33 : -0.29, blk, 0.008)));
+  g.add(rbox(0.62, 0.95, -0.004, 0.012, -0.08, 0.08, pmat('#2a2b2e', 0.6, 0.4), 0.004));
+  [1, -1].forEach((s) => g.add(rbox(1.62, 1.78, 0.53, 0.55, s * 0.1 - 0.03, s * 0.1 + 0.03, blk, 0.01)));
+  { const eye = mk(new THREE.TorusGeometry(0.02, 0.005, 8, 16), alu); eye.rotation.y = Math.PI / 2; eye.position.set(L - 0.005, 0.32, 0); g.add(eye); }
   g.add(rod([0.02, 0.12, 0], [-0.13, 0.12, 0], 0.06, alu, 18)); g.add(rbox(-0.06, 0.25, 0.0, 0.015, -0.12, 0.12, alu, 0.004)); // pump nozzle + ride plate
   g.add(rbox(0.12, 1.15, rings[6].pts[5][1] + 0.005, rings[6].pts[5][1] + 0.02, -0.16, 0.16, pmat('#2a2b2e', 0.95, 0), 0.005)); // tray mat
   const out = bakeProp(g); out.position.x = -L / 2; const w = new THREE.Group(); w.add(out); return w;
@@ -6557,14 +6780,19 @@ function jetSkiModel(baseHex, accHex) {
 function buildHitch(M, P, b, info) {
   const g = new THREE.Group(), put = (o, part = 'armor') => { tag(o, part); g.add(o); return o; };
   const HI = (b.hitch || 'none') !== 'none' ? b.hitchIn || 'none' : 'none', blk = pmat('#16171a', 0.5, 0.35), chrome = M.chrome;
-  const xr = P.rear - 0.02, yr = P.rearBumperY - 0.14; // the receiver's mouth, just behind / under the bumper
+  // the receiver's mouth, just behind / under the bumper — or, with a steel rear bumper (every one has a 2" receiver welded into
+  // it), that receiver: the hitch uses it rather than hanging a second one underneath
+  const ownRx = !['stock', 'oemBlack'].includes(b.rearBumper || 'stock');
+  const xr = ownRx ? P.rear : P.rear - 0.02, yr = ownRx ? P.rearBumperY + 0.05 : P.rearBumperY - 0.14;
   if ((b.hitch || 'none') !== 'none') {
-    put(rbox(xr + 0.14, xr + 0.21, yr - 0.03, yr + 0.05, -0.5, 0.5, blk, 0.012));                                                 // crossmember
-    [1, -1].forEach((s) => { put(rbox(xr + 0.14, xr + 0.6, yr - 0.02, yr + 0.16, s > 0 ? 0.43 : -0.5, s > 0 ? 0.5 : -0.43, blk, 0.01)); // brackets up to the frame rails
-      const lp = mk(new THREE.TorusGeometry(0.022, 0.006, 8, 18), blk); lp.position.set(xr + 0.06, yr - 0.05, s * 0.075); put(lp); }); // safety-chain loops
-    put(rbox(xr, xr + 0.22, yr - 0.032, yr + 0.032, -0.032, 0.032, blk, 0.004));                                                  // receiver tube
-    put(rbox(xr - 0.004, xr + 0.03, yr - 0.04, yr + 0.04, -0.04, 0.04, blk, 0.006));                                              // collar
-    if (HI === 'none') { const hole = mk(new THREE.PlaneGeometry(0.051, 0.051), pmat('#030303', 1, 0)); hole.rotation.y = -Math.PI / 2; hole.position.set(xr - 0.0045, yr, 0); put(hole); }
+    if (!ownRx) {
+      put(rbox(xr + 0.14, xr + 0.21, yr - 0.03, yr + 0.05, -0.5, 0.5, blk, 0.012));                                                 // crossmember
+      [1, -1].forEach((s) => { put(rbox(xr + 0.14, xr + 0.6, yr - 0.02, yr + 0.16, s > 0 ? 0.43 : -0.5, s > 0 ? 0.5 : -0.43, blk, 0.01)); // brackets up to the frame rails
+        const lp = mk(new THREE.TorusGeometry(0.022, 0.006, 8, 18), blk); lp.position.set(xr + 0.06, yr - 0.05, s * 0.075); put(lp); }); // safety-chain loops
+      put(rbox(xr, xr + 0.22, yr - 0.032, yr + 0.032, -0.032, 0.032, blk, 0.004));                                                  // receiver tube
+      put(rbox(xr - 0.004, xr + 0.03, yr - 0.04, yr + 0.04, -0.04, 0.04, blk, 0.006));                                              // collar
+      if (HI === 'none') { const hole = mk(new THREE.PlaneGeometry(0.051, 0.051), pmat('#030303', 1, 0)); hole.rotation.y = -Math.PI / 2; hole.position.set(xr - 0.0045, yr, 0); put(hole); }
+    }
     const pin = cylAxis(0.008, 0.12, chrome, 'z', 12); pin.position.set(xr + 0.06, yr, 0); put(pin); const clip = mk(new THREE.TorusGeometry(0.018, 0.0025, 6, 16), chrome); clip.position.set(xr + 0.06, yr - 0.01, -0.065); put(clip);
     const shank = (len) => put(rbox(xr - len, xr + 0.16, yr - 0.0254, yr + 0.0254, -0.0254, 0.0254, blk, 0.003));
     if (HI === 'ball') { // Reese-style: shank, 2" drop, platform, chrome ball on its neck
@@ -6627,6 +6855,7 @@ function buildHitch(M, P, b, info) {
 function buildBumpers(M, P, b) {
   const g = new THREE.Group(), anchors = { fog: null, bar: null };
   const put = (o) => { tag(o, 'armor'); g.add(o); return o; };
+  let swing = null; // (the swing-out spare carrier's arm, pivoting on its post)
   const Wz = P.halfW - 0.05, ft = b.frontBumper || 'stock', rt = b.rearBumper || 'stock', FB = FRONT_BUMPERS[ft] || FRONT_BUMPERS.stock;
   const bumperTop = P.hoodY - 0.4;
   if (ft === 'desert') { // minimal desert bumper: tube bar under the headlights, braces & uprights to the frame, aluminium skid plate
@@ -6724,8 +6953,14 @@ function buildBumpers(M, P, b) {
     }
     racePlate = ft === 'trophy' ? { x: xn + 0.033, y: (yl + yh) / 2 } : { x: xn + 0.004, y: (yl + yh) / 2 - 0.02 }; // (where a front plate goes: on the aluminum face — in front of the steel)
   }
-  if ((!FB.factory || b.skid) && ft !== 'desert' && !FB.ownSkid) { // skid plate: sloped nose plate + flat plate under the front diff / engine
-    const yb = FB.factory ? P.bumperY : P.bumperY + 0.07, x0 = (FB.factory ? P.front - 0.18 : P.front - 0.08);
+  if (FB.lowCut) { // the low-profile cut: a steel tube bar tucked just behind the cut line, tied to the frame horns
+    const yc = (P.lowCutY || P.bumperY + 0.06) - 0.035, xc = P.front - 0.2, Z = P.halfW - 0.2;
+    put(tubeMesh([[xc - 0.12, yc, -Z], [xc - 0.02, yc, -Z + 0.12], [xc, yc, 0], [xc - 0.02, yc, Z - 0.12], [xc - 0.12, yc, Z]], 0.022, M.steel, 36));
+    [1, -1].forEach((s) => put(rbox(xc - 0.3, xc - 0.04, yc - 0.03, yc + 0.03, s * 0.4 - 0.03, s * 0.4 + 0.03, M.steel, 0.006))); // mounts back to the horns
+  }
+  if ((!FB.factory || b.skid || FB.lowCut) && ft !== 'desert' && !FB.ownSkid) { // skid plate: sloped nose plate + flat plate under the front diff / engine
+    // (low-profile: it starts at the bar behind the cut — with the stock bumper it tucks under it)
+    const yb = FB.lowCut ? (P.lowCutY || P.bumperY + 0.06) - 0.06 : FB.factory ? P.bumperY : P.bumperY + 0.07, x0 = FB.lowCut ? P.front - 0.21 : (FB.factory ? P.front - 0.18 : P.front - 0.08);
     const x1 = P.xF + 0.18, yl = P.wheelY0 - 0.13, x2 = P.xF - 0.45;
     const sl = beam([x0, yb + 0.01, 0], [x1, yl, 0], 0.82, 0.007, M.skid); put(sl);
     const fl = beam([x1, yl, 0], [x2, yl + 0.02, 0], 0.78, 0.007, M.skid); put(fl);
@@ -6805,10 +7040,26 @@ function buildBumpers(M, P, b) {
       put(rbox(R - 0.06, R + 0.06, yU - 0.035, yU - 0.02, -Z + 0.18, Z - 0.18, rbM, 0.004)); // flat step between the tubes
       put(rbox(R - 0.05, R + 0.18, yL - 0.06, yU + 0.02, -0.26, 0.26, rbM, 0.008)); // center receiver plate
     } else {
-      const step = rt === 'step' || rt === 'hooke', yb = rb + (step ? 0.02 : 0.08), yt = rb + (step ? 0.27 : 0.3), c = step ? Wz : 0.46;
+      const step = rt === 'step' || rt === 'hooke' || rt === 'swingSpare', yb = rb + (step ? 0.02 : 0.08), yt = rb + (step ? 0.27 : 0.3), c = step ? Wz : 0.46;
       put(loftMesh(plateProfile(R, 0.3, yb, yt, -c, -1), plateProfile(R, 0.3, yb, yt, c, -1), rbM));
       if (!step) [1, -1].forEach((s) => put(loftMesh(plateProfile(R, 0.3, yb, yt, s * c, -1), plateProfile(R + 0.3, 0.18, P.wheelY0 + 0.2, yt + 0.01, s * Wz, -1), rbM)));
       else if (rt === 'step') put(rbox(R + 0.02, R + 0.22, yt - 0.002, yt + 0.006, -0.5, 0.5, M.diamond, 0.003)); // diamond-plate step pad
+      if (rt === 'swingSpare') { // the swing-out carrier: hinge post on the driver corner, an arm across behind the liftgate, a spare upright on it
+        const xb = R - 0.03, hz = -Wz + 0.1, sw = spareWheel(M, P);
+        put(cylAxis(0.035, 0.16, rbM, 'y', 14).translateX(xb).translateY(yt + 0.08).translateZ(hz)); // hinge post
+        put(rbox(xb - 0.1, xb + 0.02, yt + 0.06, yt + 0.16, Wz - 0.16, Wz - 0.08, M.boot, 0.008)); // latch block on the bumper, far end
+        if (sw) { const Rw = sw.userData.R, w = sw.userData.w, xa = xb - 0.06, xs = xa - 0.05 - w / 2, zs = 0.16, ys = yt + 0.09 + Rw;
+          // the arm and the spare swing out on the post as the liftgate opens (applyRigAngles) — built in place, carried by a
+          // group pivoting at the post
+          swing = new THREE.Group(); swing.position.set(xb, 0, hz); put(swing);
+          const inner = new THREE.Group(); inner.position.set(-xb, 0, -hz); swing.add(inner);
+          const sput = (o) => { tag(o, 'armor'); inner.add(o); return o; };
+          sput(tubeMesh([[xb, yt + 0.12, hz], [xa, yt + 0.12, hz + 0.12], [xa, yt + 0.12, zs + Rw * 0.8], [xa + 0.01, yt + 0.12, Wz - 0.12]], 0.026, rbM, 24)); // the arm across
+          sput(tubeMesh([[xa, yt + 0.12, zs - 0.12], [xa, ys, zs]], 0.024, rbM, 6)); sput(tubeMesh([[xa, yt + 0.12, zs + 0.12], [xa, ys, zs]], 0.024, rbM, 6)); // the A-frame up to the hub
+          sput(rbox(xa - 0.02, xa + 0.01, ys - 0.07, ys + 0.07, zs - 0.07, zs + 0.07, rbM, 0.008)); // mounting plate
+          const t = sw.clone(); t.rotation.y = -Math.PI / 2; t.position.set(xs, ys, zs); sput(t);
+          sput(rbox(xs - w / 2 - 0.004, xs + w / 2 + 0.004, ys + Rw - 0.01, ys + Rw + 0.005, zs - 0.025, zs + 0.025, M.boot, 0.003)); } // strap over the top
+      }
     }
     }
     // 2" receiver + D-rings
@@ -6853,7 +7104,7 @@ function buildBumpers(M, P, b) {
       [-0.1, 0.1].forEach((z) => { put(rbox(pm.x - 0.03, px - 0.004, pm.y - 0.018, pm.y + 0.018, z - 0.012, z + 0.012, M.boot, 0.004)); const bolt = cylAxis(0.007, 0.006, M.chrome, 'x', 10); bolt.position.set(px + 0.004, pm.y + 0.0, z); put(bolt); });
     }
   }
-  return { group: g, anchors };
+  return { group: g, anchors, swing };
 }
 // high-clearance plate bumpers (hcFlat / hcHang) and the bedside cuts. xFace: the bumper's rear face (x falls toward the
 // back); yt / yb: top / centre bottom; yEnd: bottom at its tapered outer ends, where the angled bed cut comes down to meet it
@@ -7180,7 +7431,7 @@ function buildLights(M, P, b, anchors = {}, ex = {}) {
   // third brake light on the cab's rear roof edge (info.b3: rear face x / roof-edge y). Red brake lens always softly lit;
   // the pre-runner bar's chase pods are the 'chase' switch group.
   const B3 = BRAKE3[b.brake3] || BRAKE3.oem, b3 = ex.info && ex.info.b3;
-  if (b3) {
+  if (b3 && !(ex.ownB3 && !B3.pods)) { // (a model with its own third brake light keeps it — unless the pod bar goes on)
     const fx = b3.x, yT = b3.y, add = (o) => { tag(o, 'lights'); g.add(o); return o; };
     const red = new THREE.MeshStandardMaterial({ color: 0x8a0a0e, emissive: 0xff1a1a, emissiveIntensity: 0.55, roughness: 0.25, metalness: 0.1 });
     const blackH = new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.45, metalness: 0.35 });
@@ -7720,7 +7971,8 @@ function buildExtras(M, P, b, info, gBox) {
     const fy = info.floorY;
     put(rbox(x1 + 0.13, x0, fy - 0.03, fy, -bw + 0.05, bw - 0.05, liner, 0.004));
     [1, -1].forEach((s) => put(rbox(x1 + 0.13, x0, fy, rail - 0.03, s * (bw - 0.07) - 0.012, s * (bw - 0.07) + 0.012, liner, 0.004)));
-    put(rbox(x0 - 0.025, x0, fy, rail - 0.01, -bw + 0.03, bw - 0.03, liner, 0.004)); put(rbox(x1 + 0.13, x1 + 0.155, fy, rail - 0.06, -bw + 0.05, bw - 0.05, liner, 0.004)); // inside face of the tailgate
+    put(rbox(x0 - 0.025, x0, fy, rail - 0.01, -bw + 0.03, bw - 0.03, liner, 0.004));
+    if (!tailgateDownFor(b, info)) put(rbox(x1 + 0.13, x1 + 0.155, fy, rail - 0.06, -bw + 0.05, bw - 0.05, liner, 0.004)); // inside face of the tailgate (not when it's dropped for the bikes: it stood there on its own)
     // wheel-well humps: the UPPER half of a drum (rotating the half-drum +90° about x hung it under the axle as a black puck)
     [1, -1].forEach((s) => { const tub = mk(new THREE.CylinderGeometry(P.R0 + 0.09, P.R0 + 0.09, 0.26, 28, 1, false, -Math.PI / 2, Math.PI), liner); tub.rotation.x = -Math.PI / 2; tub.position.set(P.xR, P.wheelY0 + 0.02, s * (bw - 0.17)); put(tub); });
   }
@@ -8162,6 +8414,235 @@ function buildEngineBay(M, P, b, bay) {
   return { group: g };
 }
 
+// A car engine built in 3D where the model only has a picture of one (the DMW 1D) or nothing at all (the Dexus LD & DS):
+// E.kind 'i6' (longitudinal straight-six, intake on the driver's side, twin turbos low on the exhaust side), 'v6' (longitudinal
+// twin-turbo V6, a turbo outboard of each bank), 'v6t' (transverse V6 for front-wheel drive, gearbox on the driver's side).
+// Laid out from the bay's measurements (firewall xA, radiator support xB, the hood's underside via roof()), with an inner tub
+// (floor, fender walls) so you never see the ground through it. Returns the anchors the turbo kits plumb into.
+function buildCarEngine3D(E, P, bay, roof, put, Mt) {
+  const { blackP, castAlu, alu, crinkle, darkC, rubber } = Mt;
+  const iron = new THREE.MeshStandardMaterial({ color: 0x3b3a39, roughness: 0.75, metalness: 0.55 });
+  const yC = P.wheelY0 + 0.07, xA = bay.xA, xB = bay.xB, zIn = P.halfW - 0.17; // (crank height; the inner fender walls)
+  const capY = (x, w, gap) => roof(x, 0, w) - gap; // (the highest a part may reach at x)
+  // the tub: a floor under the engine, both inner fender walls with their strut towers, the radiator & its shroud
+  const tubM = new THREE.MeshStandardMaterial({ color: 0x151618, roughness: 0.8, metalness: 0.1 });
+  // (the floor stops behind the radiator and the walls above the wheel centres — further down / forward they showed as a dark
+  // frame hanging under a truck's front bumper)
+  const radX0 = Math.max(xB, (bay.noseX || xB) - 0.14);
+  put(rbox(xA, radX0 - 0.08, yC - 0.27, yC - 0.24, -(zIn - 0.12), zIn - 0.12, tubM, 0.01));
+  [1, -1].forEach((s) => {
+    put(rbox(xA, radX0, Math.max(yC - 0.25, P.wheelY0 + 0.1), Math.min(roof(xA + 0.3, s * zIn, 0.03) - 0.05, roof(xB, s * zIn, 0.03) - 0.05, P.hoodY - 0.02), s * (zIn - 0.02), s * zIn, tubM, 0.005));
+    const tx = THREE.MathUtils.clamp(P.xF, xA + 0.25, xB - 0.2), ty = Math.min(capY(tx, 0, 0.06), roof(tx, s * (zIn - 0.085), 0.09) - 0.07); // (the hood is lower out at its edges)
+    put(rbox(tx - 0.12, tx + 0.12, yC + 0.1, ty, s * (zIn - 0.16), s * (zIn - 0.01), tubM, 0.04)); // strut tower
+    const top = cylAxis(0.06, 0.02, alu, 'y', 18); top.position.set(tx, ty + 0.008, s * (zIn - 0.085)); put(top);
+  });
+  // (the radiator: just behind the nose, ~45 cm tall like a real one — not a wall up to the hood in a long-nosed car)
+  const radX = Math.max(xB, (bay.noseX || xB) - 0.14), radTop = Math.min(capY(radX, 0, 0.07), yC + 0.4), finsM = new THREE.MeshStandardMaterial({ color: 0x2b2d30, roughness: 0.6, metalness: 0.5, map: extraTex('radfins', 64, 64, (x, w, h) => { x.fillStyle = '#3a3c40'; x.fillRect(0, 0, w, h); x.fillStyle = '#16171a'; for (let i = 0; i < h; i += 3) x.fillRect(0, i, w, 1); }, [1, 20]) });
+  put(rbox(radX - 0.03, radX + 0.02, yC - 0.18, radTop, -0.36, 0.36, finsM, 0.008));
+  put(rbox(radX - 0.09, radX - 0.03, yC - 0.14, radTop - 0.02, -0.33, 0.33, blackP, 0.02)); // fan shroud
+  const fan = cylAxis(0.15, 0.03, blackP, 'x', 22); fan.position.set(radX - 0.1, (yC - 0.14 + radTop) / 2, 0); put(fan);
+  put(rbox(radX - 0.04, radX + 0.08, radTop, radTop + 0.03, -0.42, 0.42, tubM, 0.01)); // the radiator support's top bar
+  const A = { tb: null, turbos: [], exSide: 1, front: 0, inlets: [] };
+  if (E.kind === 'i6') {
+    const xR = xA + 0.07, xF = Math.min(xB - 0.17, xR + 0.74), L = xF - xR, mid = (xR + xF) / 2;
+    const deck = yC + 0.2, headTop = Math.min(deck + 0.15, capY(mid, 0.15, 0.13));
+    put(rbox(xR, xF - 0.04, yC - 0.2, deck, -0.16, 0.16, castAlu, 0.03)); // block & oil pan
+    put(rbox(xR + 0.02, xF - 0.06, deck, headTop, -0.15, 0.15, castAlu, 0.025)); // head
+    // valve cover following the hood's slope, a coil-pack cover down its middle and six coil boots
+    const yA = Math.min(headTop + 0.08, capY(xR + 0.04, 0.14, 0.04)), yB = Math.min(headTop + 0.08, capY(xF - 0.08, 0.14, 0.04)), ln = Math.hypot(xF - 0.12 - xR, yB - yA), ang = Math.atan2(yB - yA, xF - 0.12 - xR);
+    const vc = new THREE.Group(); vc.position.set(xR + 0.04, yA, 0); vc.rotation.z = ang;
+    vc.add(rbox(0, ln, -Math.max(0.05, yA - headTop + 0.01), 0, -0.145, 0.145, crinkle, 0.03));
+    vc.add(rbox(0.04, ln - 0.04, -0.012, 0.012, -0.07, 0.07, blackP, 0.012));
+    for (let i = 0; i < 6; i++) { const cb = cylAxis(0.018, 0.02, darkC, 'y', 12); cb.position.set(0.06 + (i * (ln - 0.12)) / 5, 0.016, 0); vc.add(cb); }
+    put(vc);
+    // intake on the driver's side: a plenum along the block, six curved runners into the head, the throttle body up front
+    const pz = -0.29, py = Math.min(deck + 0.04, capY(mid, 0.3, 0.12));
+    put(rbox(xR + 0.04, xF - 0.16, py - 0.05, py + 0.06, pz - 0.07, pz + 0.05, blackP, 0.04));
+    for (let i = 0; i < 6; i++) { const x = xR + 0.07 + (i * (L - 0.22)) / 5; put(tubeMesh([[x, py, pz + 0.04], [x, py + 0.02, -0.2], [x, deck - 0.02, -0.15]], 0.022, blackP, 10)); }
+    A.tb = V3e(xF - 0.12, py, pz); const tbm = cylAxis(0.04, 0.05, alu, 'x', 18); tbm.position.copy(A.tb); put(tbm);
+    // exhaust side: two three-into-one manifolds and the factory twins, low under their heat shields
+    A.exSide = 1;
+    [0, 1].forEach((k) => { const x0 = xR + 0.06 + k * L * 0.45;
+      for (let i = 0; i < 3; i++) put(tubeMesh([[x0 + i * 0.1, deck - 0.03, 0.15], [x0 + i * 0.1 + 0.02, deck - 0.06, 0.21], [x0 + 0.12, yC + 0.08, 0.26]], 0.018, iron, 10));
+      A.turbos.push(V3e(x0 + 0.12, yC + 0.05, 0.31)); });
+    // front: timing cover, crank / water-pump / alternator pulleys and the belt
+    put(rbox(xF - 0.05, xF + 0.02, yC - 0.12, headTop - 0.02, -0.15, 0.15, castAlu, 0.03));
+    [[yC - 0.05, 0, 0.09], [yC + 0.17, 0.02, 0.06], [yC + 0.12, -0.15, 0.055], [yC + 0.02, 0.17, 0.05]].forEach(([y, z, r]) => { const pl = cylAxis(r, 0.03, alu, 'x', 20); pl.position.set(xF + 0.035, y, z); put(pl); });
+    A.front = xF; A.mid = mid; A.top = headTop;
+  } else if (E.kind === 'v6') {
+    const xR = xA + 0.1, xF = Math.min(xB - 0.17, xR + 0.58 * (E.scale || 1)), L = xF - xR, mid = (xR + xF) / 2, deck = yC + 0.17;
+    put(rbox(xR, xF - 0.04, yC - 0.2, deck, -0.2, 0.2, castAlu, 0.03));
+    [1, -1].forEach((s) => { // each bank leaning out 30°, its head & cam cover
+      const bank = new THREE.Group(); bank.position.set(xR, deck - 0.02, s * 0.13); bank.rotation.x = -s * 0.52;
+      bank.add(rbox(0.02, L - 0.06, 0, 0.12, -0.11, 0.11, castAlu, 0.02));
+      bank.add(rbox(0.03, L - 0.07, 0.12, 0.19, -0.1, 0.1, crinkle, 0.03));
+      put(bank);
+      // the turbo outboard of the bank, low, and its manifold
+      for (let i = 0; i < 3; i++) put(tubeMesh([[xR + 0.08 + i * 0.15, deck - 0.02, s * 0.26], [xR + 0.12 + i * 0.1, yC + 0.06, s * 0.33], [mid, yC + 0.02, s * 0.36]], 0.018, iron, 10));
+      A.turbos.push(V3e(mid, yC + 0.0, s * 0.38));
+    });
+    // the big plastic cover over the intake plenum in the valley
+    const cy0 = Math.min(deck + 0.17, capY(mid, 0.2, 0.05)), coverTop = Math.max(deck + 0.08, Math.min(cy0, capY(xF - 0.05, 0.2, 0.05) + 0.02));
+    A.valley = { x0: xR + 0.05, x1: xF - 0.08, y: deck + 0.04, w: 0.18 };
+    if (!E.noCover) { put(rbox(xR + 0.02, xF - 0.04, deck + 0.02, coverTop, -0.27, 0.27, blackP, 0.07));
+      [-0.12, 0.12].forEach((z) => put(rbox(xR + 0.08, xF - 0.1, coverTop - 0.01, coverTop + 0.012, z - 0.035, z + 0.035, crinkle, 0.01))); // its two raised ribs
+      put(rbox(xR + 0.18, xF - 0.2, coverTop - 0.004, coverTop + 0.004, -0.06, 0.06, darkC, 0.003)); A.coverTop = coverTop; }
+    A.tb = V3e(xF - 0.02, deck + 0.04, 0); const tbm = cylAxis(0.045, 0.05, alu, 'x', 18); tbm.position.copy(A.tb); put(tbm);
+    put(rbox(xF - 0.05, xF + 0.02, yC - 0.12, deck + 0.08, -0.18, 0.18, castAlu, 0.03));
+    [[yC - 0.05, 0, 0.09], [yC + 0.14, 0.12, 0.06], [yC + 0.14, -0.12, 0.06]].forEach(([y, z, r]) => { const pl = cylAxis(r, 0.03, alu, 'x', 20); pl.position.set(xF + 0.035, y, z); put(pl); });
+    A.exSide = 0; A.front = xF; A.mid = mid; A.top = coverTop;
+  } else if (E.kind === 'v8') { // longitudinal V8 (the trucks' 5.0 / 5.4 / 6.2 / 4.6): banks at ±45°, a plastic cover over the intake in the valley
+    const sc = E.scale || 1, xR = xA + 0.08, xF = Math.min(xB - 0.2, xR + 0.72 * sc), L = xF - xR, mid = (xR + xF) / 2, deck = yC + 0.2 * sc, hw = 0.22 * sc;
+    put(rbox(xR, xF - 0.04, yC - 0.22 * sc, deck, -hw, hw, castAlu, 0.03));
+    [1, -1].forEach((s) => {
+      const bank = new THREE.Group(); bank.position.set(xR, deck - 0.03, s * 0.15 * sc); bank.rotation.x = -s * 0.62;
+      bank.add(rbox(0.02, L - 0.06, 0, 0.13 * sc, -0.12 * sc, 0.12 * sc, castAlu, 0.02));
+      bank.add(rbox(0.03, L - 0.07, 0.13 * sc, 0.21 * sc, -0.11 * sc, 0.11 * sc, E.camCover || crinkle, 0.03));
+      for (let i = 0; i < 4; i++) bank.add(rbox(0.07 + (i * (L - 0.2)) / 3, 0.12 + (i * (L - 0.2)) / 3, 0.21 * sc, 0.24 * sc, -0.03, 0.03, darkC, 0.008)); // coil packs
+      put(bank);
+      for (let i = 0; i < 4; i++) put(tubeMesh([[xR + 0.08 + i * L / 4.4, deck - 0.05, s * 0.3 * sc], [xR + 0.12 + i * L / 5, yC + 0.05, s * 0.36 * sc], [mid + 0.05, yC - 0.05, s * 0.38 * sc]], 0.02, iron, 10));
+      A.turbos.push(V3e(mid - 0.05, yC - 0.02, s * 0.42 * sc));
+    });
+    const coverTop = Math.max(deck + 0.12, Math.min(deck + 0.2, capY(mid, 0.25, 0.06)));
+    A.valley = { x0: xR + 0.05, x1: xF - 0.08, y: deck + 0.05, w: 0.2 * sc };
+    if (!E.noCover) { put(rbox(xR + 0.04, xF - 0.06, deck + 0.03, coverTop, -0.24 * sc, 0.24 * sc, blackP, 0.07)); A.coverTop = coverTop; }
+    A.tb = V3e(xF - 0.02, deck + 0.07, 0); const tbm = cylAxis(0.05, 0.06, alu, 'x', 18); tbm.position.copy(A.tb); put(tbm);
+    put(rbox(xF - 0.05, xF + 0.02, yC - 0.14, deck + 0.1, -0.2 * sc, 0.2 * sc, castAlu, 0.03));
+    [[yC - 0.06, 0, 0.1], [yC + 0.16, 0.14, 0.065], [yC + 0.16, -0.14, 0.065], [yC + 0.06, 0.24, 0.06]].forEach(([y, z, r]) => { const pl = cylAxis(r, 0.03, alu, 'x', 20); pl.position.set(xF + 0.035, y, z * sc); put(pl); });
+    A.exSide = 0; A.front = xF; A.mid = mid; A.top = coverTop;
+  } else if (E.kind === 'v6t') { // across the bay, crank along z, banks fore & aft, gearbox on the driver's side
+    const xc = (xA + xB) / 2 - 0.03, z0 = -0.27, z1 = 0.28, deck = yC + 0.18;
+    put(rbox(xc - 0.18, xc + 0.18, yC - 0.2, deck, z0, z1, castAlu, 0.03));
+    [1, -1].forEach((s) => { const bank = new THREE.Group(); bank.position.set(xc + s * 0.1, deck - 0.02, 0); bank.rotation.z = s * 0.5;
+      bank.add(rbox(-0.1, 0.1, 0, 0.12, z0 + 0.02, z1 - 0.02, castAlu, 0.02)); bank.add(rbox(-0.09, 0.09, 0.12, 0.18, z0 + 0.03, z1 - 0.03, crinkle, 0.03)); put(bank); });
+    const top = Math.min(deck + 0.2, capY(xc, 0.25, 0.05));
+    put(rbox(xc - 0.17, xc + 0.15, deck + 0.04, Math.max(deck + 0.1, top), z0 + 0.02, z1 - 0.04, blackP, 0.06)); // engine cover
+    const gb = cylAxis(0.17, 0.3, castAlu, 'z', 24); gb.position.set(xc - 0.02, yC, z0 - 0.15); put(gb); // transaxle
+    put(rbox(xc - 0.16, xc + 0.16, yC - 0.1, deck, z1, z1 + 0.05, castAlu, 0.02)); // timing cover, belt end
+    [[yC - 0.05, 0.08], [yC + 0.12, 0.06]].forEach(([y, r]) => { const pl = cylAxis(r, 0.03, alu, 'z', 20); pl.position.set(xc, y, z1 + 0.06); put(pl); });
+    A.tb = V3e(xc + 0.16, deck + 0.05, -0.12); A.front = xc + 0.18; A.mid = xc; A.top = top;
+    const tbm = cylAxis(0.04, 0.05, alu, 'x', 18); tbm.position.copy(A.tb); put(tbm);
+  }
+  // the factory airbox on the front corner, ducted to the throttle body (or the turbos), a coolant tank, the brake booster
+  const ax = xB - 0.24, az = -(zIn - 0.2), ay = Math.min(capY(ax, 0, 0.09), roof(ax, az, 0.12) - 0.03) - 0.07;
+  put(rbox(ax - 0.13, ax + 0.11, ay - 0.1, ay + 0.06, az - 0.11, az + 0.11, blackP, 0.03)); A.airbox = V3e(ax, ay, az);
+  const tank = new THREE.MeshStandardMaterial({ color: 0xd9dcd5, roughness: 0.4, transparent: true, opacity: 0.85 });
+  { const ty2 = Math.min(capY(xB - 0.2, 0, 0.1), roof(xB - 0.2, zIn - 0.17, 0.08) - 0.05); put(rbox(xB - 0.3, xB - 0.12, ty2 - 0.12, ty2, zIn - 0.24, zIn - 0.1, tank, 0.02)); }
+  const bst = cylAxis(0.13, 0.1, blackP, 'x', 26); bst.position.set(xA + 0.06, Math.min(capY(xA + 0.1, 0, 0.1), roof(xA + 0.1, -(zIn - 0.22), 0.14)) - 0.16, -(zIn - 0.22)); put(bst);
+  void rubber;
+  return A;
+}
+// A turbo: the compressor's snail housing (aluminium, inlet facing forward) and the turbine's (cast iron) on one shaft along x.
+// s: size (1 = a factory twin)
+function carTurbo(put, pos, s, polished, iron, side = 1) {
+  const g = new THREE.Group(); g.position.copy(pos);
+  const comp = mk(new THREE.TorusGeometry(0.05 * s, 0.035 * s, 12, 24), polished); comp.rotation.y = Math.PI / 2; comp.position.x = 0.05 * s; g.add(comp);
+  const cdisc = cylAxis(0.06 * s, 0.05 * s, polished, 'x', 22); cdisc.position.x = 0.05 * s; g.add(cdisc);
+  const inlet = cylAxis(0.04 * s, 0.07 * s, polished, 'x', 18); inlet.position.x = 0.11 * s; g.add(inlet);
+  const core = cylAxis(0.035 * s, 0.05 * s, iron, 'x', 14); g.add(core);
+  const turb = mk(new THREE.TorusGeometry(0.048 * s, 0.032 * s, 10, 22), iron); turb.rotation.y = Math.PI / 2; turb.position.x = -0.05 * s; g.add(turb);
+  const outlet = cylAxis(0.03 * s, 0.06 * s, polished, 'y', 14); outlet.position.set(0.05 * s, 0.07 * s, side * 0.02 * s); g.add(outlet); // (compressor outlet, up)
+  put(g); return { inlet: V3e(pos.x + 0.15 * s, pos.y, pos.z), outlet: V3e(pos.x + 0.05 * s, pos.y + 0.1 * s, pos.z + side * 0.02 * s) };
+}
+// The turbos & their plumbing (A: the engine's anchors — turbo spots, throttle body, exhaust side): kit 'stock' (a factory twin-turbo
+// engine's own, black pipes), 'hybrid' / 'big' (bigger twins, polished pipes & blue couplers) or 'single' (one big turbo up front on a tube
+// manifold) — each with a front-mount intercooler behind the lower grille and charge pipes down the bay's front corners.
+function buildTurboPlumbing(put, A, P, bay, roof, kit, Mt) {
+  const { polished, iron, alu, castAlu, blueSil } = Mt;
+  const big = kit === 'big', single = kit === 'single', stock = kit === 'stock', zIn = P.halfW - 0.2;
+  const pipeM = kit === 'hybrid' || stock ? new THREE.MeshStandardMaterial({ color: 0x1c1d20, roughness: 0.45, metalness: 0.6 }) : polished;
+  const icX = bay.noseX || bay.xB + 0.2, icY0 = P.wheelY0 - 0.08, icY1 = P.wheelY0 + (big || single ? 0.27 : 0.2), icW = Math.min(zIn - 0.02, big || single ? 0.52 : 0.44), icM = (P.wheelY0 + icY0 + (icY1 - P.wheelY0)) / 2 + 0.02;
+  put(rbox(icX - (big || single ? 0.09 : 0.06), icX, icY0, icY1, -icW, icW, new THREE.MeshStandardMaterial({ color: 0x3a3c40, roughness: 0.5, metalness: 0.7, map: extraTex('icfins', 64, 64, (x, w, h) => { x.fillStyle = '#ddd'; x.fillRect(0, 0, w, h); x.fillStyle = '#555'; for (let i = 0; i < h; i += 4) x.fillRect(0, i, w, 1.5); }, [1, 14]) }), 0.01));
+  [-1, 1].forEach((s) => { const et = rbox(icX - 0.08, icX + 0.005, icY0 - 0.01, icY1 + 0.01, s * icW, s * (icW + 0.05), castAlu, 0.02); put(et); });
+  const coupM = stock ? new THREE.MeshStandardMaterial({ color: 0x0e0e0f, roughness: 0.8 }) : blueSil; // (factory couplers are black rubber)
+  const coup = (p, dir) => { const cp = mk(new THREE.TorusGeometry(0.036, 0.011, 8, 20), coupM); cp.position.copy(p); cp.lookAt(p.clone().add(dir)); put(cp); };
+  const yHi = (x, z) => roof(x, z, 0.05) - 0.06, corner = bay.xB + 0.03; // (pipes come down past the radiator in the bay's front corners)
+  let feeds = [];
+  if (!single) feeds = A.turbos.map((p) => { const side = A.exSide || Math.sign(p.z) || 1; return { side, t: carTurbo(put, p.clone().add(V3e(0, 0.02, side * 0.01)), big ? 1.28 : stock ? 1 : 1.06, stock ? castAlu : polished, iron, side) }; });
+  else { // one big turbo up front on the exhaust side, on a tubular manifold, its inlet open to a cone filter
+    const side = A.exSide || 1, tp = V3e((A.front || bay.xB - 0.2) - 0.16, Math.min(yHi(bay.xB - 0.3, side * 0.32) - 0.11, P.wheelY0 + 0.42), side * 0.31);
+    const t = carTurbo(put, tp, 1.55, polished, iron, side);
+    const header = new THREE.MeshStandardMaterial({ color: 0x8a8580, roughness: 0.35, metalness: 0.85 }); // (ceramic-coated tube manifold)
+    (A.turbos.length ? A.turbos : [tp]).forEach((q, i) => [-0.12, 0, 0.12].forEach((dx) => put(tubeMesh([[q.x + dx, q.y + 0.1, q.z - side * 0.08], [q.x + dx * 0.5, tp.y - 0.12, side * 0.33], [tp.x - 0.09, tp.y - 0.04, tp.z]], 0.02, header, 12))));
+    const wg = cylAxis(0.03, 0.08, alu, 'y', 14); wg.position.set(tp.x - 0.16, tp.y - 0.02, tp.z - side * 0.05); put(wg); // external wastegate
+    const cone = cylAxis(0.075, 0.17, new THREE.MeshStandardMaterial({ color: 0x2f8f3a, roughness: 0.9 }), 'x', 22, 0.05); cone.position.set(t.inlet.x + 0.09, t.inlet.y, t.inlet.z); put(cone);
+    feeds = [{ side, t }];
+  }
+  // hot side: each compressor outlet up & forward, down the front corner on its side into the intercooler's end
+  const hot = feeds.filter((f) => f.side > 0), cold = feeds.filter((f) => f.side < 0);
+  feeds.forEach((f) => { const o = f.t.outlet, s = f.side, cz = s * (zIn - 0.06);
+    put(tubeMesh([[o.x, o.y, o.z], [o.x + 0.04, Math.min(o.y + 0.08, yHi(o.x + 0.04, o.z)), o.z + s * 0.04], [corner, yHi(corner, cz) - 0.02, cz], [corner + 0.03, icY1 - 0.03, cz], [icX - 0.04, icM, s * (icW + 0.02)]], big || single ? 0.036 : 0.03, pipeM, 26));
+    coup(V3e(corner, yHi(corner, cz) - 0.02, cz), V3e(0, 1, 0)); });
+  // cold side: out of the intercooler (the driver's end — or its middle, when both ends are fed) up to the throttle body
+  const tb0 = A.tb, fromMid = hot.length && cold.length, oz = fromMid ? 0 : -(icW + 0.02), cz = fromMid ? 0.0 : -(zIn - 0.06);
+  const coldPts = fromMid ? [[icX - 0.07, icY1 - 0.01, 0], [icX - 0.1, icY1 + 0.04, 0], [corner - 0.02, yHi(corner, 0.1) - 0.04, 0.12], [tb0.x + 0.12, tb0.y + 0.02, tb0.z + 0.04], [tb0.x + 0.04, tb0.y, tb0.z]]
+    : [[icX - 0.04, icM, oz], [corner + 0.03, icY1 - 0.03, cz], [corner, yHi(corner, cz) - 0.02, cz], [tb0.x + 0.1, Math.min(tb0.y + 0.06, yHi(tb0.x + 0.1, tb0.z)), tb0.z - 0.06], [tb0.x + 0.04, tb0.y, tb0.z]];
+  put(tubeMesh(coldPts, big || single ? 0.036 : 0.032, pipeM, 26)); coup(V3e(...coldPts[2]), V3e(0, 1, 0));
+  if (!stock) { const bov = cylAxis(0.022, 0.05, alu, 'y', 14); bov.position.set(coldPts[3][0], coldPts[3][1] + 0.04, coldPts[3][2]); put(bov); } // (the blow-off valve — the "pssh")
+}
+// what's under a truck's hood, read from its engine's name: a V8 or V6, twin-turbo ("TurboBoost"), supercharged or diesel
+const truckEngineOf = (v) => { const e = (v && v.engine) || '', sc = /Supercharg/i.test(e);
+  return { kind: /V8/i.test(e) ? 'v8' : 'v6', cyl: /V8/i.test(e) ? 8 : 6, sc, tt: /Turbo|EcoBoost/i.test(e) && !sc, diesel: /Diesel|Power ?Stroke/i.test(e), label: (e.match(/(\d\.\d)L/) || [])[1] || '' }; };
+// A lineup truck's engine bay (the Dord D-D50s with no engine of their own in the model — or just a photo of one): the engine
+// built in 3D from its name (buildCarEngine3D: a V8 or a V6, "TurboBoost" ones with their twin turbos, intercooler & charge
+// pipes), and the induction you fit: a roots blower in the valley (the DRD black one, the polished high-boost one), the
+// centrifugal head unit with its intercooler, or for a turbo engine bigger turbos (buildTurboPlumbing). Kept under the hood.
+function buildTruckEngineBay(M, P, b, bay) {
+  const g = new THREE.Group(), put = (o) => { tag(o, 'engine'); g.add(o); return o; };
+  const blackP = new THREE.MeshStandardMaterial({ color: 0x111214, roughness: 0.62, metalness: 0.1 }), polished = new THREE.MeshStandardMaterial({ color: 0xe4e7ea, roughness: 0.06, metalness: 1 });
+  const alu = new THREE.MeshStandardMaterial({ color: 0xbfc3c8, roughness: 0.3, metalness: 0.9 }), castAlu = new THREE.MeshStandardMaterial({ color: 0x9da1a7, roughness: 0.5, metalness: 0.75 });
+  const crinkle = new THREE.MeshStandardMaterial({ color: 0x161719, roughness: 0.88, metalness: 0.15 }), darkC = new THREE.MeshStandardMaterial({ color: 0x1a1b1e, roughness: 0.55, metalness: 0.2 });
+  const iron = new THREE.MeshStandardMaterial({ color: 0x3b3a39, roughness: 0.75, metalness: 0.55 }), blueSil = new THREE.MeshStandardMaterial({ color: 0x1f4fd0, roughness: 0.5, metalness: 0.05 });
+  const HM = bay.hood, flat = (bay.skinY || bay.hoodY) - 0.06;
+  const hoodAt = (x, z) => { if (!HM) return flat; const n = HM.ys.length, fx = THREE.MathUtils.clamp((x - HM.x0) / HM.dx, 0, n - 1), i = Math.min(n - 2, Math.floor(fx)), tx = fx - i;
+    const zs = HM.zs, az = Math.min(Math.abs(z), zs[zs.length - 1]); let j = 0; while (j < zs.length - 2 && az > zs[j + 1]) j++; const tz = (az - zs[j]) / (zs[j + 1] - zs[j]), y = (a, c) => HM.ys[a][c];
+    return (y(i, j) * (1 - tx) + y(i + 1, j) * tx) * (1 - tz) + (y(i, j + 1) * (1 - tx) + y(i + 1, j + 1) * tx) * tz; };
+  const roof = (x, z, w = 0) => Math.min(hoodAt(x, z - w), hoodAt(x, z + w));
+  const E = bay.eng || truckEngineOf(null), SCa = SUPERCHARGERS[b.supercharger] || SUPERCHARGERS.none, IN = b.intake || 'stock';
+  // (a kit only where it fits — a blower on a naturally aspirated engine, turbos on a turbo one; trucks share one build)
+  const SC0 = (E.tt || E.diesel) ? (SCa.turbo ? SCa : SUPERCHARGERS.none) : E.sc ? SUPERCHARGERS.none : SCa.turbo ? SUPERCHARGERS.none : SCa, roots = SC0.whine === 'roots' && !SC0.turbo;
+  const Mt = { blackP, castAlu, alu, crinkle, darkC, rubber: blackP, polished, iron, blueSil };
+  const A = buildCarEngine3D({ kind: E.kind, scale: 1.08, noCover: roots, camCover: E.kind === 'v8' ? new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.45, metalness: 0.6 }) : null }, P, bay, roof, put, Mt);
+  // the cover's displacement badge (no maker's name)
+  if (E.label && A.coverTop && !roots) { const tex = extraTex('disp-' + E.label + (E.tt ? 't' : ''), 256, 96, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#c9cdd2'; x.font = 'bold 54px Arial Black, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(E.label + (E.kind === 'v8' ? ' V8' : ' V6'), w / 2, h / 2); });
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.09), new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.4, metalness: 0.5 })); pl.rotation.x = -Math.PI / 2; pl.rotation.z = Math.PI / 2; pl.position.set(A.mid, A.coverTop + 0.002, 0); put(pl); }
+  if (E.diesel) A.turbos = [V3e(A.mid - 0.1, A.top - 0.02, 0)]; // (the diesel's single turbo sits in the valley)
+  // factory twin turbos (TurboBoost) and their plumbing — or a turbo kit in their place
+  if (E.tt || E.diesel || SC0.turbo) buildTurboPlumbing(put, A, P, bay, roof, SC0.turbo ? b.supercharger : 'stock', Mt);
+  if (roots && A.valley) { // a roots blower down the valley: the DRD kit's black case or the polished high-boost one, its snout & pulley up front
+    const V = A.valley, mat = b.supercharger === 'trd' ? blackP : polished, top = Math.min(roof((V.x0 + V.x1) / 2, 0, V.w) - 0.03, V.y + 0.24), y0 = V.y - 0.02;
+    put(rbox(V.x0, V.x1, y0, top, -V.w, V.w, mat, 0.04));
+    for (let i = 0; i < 5; i++) { const z = -V.w + 0.04 + ((2 * V.w - 0.08) * i) / 4; put(rbox(V.x0 + 0.04, V.x1 - 0.04, top - 0.005, top + 0.012, z - 0.012, z + 0.012, mat === blackP ? darkC : alu, 0.004)); }
+    const sn = cylAxis(0.055, 0.1, mat, 'x', 22); sn.position.set(V.x1 + 0.05, (y0 + top) / 2, -0.05); put(sn);
+    const pul = cylAxis(0.065, 0.03, alu, 'x', 26); pul.position.set(V.x1 + 0.11, (y0 + top) / 2, -0.05); put(pul);
+    A.tb = V3e(V.x1 + 0.06, (y0 + top) / 2 + 0.03, 0.1); const tbm = cylAxis(0.05, 0.06, alu, 'x', 20); tbm.position.copy(A.tb); put(tbm);
+  } else if (SC0.whine === 'centri' && !SC0.turbo) { // the centrifugal head unit low on the passenger-front corner, an intercooler up front, charge pipes to the throttle body
+    const hx = (A.front || bay.xB - 0.2) - 0.05, hz = 0.45, hy = Math.min(roof(hx, hz, 0.1) - 0.13, A.top - 0.05);
+    const vol = mk(new THREE.TorusGeometry(0.07, 0.042, 14, 28), polished); vol.rotation.y = Math.PI / 2; vol.position.set(hx, hy, hz); put(vol);
+    const hub = cylAxis(0.07, 0.1, polished, 'x', 24); hub.position.set(hx - 0.05, hy, hz); put(hub);
+    const pul = cylAxis(0.048, 0.03, alu, 'x', 20); pul.position.set(hx - 0.12, hy, hz); put(pul);
+    const cone = cylAxis(0.07, 0.15, new THREE.MeshStandardMaterial({ color: 0x9b1c1c, roughness: 0.85 }), 'x', 20, 0.05); cone.position.set(hx + 0.12, hy, hz + 0.03); put(cone);
+    const icX = bay.noseX || bay.xB + 0.2, icY0 = P.wheelY0 - 0.06, icY1 = P.wheelY0 + 0.24;
+    put(rbox(icX - 0.07, icX, icY0, icY1, -0.48, 0.48, new THREE.MeshStandardMaterial({ color: 0x3a3c40, roughness: 0.5, metalness: 0.7, map: extraTex('icfins', 64, 64, (x, w, h) => { x.fillStyle = '#ddd'; x.fillRect(0, 0, w, h); x.fillStyle = '#555'; for (let i = 0; i < h; i += 4) x.fillRect(0, i, w, 1.5); }, [1, 14]) }), 0.01));
+    const yHi = (x, z) => roof(x, z, 0.05) - 0.07, cx = bay.xB + 0.03;
+    put(tubeMesh([[hx + 0.01, hy + 0.07, hz - 0.03], [cx, yHi(cx, 0.55), 0.55], [cx + 0.03, icY1 - 0.02, 0.55], [icX - 0.04, (icY0 + icY1) / 2, 0.5]], 0.035, polished, 24));
+    put(tubeMesh([[icX - 0.04, (icY0 + icY1) / 2, -0.5], [cx + 0.03, icY1 - 0.02, -0.55], [cx, yHi(cx, 0.55), -0.55], [A.tb.x + 0.1, A.tb.y + 0.04, A.tb.z - 0.06], [A.tb.x + 0.04, A.tb.y, A.tb.z]], 0.035, polished, 24));
+  }
+  // intake: the open cone or the DRD box where the factory airbox was (the builder put that on the driver's front corner), ducted
+  // to the throttle body; a snorkel's tube runs off up the passenger A-pillar
+  const ab = A.airbox;
+  if (ab && IN !== 'stock' && !(E.tt || E.diesel || SC0.turbo)) {
+    if (IN === 'kn') { const cone = cylAxis(0.085, 0.2, new THREE.MeshStandardMaterial({ color: 0xa31818, roughness: 0.85 }), 'x', 22, 0.06); cone.position.set(ab.x + 0.02, ab.y, ab.z); put(cone); }
+    else if (IN === 'trd') put(rbox(ab.x - 0.14, ab.x + 0.12, ab.y - 0.11, ab.y + 0.08, ab.z - 0.12, ab.z + 0.12, new THREE.MeshStandardMaterial({ color: 0x8e1414, roughness: 0.4, metalness: 0.2 }), 0.03));
+    put(tubeMesh([[ab.x - 0.02, ab.y + 0.05, ab.z + 0.1], [A.tb.x + 0.12, A.tb.y + 0.04, (ab.z + A.tb.z) / 2], [A.tb.x + 0.04, A.tb.y, A.tb.z]], 0.045, IN === 'kn' ? polished : blackP, 20));
+  }
+  if (IN === 'snorkel') put(tubeMesh([[bay.xB - 0.3, A.top - 0.05, 0.45], [bay.xA + 0.2, Math.min(A.top + 0.05, flat), P.halfW - 0.24], [bay.xA + 0.05, bay.hoodY - 0.02, P.halfW - 0.12]], 0.045, blackP, 16));
+  // nothing may touch the shut hood
+  g.updateMatrixWorld(true); const v = new THREE.Vector3();
+  g.children.forEach((part) => { let over = -1; part.traverse((o) => { if (!o.isMesh) return; const pa = o.geometry.attributes.position; for (let k = 0; k < pa.count; k += 2) { v.fromBufferAttribute(pa, k).applyMatrix4(o.matrixWorld); over = Math.max(over, v.y - (hoodAt(v.x, v.z) - 0.01)); } });
+    if (over > 0) { part.position.y -= over; part.updateMatrixWorld(true); } });
+  void M; return { group: g };
+}
 // The Dexus ISD's bay: the model's own 5.0 V8 (2UR-GSE) under its ribbed cover — and each induction kit built for real: with a
 // supercharger the cover comes off (the stage hides it), showing the intake valley & both cam covers; the TVS roots case sits
 // between the banks; the Rotrex kit's polished head unit sits on the passenger-front corner with polished charge pipes & blue
@@ -8198,6 +8679,13 @@ function buildCarEngineBay(M, P, b, bay) {
     return { len, at: (u, v, z) => V3e(x0 + u * Math.cos(a) - v * Math.sin(a), yA + u * Math.sin(a) + v * Math.cos(a), z) };
   };
   let tb = null; // the throttle body (where the intake ends)
+  // the engine itself: the model's own (ISD, D92, Touring) or built in 3D (1D, LD, DS — see buildCarEngine3D)
+  const ENG = bay.eng || { kind: 'v8', own: true }, iron = new THREE.MeshStandardMaterial({ color: 0x3b3a39, roughness: 0.75, metalness: 0.55 });
+  let A = null;
+  if (!ENG.own) A = buildCarEngine3D(ENG, P, bay, roof, put, { blackP, castAlu, alu, crinkle, darkC, rubber: blackP });
+  else if (ENG.kind === 'i6') { const xR = bay.xA + 0.07, xF = Math.min(bay.xB - 0.17, xR + 0.74); A = { tb: V3e(xF - 0.12, P.wheelY0 + 0.3, -0.29), turbos: [V3e(xR + 0.2, P.wheelY0 + 0.12, 0.31), V3e(xR + 0.53, P.wheelY0 + 0.12, 0.31)], exSide: 1, front: xF, mid: (xR + xF) / 2 }; } // (the model's own S58: where its turbos sit)
+  if (A && A.tb) tb = A.tb;
+  if (SC0.turbo && A) buildTurboPlumbing(put, A, P, bay, roof, b.supercharger, { polished, iron, alu, castAlu, blueSil }); // ---- turbo kits
   if (SC.whine) { // cover off: the intake valley between the banks and both crinkle-black cam covers, a coil pack per cylinder
     put(rbox(CB.x0 - 0.02, CB.x1, CB.y0 - 0.07, CB.y0 + 0.035, -0.2, 0.2, blackP, 0.02));
     [1, -1].forEach((s) => {
@@ -8262,7 +8750,8 @@ function buildChassis(M, P, opts) {
   // frame rails with the kick-up over the rear axle
   // (the frame horns end hidden behind the bumper)
   const rail = [[P.front - 0.66, ry + 0.07], [P.xF + 0.3, ry + 0.02], [P.xF - 0.55, ry - 0.01], [P.xR + 0.75, ry - 0.01], [P.xR + 0.42, ry + kick], [P.xR - 0.42, ry + kick], [P.xR - 0.75, ry + 0.07], [P.rear + 0.22, ry + 0.07]];
-  [1, -1].forEach((s) => { for (let i = 0; i < rail.length - 1; i++) addF(beam([rail[i][0], rail[i][1], s * RZ], [rail[i + 1][0], rail[i + 1][1], s * RZ], 0.06, 0.16, M.frame)); });
+  if (opts.horn) rail[0] = [opts.horn.x, opts.horn.y]; // (out to the back of the bumper, at its height)
+  [1, -1].forEach((s) => { for (let i = 0; i < rail.length - 1; i++) addF(beam([rail[i][0], rail[i][1], s * RZ], [rail[i + 1][0], rail[i + 1][1], s * RZ], 0.06, opts.railH || 0.16, M.frame)); });
   const railY = (x) => { for (let i = 0; i < rail.length - 1; i++) { const [x0, y0] = rail[i], [x1, y1] = rail[i + 1]; if (x <= x0 && x >= x1) return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0); } return ry; };
   [P.xF + 0.32, P.xF - 0.5, 0.1, P.xR + 0.85, P.xR - 0.6, P.rear + 0.3].forEach((x) => addF(beam([x, railY(x), -RZ], [x, railY(x), RZ], 0.05, 0.08, M.frame)));
   const ifsOnly = []; // frame-mounted IFS bits (front diff) that come out with a solid axle swap
@@ -9142,9 +9631,16 @@ function createStage(container, initialVehicle, initialBuild, handlers) {
     [lights.group, lights.ground].forEach((gr) => gr && gr.traverse((l) => { if (l.isSpotLight) l.intensity *= TOD.lightK; })); // (spots: setOn sets them fresh every call, so this never compounds)
     if (!model || !model.zones) return;
     const hc = (HEAD_COLORS[build.headColor] || {}).glow || 0xf2f5ff;
-    const flashOff = sw.strobe && !on, glow = (zone, k) => (model.zones[zone] || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
-      if (!mt || !mt.emissive || mt.metalness > 0.7 || (mt.userData && mt.userData.noGlow)) return; mt.emissive.setHex(hc); mt.emissiveIntensity = flashOff ? 0 : k * TOD.lightK; }));
+    // (a lineup model's lamp pieces are cut from material-merged meshes: a housing shares its material with trim all over the
+    // body — lighting that lit the grille, flares and window trim white. Only a material the lamp has to itself glows.)
+    const sharedOut = (zone) => { if (!model.prof) return null; const inZ = new Set(model.zones[zone] || []), out = new Set();
+      model.parts.meshes.forEach((m) => { if (!inZ.has(m)) (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => out.add(mt)); }); return out; };
+    const flashOff = sw.strobe && !on, glow = (zone, k) => { const out = sharedOut(zone); (model.zones[zone] || []).forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => {
+      if (!mt || !mt.emissive || mt.metalness > 0.7 || (mt.userData && mt.userData.noGlow) || (out && out.has(mt))) return; mt.emissive.setHex(hc); mt.emissiveIntensity = flashOff ? 0 : k * TOD.lightK;
+      if (out && mt.userData && mt.userData.lensOp !== undefined) mt.opacity = k > 0 && !flashOff ? Math.max(mt.userData.lensOp, 0.55) : mt.userData.lensOp; })); }; // (a lit clear lens shows its glow)
     glow('headlights', sw.head === 'high' ? 1.6 : sw.head === 'low' ? 0.9 : 0); glow('fogs', sw.oemFog ? 1.1 : 0);
+    (model.zones.fogLens || []).forEach((m) => { const mt = m.material; if (!mt || !mt.userData || mt.userData.op0 === undefined) return; // (a lineup model's own fog lens — applyZones)
+      const lit = sw.oemFog && !flashOff; mt.emissiveIntensity = lit ? 1.4 * TOD.lightK : 0; mt.opacity = lit ? 0.92 : mt.userData.op0; });
     glow('headGlow', sw.head === 'high' ? 3 : sw.head === 'low' ? 2.2 : 0); // (a car's projectors & bulbs)
     { const dc = (DRL_COLORS[build.drlColor] || DRL_COLORS.white).c, hOn = !flashOff && (sw.head === 'low' || sw.head === 'high'); // (factory running-light rings: always on, brighter with the beams)
       (model.zones.drlGlow || []).forEach((m) => { const mt = m.material; if (mt && mt.userData && mt.userData.drlGlow) { mt.emissive.setHex(dc); mt.emissiveIntensity = (hOn ? 2.4 : 1.5) * TOD.lightK; } }); }
@@ -9322,17 +9818,22 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     // bikes longer than the bed: the tailgate's own panel comes out (buildHitch lays it down flat behind the bed)
     if (bI && P && tailgateDownFor(build, bI)) list.push([[P.rear - 0.08, Math.max(P.rearBumperY + 0.13, bI.floorY - 0.2), -(bI.halfW - 0.13)], [P.rear + 0.24, bI.railY + 0.08, bI.halfW - 0.13]]);
-    if (dsh && dsh.sunX != null && (build.sunroof || 'none') !== 'none') list.push([[dsh.sunX - SUN_HL, dsh.sunY - 0.045, -SUN_HW], [dsh.sunX + SUN_HL, dsh.sunY + 0.12, SUN_HW]]); // (just the roof skin — the headliner is ours, built with the opening)
+    // (just the roof skin — the headliner is ours, built with the opening; a lineup model's own headliner a few cm lower goes too)
+    if (dsh && dsh.sunX != null && (build.sunroof || 'none') !== 'none') list.push([[dsh.sunX - SUN_HL, dsh.sunY - (model.prof ? 0.1 : 0.045), -SUN_HW], [dsh.sunX + SUN_HL, dsh.sunY + 0.12, SUN_HW]]);
     // an aftermarket front bumper: the factory one's backing — the flat liner fronts and radiator-support wings that filled the
     // space under each headlight, outboard of the frame horns — comes out, so you see the tyres and wells through the tubes
     // (it read as a flat black slab behind the bumper)
     // (race fronts: out through the fender skin too — the fenders' front corners are cut off clean at the hoop line)
     const FBc = FRONT_BUMPERS[build.frontBumper] || FRONT_BUMPERS.stock;
     if (P && model && !FBc.factory) [1, -1].forEach((s) => { const a = 0.42, c = FBc.cutFenders ? P.halfW + 0.15 : P.halfW - 0.1; list.push([[P.xF + 0.25, P.bumperY - 0.25, s > 0 ? a : -c], [P.front + 0.2, P.hoodY - 0.41, s > 0 ? c : -a]]); });
+    // the low-profile cut: the factory bumper cut flat right across, just under the fog lamps (ahead of the front wheels)
+    if (P && model && FBc.lowCut) list.push([[P.xF + P.R0 + 0.12, P.wheelY0 - 0.6, -(P.halfW + 0.2)], [P.front + 0.3, lowCutY(), P.halfW + 0.2]]);
     list.splice(MAX_BOXES);
     cutU.uBoxN.value = list.length;
     list.forEach(([a, c], i) => { cutU.uBoxMin.value[i].set(...a); cutU.uBoxMax.value[i].set(...c); });
   }
+  // the low-profile bumper's cut line: just under the factory fog lamps (or a little over the bumper's measured bottom)
+  function lowCutY() { const P = base.P, fs = (model && model.fogSpots) || []; return fs.length ? Math.min(...fs.map((f) => f[1] - (f[3] || 0.04))) - 0.015 : P.bumperY + 0.06; }
   function updateCutMatrix() {
     if (!model) return;
     // (updateWorldMatrix with parents: the truck's own matrix is otherwise a frame old while driving, so the cut boxes /
@@ -9480,6 +9981,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
         geo.setIndex([...idx, ...fl]); geo.addGroup(0, idx.length, 0); geo.addGroup(idx.length, fl.length, 1);
         const m = new THREE.Mesh(geo, [mat, deep]); m.castShadow = false; m.receiveShadow = true; m.userData.part = 'body'; g.add(m);
+        // a model with open wheel wells (no inner fender): a wheel tub over the tyre — the top half of a drum from the liner's inner
+        // edge in toward the frame, closed by its inner wall — so you don't see daylight through the body over a lifted tyre
+        if (model.prof && model.prof.wellTubs) {
+          const Rt = Ra + 0.03, dep = 0.3, tub = mk(new THREE.CylinderGeometry(Rt, Rt, dep, 28, 1, true, -Math.PI / 2, Math.PI), deep); tub.rotation.x = -Math.PI / 2; tub.position.set(xc, P.wheelY0, s * (zIn - dep / 2)); tub.userData.noScan = true; g.add(tub);
+          const wall = mk(new THREE.CircleGeometry(Rt, 28, 0, Math.PI), deep); wall.position.set(xc, P.wheelY0, s * (zIn - dep)); wall.userData.noScan = true; g.add(wall);
+        }
       });
     });
     g.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
@@ -9535,6 +10042,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const h = model.holder; h.updateMatrixWorld(true);
     const v = new THREE.Vector3();
     Object.entries(model.windows).forEach(([id, w]) => {
+      if (w.slider) { // (the pickup's sliding back window: the fixed panes stay, the middle one slides across behind the left one)
+        w.pieces.forEach((pc) => pc.position.copy(pc.userData.pos0));
+        const ds = THREE.MathUtils.clamp(wv[id] || 0, 0, 1) * w.slider.w * 0.95;
+        w.slider.pieces.forEach((pc) => { pc.position.copy(pc.userData.pos0); if (!ds) return; pc.parent.updateMatrixWorld(true); v.copy(pc.userData.pos0); pc.parent.localToWorld(v); h.worldToLocal(v); v.z -= ds; v.x += 0.014; h.localToWorld(v); pc.parent.worldToLocal(v); pc.position.copy(v); });
+        return;
+      }
       const d = THREE.MathUtils.clamp(wv[id] || 0, 0, 1) * (w.height - 0.012);
       if (w.slope === undefined) { // the glass leans in toward the roof: it drops ALONG its own plane, so it stays in the belt seal
         let n = 0, sy = 0, sh = 0, syy = 0, syh = 0, sz = 0; const p = new THREE.Vector3(), side = id !== 'rear';
@@ -9778,7 +10291,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const tops = [];
     for (let i = 0; i <= 100; i++) { const x = bb.min.x + ((bb.max.x - bb.min.x) * i) / 100; const h = probe(V(x, bb.max.y + 1, 0), V(0, -1, 0)); tops.push([x, h ? h.point.y : -Infinity]); }
     const roofTop = Math.max(...tops.map((t) => t[1]));
-    const cr = tops.find(([x, y]) => x > P.xR && y > roofTop - 0.25);
+    // (an SUV's cabin runs right back to the liftgate: its "cab" ends where the roof does, behind the rear axle)
+    const suv = !!(model.prof && model.prof.suv), cr = tops.find(([x, y]) => x > (suv ? bb.min.x + 0.05 : P.xR) && y > roofTop - (suv ? 0.4 : 0.25));
     let roofFront = -Infinity; tops.forEach(([x, y]) => { if (y > roofTop - 0.08) roofFront = Math.max(roofFront, x); });
     return { roofTop, cabRear: cr ? cr[0] : P.xR + 0.9, roofFront: Number.isFinite(roofFront) ? roofFront : P.cowlX - 0.4 };
   }
@@ -9837,9 +10351,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const hoodTops = []; for (let i = 0; i <= 16; i++) { const x = P.cowlX - 0.1 + ((P.front - P.cowlX) * i) / 16, h = probe(V(x, prof.roofTop + 1, 0.3), V(0, -1, 0)); hoodTops.push([x, h && h.point.y > P.hoodY - 0.25 ? h.point.y : null]); }
     // steering wheel: the dominant non-paint material around where a 1st-gen Tundra's wheel hub sits (driver side is −z)
     const steerC0 = V(P.cowlX - 0.5, P.cowlY - 0.18, -0.41 * P.halfW), steerCount = new Map(), sv = V(0, 0, 0);
-    model.parts.meshes.forEach((m) => { if (m.isSkinnedMesh || m.isInstancedMesh || Array.isArray(m.material) || paintSet.has(m.material) || glassSet.has(m.material)) return; const g = m.geometry, pa = g.attributes.position, ix = g.index; if (!pa) return; const n = ix ? ix.count : pa.count;
-      for (let k = 0; k < n; k += 3) { sv.fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(m.matrixWorld); if (Math.abs(sv.x - steerC0.x) < 0.07 && Math.abs(sv.y - steerC0.y) < 0.14 && Math.abs(sv.z - steerC0.z) < 0.14) steerCount.set(m.material, (steerCount.get(m.material) || 0) + 1); } });
-    let steerMat = null, steerBest = 30; steerCount.forEach((c, mt) => { if (c > steerBest) { steerBest = c; steerMat = mt; } });
+    // (a lineup truck's cabin can share the body's colour-keyed atlas: its wheel is still the wheel)
+    const lineupTruck = !!(model.prof && !model.prof.car);
+    model.parts.meshes.forEach((m) => { if (m.isSkinnedMesh || m.isInstancedMesh || Array.isArray(m.material) || (paintSet.has(m.material) && !lineupTruck) || glassSet.has(m.material)) return; const g = m.geometry, pa = g.attributes.position, ix = g.index; if (!pa) return; const n = ix ? ix.count : pa.count;
+      // (a low-poly lineup truck's wheel has few corners: a wider box, a lower count)
+      const bxX = lineupTruck ? 0.16 : 0.07, bxR = lineupTruck ? 0.2 : 0.14;
+      for (let k = 0; k < n; k += 3) { sv.fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(m.matrixWorld); if (Math.abs(sv.x - steerC0.x) < bxX && Math.abs(sv.y - steerC0.y) < bxR && Math.abs(sv.z - steerC0.z) < bxR) steerCount.set(m.material, (steerCount.get(m.material) || 0) + 1); } });
+    let steerMat = null, steerBest = lineupTruck ? 6 : 30; steerCount.forEach((c, mt) => { if (c > steerBest) { steerBest = c; steerMat = mt; } });
     // that material also covers the column shroud and part of the dash — so find the wheel itself: its centre and the plane
     // of the rim (the rim is a thin ring: its plane is the two big spreads of the nearby points). Only what lies inside the
     // rim radius and close to that plane turns with the wheel; the rest stays put as dash.
@@ -9892,6 +10410,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (ctx.own && prof0.genericSteer && steerMat && !isP && !isG && wheelN && onWheel(V(cx, cy, cz)) && (mt === steerMat || V(cx, cy, cz).distanceTo(wheelC) < 0.1)) return 'steer';
       if (ctx.own) { const z = ctx.own(ctx.name, mt.name || '', { cx, cy, cz, az, n: normal(), P, prof, isP, isG, comp: ctx.comp ? ctx.comp[ctx.t] : null, path: ctx.path, glassZ, bPillar }); if (z !== undefined) return z; }
       if (ctx.antenna) return 'antenna';
+      // (a lineup truck whose rear bumper isn't a named part: everything under the tailgate's bottom edge across its back)
+      { const RB = prof0.rearBumperBox; if (RB && !isG && az < P.halfW + 0.06 && ([a, b, c].every((p) => p.x < P.rear + RB.dx && p.y < RB.top && p.y > P.wheelY0 - 0.3)
+        || (RB.padTop && [a, b, c].every((p) => p.x < P.rear + RB.padDx && p.y < RB.padTop && p.y > RB.top - 0.05)))) return 'rearBumper'; }
       if (ctx.cover && !isP && !isG) return 'bedCover';
       // bed cover: flat, non-body-color panel spanning the bed at rail height — right back to the tailgate (its rear lip used to stay
       // behind as a jagged grey strip, and the corners next to the taillights were taken as taillight trim)
@@ -9901,12 +10422,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       // steering wheel rim + hub (rotates): with the wheel's own centre & plane found, everything in its disc goes — the rim in
       // the wheel's material anywhere in it, and any part (horn pad, emblem, spokes in another material) near the hub. Judged
       // from the fitted centre, not the first guess, which used to leave part of the rim behind as dash.
-      if (steerMat && !isP && !isG && (wheelN ? onWheel(V(cx, cy, cz)) && (mt === steerMat || V(cx, cy, cz).distanceTo(wheelC) < 0.1)
+      if (steerMat && (!isP || (lineupTruck && mt === steerMat)) && !isG && (wheelN ? onWheel(V(cx, cy, cz)) && (mt === steerMat || V(cx, cy, cz).distanceTo(wheelC) < 0.1)
         : mt === steerMat && Math.abs(cx - steerC0.x) < 0.17 && Math.abs(cy - steerC0.y) < 0.25 && Math.abs(cz - steerC0.z) < 0.26)) return 'steer';
       // cabin interior (seats, door panels, console, dash): inside the cab, well inboard of the side glass / skin
       // (not the wheel-well liner where it reaches back under the cab's footprint — that was getting the interior colour)
       // (the door panels' tops run right out under the glass at the sill, so below the sill they may reach the glass line)
-      if (!isP && !isG && cx > cabRear + 0.03 && cx < P.cowlX - 0.02 && cy > P.rockerY + 0.1 && cy < prof.roofTop - 0.02 && az < Math.min(cy < glassBot + 0.02 ? glassZ(cy) + 0.008 : glassZ(cy) - 0.06, P.halfW - 0.04)
+      // (a lineup truck's seats & door cards can share the body's colour-keyed atlas: still the cabin, well inboard of the glass)
+      if ((!isP || (model.prof && !model.prof.car && az < Math.min(glassZ(cy) - 0.1, P.halfW - 0.2) && cy < prof.roofTop - 0.12)) && !isG && cx > cabRear + 0.03 && cx < P.cowlX - 0.02 && cy > P.rockerY + 0.1 && cy < prof.roofTop - 0.02 && az < Math.min(cy < glassBot + 0.02 ? glassZ(cy) + 0.008 : glassZ(cy) - 0.06, P.halfW - 0.04)
         && !arches.some((w) => Math.hypot(cx - w.x, cy - P.wheelY0) < P.R0 + 0.4 && az > 0.38)) return cx > steerC0.x - 0.07 && cy > P.rockerY + 0.35 ? 'dash' : 'interior';
       // the cowl panel under the windshield (black plastic on the real truck)
       if (!isP && !isG && !isChrome(mt) && cx > P.cowlX - 0.2 && cx < P.cowlX + 0.16 && cy > P.hoodY - 0.12 && cy < P.cowlY + 0.08 && az < P.halfW - 0.12) return 'cowl';
@@ -10001,9 +10523,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         a.fromBufferAttribute(pos, I(3 * t)).applyMatrix4(me.matrixWorld); b.fromBufferAttribute(pos, I(3 * t + 1)).applyMatrix4(me.matrixWorld); c.fromBufferAttribute(pos, I(3 * t + 2)).applyMatrix4(me.matrixWorld);
         ctx.t = t; zones[t] = zoneOf(mats[matOf[t]] || mats[0], ctx);
         if (isCarModel && zones[t] && CAR_NO_ZONE.has(zones[t])) zones[t] = null; // (a car has no bed, steps or guard: what the truck rules call those is plain body)
+        if (prof0.suv && (zones[t] === 'bed' || zones[t] === 'bedCut' || zones[t] === 'bedCover')) zones[t] = null; // (nor has an SUV a bed)
         if (zones[t]) any = true;
       }
-      if (!ownZones) { // the rear headrests' backs reach past the roof's rear edge toward the back glass: in a material this mesh otherwise
+      if (!ownZones || !isCarModel) { // the rear headrests' backs reach past the roof's rear edge toward the back glass: in a material this mesh otherwise
         // wears inside the cab, they're interior too (they kept the factory fabric when the interior colour changed)
         const nI = new Map(), nAll = new Map(); for (let t = 0; t < tri; t++) { const m = matOf[t]; nAll.set(m, (nAll.get(m) || 0) + 1); if (zones[t] === 'interior') nI.set(m, (nI.get(m) || 0) + 1); }
         for (let t = 0; t < tri; t++) {
@@ -10015,10 +10538,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       }
       // the grille guard's upright tops (chrome, in the guard's own mesh) sit on the bumper's top edge, where the bumper-cap rule
       // claimed them — they stayed floating on the bumper once the guard came off
-      if (!ownZones && zones.includes('guard')) for (let t = 0; t < tri; t++) if (zones[t] === 'bumperCap' && isChrome(mats[matOf[t]] || mats[0])) zones[t] = 'guard';
+      if ((!ownZones || !isCarModel) && zones.includes('guard')) for (let t = 0; t < tri; t++) if (zones[t] === 'bumperCap' && isChrome(mats[matOf[t]] || mats[0])) zones[t] = 'guard';
       // body panels are separate shells: a painted shell that's mostly hood is all hood (its edges follow the panel gaps), and
       // a fender's flat top the hood rule caught goes back to the fender (the Dundra keeps its own tuned split)
-      if (!ownZones && idx && zones.includes('hood') && !tundraEra(base.vehicle)) {
+      if ((!ownZones || !isCarModel) && idx && zones.includes('hood') && !tundraEra(base.vehicle)) {
         const par = new Int32Array(pos.count); for (let i = 0; i < par.length; i++) par[i] = i;
         const find = (i) => { while (par[i] !== i) { par[i] = par[par[i]]; i = par[i]; } return i; }, isPt = (t) => paintSet.has(mats[matOf[t]] || mats[0]);
         for (let t = 0; t < tri; t++) if (isPt(t)) { const r0 = find(I(3 * t)); for (let j = 1; j < 3; j++) { const r = find(I(3 * t + j)); if (r !== r0) par[r] = r0; } }
@@ -10035,10 +10558,20 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       }
       // a model with a hood part of its own: only that part is the hood — a flat-topped bit of the body under it (the engine
       // bay's floor) stayed behind when the hood opened, in the body colour
-      if (!ownZones && hasHoodPart && me.userData.part !== 'hood' && zones.includes('hood') && !tundraEra(base.vehicle)) for (let t = 0; t < tri; t++) {
+      if ((!ownZones || !isCarModel) && hasHoodPart && me.userData.part !== 'hood' && zones.includes('hood') && !tundraEra(base.vehicle)) for (let t = 0; t < tri; t++) {
         if (zones[t] !== 'hood') continue;
         const cy = (a.fromBufferAttribute(pos, I(3 * t)).applyMatrix4(me.matrixWorld).y + b.fromBufferAttribute(pos, I(3 * t + 1)).applyMatrix4(me.matrixWorld).y + c.fromBufferAttribute(pos, I(3 * t + 2)).applyMatrix4(me.matrixWorld).y) / 3;
         zones[t] = cy < P.hoodY - 0.03 ? 'engine' : null;
+      }
+      // a truck whose engine is only a picture on a sheet across the bay: whatever's left in the bay once the hood, cowl & the rest
+      // have their zones (that sheet, the bay clutter) makes way for the 3D engine — not the fenders' edges, not the wheel wells
+      if (prof0.engine3d) for (let t = 0; t < tri; t++) {
+        if (zones[t] || glassSet.has(mats[matOf[t]] || mats[0])) continue;
+        a.fromBufferAttribute(pos, I(3 * t)).applyMatrix4(me.matrixWorld); b.fromBufferAttribute(pos, I(3 * t + 1)).applyMatrix4(me.matrixWorld); c.fromBufferAttribute(pos, I(3 * t + 2)).applyMatrix4(me.matrixWorld);
+        const cx = (a.x + b.x + c.x) / 3, cy = (a.y + b.y + c.y) / 3;
+        if (cx > P.cowlX + 0.04 && cx < P.front - 0.4 && cy > P.wheelY0 - 0.12 && cy < P.hoodY + 0.08 && [a, b, c].every((p) => Math.abs(p.z) < P.halfW - 0.22)
+          && !arches.some((w) => Math.hypot(cx - w.x, cy - P.wheelY0) < P.R0 + 0.12)) { zones[t] = 'engine'; any = true; }
+        else if (cx > P.cowlX - 0.05 && cx < P.cowlX + 0.3 && cy > P.hoodY - 0.12 && cy < P.hoodY + 0.16 && Math.abs((a.z + b.z + c.z) / 3) < P.halfW - 0.26) { zones[t] = 'cowl'; any = true; } // (the rest of the sheet up under the hood's back edge: black cowl)
       }
       if (!any) return;
       let rem = zones;
@@ -10054,7 +10587,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (me.geometry.index && me.geometry.index.count === 0) { me.visible = false; model.parts.meshes = model.parts.meshes.filter((x) => x !== me); }
     });
     // the fog lamps' chrome reflector bowls / bezels sit behind the lens in the bumper pieces — pull them into the fog zone too
-    if (!ownZones) {
+    if (!ownZones || !isCarModel) {
       model.holder.updateMatrixWorld(true); // the zone pieces were just created
       const fb = { 1: new THREE.Box3(), [-1]: new THREE.Box3() };
       (model.zones.fogs || []).forEach((m) => { const gg = m.geometry, p = gg.attributes.position, ix = gg.index, n = ix ? ix.count : p.count; for (let i = 0; i < n; i++) { a.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); fb[a.z > 0 ? 1 : -1].expandByPoint(a); } });
@@ -10069,7 +10602,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       });
     }
     // the grille surround (a body-material shell hugging the grille opening) belongs to the grille: colored with it, removed with it
-    if (!ownZones) {
+    if (!ownZones || !isCarModel) {
       model.holder.updateMatrixWorld(true);
       const gb = new THREE.Box3();
       (model.zones.grille || []).forEach((m) => { const gg = m.geometry, p = gg.attributes.position, ix = gg.index, n = ix ? ix.count : p.count; for (let i = 0; i < n; i++) { a.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); if (a.y > P.hoodY - 0.46) gb.expandByPoint(a); } });
@@ -10117,6 +10650,15 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         p.material = Array.isArray(p.material) ? p.material.map(mk1) : mk1(p.material); p.userData.baseMat = p.material;
       });
       model.windows[wid] = { pieces, plane, localPlane, height: bb.max.y - bb.min.y };
+      // a lineup pickup's back glass is a power slider: its middle third slides across behind the driver-side pane (the
+      // Dundra's own drops; an SUV's rolls down into the liftgate)
+      if (wid === 'rear' && model.prof && !model.prof.car && !model.prof.suv) {
+        const zc = (bb.max.z + bb.min.z) / 2, hw = (bb.max.z - bb.min.z) / 6, sl = [];
+        pieces.slice().forEach((p) => { const { cut } = splitMesh(p, (a, b, c) => Math.abs((a.z + b.z + c.z) / 3 - zc) < hw, { shareMaterial: true }); if (!cut) return;
+          Object.assign(cut.userData, { zone: 'winRear', baseMat: p.userData.baseMat, part: p.userData.part || 'body', pos0: cut.position.clone() }); cut.castShadow = p.castShadow;
+          model.parts.meshes.push(cut); sl.push(cut); });
+        if (sl.length) model.windows.rear.slider = { pieces: sl, w: 2 * hw };
+      }
     });
     // windshield: own glass material so it takes its own (legal-strip / ceramic) tint
     model.wsMats = new Set();
@@ -10220,7 +10762,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const top = probe(V((P.cowlX + P.front - 0.45) / 2, P.hoodY + 1, 0), V(0, -1, 0)); hp.forEach((m, i) => { m.visible = hv[i]; });
       const skinY = Math.min(skinHit ? skinHit.point.y : P.hoodY, skinHit2 ? skinHit2.point.y : P.hoodY);
       model.bay = { xA: P.cowlX - 0.05, xB: P.front - 0.47, topY: top && top.point.y < P.hoodY - 0.04 ? top.point.y : P.hoodY - 0.2, hoodY: P.hoodY, skinY };
-      if (model.prof && model.prof.car) { // (a sedan's hood clears its engine by millimetres: map the hood's underside — up from below, the hood
+      if (model.prof) { // (a lineup model's hood — a sedan's clears its engine by millimetres: map the hood's underside — up from below, the hood
         // panels only — so the bay's add-ons can be kept under it; and where the factory engine cover sits)
         const zs = [0, 0.15, 0.3, 0.45, 0.6, 0.75], ys = [];
         for (let x = model.bay.xA; x <= P.front; x += 0.05) ys.push(zs.map((z) => { const hh = probeAll(V(x, P.wheelY0, z), V(0, 1, 0), 3, false, true).find((q) => hp.includes(q.object)); return hh ? hh.point.y : null; }));
@@ -10350,6 +10892,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         // polycarbonate lens: water-clear (you see the reflector and bulb straight through it), just a glossy sheen on top
         const tint = { oem: [0xf6f9ff, 0.08], light: [0x2a2d31, 0.55], dark: [0x0b0c0e, 0.86], black: [0xf6f9ff, 0.08], amber: [0xffc21a, 0.42] }[opt] || [0xf6f9ff, 0.08];
         m = new THREE.MeshPhysicalMaterial({ color: tint[0], transparent: true, opacity: tint[1], roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.01, specularIntensity: 1, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 1.3 });
+        m.userData.lensOp = tint[1]; // (a lineup model's lit lens shows its glow — setLights)
       } else if (reflector && opt !== 'black') {
         // the reflector bowl behind the lens: polished, mirror-like chrome (it was flat matte grey, which read as white)
         m = new THREE.MeshStandardMaterial({ color: 0xe9ecef, metalness: 1, roughness: 0.08, envMapIntensity: 1.5, side: bm.side });
@@ -10359,7 +10902,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       }
     } else {
       m = bm.clone(); const tr = m.transparent;
-      if (opt === 'smoke') { m.color.lerp(new THREE.Color(0x200303), 0.6); if (tr) m.opacity = Math.max(m.opacity, 0.75); }
+      // (a lineup model whose lamps are painted into a texture sheet: a tint can't make that red clear — the sheet's red is redrawn)
+      if (m.map && model.prof && ['clear', 'smoke', 'dark'].includes(opt)) { m.map = atlasVariant(bm.map, opt); if (opt === 'clear' && tr) { m.opacity = Math.min(m.opacity, 0.35); m.depthWrite = false; } }
+      else if (opt === 'smoke') { m.color.lerp(new THREE.Color(0x200303), 0.6); if (tr) m.opacity = Math.max(m.opacity, 0.75); }
       else if (opt === 'dark') { m.color.setHex(0x0a0303); if (tr) m.opacity = 0.9; }
       else if (opt === 'clear') { // water-clear lens: you see the chrome reflector and the bulbs through it
         if (tr) { m.color.setHex(0xf4f6f8); m.opacity = 0.1; m.depthWrite = false; if ('roughness' in m) { m.roughness = 0.02; m.metalness = 0; } } else if ('metalness' in m) { m.color.setHex(0xe8e8ea); m.metalness = 0.9; m.roughness = 0.08; } }
@@ -10374,7 +10919,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function applyZones(b) {
     const Z = model.zones || {}, FB = FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock, own = model.prof || {};
     const show = (id, on) => (Z[id] || []).forEach((m) => { m.visible = on; });
-    show('guard', FB === FRONT_BUMPERS.stock); show('guardMount', FB === FRONT_BUMPERS.stock); show('bumperCap', !!FB.factory); show('frontBumper', !!FB.factory); show('fbLower', !!FB.factory); show('fogs', !!FB.factory && (b.fog || 'none') === 'none');
+    show('guard', FB === FRONT_BUMPERS.stock); show('guardMount', FB === FRONT_BUMPERS.stock); show('bumperCap', !!FB.factory); show('frontBumper', !!FB.factory); show('fbLower', !!FB.factory && !FB.lowCut); show('fogs', !!FB.factory && (b.fog || 'none') === 'none'); show('fogLens', !!FB.factory && (b.fog || 'none') === 'none');
     // small bumper bits the model files with the headlights (a chrome bracket, the strip along the bumper top) — they sit
     // below the lamps and belong to the factory bumper: gone with an aftermarket one
     if (!model.fbBits) {
@@ -10402,6 +10947,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         || (id === 'bumperCap' ? (b.zoneColors || {}).frontBumper || (FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : { hex: b.color, finish: FINISHES[b.finish] ? b.finish : 'gloss' }) : null)
         || (id === 'liner' ? { hex: '#141416', finish: 'matte' } : null); // liners default black
       if (zc === 'keep') zc = null;
+      if (id === 'rearBumper' && model.prof && !tundraEra(base.vehicle)) { (Z[id] || []).forEach((m) => setMat(m, (bm) => (zc ? finishMat(bm, zc.hex, zc.finish) : bm))); return; } // (a lineup truck's bumper keeps its own finishes)
       if (id === 'rearBumper') { // factory rear bumper: the colour goes on the painted centre section (around the plate); the
         // plastic step pad on top and the lower lip default to black plastic — or take the colour too with "whole bumper"
         const isPaint = (bm) => model.paintMats.includes(bm) || !!(bm.userData && bm.userData.paintU), plastic = b.rearBumperAll && zc ? zc : { hex: '#18191b', finish: 'matte' };
@@ -10442,7 +10988,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const tone = (zid, k) => (Z[zid] || []).forEach((m) => setMat(m, (bm) => {
         if (ownStock) return bm;
         const lum = (bm.color ? 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b : 0) * texLum(bm.map);
-        if (lum < 0.25 && b.intColor !== 'black') return bm;
+        // (a lineup model's dark textured cabin — the Daptors' black leather — takes the colour through its own texture's detail)
+        if (lum < 0.25 && b.intColor !== 'black') {
+          if (model.prof && !model.prof.car && IC.hex && (b.intColor || 'stock') !== 'stock') return bm.map ? recolorMat(bm, IC.hex, null, k * 0.9, true) : plainSeat(bm, '#' + new THREE.Color(IC.hex).multiplyScalar(k).getHexString());
+          return bm;
+        }
         const key = `${bm.uuid}|int|${b.intTrim}|${b.intColor}|${k}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
         const fm = bm.clone();
         if (lum >= 0.25) { fm.color.set(IC.hex || '#aaa397').multiplyScalar(k); fm.roughness = zid === 'interior' ? IT.rough : 0.7; fm.metalness = 0; fm.map = null; }
@@ -10468,6 +11018,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (fm.userData.paintU) fm.userData = {}; fm.clearcoat = 0;
       ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm;
     }));
+    (Z.engine || []).forEach((m) => { m.visible = !own.engine3d; }); // (a model whose engine is only a picture: the 3D one takes its place)
     (Z.engine || []).forEach((m) => setMat(m, (bm) => {
       if (own.detailed && bm.map) return bm; // (a detailed model's own textured engine)
       const key = `${bm.uuid}|bay`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
@@ -10494,8 +11045,29 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const lc = (b.zoneColors || {}).liner || { hex: '#141416', finish: 'matte' };
     const greyPlastic = (bm) => !model.paintMats.includes(bm) && !!bm.color && !(bm.metalness > 0.7) && 0.2126 * bm.color.r + 0.7152 * bm.color.g + 0.0722 * bm.color.b > 0.12;
     ['trimF1', 'trimF2', 'trimR1', 'trimR2'].forEach((id) => (Z[id] || []).forEach((m) => setMat(m, (bm) => (greyPlastic(bm) ? finishMat(bm, lc.hex, lc.finish) : bm))));
-    if (own.zoneOf) { carZones(b, Z, setMat); return; } // (a car with its own part map: its lamps, lenses and cabin below)
-    (Z.headlights || []).forEach((m) => setMat(m, (bm) => lampMat(bm, 'head', b.headlights)));
+    if (own.zoneOf && own.car) { carZones(b, Z, setMat); return; } // (a car with its own part map: its lamps, lenses and cabin below)
+    // a lineup truck / SUV's own third brake light (dark until you brake — setRearLamps) and its clear lens (never window-tinted);
+    // its factory roof rack comes off on request, or for an aftermarket rack
+    (Z.brake3 || []).forEach((m) => setMat(m, (bm) => { const key = `${bm.uuid}|brake3t`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const tm = bm.clone(); if (tm.emissive) tm.emissive.setHex(0xff2010); if ('emissiveIntensity' in tm) tm.emissiveIntensity = 0; ensureCut(tm); tm.needsUpdate = true; zoneMatCache.set(key, tm); return tm; }));
+    (Z.lampLens || []).forEach((m) => setMat(m, (bm) => { const key = `${bm.uuid}|lampLensT`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const lm = new THREE.MeshPhysicalMaterial({ color: 0xf6f7f8, transparent: true, opacity: 0.1, roughness: 0.02, metalness: 0, clearcoat: 1, depthWrite: false, side: THREE.DoubleSide }); lm.userData = { noGlow: true }; ensureCut(lm); zoneMatCache.set(key, lm); return lm; }));
+    (Z.roofRack || []).forEach((m) => { m.visible = !b.oemRackOff && (b.roofRack || 'none') === 'none'; });
+    // a lineup model's own fog lamps (its part map): the bowl shares a trim material, so it gets a copy that never glows; the
+    // lens carries the light — clear, selective yellow or smoked (see setLights)
+    if (own.zoneOf) {
+      (Z.fogs || []).forEach((m) => setMat(m, (bm) => { const key = `${bm.uuid}|fogHouse`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+        const fm = bm.clone(); fm.userData = { noGlow: true }; ensureCut(fm); fm.needsUpdate = true; zoneMatCache.set(key, fm); return fm; }));
+      const fogT = b.fogTint || 'clear', fy = fogT === 'yellow', fs = fogT === 'smoke';
+      (Z.fogLens || []).forEach((m) => setMat(m, (bm) => { const key = `${bm.uuid}|fogLensT|${fogT}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+        const lm = new THREE.MeshPhysicalMaterial({ color: fy ? 0xffc21a : fs ? 0x17191c : 0xeef3f8, emissive: fy ? 0xffb000 : 0xf4f8ff, emissiveIntensity: 0, transparent: true, opacity: fy ? 0.72 : fs ? 0.7 : 0.3, roughness: 0.03, clearcoat: 1, depthWrite: false, side: THREE.DoubleSide });
+        lm.userData = { fogLens: true, op0: lm.opacity }; ensureCut(lm); zoneMatCache.set(key, lm); return lm; }));
+    }
+    // (a lineup model's headlight lens often shares its material with the windows or other lamps: it gets a copy of its own, so
+    // the lens alone lights up with the beams — setLights only lights a material the lamp has to itself)
+    const ownLens = (lm) => { if (!model.prof || !isLens(lm) || lm.userData.lensOp !== undefined) return lm; const key = `${lm.uuid}|headLensOwn`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+      const c = lm.clone(); c.userData = { lensOp: lm.opacity }; ensureCut(c); c.needsUpdate = true; zoneMatCache.set(key, c); return c; };
+    (Z.headlights || []).forEach((m) => setMat(m, (bm) => ownLens(lampMat(bm, 'head', b.headlights))));
     const era = model.bedInfo && model.bedInfo.era;
     if (era && era.early) (Z.headlights || []).forEach((m) => setMat(m, (bm) => earlyHeadMat(lampMat(bm, 'head', b.headlights))));
     (Z.taillights || []).forEach((m) => setMat(m, (bm) => { const lm = lampMat(bm, 'tail', b.taillights); return era && era.earlyTail ? earlyTailMat(lm) : lm; }));
@@ -10739,8 +11311,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
   // recolor a dark textured material: its texture's brightness, normalised to its average, times the new colour — the stitching,
   // grain and creases stay, the leather takes the colour. rects (uv 0…1): only those parts of a shared sheet
-  function recolorMat(bm, hex, rects, k = 1) {
-    const key = `${bm.uuid}|recol|${hex}|${k}|${rects ? rects.length : 0}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
+  // (soft: a dark leather on a bright atlas — its texels' brightness is eased up toward the average, so black leather comes out
+  // the colour you picked rather than near-black)
+  function recolorMat(bm, hex, rects, k = 1, soft = false) {
+    const key = `${bm.uuid}|recol|${hex}|${k}|${rects ? rects.length : 0}|${soft}`; if (zoneMatCache.has(key)) return zoneMatCache.get(key);
     let avg = 0.02;
     if (bm.map && bm.map.image) { const tc = textureCanvas(bm.map, model.texCache, 64); if (tc) { let a = 0, n = 0; const W = tc.cv.width, H = tc.cv.height;
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const u = (x + 0.5) / W, v = (y + 0.5) / H; if (rects && !rects.some(([u0, v0, u1, v1]) => u >= u0 && u <= u1 && v >= v0 && v <= v1)) continue; const p = (y * W + x) * 4; a += 0.2126 * srgbToLin(tc.data[p] / 255) + 0.7152 * srgbToLin(tc.data[p + 1] / 255) + 0.0722 * srgbToLin(tc.data[p + 2] / 255); n++; }
@@ -10754,10 +11328,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         .replace('#include <map_fragment>', `#include <map_fragment>
           #ifdef USE_MAP
             vec2 rcUv = fract(vUv);
-            if (${rectGl}) { float rcL = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722)); diffuseColor.rgb = uRecol * clamp(rcL / uRecAvg, 0.0, 2.4); }
+            if (${rectGl}) { float rcL = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722)); diffuseColor.rgb = uRecol * ${soft ? 'clamp(pow(rcL / uRecAvg, 0.35), 0.0, 1.6)' : 'clamp(rcL / uRecAvg, 0.0, 2.4)'}; }
           #endif`);
     };
-    m.customProgramCacheKey = () => `recol|${rects ? rectGl.length : 0}|${prev ? 'c' : ''}`;
+    m.customProgramCacheKey = () => `recol|${rects ? rectGl.length : 0}|${prev ? 'c' : ''}|${soft ? 's' : ''}`;
     ensureCut(m); m.needsUpdate = true; zoneMatCache.set(key, m); return m;
   }
   // the ISD's cabin sheet: the door cards and the seats (rear bench, front seat backs) — not the dash, console or wheel
@@ -10844,7 +11418,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // the factory tips go when an aftermarket set is fitted (built with the body kit)
     (Z.exhaust || []).forEach((m) => { m.visible = carTipsOf(b) === 'stock'; });
     // the V8's plastic cover comes off for a supercharger (the blower & its plumbing sit where it was — buildCarEngineBay)
-    (Z.engineCover || []).forEach((m) => { m.visible = !['roots', 'centri'].includes((SUPERCHARGERS[b.supercharger] || {}).whine); }); // (bigger turbos hide under it)
+    { const own = (carSpecOf(base.vehicle).bay || {}).own !== false; (Z.engineCover || []).forEach((m) => { m.visible = own && !['roots', 'centri'].includes((SUPERCHARGERS[b.supercharger] || {}).whine); }); } // (bigger turbos hide under it; a picture of an engine goes for the 3D one)
     // …and the factory airbox & duct for the Rotrex (its head unit sits there) or an aftermarket intake
     (Z.engineIntake || []).forEach((m) => { m.visible = (SUPERCHARGERS[b.supercharger] || {}).whine !== 'centri' && !/^car-/.test(b.intake || 'stock'); });
     // carbon hood / trunk from the weight package, unless that panel has a colour of its own
@@ -10896,6 +11470,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
 
   function applyBuild(b, opts = {}, instant = false) {
     if (model && model.prof && model.prof.car && !b.car) b = carBuild(b); // (a car body never wears truck parts — e.g. mid-switch)
+    if (model && model.prof && model.prof.suv) b = suvBuild(b); // (nor an SUV bed gear: the trucks share one build)
     build = b;
     const P = base.P; if (!P) return;
     TRIM_COL.value.set(headlinerHex(b)); // (interior pillar trim follows the headliner)
@@ -10936,13 +11511,15 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
           exitQ: bi && bi.qZ ? { x: bi.qX, y: bi.qY, z: bi.qZ.map((z, i) => z + (model.bulgeAt ? Math.abs((model.bulgeAt(bi.qX, bi.qY, (i ? -1 : 1) * z) || [0, 0, 0])[2]) : 0)) } : null });
     }
     if (model && acc) {
-      const bk = [b.frontBumper, b.rearBumper, b.skid, b.bedCut, b.bedCutAngle, b.rearBumper === 'dualSpare' ? wheelKey : '', JSON.stringify((b.zoneColors || {}).frontBumper || null), JSON.stringify((b.zoneColors || {}).rearBumper || null), b.plate, b.plateStyle, b.plateText, b.plateFront].join('|');
+      const bk = [b.frontBumper, b.rearBumper, b.skid, b.bedCut, b.bedCutAngle, ['dualSpare', 'swingSpare'].includes(b.rearBumper) ? wheelKey : '', JSON.stringify((b.zoneColors || {}).frontBumper || null), JSON.stringify((b.zoneColors || {}).rearBumper || null), b.plate, b.plateStyle, b.plateText, b.plateFront].join('|');
       if (bk !== bumpersKey || !bumpers) {
         bumpersKey = bk;
         if (bumpers) { model.holder.remove(bumpers.group); bumpers.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
+        base.P.lowCutY = lowCutY(); // (where the low-profile cut runs)
         try { bumpers = buildBumpers(M, base.P, b); } catch (e) { console.warn('bumpers', e); bumpers = { group: new THREE.Group(), anchors: {} }; }
         bumpers.group.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
         model.holder.add(bumpers.group);
+        if (bumpers.swing) applyRigAngles(); // (a carrier fitted with the liftgate already up starts swung out)
         lightsKey = '';
       }
       const ek = JSON.stringify([b.grille, b.grilleLetters, b.bugShield, (b.zoneColors || {}).grille, (b.zoneColors || {}).fiber, b.fiberF, b.fiberR, b.color, b.finish, b.bedCover, b.topper, b.topperColor, b.topperSafari, b.cage, b.cageFinish, b.cageExt, b.bedStyle, b.bedSpare, (b.bedSpare || 'none') !== 'none' ? wheelKey : '', b.bedRack, b.bedTent, b.roofRack, b.roofTent, b.tentOpen, b.subs, b.intColor, b.dashTrim, b.sunroof, b.headliner, b.starlight, b.badges, b.oem, b.decal && [b.decal.id, b.decal.where, b.decal.size], b.bedBikes]);
@@ -10956,7 +11533,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         model.holder.add(extras.group);
       }
       // tow hitch + what's in it, and the dirt bikes in the bed (buildHitch)
-      const hkey = JSON.stringify([b.hitch, b.hitchIn, b.bedBikes, b.mxColor, b.mtbColor, b.skiColor, b.bedStyle, b.color, b.rearBumper, base.P.rear, base.P.rearBumperY]);
+      const hkey = JSON.stringify([b.hitch, b.hitchIn, b.bedBikes, b.mxColor, b.mtbColor, b.skiColor, b.bedStyle, b.color, b.rearBumper, base.P.rear, base.P.rearBumperY, b.bedCover]);
       if (hkey !== hitchKey || !hitch) {
         hitchKey = hkey;
         if (hitch) { model.holder.remove(hitch.group); hitch.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
@@ -10965,11 +11542,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         hitch.group.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
         model.holder.add(hitch.group);
       }
-      const bk2 = JSON.stringify([b.supercharger, b.intake, model.bay, !!b.oem]); // engine-bay dress-up (cover / intake / supercharger)
+      const bk2 = JSON.stringify([b.supercharger, b.intake, model.bay, !!b.oem, base.vehicle && base.vehicle.engine]); // engine-bay dress-up (cover / intake / supercharger) — and the engine itself
       if (model.bay && (bk2 !== bayKey || !bayParts)) {
         bayKey = bk2;
         if (bayParts) { model.holder.remove(bayParts.group); bayParts.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
-        bayParts = (model.prof && model.prof.car ? buildCarEngineBay : buildEngineBay)(M, base.P, b, model.bay); // (the car's own V8 bay)
+        bayParts = model.prof && model.prof.car ? buildCarEngineBay(M, base.P, b, { ...model.bay, eng: carSpecOf(base.vehicle).bay }) // (the car's own engine, or one built for it)
+          : model.prof && model.prof.engine3d ? buildTruckEngineBay(M, base.P, b, { ...model.bay, eng: truckEngineOf(base.vehicle) }) : buildEngineBay(M, base.P, b, model.bay); // (a lineup truck's own engine, built from its name)
         bayParts.group.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
         model.holder.add(bayParts.group);
       }
@@ -10978,7 +11556,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         lightsKey = lk;
         if (lights) { model.holder.remove(lights.group); truck.remove(lights.ground); [lights.group, lights.ground].forEach((gr) => gr.traverse((o) => { if (o.geometry) o.geometry.dispose(); })); }
         const fogSpots = (model.fogSpots || []).map(([x, y, z, r]) => { const o = model.bulgeAt ? model.bulgeAt(x, y, z) : null; return o ? [x + o[0], y + o[1], z + o[2], r] : [x, y, z, r]; }); // (out with a bulged bumper)
-        lights = buildLights(M, base.P, b, bumpers.anchors, { info: model.bedInfo, gBox: model.grilleBox, fogSpots });
+        lights = buildLights(M, base.P, b, bumpers.anchors, { info: model.bedInfo, gBox: model.grilleBox, fogSpots, ownB3: !!((model.zones || {}).brake3 || []).length });
         lights.group.position.set(-model.holder.position.x, -model.baseY, -model.holder.position.z);
         model.holder.add(lights.group); padLights();
       }
@@ -10993,7 +11571,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (instant) { rig.lift = target; rig.liftR = targetR; updateRig(); }
     else { updateRig(); gsap.to(rig, { lift: target, liftR: targetR, duration: 0.7, ease: 'power2.out', onUpdate: updateRig }); }
     if (acc) { const vis = (l, on) => l.forEach((o) => { o.visible = on; }); vis(acc.reg.flares, false); /* (bolt-on flares retired) */ vis(acc.reg.sliders, b.sliders); }
-    if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory; model.bumpers.front.forEach((m) => { m.visible = !!fs; }); model.bumpers.rear.forEach((m) => { m.visible = ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'); });
+    if (model) { const fs = (FRONT_BUMPERS[b.frontBumper] || FRONT_BUMPERS.stock).factory;
+      // (a named bumper's pieces the zones cut off it — its trim, its lamps — go with it: they share its vertex buffer)
+      // (pieces whose zone applyZones already shows / hides keep that, and also go with the bumper)
+      const ZS = ['guard', 'guardMount', 'bumperCap', 'frontBumper', 'fbLower', 'fogs', 'rearBumper', 'grille', 'steps', 'oemStrut', 'antenna', 'bedCover', 'bedCut'];
+      const withCuts = (list, on) => { const pa = new Set(list.map((m) => m.geometry && m.geometry.attributes.position)); model.parts.meshes.forEach((m) => { if (!m.geometry || !pa.has(m.geometry.attributes.position)) return; m.visible = ZS.includes(m.userData.zone) ? m.visible && on : on; }); };
+      withCuts(model.bumpers.front, !!fs); withCuts(model.bumpers.rear, ['stock', 'oemBlack'].includes(b.rearBumper || 'stock'));
       // the stock models' maker badges: developer mode only (like the Dundra's); trim-only gear (the Pursuit's police kit) on its trim
       if (model.prof && model.prof.texFill) { // painted-over logos: the original texture in developer mode
         const swapTo = (mt) => { if (!mt || !mt.map) return;
@@ -11002,9 +11585,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         model.parts.meshes.forEach((m) => (Array.isArray(m.material) ? m.material : [m.material]).forEach(swapTo));
       }
       (model.badges || []).forEach((m) => {
+        // (a plug over an engraved name — prepModel: out of developer mode only, in the panel's current material: the paint
+        // takes its own physical copy, by name)
+        if (m.userData.plug) { m.visible = !b.oem; const pm = model.paintMats.find((x) => x.name === m.userData.plugMat); if (pm) m.material = pm; return; }
         if (!m.userData.badgeFill) { m.visible = !!b.oem; return; }
         if (!m.userData.mat0) m.userData.mat0 = m.material;
-        m.material = b.oem ? m.userData.mat0 : (badgeFillMat || (badgeFillMat = new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.55, metalness: 0.1 })));
+        // (a profile can name the panel the letters sit in: they're filled with that panel's own material, so they don't read)
+        if (model.prof && model.prof.fillMat && !model.fillMatFound) { model.fillMatFound = true; model.parts.meshes.some((q) => { const mt = q.userData.baseMat || q.material; if (!Array.isArray(mt) && model.prof.fillMat.test(mt.name || '')) { model.fillMat = mt; return true; } return false; }); }
+        m.material = b.oem ? m.userData.mat0 : model.fillMat || (badgeFillMat || (badgeFillMat = new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.55, metalness: 0.1 })));
       });
       const pt = model.prof && model.prof.policeTrim, onTrim = !pt || pt.test(base.vehicle.trim || ''); (model.police || []).forEach((m) => { m.visible = onTrim; }); }
     if (model) { applyWindows(b); setCuts([...trimCuts(b), ...(b.cuts || [])]); buildArchLiners(b); buildRoofAntenna(b);
@@ -11292,7 +11880,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         // lamps, glass, grille & mirrors keep their exact factory shape — only the sheet metal flares (the bumper's fog lamps keep
         // their shape too, but ride out with the bumper around them so they stay centred in their pockets)
         if (BULGE_FIXED.includes(m.userData.zone) || meshMats(m).some((mt) => model.glassMats.includes(mt))) map.get(at).fixed.push(m.geometry);
-        if (m.userData.zone === 'fogs') map.get(at).fogs.push(m.geometry);
+        if (m.userData.zone === 'fogs' || m.userData.zone === 'fogLens') map.get(at).fogs.push(m.geometry);
       });
       const hq = model.hood && model.hood.pivot.quaternion.clone(); if (hq) { model.hood.pivot.quaternion.identity(); model.holder.updateMatrixWorld(true); } // rest = hood shut
       const v = V(0, 0, 0); updateCutMatrix(); // local → rest-pose body space (independent of lift / drive pitch & roll)
@@ -11309,6 +11897,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const P = base.P, info = model.bedInfo || {}, sm = THREE.MathUtils.smoothstep, d = V(0, 0, 0);
     const fb = (FF.bulge || 0) * INCH, rb = (FR.bulge || 0) * INCH, fr = (FF.rise || 0) * INCH, rr = (FR.rise || 0) * INCH;
     const cabRear = info.cabRear !== undefined ? info.cabRear : P.xR + 0.9, railY = info.railY !== undefined ? info.railY : P.hoodY - 0.05;
+    // (an SUV has no bed: its rear quarter runs from the rear door's arch cut-out back to the bumper, up to the beltline)
+    const suv = !!(model.prof && model.prof.suv), qFront = suv ? P.xR + P.R0 + 0.5 : cabRear, qTop = suv ? P.hoodY - 0.05 : railY;
     const offset = (x, y, z) => {
       const az = Math.abs(z); if (az < P.halfW - 0.42) return null;
       const zf = sm(az, P.halfW - 0.42, P.halfW - 0.14); // outer skin moves, inner liners stay → the lip flares
@@ -11319,7 +11909,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         if (rise && y > P.wheelY0 - 0.25) { const k = rise * (1 - sm(r, P.R0 + 0.05, P.R0 + 0.34)) * zf; rx += ((x - xc) / r) * k; ry += ((y - P.wheelY0) / r) * k; }
       };
       if (fb && x > P.cowlX - 0.45) arch(P.xF, fb, fr, sm(x, P.cowlX - 0.42, P.cowlX - 0.12) * (1 - sm(x, P.front - 0.34, P.front - 0.06)), 1 - sm(y, P.hoodY - 0.24, P.hoodY - 0.03));
-      if (rb && x < cabRear + 0.02) arch(P.xR, rb, rr, sm(x, P.rear + 0.03, P.rear + 0.3) * (1 - sm(x, cabRear - 0.22, cabRear)), 1 - sm(y, railY - 0.2, railY - 0.01));
+      if (rb && x < qFront + 0.02) arch(P.xR, rb, rr, sm(x, P.rear + 0.03, P.rear + 0.3) * (1 - sm(x, qFront - (suv ? 0.3 : 0.22), qFront)), 1 - sm(y, qTop - 0.2, qTop - 0.01));
       if (!out && !rx && !ry) return null;
       return [rx, ry, Math.sign(z) * out * zf];
     };
@@ -11527,7 +12117,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     dropCarLamps(); dropCarKit();
     if (!fresh && model.zones) { rebuildSkirts(); updateBedInfo(); }
     if (chassis) { model.holder.remove(chassis.frame); truck.remove(chassis.links); [chassis.frame, chassis.links].forEach((g) => g.traverse((o) => o.geometry && o.geometry.dispose())); }
-    chassis = buildChassis(M, base.P, { fourWD: /4x4|4wd|awd/i.test(spec.drive || '') });
+    // (a lineup truck's boxed frame: its horns run forward to the back of its bumper, at the bumper's height, and its rails are a
+    // little deeper — the F-150's fully boxed frame)
+    chassis = buildChassis(M, base.P, { fourWD: /4x4|4wd|awd/i.test(spec.drive || ''), horn: model && model.prof && !(model.prof.car) ? { x: base.P.front - 0.34, y: Math.max(base.P.rockerY + 0.08, base.P.bumperY) } : null, railH: model && model.prof && !model.prof.car ? 0.19 : 0.16 });
     chassis.frame.position.copy(restOff); model.holder.add(chassis.frame); truck.add(chassis.links);
     if (model.prof && model.prof.car) { chassis.frame.visible = false; chassis.links.visible = false; } // (a unibody car: its own floor & suspension, no ladder frame)
     measureArches(); seamKey = '';
@@ -11827,7 +12419,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const sh = new Map(); me.updateMatrixWorld(true);
       for (let t = 0; t < tri; t++) { const r = find(rep[ix.getX(3 * t)]); let s = sh.get(r); if (!s) sh.set(r, (s = { box: new THREE.Box3(), n: 0, mat: (mats[matOf[t]] || mats[0] || {}).name || '' })); s.n++; for (let j = 0; j < 3; j++) s.box.expandByPoint(v.fromBufferAttribute(p, ix.getX(3 * t + j)).applyMatrix4(me.matrixWorld)); }
       sh.forEach((s) => { const c = s.box.getCenter(V(0, 0, 0)), z = s.box.getSize(V(0, 0, 0)); s.part = pr.parts({ min: s.box.min, max: s.box.max, c, size: z, minAz: s.box.min.z > 0 ? s.box.min.z : s.box.max.z < 0 ? -s.box.max.z : 0, n: s.n, mat: s.mat }, F) || null; });
-      let cur = []; for (let t = 0; t < tri; t++) cur.push(sh.get(find(rep[ix.getX(3 * t)])).part);
+      // (a shell that spans two parts — one window glass across both doors — is 'split': each of its triangles by position)
+      let cur = []; for (let t = 0; t < tri; t++) { const s = sh.get(find(rep[ix.getX(3 * t)])); let id = s.part;
+        if (id === 'split' && pr.partTri) { let cx = 0, cy = 0, cz = 0; for (let j = 0; j < 3; j++) { v.fromBufferAttribute(p, ix.getX(3 * t + j)).applyMatrix4(me.matrixWorld); cx += v.x / 3; cy += v.y / 3; cz += v.z / 3; } id = pr.partTri(cx, cy, cz, F, s) || null; } else if (id === 'split') id = null;
+        cur.push(id); }
       [...new Set(cur.filter(Boolean))].forEach((id) => {
         const list = cur; let k = 0;
         const { cut } = splitMesh(me, () => list[k++] === id, { shareMaterial: true });
@@ -11835,9 +12430,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         if (!cut) return;
         cut.geometry = compactGeo(cut.geometry); // (its own vertices only: its box — and so its hinge — is the panel's, not the whole body's)
         cut.name = `${id}_${me.name || 'part'}`; cut.castShadow = me.castShadow; cut.receiveShadow = me.receiveShadow;
-        cut.userData.part = /^door/.test(id) ? 'door' : id;
-        // ('badge': a maker's mark or plate holder found by shape — developer mode only, like the named badges)
-        if (me.userData.badge || id === 'badge') { cut.userData.badge = true; cut.userData.badgeFill = me.userData.badgeFill; (model.badges = model.badges || []).push(cut); return; }
+        cut.userData.part = /^door/.test(id) ? 'door' : id.replace(/_badge$/, '');
+        // ('badge': a maker's mark or plate holder found by shape — developer mode only, like the named badges; 'trunk_badge',
+        // 'door_fl_badge'…: one that rides on that part)
+        if (me.userData.badge || id === 'badge' || /_badge$/.test(id)) { cut.userData.badge = true; cut.userData.badgeFill = me.userData.badgeFill; (model.badges = model.badges || []).push(cut); return; }
         parts.meshes.push(cut); if (id === 'hood') parts.hoodNodes.push(cut); n++;
       });
     });
@@ -11876,7 +12472,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       const nodes = allMeshes.filter((o) => pr.trunk.test(o.name || '')), b = new THREE.Box3(); nodes.forEach((n) => b.expandByObject(n));
       // (the hinge's height: the lid's front edge, not its top — a ducktail lip at the back can stand higher)
       let yF = -1e9; const v = V(0, 0, 0); nodes.forEach((n) => { const p = n.geometry && n.geometry.attributes.position; if (!p) return; for (let k = 0; k < p.count; k++) { v.fromBufferAttribute(p, k).applyMatrix4(n.matrixWorld); if (v.x > b.max.x - 0.06) yF = Math.max(yF, v.y); } });
-      if (nodes.length) { model.trunk = makePivot(nodes, V(b.max.x + 0.04, (yF > -1e9 ? Math.min(yF + 0.01, b.max.y) : b.max.y) - 0.05, 0), V(0, 0, 1), -1, hatchOf(base.vehicle) ? 1.35 : 1.12); nodes.forEach((n) => { n.userData.part = 'trunk'; }); }
+      if (nodes.length) { model.trunk = makePivot(nodes, V(b.max.x + 0.04, (yF > -1e9 ? Math.min(yF + 0.01, b.max.y) : b.max.y) - 0.05, 0), V(0, 0, 1), -1, hatchOf(base.vehicle) || pr.suv ? 1.38 : 1.12); nodes.forEach((n) => { n.userData.part = 'trunk'; }); } // (a liftgate swings right up)
     }
     if (!pr.doorGroups) [1, -1].forEach((s) => {
       const side = parts.doorNodes.filter((n) => { const cz = new THREE.Box3().setFromObject(n).getCenter(new THREE.Vector3()).z; return s > 0 ? cz > 0 : cz <= 0; });
@@ -12074,6 +12670,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     model.doors.forEach((d) => d.pivot.quaternion.setFromAxisAngle(d.axis, d.sign * d.maxAngle * (rig.shut ? 0 : d.k || 0)));
     if (model.trunk) model.trunk.pivot.quaternion.setFromAxisAngle(model.trunk.axis, model.trunk.sign * model.trunk.maxAngle * (rig.shut ? 0 : rig.trunk || 0));
+    // a swing-out spare carrier swings clear first, as the liftgate starts to lift (it sits right behind it)
+    if (bumpers && bumpers.swing) bumpers.swing.rotation.y = -1.5 * THREE.MathUtils.smoothstep(rig.shut ? 0 : rig.trunk || 0, 0, 0.35);
   }
   function setHood(open) { gsap.to(rig, { hood: open ? 1 : 0, duration: 1.1, ease: open ? 'power2.out' : 'power2.inOut', onUpdate: applyRigAngles, overwrite: 'auto' }); }
   // every door, or one ('fl' / 'fr' / 'rl' / 'rr', or its index) — each swings on its own hinge
@@ -12544,7 +13142,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // hip height reclined ~23°; the rear bench is the same height, its back ~0.24 m ahead of the cab's rear wall)
     const D = bi.dash, sc = D ? D.sc : V(P.cowlX - 0.5, P.hoodY - 0.05, -0.37), zs = Math.abs(sc.z) > 0.15 ? Math.abs(sc.z) : 0.37, fx = sc.x - 0.34, fy = sc.y - 0.26;
     const reg = base.vehicle && base.vehicle.cab === 'regular', cr = bi.cabRear !== undefined ? bi.cabRear : P.xR + 0.9;
-    const rx = reg ? cr - 0.45 : cr + 0.37, out = P.halfW + 0.6;
+    // (an SUV's second row sits ~0.95 m behind the front seats — its "cab" runs on back to the liftgate)
+    const rx = reg ? cr - 0.45 : model.prof && model.prof.suv ? fx - 0.95 : cr + 0.37, out = P.halfW + 0.6;
     // (under a low roof — a sedan — the seat sits lower, so the head clears the headliner: eye ~0.75 m over the hip, + head & cap)
     const LN = D && D.liner, ceilAt = (x, z) => { if (!LN) return null; const NZ = LN.nz + 1, fi = THREE.MathUtils.clamp(((x - LN.x0) / (LN.x1 - LN.x0)) * LN.nx, 0, LN.nx - 1e-6), fj = ((z + LN.lz) / (2 * LN.lz)) * LN.nz, i = Math.floor(fi), j = Math.floor(fj);
       if (j < 0 || j >= LN.nz) return null; const u = fi - i, v = fj - j, lerp = (G) => { const at = (a, c) => G[a * NZ + c]; return (at(i, j) * (1 - u) + at(i + 1, j) * u) * (1 - v) + (at(i, j + 1) * (1 - u) + at(i + 1, j + 1) * u) * v; };
@@ -12970,7 +13569,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // 4L at a crawl: a tire meeting a ledge walks up its face (traction on the face, the sidewall wrapping the edge) instead of
     // stopping dead against it — the tires and the nose see a steep ramp up any step ahead (see hs / bodyC)
     const crawlNow = !car && /4x4|4wd|awd/i.test(veh.drive || '') && !!(TRANSFER[b.xfer] || {}).crawl, cDir = d.u < -0.2 || (!(keys.w || keys.arrowup) && (keys.s || keys.arrowdown)) ? -1 : 1;
-    const m = (veh.curb + 250 - (car ? carWeightOf(b) : 0)) * 0.4536, a_ = Math.max(0.6, P.xF), b_ = Math.max(0.6, -P.xR), L = a_ + b_, Iz = m * (a_ * a_ + b_ * b_) * 0.55, hcg = car ? 0.5 - lowerIn * INCH * 0.55 : 0.78;
+    const m = (veh.curb + 250 - (car ? carWeightOf(b) : 0)) * 0.4536, a_ = Math.max(0.6, P.xF), b_ = Math.max(0.6, -P.xR), L = a_ + b_, Iz = m * (a_ * a_ + b_ * b_) * 0.55, hcg = car ? 0.5 - lowerIn * INCH * 0.55 : isSuvV(veh) ? 0.86 : 0.78; // (a tall SUV: its weight sits higher — a bit more lean & sway)
     const cy = Math.cos(d.yaw), sy = Math.sin(d.yaw);
     // ground under the four tires
     const wpos = P.spots.map((sp) => { const lx = sp.x, lz = sp.s * (sp.z + offOf(sp)); return [d.x + lx * cy + lz * sy, d.z - lx * sy + lz * cy]; });
@@ -13158,7 +13757,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const sasF = isSAS(b), muF = car ? 42 : sasF ? 85 : 62, muR = car ? 46 : 82, ms = Math.max(700, m - 2 * muF - 2 * muR); // (a car's wheels & arms are far lighter)
     // (long travel runs much softer springs — the travel is there to use; tires: stiff, lossy rubber)
     // (a car: its coilovers' rate — stiff, ~1.7–2.2 Hz — and its own sway-bar / roll stiffness)
-    const wnCar = car ? CS.wn * (0.85 + 0.3 * TU.spr) : 0, rollK = (SW.roll || 1) * (car ? CS.roll : 1);
+    const wnCar = car ? CS.wn * (0.85 + 0.3 * TU.spr) : 0, rollK = (SW.roll || 1) * (car ? CS.roll : isSuvV(veh) ? 1.12 : 1);
     const wnS = car ? wnCar : TU.wn * Math.pow(9.5 / Math.max(7, (tv.front + tv.rear) / 2), 0.45), kt = 300000 * Math.pow(31 / Math.max(28, (2 * rig.wy) / INCH), 1.4), ct = 9000; // (a tall sidewall gives more)
     const corner = P.spots.map((sp, i) => { const f = fr[i], W = (ms * AG * (f ? b_ : a_)) / L / 2, mw = f ? muF : muR, Mc = W / AG;
       return { x: sp.x, z: sp.s * (sp.z + offOf(sp)), W, mw, k: Mc * wnS * wnS, kBar: Mc * (car ? wnCar : TU.wn) ** 2, c: 2 * zeta * wnS * Mc, dr: dr(i), bp: bp(i), d0: (W + mw * AG) / kt, front: f }; });
@@ -15913,8 +16512,8 @@ function App() {
   // ---- Engine: start / stop, rev (hold R or the Rev button), exhaust sound follows the build
   const engineCfg = () => { const sc = SUPERCHARGERS[effective.supercharger] || SUPERCHARGERS.none, ik = INTAKES[effective.intake] || INTAKES.stock; // exhaust tone + blower whine + intake roar
     const car = isCarV(vehicle), ex = EXHAUSTS[effective.exhaust] || EXHAUSTS.stock, cs = car ? carSpecOf(vehicle) : null; // (a car: its own engine's voice & redline — V8, V6 or straight-six; a turbo spools)
-    const cyl = car ? cs.cyl : /V8/i.test(vehicle.engine) ? 8 : /I4|4-cyl|Flat-4/i.test(vehicle.engine) ? 4 : 6;
-    return { cyl, car, redline: car ? cs.redline : 6200, snd: { ...(car ? (ex.car ? ex.snd : CAR_STOCK_SND) : ex.snd), sc: sc.whine === 'roots' ? (sc.hp > 70 ? 1 : 0.7) : 0, centri: sc.whine === 'centri' ? 1 : sc.whine === 'turbo' ? 0.65 : car && cs.turbo ? 0.3 : 0, roar: ik.roar,
+    const cyl = car ? cs.cyl : /V8/i.test(vehicle.engine) ? 8 : /I4|4-cyl|Flat-4/i.test(vehicle.engine) ? 4 : 6, te = car ? null : truckEngineOf(vehicle); // (a truck's factory twin turbos spool; a factory blower whines)
+    return { cyl, car, redline: car ? cs.redline : te && te.diesel ? 4400 : 6200, snd: { ...(car ? (ex.car ? ex.snd : CAR_STOCK_SND) : ex.snd), sc: sc.whine === 'roots' ? (sc.hp > 70 ? 1 : 0.7) : te && te.sc ? 0.75 : 0, centri: sc.whine === 'centri' ? 1 : sc.whine === 'turbo' ? 0.65 : (car && cs.turbo) || (te && (te.tt || te.diesel)) ? 0.3 : 0, roar: ik.roar,
       pul: sc.whine ? (SUPERCHARGER_PULLEYS[effective.scPulley] || SUPERCHARGER_PULLEYS.stock).spin : 1 } }; };
   // (the ignition is the stage's too: no engine, no drive — even where the browser won't play the sound)
   const toggleEngine = useCallback(() => {
@@ -16806,7 +17405,10 @@ function App() {
       { kind: 'header', label: 'Sound System (play music from the drive HUD → Audio)' },
       ...Object.entries(AUDIO_SYSTEMS).map(([id, x]) => ({ kind: 'item', icon: 'Speaker', label: x.label, price: x.price, installed: (applied.audio || 'factory') === id, patch: { audio: id }, desc: x.desc })),
       { kind: 'header', label: 'Subwoofers' },
-      ...Object.entries(SUB_SETUPS).filter(([id, x]) => id === 'none' || !!x.car === isCar).map(([id, x]) => ({ kind: 'item', icon: 'Disc3', label: x.label, price: x.price, installed: (applied.subs || 'none') === id, patch: { subs: id }, desc: `${x.desc}${isCar && x.car ? ' (Open the trunk to see it — Hood / Engine › Hood, Doors & Trunk, or click the trunk.)' : ''}` })),
+      // (an SUV's subs go in the cargo area, against the liftgate — not under a bench seat)
+      ...Object.entries(SUB_SETUPS).filter(([id, x]) => (id === 'none' || !!x.car === isCar) && !(isSuvV(vehicle) && id === 'console')).map(([id, x]) => ({ kind: 'item', icon: 'Disc3', price: x.price, installed: (applied.subs || 'none') === id, patch: { subs: id },
+        label: isSuvV(vehicle) && id === 'underseat' ? 'Sealed dual 10" (cargo area)' : isSuvV(vehicle) && id === 'box' ? 'Ported box, dual 12" (cargo area)' : x.label,
+        desc: isSuvV(vehicle) && id !== 'none' ? `${id === 'box' ? 'A big carpeted ported enclosure with two 12s' : 'A slim sealed box with two 10s'} in the cargo area against the liftgate, firing forward into the cabin. Open the liftgate to see it.` : `${x.desc}${isCar && x.car ? ' (Open the trunk to see it — Hood / Engine › Hood, Doors & Trunk, or click the trunk.)' : ''}` })),
     ];
   } else if (category === 'wheels') {
     title = 'Wheels & Tires';
@@ -16986,12 +17588,21 @@ function App() {
         badgeItem('sr5', 'SR5 — front fenders', 'SR5 badges behind the front wheel openings.'),
         badgeItem('trd', 'TRD Off-Road — bedsides', 'TRD OFF ROAD decals behind the rear wheels.'),
       ] : []),
+      // the D-runner's factory front-end looks (2003–09): each trim's grille & bumper finish
+      ...(vehicle.model === 'D-runner' ? [{ kind: 'header', label: 'Factory Grille & Bumpers' }, ...[
+        ['SR5', 'Painted grey grille, grey lower bumper', { grille: { hex: '#6b6e72', finish: 'satin' }, fbLower: { hex: '#3d4045', finish: 'matte' }, frontBumper: null, rearBumper: null }],
+        ['Sport Edition', 'Smoked dark grille, colour-keyed bumpers', { grille: { hex: '#141416', finish: 'gloss' }, fbLower: { hex: '#141416', finish: 'matte' }, frontBumper: null, rearBumper: null }],
+        ['Limited', 'Chrome grille, colour-keyed bumpers', { grille: { hex: '#d9dcdf', finish: 'chrome' }, fbLower: null, frontBumper: null, rearBumper: null }],
+        ['Trail Edition', 'Black grille, black bumpers', { grille: { hex: '#0b0b0d', finish: 'gloss' }, fbLower: { hex: '#141416', finish: 'matte' }, frontBumper: { hex: '#16171a', finish: 'satin' }, rearBumper: { hex: '#16171a', finish: 'satin' } }],
+      ].map(([trim, desc, zc]) => { const cur = applied.zoneColors || {}, on = Object.entries(zc).every(([k, v]) => (v ? cur[k] && cur[k].hex === v.hex && cur[k].finish === v.finish : !cur[k]));
+        return { kind: 'item', icon: 'Shield', label: `${trim} look`, price: 0, installed: on, patch: { zoneColors: Object.fromEntries(Object.entries({ ...cur, ...zc }).filter(([, v]) => v)), frontBumper: 'stock', rearBumper: 'stock' }, desc: `The factory ${trim} front end: ${desc.toLowerCase()}.` }; })] : []),
       { kind: 'header', label: 'Front Bumper' },
       // (the 2005–06 factory bumpers & the add-on guard are the Dundra's; any other truck: its own bumper as modeled)
       ...Object.entries(FRONT_BUMPERS).filter(([id]) => isDundra || !['oem06', 'oem06c'].includes(id)).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: !isDundra && id === 'stock' ? 'Factory front bumper (as modeled)' : f.label, price: f.price, installed: (applied.frontBumper || 'stock') === id, patch: { frontBumper: id }, desc: !isDundra && id === 'stock' ? "The truck's own factory front bumper." : f.desc })),
-      { kind: 'item', icon: 'Shield', label: 'Front skid plate (3/16" steel)', price: 450, installed: applied.skid || !FB.factory, patch: { skid: !applied.skid }, desc: !FB.factory ? 'Included with the steel bumper.' : 'Protects the oil pan, steering rack and front diff.' },
+      { kind: 'item', icon: 'Shield', label: 'Low-profile steel skid plate (keeps the factory bumper)', price: 450, installed: applied.skid || !FB.factory || !!FB.lowCut, patch: { skid: !applied.skid }, desc: !FB.factory || FB.lowCut ? 'Included with this bumper.' : 'The factory bumper stays; a 3/16" steel skid plate tucks in underneath it — sleek, and it protects the oil pan, steering rack and front diff.' },
       { kind: 'header', label: 'Rear Bumper' },
-      ...Object.entries(REAR_BUMPERS).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: f.label, price: f.price, installed: (applied.rearBumper || 'stock') === id, patch: { rearBumper: id }, desc: f.desc })),
+      // (an SUV: no trophy-truck rear, and its own swing-out spare carrier; a pickup gets neither the carrier nor… everything else)
+      ...Object.entries(REAR_BUMPERS).filter(([id]) => (isSuvV(vehicle) ? id !== 'trophyRear' : id !== 'swingSpare')).map(([id, f]) => ({ kind: 'item', icon: 'Shield', label: !tundraEra(vehicle) && id === 'stock' ? 'Factory rear bumper (as modeled)' : f.label, price: f.price, installed: (applied.rearBumper || 'stock') === id, patch: { rearBumper: id }, desc: !tundraEra(vehicle) && id === 'stock' ? "The vehicle's own factory rear bumper." : f.desc })),
       { kind: 'custom', render: () => ( // rear bumper colour (factory or aftermarket)
         <div>
           <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Rear bumper color{['stock', 'oemBlack'].includes(applied.rearBumper || 'stock') ? ' · center section' : ''}</div>
@@ -17007,8 +17618,8 @@ function App() {
           )}
         </div>
       ) },
-      { kind: 'header', label: 'Trophy Truck · Roll Cage' },
-      ...Object.entries(CAGES).map(([id, c]) => ({ kind: 'item', icon: 'Grid3x3', label: c.label, price: c.price, installed: (applied.cage || 'none') === id, patch: { cage: id }, desc: c.desc || 'No cage.' })),
+      { kind: 'header', label: isSuvV(vehicle) ? 'Roll Cage' : 'Trophy Truck · Roll Cage' },
+      ...Object.entries(CAGES).filter(([id]) => !isSuvV(vehicle) || id !== 'full').map(([id, c]) => ({ kind: 'item', icon: 'Grid3x3', label: isSuvV(vehicle) && id === 'cab' ? 'Interior roll cage' : c.label, price: c.price, installed: (applied.cage || 'none') === id, patch: { cage: id }, desc: isSuvV(vehicle) && id === 'cab' ? '1.75" DOM cage inside the cabin: main hoop behind the front seats with an X, A-pillar bars, roof bars, door bars and a harness bar.' : c.desc || 'No cage.' })),
       ...((applied.cage || 'none') !== 'none' ? [{ kind: 'custom', render: () => (
         <div>
           <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Cage finish</div>
@@ -17018,10 +17629,10 @@ function App() {
           <label className="flex items-center gap-2 mt-2 hud text-[12.5px] text-white/80"><input type="checkbox" checked={!!applied.cageExt} onChange={(e) => applyPatch({ cageExt: e.target.checked })} className="accent-amber-400" />Fire extinguishers on the cage (+$380) — {(applied.cage || 'none') === 'full' ? 'two by the shock hoop in the bed' : 'two behind the seats'}</label>
         </div>
       ) }] : []),
-      { kind: 'header', label: 'Trophy Truck · Bed' },
-      ...Object.entries(TROPHY_BEDS).map(([id, t]) => ({ kind: 'item', icon: 'Fuel', label: t.label, price: t.price, installed: (applied.bedStyle || 'stock') === id, patch: { bedStyle: id, ...(id === 'trophy' ? { bedCover: 'open', topper: 'none', bedRack: 'none', bedTent: 'none' } : {}) }, desc: t.desc || 'The factory bed with its floor and tailgate.' })),
-      ...Object.entries(BED_SPARES).map(([id, t]) => ({ kind: 'item', icon: 'CircleDot', label: t.label, price: t.price, installed: (applied.bedSpare || 'none') === id, patch: { bedSpare: id }, desc: t.desc || 'Nothing in the bed.' })),
-      { kind: 'custom', render: () => <div className="text-[11px] text-white/45 leading-snug">Pair the trophy bed with the trophy-truck front & rear bumpers above, and the long boxed trailing arms under Suspension › Rear Suspension, for the full race-truck setup. The spares match your wheels & tires.</div> },
+      ...(isSuvV(vehicle) ? [] : [{ kind: 'header', label: 'Trophy Truck · Bed' },
+        ...Object.entries(TROPHY_BEDS).map(([id, t]) => ({ kind: 'item', icon: 'Fuel', label: t.label, price: t.price, installed: (applied.bedStyle || 'stock') === id, patch: { bedStyle: id, ...(id === 'trophy' ? { bedCover: 'open', topper: 'none', bedRack: 'none', bedTent: 'none' } : {}) }, desc: t.desc || 'The factory bed with its floor and tailgate.' })),
+        ...Object.entries(BED_SPARES).map(([id, t]) => ({ kind: 'item', icon: 'CircleDot', label: t.label, price: t.price, installed: (applied.bedSpare || 'none') === id, patch: { bedSpare: id }, desc: t.desc || 'Nothing in the bed.' })),
+        { kind: 'custom', render: () => <div className="text-[11px] text-white/45 leading-snug">Pair the trophy bed with the trophy-truck front & rear bumpers above, and the long boxed trailing arms under Suspension › Rear Suspension, for the full race-truck setup. The spares match your wheels & tires.</div> }]),
       { kind: 'header', label: 'License Plate' },
       { kind: 'custom', render: () => { // state, then that state's plate styles (little previews of the real plate texture)
         const st = PLATES[applied.plate || 'none'] || PLATES.none, cur = st.styles ? (st.styles[applied.plateStyle] ? applied.plateStyle : Object.keys(st.styles)[0]) : null;
@@ -17109,6 +17720,27 @@ function App() {
       { kind: 'item', icon: 'Scissors', label: 'Cab-mount chop (BMC)', price: 350, installed: applied.bmc, patch: { bmc: !applied.bmc }, desc: 'Cut & re-plate the front cab mount for full-lock clearance with 35"+ tires. Hidden behind the tire.' },
       { kind: 'custom', render: () => <div className="text-[11px] text-white/50">The factory bumpers are cut off automatically when you install a steel bumper (Bumpers & Armor).</div> },
     ];
+  } else if (category === 'cargo' && isSuvV(vehicle)) { // an SUV: roof, the factory rack, the hitch — no bed
+    title = 'Roof & Hitch';
+    defaultDesc = 'Roof racks, tents and the tow hitch — shapes approximate the real products.';
+    const group = (key, label, icon) => [{ kind: 'header', label }, ...Object.entries(CARGO[key]).map(([id, o]) => ({ kind: 'item', icon, label: o.brand ? `${o.brand} ${o.label}` : o.label, price: o.price, installed: (applied[key] || Object.keys(CARGO[key])[0]) === id, patch: { [key]: id }, desc: o.desc || o.label }))];
+    items = [
+      { kind: 'header', label: 'Factory Roof Rack' },
+      { kind: 'item', icon: applied.oemRackOff ? 'Ban' : 'Grid3x3', label: applied.oemRackOff ? 'Factory roof rack removed' : 'Factory roof rack (rails & crossbars)', price: 0, installed: true, right: <span className={`hud font-bold text-[13px] ${applied.oemRackOff ? 'text-white/45' : 'text-emerald-400'}`}>{applied.oemRackOff ? 'OFF' : 'ON'}</span>, patch: { oemRackOff: !applied.oemRackOff }, desc: 'Take the factory roof rails & crossbars off (a clean roof) or put them back. An aftermarket rack replaces them.' },
+      ...group('roofRack', 'Roof Racks', 'Grid3x3'),
+      ...((applied.roofRack || 'none') !== 'none' || (applied.roofTent || 'none') !== 'none' ? (() => {
+        const rk = (g, lbl) => [{ kind: 'header', label: lbl }, ...LIGHT_KITS[g].map((k) => ({ kind: 'item', icon: k.id === 'none' ? 'Ban' : 'Lightbulb', label: k.brand ? `${k.brand} ${k.label}` : k.label, price: k.price, installed: applied[g] === k.id, patch: { [g]: k.id, ...(k.id !== 'none' ? { lightsOn: true } : {}) }, desc: k.desc || 'Nothing fitted.' }))];
+        return [...rk('roofBar', 'Roof Rack Lights · front light bar'), ...rk('rackSide', 'Roof Rack Lights · side scene lights')];
+      })() : []),
+      ...group('roofTent', 'Rooftop Tents', 'Tent'),
+      ...((applied.roofTent || 'none') !== 'none' ? [{ kind: 'item', icon: 'Tent', label: applied.tentOpen ? 'Pack the tent up' : 'Deploy the tent', right: <span className={`hud font-bold text-[13px] ${applied.tentOpen ? 'text-emerald-400' : 'text-white/45'}`}>{applied.tentOpen ? 'OPEN' : 'CLOSED'}</span>, patch: { tentOpen: !applied.tentOpen }, desc: 'Opens the rooftop tent with its ladder down.' }] : []),
+      { kind: 'header', label: 'Tow Hitch' },
+      ...Object.entries(HITCHES).map(([id, x]) => ({ kind: 'item', icon: 'Link', label: x.label, price: x.price, installed: (applied.hitch || 'none') === id, patch: { hitch: id, ...(id === 'none' ? { hitchIn: 'none' } : {}) }, desc: x.desc })),
+      ...((applied.hitch || 'none') !== 'none' ? [{ kind: 'header', label: 'In the Receiver' },
+        ...Object.entries(HITCH_INSERTS).map(([id, x]) => ({ kind: 'item', icon: id === 'bikes' ? 'Bike' : id === 'jetski' ? 'Ship' : 'CircleDot', label: x.label, price: x.price, installed: (applied.hitchIn || 'none') === id, patch: { hitchIn: id }, desc: x.desc }))] : []),
+      ...((applied.hitch || 'none') !== 'none' && applied.hitchIn === 'bikes' ? [{ kind: 'header', label: 'Trail Bike Color' }, ...Object.entries(MTB_COLORS).map(([id, [hex, n]]) => ({ kind: 'item', label: n, swatch: hex, price: 0, installed: (applied.mtbColor || 'grey') === id, patch: { mtbColor: id }, desc: 'The first bike\'s frame colour (the second one rides along in a contrasting colour).' }))] : []),
+      ...((applied.hitch || 'none') !== 'none' && applied.hitchIn === 'jetski' ? [{ kind: 'header', label: 'Jet Ski Colors' }, ...Object.entries(SKI_COLORS).map(([id, [, hex, n]]) => ({ kind: 'item', label: n, swatch: hex, price: 0, installed: (applied.skiColor || 'blue') === id, patch: { skiColor: id }, desc: 'Hull & deck graphics.' }))] : []),
+    ];
   } else if (category === 'cargo') {
     title = 'Bed & Roof';
     defaultDesc = 'Shells, racks and tents from popular overland brands — shapes approximate the real products.';
@@ -17165,11 +17797,17 @@ function App() {
       { kind: 'header', label: 'Exhaust' },
       ...Object.entries(EXHAUSTS).filter(([, x]) => !x.car).map(([id, x]) => ({ kind: 'item', icon: 'Wind', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.exhaust || 'stock') === id, patch: { exhaust: id }, desc: `${x.desc}${engineOn ? '' : ' Start the engine to hear it.'}` })),
       { kind: 'header', label: 'Exhaust Exit' },
-      ...Object.entries(EXHAUST_EXITS).map(([id, x]) => ({ kind: 'item', icon: 'MoveRight', label: x.label, price: x.price, installed: (applied.exhaustExit || 'stock') === id, patch: { exhaustExit: id }, desc: x.desc })),
+      // (an SUV has no bedside: ahead of its rear wheel is the rear door, so the bedside exits go; 'quarter' is its rear quarter panel)
+      ...Object.entries(EXHAUST_EXITS).filter(([id]) => !(isSuvV(vehicle) && /^bed/.test(id))).map(([id, x]) => ({ kind: 'item', icon: 'MoveRight', label: isSuvV(vehicle) && id === 'quarter' ? 'Rear-quarter exit — low, behind the rear tire' : x.label, price: x.price, installed: (applied.exhaustExit || 'stock') === id, patch: { exhaustExit: id },
+        desc: isSuvV(vehicle) && id === 'quarter' ? 'Over the axle as stock, then out through a small bolted flange low in the rear quarter panel, between the rear wheel and the bumper.' : x.desc })),
       { kind: 'header', label: 'Exhaust Color · pipes, muffler & tips' },
       ...Object.entries(EXHAUST_COLORS).map(([id, x]) => ({ kind: 'item', icon: 'Palette', label: x.label, price: x.price, installed: (applied.exhaustColor || 'stock') === id, patch: { exhaustColor: id }, desc: id === 'stock' ? 'Bare steel pipes; tips keep the finish of the exhaust brand you picked.' : `${x.label} coating on the whole system — downpipe, muffler, tailpipes and tips.` })),
       { kind: 'header', label: 'Supercharger' },
-      ...Object.entries(SUPERCHARGERS).filter(([, x]) => !x.car).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id }, desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear the whine.'}` : 'No forced induction.' })),
+      // (what fits the engine: blowers for a naturally aspirated one, bigger turbos for a twin-turbo or diesel one, nothing more
+      // for a factory-supercharged one)
+      ...(() => { const te = truckEngineOf(vehicle), fac = te.sc ? 'Factory supercharger' : te.tt || te.diesel ? 'Factory turbos' : null;
+        return Object.entries(SUPERCHARGERS).filter(([id, x]) => id === 'none' || (te.sc ? false : te.tt || te.diesel ? !!x.turbo : !x.car)).map(([id, x]) => ({ kind: 'item', icon: 'Gauge', label: id === 'none' ? fac || x.label : x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.supercharger || 'none') === id, patch: { supercharger: id },
+          desc: x.desc ? `${x.desc} (≈ +${x.hp} hp / +${x.tq} lb-ft)${engineOn ? '' : ' Start the engine to hear it.'}` : fac ? `The ${vehicle.engine} as it left the factory.` : 'No forced induction.' })); })(),
       { kind: 'header', label: 'Air Intake' },
       ...Object.entries(INTAKES).filter(([, x]) => !x.car).map(([id, x]) => ({ kind: 'item', icon: 'Fan', label: x.brand ? `${x.brand} ${x.label}` : x.label, price: x.price, installed: (applied.intake || 'stock') === id, patch: { intake: id }, desc: `${x.desc}${x.hp ? ` (≈ +${x.hp} hp)` : ''}` })),
       { kind: 'header', label: 'Hood & Doors' },

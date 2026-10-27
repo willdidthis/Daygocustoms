@@ -8071,11 +8071,8 @@ function buildExtras(M, P, b, info, gBox) {
           // C pillar: from the cab's back wall to the rear door glass's back edge
           const cp = (i) => s * zIn(GL.rear[i][2]);
           strip([...ys.map((y, i) => [cabR, y, cp(i)]), [cabR, top, cp(5)]], [...ys.map((y, i) => [GL.rear[i][0] + 0.01, y, cp(i)]), [GL.rear[5][0] + 0.01, top, cp(5)]]);
-          // A pillar: along the front door glass's front edge, angling in toward the windshield (bands where that edge runs
-          // back as it climbs — the lowest one is cut short by the mirror sail)
-          const ai = ys.map((y, i) => i).filter((i) => i === 5 || GL.front[i][1] >= GL.front[i + 1][1] - 0.02);
-          // (angled straight inward and a touch back — never forward, where the windshield is)
-          if (ai.length > 1) strip([...ai.map((i) => [GL.front[i][1] - 0.01, ys[i], s * zIn(GL.front[i][2])]), [xFrontTop - 0.01, top, s * zIn(GL.front[5][2])]], [...ai.map((i) => [GL.front[i][1] - 0.03, ys[i], s * (GL.front[i][2] - 0.11)]), [xFrontTop - 0.04, top, s * (GL.front[5][2] - 0.11)]]);
+          // (no A-pillar panel: the model's own pillar already takes the trim colour from the inside, and an 11 cm band
+          // angled in off the glass edge stood in the driver's face as a jagged tan fin)
         });
         // headers: liner front / back edge down to the top of the windshield / back glass
         const zs = []; for (let z = -zL; z <= zL + 1e-6; z += 0.05) zs.push(z);
@@ -10197,7 +10194,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const sill = bi && bi.dash && bi.dash.glass ? bi.dash.glass.ys[0] - 0.06 : P ? P.rockerY + 0.15 : 0;
     // (its back: the cab's measured back wall — cabRear is the roof's rear edge, ~13 cm ahead of the wall at seat height)
     const wallX = bi && bi.cabBack && bi.cabBack.length ? bi.cabBack.filter(([y]) => y < bi.railY + 0.25).reduce((m, [, x]) => Math.min(m, x), 1e9) - 0.006 : 1e9;
-    if (bi && P) { TRIM_MIN.value.set(Math.min(bi.cabRear - 0.06, wallX), P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
+    if (bi && P) { TRIM_MIN.value.set(Math.min(bi.cabRear - 0.06, wallX, bi.wallIn != null ? bi.wallIn - 0.025 : 1e9), P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
     if (model.prof && model.prof.detailed) { TRIM_MIN.value.set(1e6, 1e6, 1e6); TRIM_MAX.value.set(-1e6, -1e6, -1e6); } // (a model with a real interior: its body shell's inside is already trimmed)
     if (model.glassFit) TRIM_GLASS.value.set(model.glassFit.gm, model.glassFit.gk, model.glassFit.bot);
   }
@@ -11293,6 +11290,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       return { ys: csY, zs: csZ, x: sm }; })() : null;
     // rear cab floor (footwell) height, from the interior's lowest surfaces between the rear bench and the front seats
     let cabFloor = P.rockerY + 0.15; { const fv = V(0, 0, 0); let lo = Infinity; ((model.zones || {}).interior || []).forEach((m) => { const a = m.geometry.attributes.position, ix = m.geometry.index; if (!ix) return; m.updateMatrixWorld(true); for (let k = 0; k < ix.count; k += 3) { fv.fromBufferAttribute(a, ix.getX(k)).applyMatrix4(m.matrixWorld); if (fv.x > cabRear + 0.4 && fv.x < cabRear + 0.85 && Math.abs(fv.z) > 0.1 && Math.abs(fv.z) < 0.6) lo = Math.min(lo, fv.y); } }); if (lo < P.hoodY) cabFloor = lo; }
+    // the back wall's INSIDE at seat height, under the back glass (the probes above only see its outside, over the bed rail): the
+    // cab-trim box has to reach it, or the body paint showed red behind the seats (an Access Cab's wall sits 3 cm back of its
+    // outside line) — the first painted surface met going back from the middle of the cab
+    let wallIn = Infinity;
+    [-0.3, 0, 0.3].forEach((z) => [cabFloor + 0.25, (cabFloor + railY) / 2].forEach((y) => { const h = probeAll(V(cabRear + 0.7, y, z), V(-1, 0, 0), 1.3).find((q) => isVisibleChain(q.object) && meshMats(q.object).some((mt) => model.paintMats.includes(mt))); if (h && h.point.x > cabRear - 0.4) wallIn = Math.min(wallIn, h.point.x); }));
     // headlamp beam origins (front face, per side) from the headlight zone
     const heads = [1, -1].map((s) => { const hb = new THREE.Box3(), hv = V(0, 0, 0); ((model.zones || {}).headlights || []).forEach((m) => { const a = m.geometry.attributes.position, ix = m.geometry.index; if (!ix) return; m.updateMatrixWorld(true); for (let k = 0; k < ix.count; k += 3) { hv.fromBufferAttribute(a, ix.getX(k)).applyMatrix4(m.matrixWorld); if (Math.sign(hv.z) === s) hb.expandByPoint(hv); } }); return hb.isEmpty() ? [P.front - 0.1, P.hoodY - 0.2, s * (P.halfW - 0.3)] : [hb.max.x - 0.02, (hb.min.y + hb.max.y) / 2, (hb.min.z + hb.max.z) / 2]; });
     // OEM badge spots: the tailgate's rear face (two rows, left / right) and the skin of the bedside / front fender for side badges
@@ -11310,7 +11312,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // The liners of a trimmed opening run out to it
     const archZ = {}; [['F', P.xF], ['R', P.xR]].forEach(([k, xc]) => { archZ[k] = []; for (let a = -20; a <= 200; a += 5) { const t = (a * Math.PI) / 180;
       archZ[k].push(ARCH_DR.map((dr) => { const r = P.R0 + 0.075 + dr; let z = 0; [1, -1].forEach((s) => { const h = probe(V(xc + r * Math.cos(t), P.wheelY0 + r * Math.sin(t), s * (P.halfW + 2)), V(0, 0, -s)); if (h && Math.abs(h.point.z) > P.halfW - 0.22 && !['steps', 'mirrors', 'guard'].includes(h.object.userData.zone)) z = Math.max(z, Math.abs(h.point.z)); }); return z || NaN; })); } });
-    model.bedInfo = { badgeAt, heads, archZ, cabFloor, b3: (model.prof || {}).car ? null : b3 /* (a car's third brake light is its own) */, cabBack, cabSurf, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw, cargo: (model.prof || {}).cargo || null,
+    model.bedInfo = { badgeAt, heads, archZ, cabFloor, b3: (model.prof || {}).car ? null : b3 /* (a car's third brake light is its own) */, cabBack, cabSurf, wallIn: Number.isFinite(wallIn) ? wallIn : null, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw, cargo: (model.prof || {}).cargo || null,
       // model-year styling for the 1st-gen Tundra: 2000–02 front (bar grille, amber corner lamps, rub-strip bumper with
       // rectangular fogs); Regular / Access Cab beds keep the original 3-section taillights through 2006
       era: tundraEra(base.vehicle), lensBox: model.lensBox || null, own: model.prof || {}, // (own: the stock model's profile — what it already has of its own)
@@ -11460,6 +11462,15 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     void fibF; void fibR; // the widebody reshapes these lips rather than removing them
     void tf; void tr; ['trimF1', 'trimF2', 'trimR1', 'trimR2'].forEach((z) => show(z, true)); // (trimming is a smooth shader cut now — see trimCuts)
     show('bedCut', !b.bedCut && !(REAR_BUMPERS[b.rearBumper] || {}).bedCut);
+    // the trophy bed: the rear wheel wells' factory liners come out with the tubs (one mesh round all four wheels — its rear
+    // half is split off once, to hide; the tubs' cut-outs left its flange standing against the bedsides)
+    if (b.bedStyle === 'trophy' && !model.linerRear && (Z.liner || []).length) {
+      model.linerRear = []; const mid = (base.P.xF + base.P.xR) / 2;
+      Z.liner.slice().forEach((m) => { m.updateMatrixWorld(true); const { cut } = splitMesh(m, (a, b2, c) => (a.x + b2.x + c.x) / 3 < mid, { shareMaterial: true }); if (!cut) return;
+        Object.assign(cut.userData, { zone: 'liner', baseMat: m.userData.baseMat, part: m.userData.part || 'body' });
+        model.parts.meshes.push(cut); Z.liner.push(cut); model.linerRear.push(cut); });
+    }
+    (model.linerRear || []).forEach((m) => { m.visible = b.bedStyle !== 'trophy'; });
     const setMat = (m, fn) => { const bm = m.userData.baseMat; m.material = Array.isArray(bm) ? bm.map(fn) : fn(bm); };
     PAINT_ZONES.forEach(({ id }) => {
       let zc = (b.zoneColors || {})[id] || ((id === 'frontBumper' || id === 'fbLower') && FB.chrome ? { hex: '#d9dcdf', finish: 'chrome' } : null)

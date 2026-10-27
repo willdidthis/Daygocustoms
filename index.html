@@ -1788,7 +1788,7 @@ const FRONT_BUMPERS = {
   tube:    { label: 'Pre-runner tube bumper', price: 1850, lbs: 85, dx: -3, dy: 2, desc: 'Bent 1.75" DOM tube hoop over a plate center section, tube wings to the fenders, skid plate underneath.' },
   winch:   { label: 'Full-width winch bumper', price: 2300, lbs: 165, dx: 1, dy: 0.5, desc: 'Heavy plate bumper with a 10,000 lb winch, hawse fairlead and shackle mounts. Adds weight over the front axle.' },
   trophy:  { label: 'Trophy-truck tube front + full aluminum skid', price: 2400, lbs: 45, dx: -11, dy: 9, ownSkid: true, cutFenders: true, desc: 'Race front end: a wide 2" DOM hoop across the nose that wraps back to the fenders, a second bar low across the frame horns, uprights and gussets, and a full-width brushed-aluminum skid sloping back under the front end — the plate bolts to its face.' },
-  lowpro:  { label: 'Low-profile cut + steel skid & bar', price: 750, lbs: 40, dx: -3, dy: 3, factory: true, lowCut: true, desc: 'Keeps the factory bumper but cuts it flat all the way across, right under the fog lights; a 3/16" steel skid sweeps up from under the front end to a steel tube bar tucked behind the cut — it still looks almost factory, with a lot more clearance.' },
+  lowpro:  { label: 'Low-profile cut + steel bar & chrome skid', price: 750, lbs: 40, dx: -3, dy: 3, factory: true, lowCut: true, desc: 'Keeps the factory bumper but cuts it flat all the way across, right under the fog lights and back to the wheel openings; a steel tube bar runs just under the cut edge round the nose, and a chrome skid plate hangs from it down to the frame — it still looks almost factory, with a lot more clearance.' },
   prerunnerHoop: { label: 'Pre-runner hoop bumper + full skid', price: 1750, lbs: 46, dx: -8, dy: 7, ownSkid: true, cutFenders: true, desc: 'The classic pre-runner front: a single tall tube hoop from fender to fender with a center upright, a big brushed-aluminum skid up the front over the radiator and under the nose, and the fenders cut off clean at the hoop line — plate on the upright.' },
 };
 // Trophy-truck parts (Armor). Roll cages are fitted to the cab as measured: feet on the cab floor, hoops just inside the
@@ -7077,7 +7077,7 @@ function buildBumpers(M, P, b) {
   if (ft === 'trophy' || ft === 'prerunnerHoop') { // race fronts: DOM tube hoops tied to the frame horns + a brushed-aluminum skid
     const alu = new THREE.MeshStandardMaterial({ color: 0xc8ccd1, metalness: 0.85, roughness: 0.34, side: THREE.DoubleSide }), T = 0.025;
     const fzc = (b.zoneColors || {}).frontBumper, tm = fzc ? finishPhys(fzc.hex, fzc.finish === 'chrome' ? 'metallic' : fzc.finish || 'satin') : M.steel;
-    const xn = P.front - 0.1, yh = P.hoodY - 0.4, yl = P.bumperY + 0.02, Z = Wz + 0.05;
+    const xn = P.front - 0.1, yh = ft === 'prerunnerHoop' && P.hoopY ? P.hoopY : P.hoodY - 0.4, yl = P.bumperY + 0.02, Z = Wz + 0.05;
     if (ft === 'trophy') {
       // upper hoop: across the nose under the grille, wrapping back round the corners to the fenders ahead of the tires
       put(tubeMesh([[P.xF + 0.42, yh + 0.05, -Z], [xn - 0.12, yh + 0.02, -Z + 0.05], [xn, yh, -0.62], [xn + 0.03, yh, 0], [xn, yh, 0.62], [xn - 0.12, yh + 0.02, Z - 0.05], [P.xF + 0.42, yh + 0.05, Z]], T, tm, 64));
@@ -7109,9 +7109,10 @@ function buildBumpers(M, P, b) {
     }
     racePlate = ft === 'trophy' ? { x: xn + 0.033, y: (yl + yh) / 2 } : { x: xn + 0.004, y: (yl + yh) / 2 - 0.02 }; // (where a front plate goes: on the aluminum face — in front of the steel)
   }
-  // the skid's steel: black powder coat with the low-profile cut, brushed bare steel under a factory bumper — or a colour /
-  // chrome of your own (zoneColors.skid)
-  const skc = (b.zoneColors || {}).skid, skM = skc ? finishPhys(skc.hex, skc.finish === 'chrome' ? 'metallic' : skc.finish || 'satin') : FB.lowCut ? M.steel : new THREE.MeshStandardMaterial({ color: 0xa4a8ad, roughness: 0.34, metalness: 0.85, side: THREE.DoubleSide });
+  // the skid's finish: chrome with the low-profile cut, brushed bare steel under a factory bumper — or a colour / chrome of your
+  // own (zoneColors.skid)
+  const skc = (b.zoneColors || {}).skid, skM = skc ? finishPhys(skc.hex, skc.finish === 'chrome' ? 'metallic' : skc.finish || 'satin')
+    : new THREE.MeshStandardMaterial(FB.lowCut ? { color: 0xe6e9ed, roughness: 0.07, metalness: 1, side: THREE.DoubleSide } : { color: 0xa4a8ad, roughness: 0.34, metalness: 0.85, side: THREE.DoubleSide });
   if (skc && skc.finish === 'chrome') { skM.metalness = 1; skM.roughness = 0.06; }
   // a steel band round a measured line on the bumper ([x, z] from one side round the nose to the other): its top edge at yT on
   // the line (out: proud of the surface, − tucked inside it), its face sloping back `back` down to yB, and a flat floor across
@@ -7124,28 +7125,41 @@ function buildBumpers(M, P, b) {
     const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); sg.setIndex(idx); sg.computeVertexNormals();
     put(mk(sg, skM.side === THREE.DoubleSide ? skM : Object.assign(skM.clone(), { side: THREE.DoubleSide })));
   };
-  const ring = FB.lowCut && P.cutRing && P.cutRing.length > 6 ? P.cutRing : null, cutY = P.lowCutY || P.bumperY + 0.06, cutH = 0.12, cutBack = 0.05;
+  const ring = FB.lowCut && P.cutRing && P.cutRing.length > 6 ? P.cutRing : null, cutY = P.lowCutY || P.bumperY + 0.06;
   // the add-on skid under the factory bumper: its front lip hugs the bumper's bottom edge across the nose, 7 cm up its face
   const sRing = FB.factory && !FB.lowCut && b.skid && P.skidRing && P.skidRing.length > 6 && P.fbBottom != null ? P.skidRing : null;
   if (sRing) band(sRing, P.fbBottom + 0.07, P.fbBottom - 0.025, 0.07, 0.006);
-  // the low-profile cut, closed in steel: a skin round the cut from one wheel opening round the nose to the other (the cut runs
-  // back to the openings — the fenders' lower front corners go too), 12 cm deep, meeting the plastic at the cut; the skid
-  // carries on back from its floor
-  if (ring) band(ring, cutY + 0.004, cutY - cutH, cutBack, -0.004);
-  else if (FB.lowCut) { // (no measured cut line: a steel tube bar tucked just behind the cut, tied to the frame horns)
+  // the low-profile cut (right under the fogs, back to the wheel openings): a steel tube bar tucked just under the cut edge,
+  // following the bumper's curve round the nose to each wheel opening, tied back to the frame horns — the chrome skid hangs from
+  // under it (below)
+  let barFront = null;
+  if (ring) {
+    const n = ring.length, nr = ring.map((p, i) => { const a = ring[Math.max(0, i - 1)], c = ring[Math.min(n - 1, i + 1)], tx = c[0] - a[0], tz = c[1] - a[1], l = Math.hypot(tx, tz) || 1; return [tz / l, -tx / l]; });
+    const yBar = cutY - 0.03, pts = ring.filter((_, i) => i % 2 === 0 || i === n - 1).map(([x, z], k) => { const i = Math.min(n - 1, k * 2), [nx, nz] = nr[i]; return [x - 0.035 * nx, yBar, z - 0.035 * nz]; });
+    put(tubeMesh(pts, 0.024, M.steel, Math.max(40, pts.length * 3)));
+    barFront = pts.reduce((m, p) => (Math.abs(p[2]) < 0.3 ? Math.max(m, p[0]) : m), -9);
+    [1, -1].forEach((s) => put(rbox(P.front - 0.5, barFront - 0.05, yBar - 0.025, yBar + 0.025, s * 0.42 - 0.03, s * 0.42 + 0.03, M.steel, 0.006))); // mounts back to the horns
+  } else if (FB.lowCut) { // (no measured cut line: a steel tube bar tucked just behind the cut, tied to the frame horns)
     const yc = cutY - 0.035, xc = P.front - 0.2, Z = P.halfW - 0.2;
     put(tubeMesh([[xc - 0.12, yc, -Z], [xc - 0.02, yc, -Z + 0.12], [xc, yc, 0], [xc - 0.02, yc, Z - 0.12], [xc - 0.12, yc, Z]], 0.022, M.steel, 36));
     [1, -1].forEach((s) => put(rbox(xc - 0.3, xc - 0.04, yc - 0.03, yc + 0.03, s * 0.4 - 0.03, s * 0.4 + 0.03, M.steel, 0.006))); // mounts back to the horns
   }
   if ((!FB.factory || b.skid || FB.lowCut) && ft !== 'desert' && !FB.ownSkid) { // skid plate: sloped nose plate + flat plate under the front diff / engine
-    // (low-profile: it starts at the bar behind the cut — with the stock bumper it tucks under it)
-    // (closed in steel: from the skin's floor, right under its face)
-    const lip = ring || sRing, fx0 = lip ? lip.reduce((m, [x, z]) => (Math.abs(z) < 0.25 ? Math.max(m, x) : m), -9) : null;
-    const yb = ring ? cutY - cutH - 0.01 : sRing ? P.fbBottom - 0.035 : FB.lowCut ? cutY - 0.06 : FB.factory ? P.bumperY : P.bumperY + 0.07;
-    const x0 = ring ? fx0 - cutBack - 0.02 : sRing ? fx0 - 0.084 : FB.lowCut ? P.front - 0.21 : (FB.factory ? P.front - 0.18 : P.front - 0.08);
-    const x1 = P.xF + 0.18, yl = P.wheelY0 - 0.13, x2 = P.xF - 0.45, sm = skc || lip ? skM : M.skid;
-    const sl = beam([x0, yb + 0.01, 0], [x1, yl, 0], 0.82, 0.007, sm); put(sl);
-    const fl = beam([x1, yl, 0], [x2, yl + 0.02, 0], 0.78, 0.007, sm); put(fl);
+    // (low-profile: it hangs from right under the bar and sweeps down to the frame — with the stock bumper it tucks under it)
+    const fx0 = sRing ? sRing.reduce((m, [x, z]) => (Math.abs(z) < 0.25 ? Math.max(m, x) : m), -9) : null;
+    const yb = barFront !== null ? cutY - 0.075 : sRing ? P.fbBottom - 0.035 : FB.lowCut ? cutY - 0.06 : FB.factory ? P.bumperY : P.bumperY + 0.07;
+    const x0 = barFront !== null ? barFront - 0.03 : sRing ? fx0 - 0.084 : FB.lowCut ? P.front - 0.21 : (FB.factory ? P.front - 0.18 : P.front - 0.08);
+    const x1 = P.xF + 0.18, yl = P.wheelY0 - 0.13, x2 = P.xF - 0.45, sm = skc || sRing || barFront !== null ? skM : M.skid;
+    if (barFront !== null) { // (a wide plate under the bar, narrowing to the frame rails, then flat back under the engine)
+      const quad = (pts) => { const gq = new THREE.BufferGeometry(); gq.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3)); gq.setIndex([0, 1, 2, 0, 2, 3]); gq.computeVertexNormals(); return put(mk(gq, sm)); };
+      const wF = Math.min(0.62, P.halfW - 0.3);
+      quad([[x0, yb, -wF], [x0, yb, wF], [x1, yl, 0.42], [x1, yl, -0.42]]);
+      quad([[x1, yl, -0.42], [x1, yl, 0.42], [x2, yl + 0.02, 0.4], [x2, yl + 0.02, -0.4]]);
+      [1, -1].forEach((s) => put(rbox(x0 - 0.04, x0 + 0.005, yb, cutY - 0.045, s * 0.3 - 0.02, s * 0.3 + 0.02, sm, 0.004))); // its tabs up to the bar
+    } else {
+      put(beam([x0, yb + 0.01, 0], [x1, yl, 0], 0.82, 0.007, sm));
+      put(beam([x1, yl, 0], [x2, yl + 0.02, 0], 0.78, 0.007, sm));
+    }
     for (let i = -1; i <= 1; i++) { const h = cylAxis(0.035, 0.009, M.boot, 'y', 18); h.position.set((x1 + x2) / 2, yl - 0.001, i * 0.22); put(h); } // drain / access holes
   }
   if (!FB.factory) { // with the factory bumper off, the radiator shows between the frame horns: a finned core between dark side tanks
@@ -10155,7 +10169,11 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // (it read as a flat black slab behind the bumper)
     // (race fronts: out through the fender skin too — the fenders' front corners are cut off clean at the hoop line)
     const FBc = FRONT_BUMPERS[build.frontBumper] || FRONT_BUMPERS.stock;
-    if (P && model && !FBc.factory) [1, -1].forEach((s) => { const a = 0.42, c = FBc.cutFenders ? P.halfW + 0.15 : P.halfW - 0.1; list.push([[P.xF + 0.25, P.bumperY - 0.25, s > 0 ? a : -c], [P.front + 0.2, P.hoodY - 0.41, s > 0 ? c : -a]]); });
+    // (the pre-runner hoop: everything under its line goes, right across — the factory bumper's top was body skin left standing
+    // between the hoop and the grille)
+    const hoopCut = FBc === FRONT_BUMPERS.prerunnerHoop && P && P.hoopY ? P.hoopY + 0.012 : null;
+    if (P && model && !FBc.factory) [1, -1].forEach((s) => { const a = 0.42, c = FBc.cutFenders ? P.halfW + 0.15 : P.halfW - 0.1; list.push([[P.xF + 0.25, P.bumperY - 0.25, s > 0 ? a : -c], [P.front + 0.2, hoopCut || P.hoodY - 0.41, s > 0 ? c : -a]]); });
+    if (hoopCut) list.push([[P.front - 0.45, P.wheelY0 - 0.6, -0.43], [P.front + 0.3, hoopCut, 0.43]]);
     // the low-profile cut: the factory bumper cut flat right across, just under the fog lamps (ahead of the front wheels)
     // (back to the wheel openings: the fenders' lower front corners between the tyre and the bumper come off too)
     if (P && model && FBc.lowCut) list.push([[P.xF + P.R0 - 0.01, P.wheelY0 - 0.6, -(P.halfW + 0.2)], [P.front + 0.3, lowCutY(), P.halfW + 0.2]]);
@@ -10163,8 +10181,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     cutU.uBoxN.value = list.length;
     list.forEach(([a, c], i) => { cutU.uBoxMin.value[i].set(...a); cutU.uBoxMax.value[i].set(...c); });
   }
-  // the low-profile bumper's cut line: just under the factory fog lamps (or a little over the bumper's measured bottom)
-  function lowCutY() { const P = base.P, fs = (model && model.fogSpots) || []; return fs.length ? Math.min(...fs.map((f) => f[1] - (f[3] || 0.04))) - 0.015 : P.bumperY + 0.06; }
+  // the low-profile bumper's cut line: right under the factory fog lamps' bowls (f[3]: the pocket's size) — or a little over the
+  // bumper's measured bottom
+  function lowCutY() { const P = base.P, fs = (model && model.fogSpots) || []; return fs.length ? Math.min(...fs.map((f) => f[1] - (f[3] || 0.08) * 0.55)) - 0.012 : P.bumperY + 0.06; }
   function updateCutMatrix() {
     if (!model) return;
     // (updateWorldMatrix with parents: the truck's own matrix is otherwise a frame old while driving, so the cut boxes /
@@ -11179,6 +11198,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       // (and the bumper's bottom edge across the nose, with its face just over it: the add-on skid's front lip hugs it)
       let yb = Infinity; const v = V(0, 0, 0); bz.forEach((m) => { m.updateMatrixWorld(true); const p = m.geometry.attributes.position; for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); if (v.x > P.front - 0.4 && Math.abs(v.z) < 0.45) yb = Math.min(yb, v.y); } });
       P.skidRing = []; P.fbBottom = Number.isFinite(yb) ? yb : null;
+      // (the pre-runner hoop's line: just under the grille — the bumper's whole top comes off with it)
+      // (from the grille's own vertices — a cut piece's bounds can still be its whole parent's)
+      let gy = Infinity; (Zb.grille || []).forEach((m) => { m.updateMatrixWorld(true); const p = m.geometry.attributes.position, ix = m.geometry.index, n = ix ? ix.count : p.count; for (let k = 0; k < n; k++) { v.fromBufferAttribute(p, ix ? ix.getX(k) : k).applyMatrix4(m.matrixWorld); if (v.x > P.front - 0.5) gy = Math.min(gy, v.y); } });
+      P.hoopY = Number.isFinite(gy) ? THREE.MathUtils.clamp(gy - 0.022, P.hoodY - 0.46, P.hoodY - 0.2) : null;
       if (P.fbBottom != null) { const C2 = V(P.front - 0.6, P.fbBottom + 0.07, 0); for (let a = -48; a <= 48; a += 3) { const t = (a * Math.PI) / 180, d = V(Math.cos(t), 0, Math.sin(t)); rcr.set(C2.clone().addScaledVector(d, 3), d.clone().negate()); rcr.far = 3;
         const h = rcr.intersectObjects(bz, false)[0]; if (h) P.skidRing.push([h.point.x, h.point.z]); } } }
     // the snorkel's line (passenger side, +z): up the A-pillar's outside — at each height the first body met going back from the
@@ -18518,7 +18541,7 @@ function App() {
         <div>
           <div className="hud text-[11px] tracking-[0.2em] uppercase text-white/50 mb-1.5">Skid plate finish</div>
           <div className="flex flex-wrap gap-1.5">
-            <button onClick={() => { const zc = { ...(applied.zoneColors || {}) }; delete zc.skid; applyPatch({ zoneColors: zc }); }} className={`px-2 h-7 rounded border hud text-[11px] font-bold ${!(applied.zoneColors || {}).skid ? 'border-amber-400 text-amber-200 bg-white/10' : 'border-white/15 text-white/70'}`}>{FB.lowCut ? 'BLACK STEEL' : 'BRUSHED STEEL'}</button>
+            <button onClick={() => { const zc = { ...(applied.zoneColors || {}) }; delete zc.skid; applyPatch({ zoneColors: zc }); }} className={`px-2 h-7 rounded border hud text-[11px] font-bold ${!(applied.zoneColors || {}).skid ? 'border-amber-400 text-amber-200 bg-white/10' : 'border-white/15 text-white/70'}`}>{FB.lowCut ? 'CHROME' : 'BRUSHED STEEL'}</button>
             {[['#d9dcdf', 'chrome', 'Chrome'], ['#b9bdc2', 'satin', 'Silver'], ['#16171a', 'satin', 'Satin black'], ['#1a1b1d', 'matte', 'Textured black'], ['#b3121a', 'satin', 'Red'], [applied.color, applied.finish === 'matte' ? 'matte' : 'gloss', 'Body color']].map(([hex, finish, n]) => {
               const cur = (applied.zoneColors || {}).skid, sel = cur && cur.hex === hex && cur.finish === finish;
               return <button key={n} title={n} onClick={() => applyPatch({ zoneColors: { ...(applied.zoneColors || {}), skid: { hex, finish } } })} className={`w-7 h-7 rounded-full ring-1 ${sel ? 'ring-2 ring-amber-400' : 'ring-white/25'}`} style={{ background: finish === 'chrome' ? 'linear-gradient(135deg,#fff,#8e9196 60%,#fff)' : hex }} />;

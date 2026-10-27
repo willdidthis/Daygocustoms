@@ -12402,97 +12402,99 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     return new Promise((resolve, reject) => {
       if (!THREE.GLTFLoader) { reject(new Error('GLTFLoader failed to load from the CDN.')); return; }
       makeGLTFLoader().parse(buffer, '', (gltf) => {
-        try {
-          clearCustom(true);
-          const obj = gltf.scene || gltf.scenes[0];
-          const report = [], prof = opts.prof || {}, prep = prepModel(obj, prof, report);
-          const holder = new THREE.Group(), stretch = new THREE.Group(), inner = new THREE.Group(); holder.add(stretch); stretch.add(inner); inner.add(obj);
-          truck.add(holder);
-          const parts = classify(obj);
-          // (trim-only gear & the maker's badges ride along with the body, but aren't body: no paint, zones or probes)
-          const extra = (m) => m.userData.trimOnly || m.userData.badge, extras = parts.meshes.filter(extra);
-          parts.meshes = parts.meshes.filter((m) => !extra(m)); parts.wheelMeshes = parts.wheelMeshes.filter((m) => !extra(m));
-          let points = 0; obj.traverse((o) => { if (o.isPoints) { points++; o.visible = false; } });
-          if (points) report.push({ lvl: 'warn', text: `${points} point-cloud / Gaussian-splat object(s) hidden — export a textured mesh for best results.` });
-          // hide baked ground / shadow planes
-          holder.updateMatrixWorld(true); parts.meshes.forEach((m) => { const s = new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()); if (s.y < 0.002 * Math.max(s.x, s.z) && /shadow|ground|floor|plane/i.test(m.name + ' ' + (m.material && m.material.name))) { m.visible = false; m.userData.ground = true; } });
-          parts.meshes = parts.meshes.filter((m) => !m.userData.ground);
-          // Enhance: unlit → PBR, missing normals, texture filtering
-          let unlit = 0, normals = 0, tris = 0;
-          const swap = new Map();
-          parts.meshes.forEach((m) => {
-            m.castShadow = true; m.receiveShadow = true; m.userData.part = m.userData.part || 'body';
-            const g = m.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3;
-            if (!g.attributes.normal) { g.computeVertexNormals(); normals++; }
-            m.material = Array.isArray(m.material) ? m.material.map((x) => upgrade(x)) : upgrade(m.material);
-          });
-          function upgrade(mt) {
-            if (!mt) return mt;
-            if (swap.has(mt)) return swap.get(mt);
-            let out = mt;
-            if (mt.isMeshBasicMaterial || mt.isMeshLambertMaterial || mt.isMeshPhongMaterial) {
-              out = new THREE.MeshStandardMaterial({ name: mt.name, color: mt.color, map: mt.map, transparent: mt.transparent, opacity: mt.opacity, alphaTest: mt.alphaTest, side: mt.side, vertexColors: mt.vertexColors, roughness: 0.62, metalness: 0 });
-              unlit++;
-            } else if (mt.isMeshPhysicalMaterial && !(mt.clearcoat > 0) && !(mt.transmission > 0) && !(mt.sheen > 0) && !(mt.iridescence > 0) && mt.specularIntensity > 0.9) {
-              // physical, but using none of what that adds (clear coat, see-through glass, sheen, a non-default specular) → standard:
-              // looks the same, and the physical shader is far slower to compile — the D-D50 Daptor brought 30-odd of them, a
-              // ~10 s freeze the first time it loaded
-              out = new THREE.MeshStandardMaterial(); THREE.MeshStandardMaterial.prototype.copy.call(out, mt);
-            }
-            ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap'].forEach((k) => { if (out[k]) out[k].anisotropy = aniso; });
-            swap.set(mt, out); return out;
-          }
-          if (unlit) report.push({ lvl: 'fix', text: `Upgraded ${unlit} unlit material${unlit > 1 ? 's' : ''} to physically-based shading (reacts to sun, sky & reflections).` });
-          if (normals) report.push({ lvl: 'fix', text: `Rebuilt surface normals on ${normals} mesh${normals > 1 ? 'es' : ''}.` });
-          parts.wheelMeshes.forEach((m) => tag(m, 'wheel'));
-          parts.engineMeshes.forEach((m) => tag(m, 'engine'));
-          parts.doorNodes.forEach((n) => tag(n, 'door'));
-          parts.hoodNodes.forEach((n) => tag(n, 'hood'));
-          const ex = (gltf.asset && gltf.asset.extras) || {};
-          // (the lineup's own models: credit the author & licence, not the source title — it names the real maker and model)
-          const credit = ex.title || ex.author ? [ex.title && opts.kind !== 'stock' ? `“${ex.title}”` : null, ex.author ? `by ${String(ex.author).replace(/\s*\(https?:[^)]*\)/, '')}` : null, ex.license ? String(ex.license).replace(/\s*\(https?:[^)]*\)/, '') : null].filter(Boolean).join(' · ') : null;
-          const creditUrl = ex.source || (String(ex.author || '').match(/https?:[^)\s]+/) || [null])[0];
-          model = { holder, stretch, inner, obj, buffer, opts, name: opts.name || 'model.glb', kind: opts.kind || 'stock', paint: opts.paint !== false, parts, report,
-            paintMats: [], glassMats: [], engineMats: [], allMats: [], wheelMats: new Set(), orig: new Map(), texCache: new Map(),
-            rotY: 0, baseY: 0, wheelFit: null, wheelLocal: null, wheelMode: 'none', hood: null, doors: [], bumpers: { front: [], rear: [] }, xray: false,
-            probeTargets: [], tris: Math.round(tris), underbody: null, ident: opts.ident || null, reference: false, wheelPieces: [],
-            morph: null, morphOrig: null, morphGeos: null, morphNote: null, credit, creditUrl, prof, police: prep.police, badges: extras.filter((m) => m.userData.badge) };
-          extras.forEach((m) => { m.castShadow = true; });
-          refreshMaterials();
-          const isGlass = (mt) => { const n = mt.name || ''; if (prof.notGlass && prof.notGlass.test(n)) return false; if (prof.glass && prof.glass.test(n)) return true;
-            return hasTok(nameTokens(n), 'glass') || (mt.transmission || 0) > 0.2 || (mt.transparent && mt.opacity < 0.85 && !model.wheelMats.has(mt)); };
-          model.glassMats = model.allMats.filter(isGlass);
-          // Orientation: longest horizontal axis → X, front (headlights/grille/front wheels/hood) → +X
-          holder.updateMatrixWorld(true);
-          let rotY = opts.rotY;
-          if ((rotY === undefined || rotY === null) && prof.rotY !== undefined) rotY = prof.rotY; // (the stock models' facing is known)
-          if (rotY === undefined || rotY === null) {
-            const sz = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
-            rotY = sz.z > sz.x ? Math.PI / 2 : 0;
-            inner.rotation.y = rotY; holder.updateMatrixWorld(true);
-            const cx = new THREE.Box3().setFromObject(obj).getCenter(new THREE.Vector3()).x;
-            const fx = centroidX(parts.frontNodes), rx = centroidX(parts.rearNodes), hx = centroidX(parts.hoodNodes);
-            let frontSign = 0;
-            if (fx !== null && rx !== null) frontSign = Math.sign(fx - rx);
-            else if (fx !== null) frontSign = Math.sign(fx - cx);
-            else if (rx !== null) frontSign = -Math.sign(rx - cx);
-            else if (hx !== null) frontSign = Math.sign(hx - cx);
-            if (!frontSign) { // unnamed parts: small saturated-red parts are taillights → rear
-              const reds = parts.meshes.filter((m) => meshMats(m).some((mt) => { const c = mt.emissive && mt.emissive.r > 0.3 && mt.emissive.g < 0.4 * mt.emissive.r ? mt.emissive : mt.color; return c && c.r > 0.25 && c.g < 0.35 * c.r && c.b < 0.35 * c.r; }));
-              const ob = new THREE.Box3().setFromObject(obj), osz = ob.getSize(new THREE.Vector3());
-              const small = reds.filter((m) => { const s = new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()); return s.x < osz.x * 0.25; });
-              const tx = centroidX(small);
-              if (tx !== null && Math.abs(tx - cx) > osz.x * 0.3) { frontSign = -Math.sign(tx - cx); report.push({ lvl: 'fix', text: 'Front/rear worked out from the taillights.' }); }
-            }
-            if (frontSign < 0) rotY += Math.PI;
-            if (frontSign === 0) report.push({ lvl: 'warn', text: 'Could not tell which end is the front — use Rotate / Flip if it faces backwards.' });
-          }
-          model.rotY = rotY % (Math.PI * 2);
-          fitModel(true);
-          resolve(modelInfo());
-        } catch (e) { console.error(e); reject(e); }
+        try { installModel(gltf, buffer, opts); resolve(modelInfo()); } catch (e) { console.error(e); reject(e); }
       }, (err) => reject(new Error((err && err.message) || 'Could not parse the model. Export a self-contained .glb (textures embedded).')));
     });
+  }
+  // a parsed model in as the stage's model: classified, upgraded, faced front, fitted & built (synchronous — also used to fit
+  // another player's vehicle in its own context, see withVehicle)
+  function installModel(gltf, buffer, opts = {}) {
+    clearCustom(true);
+    const obj = gltf.scene || gltf.scenes[0];
+    const report = [], prof = opts.prof || {}, prep = prepModel(obj, prof, report);
+    const holder = new THREE.Group(), stretch = new THREE.Group(), inner = new THREE.Group(); holder.add(stretch); stretch.add(inner); inner.add(obj);
+    truck.add(holder);
+    const parts = classify(obj);
+    // (trim-only gear & the maker's badges ride along with the body, but aren't body: no paint, zones or probes)
+    const extra = (m) => m.userData.trimOnly || m.userData.badge, extras = parts.meshes.filter(extra);
+    parts.meshes = parts.meshes.filter((m) => !extra(m)); parts.wheelMeshes = parts.wheelMeshes.filter((m) => !extra(m));
+    let points = 0; obj.traverse((o) => { if (o.isPoints) { points++; o.visible = false; } });
+    if (points) report.push({ lvl: 'warn', text: `${points} point-cloud / Gaussian-splat object(s) hidden — export a textured mesh for best results.` });
+    // hide baked ground / shadow planes
+    holder.updateMatrixWorld(true); parts.meshes.forEach((m) => { const s = new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()); if (s.y < 0.002 * Math.max(s.x, s.z) && /shadow|ground|floor|plane/i.test(m.name + ' ' + (m.material && m.material.name))) { m.visible = false; m.userData.ground = true; } });
+    parts.meshes = parts.meshes.filter((m) => !m.userData.ground);
+    // Enhance: unlit → PBR, missing normals, texture filtering
+    let unlit = 0, normals = 0, tris = 0;
+    const swap = new Map();
+    parts.meshes.forEach((m) => {
+      m.castShadow = true; m.receiveShadow = true; m.userData.part = m.userData.part || 'body';
+      const g = m.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3;
+      if (!g.attributes.normal) { g.computeVertexNormals(); normals++; }
+      m.material = Array.isArray(m.material) ? m.material.map((x) => upgrade(x)) : upgrade(m.material);
+    });
+    function upgrade(mt) {
+      if (!mt) return mt;
+      if (swap.has(mt)) return swap.get(mt);
+      let out = mt;
+      if (mt.isMeshBasicMaterial || mt.isMeshLambertMaterial || mt.isMeshPhongMaterial) {
+        out = new THREE.MeshStandardMaterial({ name: mt.name, color: mt.color, map: mt.map, transparent: mt.transparent, opacity: mt.opacity, alphaTest: mt.alphaTest, side: mt.side, vertexColors: mt.vertexColors, roughness: 0.62, metalness: 0 });
+        unlit++;
+      } else if (mt.isMeshPhysicalMaterial && !(mt.clearcoat > 0) && !(mt.transmission > 0) && !(mt.sheen > 0) && !(mt.iridescence > 0) && mt.specularIntensity > 0.9) {
+        // physical, but using none of what that adds (clear coat, see-through glass, sheen, a non-default specular) → standard:
+        // looks the same, and the physical shader is far slower to compile — the D-D50 Daptor brought 30-odd of them, a
+        // ~10 s freeze the first time it loaded
+        out = new THREE.MeshStandardMaterial(); THREE.MeshStandardMaterial.prototype.copy.call(out, mt);
+      }
+      ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap'].forEach((k) => { if (out[k]) out[k].anisotropy = aniso; });
+      swap.set(mt, out); return out;
+    }
+    if (unlit) report.push({ lvl: 'fix', text: `Upgraded ${unlit} unlit material${unlit > 1 ? 's' : ''} to physically-based shading (reacts to sun, sky & reflections).` });
+    if (normals) report.push({ lvl: 'fix', text: `Rebuilt surface normals on ${normals} mesh${normals > 1 ? 'es' : ''}.` });
+    parts.wheelMeshes.forEach((m) => tag(m, 'wheel'));
+    parts.engineMeshes.forEach((m) => tag(m, 'engine'));
+    parts.doorNodes.forEach((n) => tag(n, 'door'));
+    parts.hoodNodes.forEach((n) => tag(n, 'hood'));
+    const ex = (gltf.asset && gltf.asset.extras) || {};
+    // (the lineup's own models: credit the author & licence, not the source title — it names the real maker and model)
+    const credit = ex.title || ex.author ? [ex.title && opts.kind !== 'stock' ? `“${ex.title}”` : null, ex.author ? `by ${String(ex.author).replace(/\s*\(https?:[^)]*\)/, '')}` : null, ex.license ? String(ex.license).replace(/\s*\(https?:[^)]*\)/, '') : null].filter(Boolean).join(' · ') : null;
+    const creditUrl = ex.source || (String(ex.author || '').match(/https?:[^)\s]+/) || [null])[0];
+    model = { holder, stretch, inner, obj, buffer, opts, name: opts.name || 'model.glb', kind: opts.kind || 'stock', paint: opts.paint !== false, parts, report,
+      paintMats: [], glassMats: [], engineMats: [], allMats: [], wheelMats: new Set(), orig: new Map(), texCache: new Map(),
+      rotY: 0, baseY: 0, wheelFit: null, wheelLocal: null, wheelMode: 'none', hood: null, doors: [], bumpers: { front: [], rear: [] }, xray: false,
+      probeTargets: [], tris: Math.round(tris), underbody: null, ident: opts.ident || null, reference: false, wheelPieces: [],
+      morph: null, morphOrig: null, morphGeos: null, morphNote: null, credit, creditUrl, prof, police: prep.police, badges: extras.filter((m) => m.userData.badge) };
+    extras.forEach((m) => { m.castShadow = true; });
+    refreshMaterials();
+    const isGlass = (mt) => { const n = mt.name || ''; if (prof.notGlass && prof.notGlass.test(n)) return false; if (prof.glass && prof.glass.test(n)) return true;
+      return hasTok(nameTokens(n), 'glass') || (mt.transmission || 0) > 0.2 || (mt.transparent && mt.opacity < 0.85 && !model.wheelMats.has(mt)); };
+    model.glassMats = model.allMats.filter(isGlass);
+    // Orientation: longest horizontal axis → X, front (headlights/grille/front wheels/hood) → +X
+    holder.updateMatrixWorld(true);
+    let rotY = opts.rotY;
+    if ((rotY === undefined || rotY === null) && prof.rotY !== undefined) rotY = prof.rotY; // (the stock models' facing is known)
+    if (rotY === undefined || rotY === null) {
+      const sz = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+      rotY = sz.z > sz.x ? Math.PI / 2 : 0;
+      inner.rotation.y = rotY; holder.updateMatrixWorld(true);
+      const cx = new THREE.Box3().setFromObject(obj).getCenter(new THREE.Vector3()).x;
+      const fx = centroidX(parts.frontNodes), rx = centroidX(parts.rearNodes), hx = centroidX(parts.hoodNodes);
+      let frontSign = 0;
+      if (fx !== null && rx !== null) frontSign = Math.sign(fx - rx);
+      else if (fx !== null) frontSign = Math.sign(fx - cx);
+      else if (rx !== null) frontSign = -Math.sign(rx - cx);
+      else if (hx !== null) frontSign = Math.sign(hx - cx);
+      if (!frontSign) { // unnamed parts: small saturated-red parts are taillights → rear
+        const reds = parts.meshes.filter((m) => meshMats(m).some((mt) => { const c = mt.emissive && mt.emissive.r > 0.3 && mt.emissive.g < 0.4 * mt.emissive.r ? mt.emissive : mt.color; return c && c.r > 0.25 && c.g < 0.35 * c.r && c.b < 0.35 * c.r; }));
+        const ob = new THREE.Box3().setFromObject(obj), osz = ob.getSize(new THREE.Vector3());
+        const small = reds.filter((m) => { const s = new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()); return s.x < osz.x * 0.25; });
+        const tx = centroidX(small);
+        if (tx !== null && Math.abs(tx - cx) > osz.x * 0.3) { frontSign = -Math.sign(tx - cx); report.push({ lvl: 'fix', text: 'Front/rear worked out from the taillights.' }); }
+      }
+      if (frontSign < 0) rotY += Math.PI;
+      if (frontSign === 0) report.push({ lvl: 'warn', text: 'Could not tell which end is the front — use Rotate / Flip if it faces backwards.' });
+    }
+    model.rotY = rotY % (Math.PI * 2);
+    fitModel(true);
   }
   function modelInfo() {
     if (!model) return null;
@@ -13686,13 +13688,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (!m || !m.isMaterial) return m; if (mats.has(m)) return mats.get(m);
       const ud = m.userData; m.userData = {}; const m2 = m.clone(); m.userData = ud; // (userData holds functions / live uniforms: not copied)
       m2.clippingPlanes = null; // (window glass is clipped by planes placed on this truck)
-      if (ud.paintU) { // a fresh paint shader with the same values — and no cab-trim box (that one follows this truck)
+      // (only a live paint shader: a part's material cloned from the paint — three copies userData as JSON — carries a dead copy
+      // of its uniforms, the colours turned to numbers, and wearing those it crashed the render)
+      const paint = !!(ud.paintU && ud.paintU.uKey && ud.paintU.uKey.value && ud.paintU.uKey.value.isColor);
+      if (paint) { // a fresh paint shader with the same values — and no cab-trim box (that one follows this truck)
         m2.onBeforeCompile = () => {}; const U2 = installPaintShader(m2);
         Object.entries(ud.paintU).forEach(([k, u]) => { if (k.startsWith('uTrim') || !U2[k]) return; const v = u.value; U2[k] = { value: v && (v.isColor || v.isVector3 || v.isVector4) ? v.clone() : v }; });
         U2.uTrimMin = { value: new THREE.Vector3(1e6, 1e6, 1e6) }; U2.uTrimMax = { value: new THREE.Vector3(-1e6, -1e6, -1e6) };
         U2.uTrimMat = RU.uCutMat; // (its livery is laid in ITS rest space — the other truck's, kept current with its cut-outs)
       }
-      if (ud.cutWrap) { const prev = ud.paintU ? m2.onBeforeCompile : ud.cutPrev, key = ud.paintU ? 'apex-paint' : (ud.cutPrevKey || ''); m2.onBeforeCompile = cutWrapper(prev, RU); m2.customProgramCacheKey = () => key + '|cut'; }
+      if (ud.cutWrap) { const prev = paint ? m2.onBeforeCompile : ud.cutPrev, key = paint ? 'apex-paint' : (ud.cutPrevKey || ''); m2.onBeforeCompile = cutWrapper(prev, RU); m2.customProgramCacheKey = () => key + '|cut'; }
       m2.needsUpdate = true; mats.set(m, m2); owned.push(m2); return m2;
     };
     const drop = [];
@@ -13711,15 +13716,81 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       steer: sr && map.get(sr.pivot) ? { pivot: map.get(sr.pivot), axis: sr.axis.clone() } : null, // (its wheel turns with its steering; the driver's hands go with it)
       cabin: new Set([...(Zc.interior || []), ...(Zc.dash || []), ...(Zc.steer || [])].map((m) => map.get(m)).filter(Boolean)) };
   }
-  // put another player's build on this truck for an instant, copy it, put this truck's own build back
+  // another player's build as this stage applies it (time of day & weather are the world's, not theirs; developer mode, factory
+  // badges & custom decals stay on their owner's screen)
+  const remoteBuild = (rb) => { const b = { ...DEFAULT_BUILD, ...rb, tod: build.tod, weather: build.weather, ...PRIVATE_OFF }; delete b.veh; if (plateReserved(b.plateText)) b.plateText = 'DGC 4124'; return b; };
+  // their build on the loaded model for an instant, copied (with its seats & footprint, for riders and walkers), then the
+  // stage's own build back — on this truck (a player in the same vehicle as you) or inside their own vehicle's context
+  function copyWithBuild(b) {
+    const cut0 = cutaway; let out = null;
+    try { cutaway = false; snapDriving = true; applyBuild(b, {}, true); applyWindowsAt(winTarget); out = cloneForRemote();
+      if (out) { const P = base.P; out.seats = seatsOf(); out.box = { front: P.front, rear: P.rear, halfW: P.halfW }; } }
+    finally { cutaway = cut0; snapDriving = false; }
+    return out;
+  }
   function snapshotTruck(rb) {
     if (!model || !base.P) return null;
-    const mine = build, cut0 = cutaway;
-    const b = { ...DEFAULT_BUILD, ...rb, tod: mine.tod, weather: mine.weather, ...PRIVATE_OFF }; // (time of day & weather are the world's, not theirs)
-    if (plateReserved(b.plateText)) b.plateText = 'DGC 4124'; // (developer mode, factory badges & custom decals stay on their owner's screen)
-    let out = null;
-    try { cutaway = false; snapDriving = true; applyBuild(b, {}, true); applyWindowsAt(winTarget); out = cloneForRemote(); }
-    finally { cutaway = cut0; snapDriving = false; applyBuild(mine, { xray }, true); }
+    const mine = build, xr = xray; // (applying theirs clears x-ray: yours comes back as it was)
+    try { return copyWithBuild(remoteBuild(rb)); } finally { applyBuild(mine, { xray: xr }, true); }
+  }
+  // ---- Another player in a different vehicle: its own model, fetched (remoteLoader, from the app), fitted once per vehicle and
+  // kept in a vehicle context of its own. Everything the stage keeps per vehicle — the model, every part built for it and its
+  // key, the measurements, rig, windows, probe grid — is swapped in while their truck is built & copied, then yours is swapped
+  // back as it was: nothing of yours is rebuilt or disposed. (The shared uniforms — cab trim box, cut-outs — are re-applied.)
+  let remoteLoader = null; const vctx = new Map();
+  const vctxKey = (v) => [vehicleKey(v), v.cab || '', v.wb, v.len].join('|'); // (a Dundra's cab is a different fit of the same model)
+  const ctxGet = () => ({ model, acc, lights, lightsKey, bumpers, bumpersKey, chassis, carSusp, extras, extrasKey, bayParts, bayKey, hitch, hitchKey, hitShape, hitShapeKey,
+    wheels, wheelKey, build, damage, damageGroup, markers, archLiners, archKey, seamSeals, seamKey, twinPaint, twinSrc, carLamps, carLampsKey, carKit, carKitKey, winModel,
+    P: base.P, vehicle: base.vehicle, rig: { ...rig, susp: rig.susp.slice() }, winCur: { ...winCur }, winTarget: { ...winTarget }, probe: { ...probeAcc }, probeKey: probeKey.slice(), ant: { ...ant } });
+  const ctxSet = (c) => {
+    ({ model, acc, lights, lightsKey, bumpers, bumpersKey, chassis, carSusp, extras, extrasKey, bayParts, bayKey, hitch, hitchKey, hitShape, hitShapeKey,
+      wheels, wheelKey, build, damage, damageGroup, markers, archLiners, archKey, seamSeals, seamKey, twinPaint, twinSrc, carLamps, carLampsKey, carKit, carKitKey, winModel } = c);
+    base.P = c.P; base.vehicle = c.vehicle;
+    Object.keys(rig).forEach((k) => { if (!(k in c.rig)) delete rig[k]; }); Object.assign(rig, c.rig, { susp: c.rig.susp.slice() });
+    [[winCur, c.winCur], [winTarget, c.winTarget]].forEach(([o, src]) => { Object.keys(o).forEach((k) => delete o[k]); Object.assign(o, src); });
+    Object.keys(probeAcc).forEach((k) => { if (!(k in c.probe)) delete probeAcc[k]; }); Object.assign(probeAcc, c.probe); probeKey.set(c.probeKey); Object.assign(ant, c.ant);
+  };
+  // (what a context hangs straight on the truck group; the rest rides in its model's holder)
+  const ctxParts = (c) => [c.model && c.model.holder, c.chassis && c.chassis.links, c.carSusp && c.carSusp.links, c.lights && c.lights.ground, ...(c.wheels || [])].filter(Boolean);
+  function withVehicle(c, fn) {
+    const mine = ctxGet(), tp = truck.position.clone(), tq = truck.quaternion.clone();
+    ctxParts(mine).forEach((o) => truck.remove(o)); ctxSet(c); ctxParts(c).forEach((o) => truck.add(o));
+    try { return fn(); } finally {
+      const theirs = ctxGet(); ctxParts(theirs).forEach((o) => truck.remove(o)); Object.assign(c, theirs);
+      ctxSet(mine); ctxParts(mine).forEach((o) => truck.add(o)); truck.position.copy(tp); truck.quaternion.copy(tq); truck.updateMatrixWorld(true);
+      placeRearLamps(); padLights(); // (the shared rear-lamp bulbs back on your body; the spare light pool sized to your lamps)
+    }
+  }
+  // a fresh context for a vehicle (fitted first with the build of the player who brought it): its model arrives by loadVehCtx
+  function vehCtx(v, rb) {
+    const key = vctxKey(v); let c = vctx.get(key); if (c) return c;
+    c = { key, model: null, acc: null, lights: null, lightsKey: '', bumpers: null, bumpersKey: '', chassis: null, carSusp: null, extras: null, extrasKey: '', bayParts: null, bayKey: '', hitch: null, hitchKey: '',
+      hitShape: null, hitShapeKey: '', wheels: [], wheelKey: '', build: remoteBuild(rb || {}), damage: [], damageGroup: null, markers: [], archLiners: null, archKey: '', seamSeals: null, seamKey: '',
+      twinPaint: null, twinSrc: null, carLamps: null, carLampsKey: '', carKit: null, carKitKey: '', winModel: null, P: null, vehicle: v,
+      rig: { lift: 0, liftR: 0, wy: 0, offF: 0, offR: 0, hood: 0, doors: 0, susp: [0, 0, 0, 0] }, winCur: {}, winTarget: {},
+      probe: { sig: '', P: null, M: null, gy: null, gz: null, gx: null }, probeKey: new Float64Array(23).fill(NaN),
+      ant: { grp: null, joints: [], w: [], a: 0, va: 0, bb: 0, vb: 0, pPrev: null, vPrev: null, accS: null, key: '', L: 0.61 }, ready: false, failed: false, dead: false };
+    vctx.set(key, c); loadVehCtx(c); return c;
+  }
+  async function loadVehCtx(c) {
+    try {
+      const src = remoteLoader ? await remoteLoader(c.vehicle) : null; if (!src || !src.buf) throw new Error('no model for ' + vehicleKey(c.vehicle));
+      const gltf = await new Promise((res, rej) => makeGLTFLoader().parse(src.buf, '', res, rej));
+      if (c.dead) return;
+      const xr = xray; withVehicle(c, () => installModel(gltf, src.buf, src.opts || {})); applyBuild(build, { xray: xr }, true);
+      c.ready = true;
+    } catch (e) { console.warn('remote vehicle', e); c.failed = true; }
+  }
+  function disposeVehCtx(c) {
+    c.dead = true; vctx.delete(c.key);
+    ctxParts(c).forEach((o) => { if (o.parent) o.parent.remove(o); o.traverse((q) => { if (q.geometry && !q.geometry.userData.shared) q.geometry.dispose(); }); });
+  }
+  // their truck in their own vehicle (null until that vehicle has loaded)
+  function snapshotOther(c, rb) {
+    if (!c.ready) return null;
+    const xr = xray, b = remoteBuild(rb); let out = null;
+    withVehicle(c, () => { out = copyWithBuild(b); });
+    applyBuild(build, { xray: xr }, true);
     return out;
   }
   function disposeRemoteTruck(r) { if (!r.g) return; scene.remove(r.g); (r.owned || []).forEach((x) => x.dispose && x.dispose()); r.g = null; }
@@ -13744,6 +13815,9 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       r.name = p.name || 'player';
     });
     remotes.forEach((r, id) => { if (!seen.has(id)) { disposeRemoteTruck(r); disposeRemoteChar(r); remotes.delete(id); } });
+    // (a vehicle nobody's in any more: its model and parts go)
+    const used = new Set([...remotes.values()].map((r) => r.vk).filter(Boolean));
+    vctx.forEach((c) => { if (!used.has(c.key) && (c.ready || c.failed)) disposeVehCtx(c); });
   }
   const rqA = new THREE.Quaternion(), rqB = new THREE.Quaternion(), rqC = new THREE.Quaternion();
   function stepRemotes(dt) {
@@ -13751,9 +13825,13 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     remotes.forEach((r) => {
       // (re)build its truck when its build changes — one at a time, at most every ~0.8 s (it takes a moment)
       const wantBk = r.wantBk || (now - r.first > 2500 ? 'default' : null);
-      if (wantBk && wantBk !== r.bk && now - lastSnap > 800 && model) {
-        lastSnap = now; const snap = snapshotTruck(r.want || {});
-        if (snap) { disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, tag: null, tagName: null }); scene.add(r.g); if (ctl.mode === 'ride' && ctl.host === r.id) cabinSides(r, true); }
+      // (in a different vehicle from yours: built in that vehicle's own context once its model has loaded — nothing shows till
+      // then; if it can't load, their build goes on your model as before)
+      const veh = r.want && r.want.veh, vc = veh && veh.make && (!model || vctxKey(veh) !== vctxKey(base.vehicle)) ? vehCtx(veh, r.want) : null;
+      r.vk = vc ? vc.key : null;
+      if (wantBk && (wantBk !== r.bk || (vc && vc.ready && r.vkShown !== vc.key)) && now - lastSnap > 800 && (model || (vc && vc.ready))) {
+        const snap = vc && vc.ready ? snapshotOther(vc, r.want || {}) : vc && !vc.failed ? null : snapshotTruck(r.want || {});
+        if (snap) { lastSnap = now; disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, vkShown: vc && vc.ready ? vc.key : null, tag: null, tagName: null }); scene.add(r.g); if (ctl.mode === 'ride' && ctl.host === r.id) cabinSides(r, true); }
       }
       if (!r.g || !r.target) return;
       if (r.tagName !== r.name) { if (r.tag) r.g.remove(r.tag); r.tag = tagSprite(r.name); r.tag.visible = tagsOn; r.g.add(r.tag); r.tagName = r.name; }
@@ -13879,20 +13957,22 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
   // a truck as a box on the ground (its heading only): how far a point is from it, and pushing a walker back out of it
   const toBox = (px, pz, t) => { const c = Math.cos(t.yaw), s = Math.sin(t.yaw), dx = px - t.x, dz = pz - t.z; return [dx * c - dz * s, dx * s + dz * c, c, s]; };
-  const boxDist = (px, pz, t) => { const P = base.P, [lx, lz] = toBox(px, pz, t); return Math.hypot(Math.max(P.rear - lx, 0, lx - P.front), Math.max(-P.halfW - lz, 0, lz - P.halfW)); };
+  const boxDist = (px, pz, t) => { const P = t.box || base.P, [lx, lz] = toBox(px, pz, t); return Math.hypot(Math.max(P.rear - lx, 0, lx - P.front), Math.max(-P.halfW - lz, 0, lz - P.halfW)); };
   function pushOut(w, t, rad) {
-    const P = base.P, [lx, lz, c, s] = toBox(w.x, w.z, t), x0 = P.rear - rad, x1 = P.front + rad, hw = P.halfW + rad;
+    const P = t.box || base.P, [lx, lz, c, s] = toBox(w.x, w.z, t), x0 = P.rear - rad, x1 = P.front + rad, hw = P.halfW + rad;
     if (lx <= x0 || lx >= x1 || lz <= -hw || lz >= hw) return;
     const pen = [lx - x0, x1 - lx, lz + hw, hw - lz], k = pen.indexOf(Math.min(...pen)), nx = k === 0 ? x0 : k === 1 ? x1 : lx, nz = k === 2 ? -hw : k === 3 ? hw : lz;
     w.x = t.x + nx * c + nz * s; w.z = t.z - nx * s + nz * c;
   }
-  const trucksNear = () => { const out = []; if (model && drive.on && ctl.mode !== 'drive') out.push({ x: drive.x, z: drive.z, yaw: drive.yaw, y: drive.y, mine: true }); remotes.forEach((r) => { if (r.g && r.pose) out.push({ x: r.pose.x, z: r.pose.z, yaw: r.pose.yaw || 0, y: r.pose.y || 0, r }); }); return out; };
+  // (each remote with its own footprint and seats — measured on its own vehicle; see copyWithBuild)
+  const trucksNear = () => { const out = []; if (model && drive.on && ctl.mode !== 'drive') out.push({ x: drive.x, z: drive.z, yaw: drive.yaw, y: drive.y, mine: true }); remotes.forEach((r) => { if (r.g && r.pose) out.push({ x: r.pose.x, z: r.pose.z, yaw: r.pose.yaw || 0, y: r.pose.y || 0, r, box: r.box }); }); return out; };
+  const seatsIn = (r) => (r && r.seats) || seatsOf();
   // the truck in reach (≤ 1.5 m): yours, or someone else's — and the free seat whose door you're closest to
   function nearestRide() {
     let best = null;
     trucksNear().forEach((t) => { const d = boxDist(ctl.x, ctl.z, t); if (d < 1.5 && (!best || d < best.d)) best = { ...t, d }; });
     if (!best || best.mine) return best;
-    const r = best.r, av = (r.target && r.target.av) || {}, n = Math.min(4, av.c || 4), taken = new Set([0]), seats = seatsOf(), tk = theirTruck(r);
+    const r = best.r, av = (r.target && r.target.av) || {}, n = Math.min(4, av.c || 4), taken = new Set([0]), seats = seatsIn(r), tk = theirTruck(r);
     remotes.forEach((o) => { const a = o.target && o.target.av; if (a && a.m === 'ride' && a.h === r.id) taken.add(a.s); });
     let si = -1, sdist = 1e9;
     if (seats && tk) for (let i = 1; i < n; i++) { if (taken.has(i)) continue; const dw = tkW(tk, seats.list[i].door), dd = Math.hypot(dw.x - ctl.x, dw.z - ctl.z); if (dd < sdist) { sdist = dd; si = i; } }
@@ -13910,8 +13990,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   }
   const setPointerLock = (on) => { if (!on && document.pointerLockElement === renderer.domElement) document.exitPointerLock(); };
   function getOut(tk, seatI) {
-    if (ctl.mode === 'ride') cabinSides(remotes.get(ctl.host), false);
-    const seats = seatsOf(), A = drive.area, st = seats && seats.list[seatI];
+    const host = ctl.mode === 'ride' ? remotes.get(ctl.host) : null; if (host) cabinSides(host, false);
+    const seats = host ? seatsIn(host) : seatsOf(), A = drive.area, st = seats && seats.list[seatI];
     let x = meC ? meC.root.position.x : drive.x, z = meC ? meC.root.position.z : drive.z, face = ctl.face;
     if (tk && st) { const p = tkW(tk, st.door), o = tkW(tk, V(st.hip.x, 0, 0)); x = p.x; z = p.z; face = Math.atan2(p.x - o.x, p.z - o.z); }
     const dir = camera.getWorldDirection(V(0, 0, 0));
@@ -14049,7 +14129,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
         C.update(ctl.air && ctl.poseShown !== 3 ? 'air' : vn > 0.15 ? 'walk' : 'stand', { t, phase: ctl.phase, speed: vn, stride: charStride(vn), lookYaw: wrapA(ctl.yaw - ctl.face), lookPitch: ctl.pitch, crouch: ctl.crouchK, pose: poseOf() });
         if (!replay.on) walkCamera(dt, C);
       } else if (ctl.mode === 'ride') {
-        const tk = theirTruck(remotes.get(ctl.host)), seats = seatsOf();
+        const tk = theirTruck(remotes.get(ctl.host)), seats = seatsIn(remotes.get(ctl.host));
         if (!tk || !seats) { getOut(null, 0); say('The driver left'); }
         else { const si = seats.list[ctl.seat] ? ctl.seat : 1; C.root.visible = true; C.setHeadVisible(!ctl.fp); seatChar(C, tk, seats.list[si], 'sit', { t, lookYaw: ctl.ryaw, lookPitch: ctl.pitch, pose: poseOf(), winSide: si % 2 ? -1 : 1, winOut: true }); rideCamera(dt, C, tk); } // (their windows: assumed down — you can't roll them)
       } else { // driving: in the driver's seat, hands on the wheel
@@ -14066,7 +14146,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const now = performance.now(), want = r.wantCk || (now - r.first > 2500 ? 'default' : null);
     if (want && want !== r.chK && now - lastCharBuild > 150) { lastCharBuild = now; if (r.ch) r.ch.dispose(); r.ch = buildCharacter(r.wantC || {}); r.chK = want; scene.add(r.ch.root); }
     const C = r.ch; if (!C) return;
-    const T = r.target || {}, av = T.av || {}, m = av.m || 'drive', seats = seatsOf();
+    // (seats: in their own truck, its; riding along, the host's — yours, or another player's)
+    const T = r.target || {}, av = T.av || {}, m = av.m || 'drive', seats = m === 'ride' ? (av.h === meId ? seatsOf() : seatsIn(remotes.get(av.h))) : seatsIn(r);
     let shown = false;
     if (m === 'walk') {
       const age = Math.min(0.4, (now - (T.recv || now)) / 1000), px = (av.x || 0) + (av.vx || 0) * age, pz = (av.z || 0) + (av.vz || 0) * age, k = 1 - Math.exp(-dt * 12);
@@ -14905,7 +14986,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     setPaintTolerance: (v) => { if (model) model.paintMats.forEach((m) => { if (m.userData.paintMode === 'keyed') m.userData.paintU.uTol.value = v; }); },
     setPickPaint: (on) => { pickPaint = !!on && !!model; el.style.cursor = pickPaint ? 'crosshair' : 'grab'; },
     modelInfo,
-    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: (k = 1) => { Object.keys(winTarget).forEach((id) => { winCur[id] = (winTarget[id] || 0) * k; }); applyWindowsAt(winCur); }, rearLamps: setRearLamps, ctl, meC: () => meC, seatsOf, remotes, gripsOf, myTruck, veiled: () => veiled }), // console inspection
+    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: (k = 1) => { Object.keys(winTarget).forEach((id) => { winCur[id] = (winTarget[id] || 0) * k; }); applyWindowsAt(winCur); }, rearLamps: setRearLamps, ctl, meC: () => meC, seatsOf, remotes, vctx, gripsOf, myTruck, veiled: () => veiled }), // console inspection
     startDrive, stopDrive, isDriving: () => drive.on, recenterCam, renderVariants, setCutaway,
     setCutMode: (on, r) => { cutMode = !!on && !!model; if (r) cutR = r; controls.enabled = !cutMode && !drive.on; el.style.cursor = cutMode ? 'crosshair' : 'grab'; },
     setEngine: (s) => { Object.assign(engine, s); },
@@ -14915,7 +14996,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     startReplay, stopReplay, setReplayCam, isReplaying: () => replay.on,
     setReplaySpeed: (s) => { replay.speed = s; replayInfo(); }, toggleReplayPause: () => { replay.paused = !replay.paused; replayInfo(); },
     seekReplay: (f) => { if (!replay.on) return; replay.t = replay.t0 + THREE.MathUtils.clamp(f, 0, 1) * (replay.t1 - replay.t0); replay.cut = true; replay.tv = null; replayInfo(); },
-    resetTruck, getPose, getBuild: () => ({ ...build, ...PRIVATE_OFF, plateText: plateReserved(build.plateText) ? 'DGC 4124' : build.plateText }), setRemotes, setTags: (on) => { tagsOn = on; remotes.forEach((r) => { if (r.tag) r.tag.visible = on; }); },
+    // (what the others need to draw you: your build, and the vehicle it's on — they load its model if it isn't theirs)
+    resetTruck, getPose, getBuild: () => ({ ...build, ...PRIVATE_OFF, plateText: plateReserved(build.plateText) ? 'DGC 4124' : build.plateText, veh: base.vehicle }), setRemotes,
+    setRemoteLoader: (fn) => { remoteLoader = fn; }, // (vehicle → Promise<{ buf, opts }>: its model, for a player in another vehicle)
+    setTags: (on) => { tagsOn = on; remotes.forEach((r) => { if (r.tag) r.tag.visible = on; }); },
     // your character: its look, shown by the truck in the garage (Character menu), F = get in / out (the on-screen button)
     setCharacter, getCharacter: () => (meC ? meC.spec : null), showCharacter: (on) => { charShow = !!on; }, interact,
     charHeights: () => ({ person: meC ? meC.height : 1.778, roof: base.P ? base.P.roofTop + (model ? (axleDY(true) + axleDY(false)) / 2 : 0) : null }),
@@ -17388,6 +17472,15 @@ function App() {
   // the lineup's own models (models/*.glb), fetched once each
   const stockP = useRef(new Map()), stockStatus = useRef({}); // (the last HTTP status per model file: 404 = it isn't on the site)
   const fetchStock = (url) => { if (!stockP.current.has(url)) stockP.current.set(url, fetch(new URL(url, document.baseURI).href).then((r) => { stockStatus.current[url] = r.status; return r.ok ? r.arrayBuffer() : null; }).then((b) => (b && b.byteLength > 1000 ? b : null)).catch(() => { stockStatus.current[url] = 0; return null; })); return stockP.current.get(url); };
+  // another player's vehicle (multiplayer), when it isn't yours: the same model files the garage loads, fetched once each
+  useEffect(() => {
+    const st = stageRef.current; if (!ready || !st || !st.setRemoteLoader) return;
+    st.setRemoteLoader(async (v) => {
+      const sm = stockModelFor(v);
+      if (sm && sm.url !== 'car.glb') { const b = await fetchStock(sm.url); return b ? { buf: b, opts: { name: sm.url.split('/').pop(), kind: 'stock', paint: true, ident: { make: v.make, model: v.model, gen: v.gen, ...sm.ident }, prof: sm.prof } } : null; }
+      const b = await fetchCarGlb(); return b ? { buf: b, opts: { name: 'car.glb', kind: 'stock', paint: true, ident: TUNDRA_MODEL_IDENT } } : null;
+    });
+  }, [ready]);
   const showModel = useCallback(async (src) => {
     const st = stageRef.current; if (!st) return null;
     setModelStatus({ loading: src.label || src.name });

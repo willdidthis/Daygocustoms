@@ -11099,8 +11099,10 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       });
       model.windows[wid] = { pieces, plane, localPlane, height: bb.max.y - bb.min.y };
       // a lineup pickup's back glass is a power slider: its middle third slides across behind the driver-side pane (the
-      // Dundra's own drops; an SUV's rolls down into the liftgate)
-      if (wid === 'rear' && model.prof && !model.prof.car && !model.prof.suv) {
+      // Dundra's own drops whole, every cab — its model has an empty profile, which let the slider in; an SUV's rolls down
+      // into the liftgate)
+      const dundra = !!(model.ident && model.ident.model === 'Dundra');
+      if (wid === 'rear' && model.prof && !model.prof.car && !model.prof.suv && !dundra) {
         const zc = (bb.max.z + bb.min.z) / 2, hw = (bb.max.z - bb.min.z) / 6, sl = [];
         pieces.slice().forEach((p) => { const { cut } = splitMesh(p, (a, b, c) => Math.abs((a.z + b.z + c.z) / 3 - zc) < hw, { shareMaterial: true }); if (!cut) return;
           Object.assign(cut.userData, { zone: 'winRear', baseMat: p.userData.baseMat, part: p.userData.part || 'body', pos0: cut.position.clone() }); cut.castShadow = p.castShadow;

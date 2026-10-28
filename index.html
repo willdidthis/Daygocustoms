@@ -6,7 +6,7 @@
   // Spotify sign-in pop-up lands back here: hand the code to the app window and close before anything else loads
   (function () { var q = new URLSearchParams(location.search); if (window.opener && (q.has('code') || q.has('error'))) { try { window.opener.postMessage({ apexSpotify: q.get('code') || null, error: q.get('error') }, location.origin); } catch (e) {} window.close(); window.stop(); } })();
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
 <title>Daygo Customs 3D</title>
 <meta name="description" content="Daygo Customs — build your dream truck in 3D, then take it off-road." />
 <meta name="theme-color" content="#07080b" />
@@ -30,7 +30,8 @@
 <script>
   tailwind.config = {
     // "amber" is the app's accent: it reads CSS variables so the accent theme can be swapped at runtime (see :root[data-accent])
-    theme: { extend: { fontFamily: { hud: ['Rajdhani', 'sans-serif'], body: ['Inter', 'system-ui', 'sans-serif'] },
+    // ph: a phone held sideways (landscape, short) — the garage & drive HUD rearrange for it (it comes after md / xl, so it wins)
+    theme: { extend: { screens: { ph: { raw: '(orientation: landscape) and (max-height: 520px)' } }, fontFamily: { hud: ['Rajdhani', 'sans-serif'], body: ['Inter', 'system-ui', 'sans-serif'] },
       colors: { amber: Object.fromEntries([50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((k) => [k, `rgb(var(--a${k}) / <alpha-value>)`])) } } }
   };
   try { const a = localStorage.getItem('dago.accent'); if (a) document.documentElement.dataset.accent = a; } catch (e) { /* storage blocked */ }
@@ -80,6 +81,10 @@
   html, body, #root { height: 100%; margin: 0; background: #07080b; overflow: hidden; }
   body { font-family: Inter, system-ui, sans-serif; color: #e5e7eb; -webkit-font-smoothing: antialiased; }
   canvas { display: block; outline: none; touch-action: none; }
+  /* on-screen wheel & pedals: no scrolling, zooming, text selection or long-press menu while a thumb is on them */
+  .touch-ctl { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  /* a phone's notch / rounded corners when held sideways */
+  .safe-l { margin-left: env(safe-area-inset-left); } .safe-r { margin-right: env(safe-area-inset-right); }
   .hud { font-family: Rajdhani, sans-serif; }
   .banner { position: relative; overflow: hidden; background: #0b0c0f; border-bottom: 2px solid rgb(var(--a400) / .85); }
   .banner-classic {
@@ -1994,12 +1999,19 @@ const CONTROLS = [
   ['On foot', [['F', 'Get in your truck, or a free seat in someone else\'s — walk up to it'], ['W A S D / arrows', 'Walk (the way the camera faces)'], ['Shift', 'Run'], ['Space', 'Jump — right next to a truck you jump up onto it (bumper, bed, hood or roof)'], ['X (hold)', 'Crouch'], ['Mouse', 'Look around — click the view to lock the pointer (Esc frees it), or drag'], ['C', 'First person ↔ third person'], ['Mouse wheel', 'Camera in / out — all the way in is first person']]],
   ['Poses (press again to stop)', [['1', 'Middle finger'], ['2', 'Shaka'], ['3', 'Handstand (on foot)'], ['4', 'Hold up a pistol'], ['5', 'Peace sign'], ['In the truck', '1, 2, 4 and 5 go out the driver\'s window when it\'s rolled down (hands-in otherwise)']]],
   ['Riding along', [['F', 'Get out'], ['Mouse', 'Look around'], ['C / mouse wheel', 'Your seat ↔ a camera outside the truck']]],
-  ['Replay', [['B', 'Open / close the replay (last 15 s)'], ['Space', 'Play / pause'], ['C', 'Next camera'], ['← / →', 'Skip back / ahead 2 s'], ['Esc', 'Back to driving']]],
+  ['Replay', [['B', 'Open / close the replay (last 30 s)'], ['Space', 'Play / pause'], ['C', 'Next camera'], ['← / →', 'Skip back / ahead 2 s'], ['↑ / ↓', 'Faster / slower (0.1× … 2×)'], ['Esc', 'Back to driving']]],
   ['Drive HUD', [['Lights', 'Switch panel: every light group, strobe'], ['Windows', 'Power windows & moonroof'], ['Audio / Volume', 'Stereo & sound levels'], ['Drive', '2H / 4H / 4L · traction control (OFF / TCS / A-TRAC) · weather · time of day · camera']]],
   ['Garage', [['Left-drag', 'Orbit the truck'], ['Right-drag', 'Pan'], ['Mouse wheel', 'Zoom'], ['Hover a part', 'Highlight it'], ['Click a part', 'Open its menu'], ['↑ / ↓', 'Browse a menu (live preview)'], ['Enter', 'Install the highlighted option'], ['Esc / Backspace', 'Back out of a menu'], ['R (hold)', 'Rev the engine (once it\'s started)']]],
   ['Anywhere', [['P', 'Photo mode — hides every menu & HUD (P / Esc to come back)'], ['N', 'Multiplayer name tags on / off']]],
-  ['Touch screens', [['On-screen arrows', 'Steer, gas and brake while driving']]],
+  // an Xbox controller (wired or Bluetooth — or any pad the browser maps the standard way): press any button once to wake it
+  ['Controller (Xbox)', [['RT', 'Throttle — exactly as far as you squeeze it'], ['LT', 'Brake — hold it once stopped to reverse (as far as you squeeze it)'], ['Left stick', 'Steer — exactly as far as you push it'],
+    ['LB (hold)', 'Clutch — the engine revs free; let it out with the revs up for a clutch kick'], ['B / X', 'Shift up / down (switches to manual; with the clutch in it\'s a clean shift)'], ['A', 'Handbrake'], ['Y', 'Get out / get in'],
+    ['RB', 'Camera: chase · close · side · driver\'s seat'], ['Right stick', 'Look around (springs back) — click it to look behind'], ['LS click', 'Horn'], ['View ⧉', 'Start / stop the engine'], ['Menu ≡', 'Drive / leave drive mode'],
+    ['D-pad', '↑ headlights · ↓ automatic ↔ manual · ← reset (tap: flip back over, hold: reset) · → replay'], ['On foot', 'Left stick walk (all the way runs) · A jump · B crouch · right stick look · RB first / third person'], ['Parked', 'RT revs the engine once it\'s started'], ['Rumble', 'Hard landings and hitting the map\'s edge']]],
+  ['Touch screens (hold the phone sideways)', [['Left side', 'Steering wheel: drag left / right — the further you drag, the more it turns'], ['GAS / BRAKE', 'Pedals: press low for a little, slide up for more'], ['Hand', 'Handbrake'], ['Cam', 'Next camera']]],
 ];
+// replay playback speeds (the speed buttons, ↑ / ↓)
+const REPLAY_SPEEDS = [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
 // replay cameras (the stage's REPLAY_CAMS, same order)
 const REPLAY_CAM_LABELS = { auto: 'Auto director', chase: 'Chase', close: 'Third person', rear: 'Low behind', front: 'Front (facing it)', side: 'Alongside', driver: "Driver's seat", hood: 'Hood', wheel: 'Wheel cam', orbit: 'Orbit', heli: 'Helicopter', tv: 'Trackside TV', free: 'Free cam (drag)' };
 // Roof whip antenna on the cab's rear roof edge, right over the third brake light (on a pod bar: on top of it). len: the whip
@@ -4477,6 +4489,7 @@ function buildOutdoor(renderer) {
       const rad = 28 + pr() * 42, x = X0 + 60 + pr() * (X1 - X0 - 120), z = Z0 + 60 + pr() * (Z1 - Z0 - 120);
       let d = 1e9; coarse.forEach((q) => { d = Math.min(d, Math.hypot(x - q.x, z - q.z)); });
       if (d < rad * 2.2 + 12 || peaks.some((k) => Math.hypot(k.x - x, k.z - z) < (k.r + rad) * 0.9) || (C.mesas || []).some((m) => Math.hypot(m.x - x, m.z - z) < m.R + rad * 2.5)) continue;
+      if ((C.cross || []).some(([ax, az, bx, bz]) => { const L = Math.hypot(bx - ax, bz - az), t = THREE.MathUtils.clamp(((x - ax) * (bx - ax) + (z - az) * (bz - az)) / (L * L), 0, 1); return Math.hypot(x - ax - (bx - ax) * t, z - az - (bz - az) * t) < rad * 2.4 + 40; })) continue; // (nor on a cross track)
       peaks.push({ x, z, r: rad, h: (16 + pr() * 30) * (C.peakH || 1) });
     }
     const peakAt = (x, z) => { let h = 0; for (const k of peaks) { const d2 = (x - k.x) ** 2 + (z - k.z) ** 2; if (d2 < 9 * k.r * k.r) h += k.h * Math.exp(-d2 / (2 * (k.r * 0.55) ** 2)) * (1 + 0.08 * Math.sin(x * 0.21 + z * 0.17)); } return h; };
@@ -4545,7 +4558,8 @@ function buildOutdoor(renderer) {
     {
       // terrain (sunk 0.5 m under the road corridor, which the exact ribbons cover)
       const geo = new THREE.PlaneGeometry(X1 - X0, Z1 - Z0, NX, NZ); geo.rotateX(-Math.PI / 2); geo.translate((X0 + X1) / 2, 0, (Z0 + Z1) / 2); meterUV(geo, X1 - X0, Z1 - Z0);
-      const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - Z0) / CC) * (NX + 1) + Math.round((x - X0) / CC), n = gI[k] >= 0 ? near(x, z) : null; p.setY(i, gH[k] - (n && Math.abs(n.l) < VERGE - 4 ? 0.5 : 0.02)); }
+      // (+ under the profile's own corridors — cross tracks with whoops dug a metre into the ground — sunk deeper, out of sight)
+      const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = Math.round((z - Z0) / CC) * (NX + 1) + Math.round((x - X0) / CC), n = gI[k] >= 0 ? near(x, z) : null; p.setY(i, gH[k] - (n && Math.abs(n.l) < VERGE - 4 ? 0.5 : 0.02) - (PROF && PROF.sink ? PROF.sink(x, z) : 0)); }
       geo.computeVertexNormals();
       const floorMat = groundMat(C.groundSet, 3.2, { base: C.groundBase, wetness: 0.25, key: C.id + 'floor', tint: C.groundTint || 0.8, offset: 0 });
       const tm = mk(geo, floorMat); tm.castShadow = false; tm.receiveShadow = true; G.add(tm);
@@ -4570,7 +4584,7 @@ function buildOutdoor(renderer) {
       const paint = (l, w, color, filter) => drape(l - w / 2, l + w / 2, 1, LIFT.road + 0.008, new THREE.MeshStandardMaterial({ color, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -7, polygonOffsetUnits: -7 }), 1, filter);
       if (C.lines === 'twoLane') { paint(0.11, 0.1, 0xe8b10c); paint(-0.11, 0.1, 0xe8b10c); }
       if (C.lines !== 'none') { paint(RW - 0.2, 0.12, 0xf1f1ec); paint(-RW + 0.2, 0.12, 0xf1f1ec); }
-      if (PROF && PROF.build) PROF.build(G, { heightBase, col0, S, LEN, near, bounds: { x0: X0, x1: X1, z0: Z0, z1: Z1 } }); // (the profile's own set dressing: a crossing road, field jumps, signs…)
+      if (PROF && PROF.build) PROF.build(G, { heightBase, col0, S, LEN, near, floorMat, verge: VERGE, bounds: { x0: X0, x1: X1, z0: Z0, z1: Z1 } }); // (the profile's own set dressing: a crossing road, field jumps, signs…)
       if (C.curbs) { // red / white rumble curbs along both edges through the bends
         const curbTex = canvasTex(64, 16, (x, w, h) => { for (let i = 0; i < 4; i++) { x.fillStyle = i % 2 ? '#f2f2ee' : '#c8191e'; x.fillRect((i * w) / 4, 0, w / 4, h); } });
         curbTex.wrapS = curbTex.wrapT = THREE.RepeatWrapping; curbTex.repeat.set(0.5, 1);
@@ -4656,7 +4670,7 @@ function buildOutdoor(renderer) {
       if (C.grass) { // real grass blades (not on the road or shoulder; thin on the rocky peaks)
         const g0 = RW + C.shoulder + 0.2;
         makeGrass(G, { height, seed: C.seed, size: C.grass.size, per: C.grass.per, tint: C.grass.tint,
-          dens: (x, z) => { const n = near(x, z), a = n ? Math.abs(n.l) : 999; return a < g0 ? 0 : C.grass.d * smt(g0, g0 + 1.4, a) * (peakAt(x, z) > 12 ? 0.25 : 1); } });
+          dens: (x, z) => { const n = near(x, z), a = n ? Math.abs(n.l) : 999; return a < g0 || (PROF && PROF.blocked && PROF.blocked(x, z)) ? 0 : C.grass.d * smt(g0, g0 + 1.4, a) * (peakAt(x, z) > 12 ? 0.25 : 1); } });
       }
     }
     // the whole map is shifted so the start of the right-hand lane sits where the truck is shown (world origin, on the road)
@@ -4668,7 +4682,9 @@ function buildOutdoor(renderer) {
       height: (x, z) => height(x - SX, z - SZ) + rockAt(x - SX, z - SZ) + SY, paved: (x, z) => paved(x - SX, z - SZ),
       bounds: { x0: X0 + 6 + SX, x1: X1 - 6 + SX, z0: Z0 + 6 + SZ, z1: Z1 - 6 + SZ },
       // reset spot: the nearest lane for the way you're facing (world coords)
-      safe: (x, z, yaw) => { const n = near(x - SX, z - SZ); if (!n) return null; const p = n.p, fwd = Math.cos(yaw) * p.tx - Math.sin(yaw) * p.tz >= 0, l = fwd ? LO : -LO;
+      // (on one of the profile's cross tracks: back onto that track)
+      safe: (x, z, yaw) => { const cs = PROF && PROF.crossSafe ? PROF.crossSafe(x - SX, z - SZ, yaw) : null; if (cs) return { x: cs.x + SX, z: cs.z + SZ, yaw: cs.yaw };
+        const n = near(x - SX, z - SZ); if (!n) return null; const p = n.p, fwd = Math.cos(yaw) * p.tx - Math.sin(yaw) * p.tz >= 0, l = fwd ? LO : -LO;
         return { x: p.x - p.tz * l + SX, z: p.z + p.tx * l + SZ, yaw: Math.atan2(-p.tz, p.tx) + (fwd ? 0 : Math.PI) }; },
     };
   }
@@ -4678,8 +4694,18 @@ function buildOutdoor(renderer) {
   // crossing the track. Every jump is a dedicated takeoff and a separate landing: a curved run-up (y = h·(t/L)²) to a lip
   // that varies jump to jump (18° mellow … 34° steep), the gap, then a long landing ramp (~18° at the knuckle, easing out)
   // so a jump hit at the posted speed lands on the slope. A sign at each run-up gives that takeoff speed.
-  const jumpTrack = (RW, mesas = []) => (S, LEN) => {
+  const jumpTrack = (RW, mesas = [], cross = []) => (S, LEN) => {
     const r = mulberry32(4242), DR = Math.PI / 180, feats = [], tan = (d) => Math.tan(d * DR), G9 = AIR_G;
+    // ---- cross tracks: long straight dirt tracks over the loop and each other, packed with recessed whoops and tabletop / gap
+    // jumps (their features are laid in build, once the corridors can be measured). CL: { x, z, dx, dz, L, feats }
+    const CRW = 6, CSIDE = 22; // (the dirt's half-width; how far its side ribbons reach past it — a 9 m jump's berm fits)
+    const CL = cross.map(([x0, z0, x1, z1], i) => { const L = Math.hypot(x1 - x0, z1 - z0); return { i, x: x0, z: z0, dx: (x1 - x0) / L, dz: (z1 - z0) / L, L, feats: [] }; });
+    const lineTW = (c, x, z) => { const px = x - c.x, pz = z - c.z; return [px * c.dx + pz * c.dz, -px * c.dz + pz * c.dx]; }; // (along it, signed across)
+    // where each crosses the loop: no loop feature over the crossing (its corridor's span along the loop + 30 m each way)
+    const crossZ = [];
+    CL.forEach((c) => { for (let i = 0; i < S.length; i++) { const a = S[i], b = S[(i + 1) % S.length], [ta, wa] = lineTW(c, a.x, a.z), [, wb] = lineTW(c, b.x, b.z);
+      if (wa * wb <= 0 && ta > 0 && ta < c.L) { const half = (CRW + CSIDE) / Math.max(0.3, Math.abs(a.tx * c.dz - a.tz * c.dx)) + 30; crossZ.push([a.s - half, a.s + half]); } } });
+    const inCross = (s0, len) => crossZ.some(([z0, z1]) => [-LEN, 0, LEN].some((o) => s0 < z1 + o && s0 + len > z0 + o));
     // the lip speed (m/s) that lands a jump on the sweet spot of its landing: the trajectory the drive sim flies (forward
     // speed u, upward u·sin(lip)·1.02 off the lip) through a point on the landing ramp
     const idealU = (h, lip, X, ys) => X * Math.sqrt((0.5 * G9) / Math.max(0.5, h + X * Math.sin(lip * DR) - ys)); // (it leaves with the ramp's own climb — no boost)
@@ -4717,7 +4743,8 @@ function buildOutdoor(renderer) {
     const straight = (s0, len, lim) => { for (let s = s0; s <= s0 + len; s += 2) if (Math.abs(S[((Math.floor(s) % S.length) + S.length) % S.length].k) > lim) return false; return true; };
     let s = 70;
     // (a jump gets a ~40 m straight run-up of its own after the whoops before it, to get set and up to speed)
-    for (const f of plan) { if (f.jump) s += 40; while (s + f.len < LEN - 60 && !straight(s - (f.jump ? 35 : 0), f.len, f.lim)) s += 8; if (s + f.len >= LEN - 60) continue; feats.push({ ...f, s0: s }); s += f.len + 10; }
+    // (and none over a cross track's crossing)
+    for (const f of plan) { if (f.jump) s += 40; while (s + f.len < LEN - 60 && (!straight(s - (f.jump ? 35 : 0), f.len, f.lim) || inCross(s - (f.jump ? 40 : 0), f.len + (f.jump ? 40 : 0)))) s += 8; if (s + f.len >= LEN - 60) continue; feats.push({ ...f, s0: s }); s += f.len + 10; }
     const featAt = (s) => { for (const f of feats) if (s >= f.s0 && s < f.s0 + f.len) return f; return null; };
     const roadF = feats.find((f) => f.road !== null && f.road !== undefined);
     const road = roadF ? (() => { const q = S[Math.round(roadF.s0 + roadF.road) % S.length]; return { x: q.x, z: q.z, tx: q.tx, tz: q.tz, half: 3.7, len: 90 }; })() : null;
@@ -4726,22 +4753,80 @@ function buildOutdoor(renderer) {
     const FJ = [];
     const fjAt = (x, z) => { let y = 0; for (const j of FJ) { const px = x - j.x, pz = z - j.z, t = px * j.dx + pz * j.dz; if (t < 0 || t > j.len) continue; const w = Math.abs(-px * j.dz + pz * j.dx), yy = j.y(t); if (!yy || w > j.W + 4 + 1.6 * yy) continue; y = Math.max(y, yy * (1 - smt(j.W, j.W + 4 + 1.6 * yy, w))); } return y; };
     const fjHit = (x, z, pad = 6) => FJ.some((j) => { const px = x - j.x, pz = z - j.z, t = px * j.dx + pz * j.dz, w = Math.abs(-px * j.dz + pz * j.dx); return t > -pad && t < j.len + pad && w < j.W + 16; });
+    // a cross track's height at (x, z): the feature under it across the dirt — a jump's berm sloping off to the sides (wider for
+    // taller ones), a whoop trench's walls over ~3 m
+    const crossAt = (x, z) => { let y = 0;
+      for (const c of CL) { if (!c.feats.length) continue; const [t, w] = lineTW(c, x, z), aw = Math.abs(w); if (t < 0 || t > c.L || aw > CRW + CSIDE) continue;
+        for (const f of c.feats) { if (t < f.t0 || t >= f.t0 + f.len) continue; const yy = f.y(t - f.t0); if (yy > 0) y += yy * (1 - smt(CRW + 0.5, CRW + 0.5 + 4 + 1.6 * yy, aw)); else if (yy < 0) y += yy * (1 - smt(CRW + 0.3, CRW + 3, aw)); break; } }
+      return y; };
+    const crossHit = (x, z, pad = 4) => CL.some((c) => { const [t, w] = lineTW(c, x, z); return t > -10 && t < c.L + 10 && Math.abs(w) < CRW + CSIDE + pad; });
+    // resetting on a cross track: back onto it, on the nearest flat bit (not a jump face or a whoop), facing the way you were going
+    const crossSafe = (x, z, yaw) => {
+      let best = null; CL.forEach((c) => { const [t, w] = lineTW(c, x, z); if (t > 10 && t < c.L - 10 && Math.abs(w) < CRW + CSIDE && (!best || Math.abs(w) < best.aw)) best = { c, t, aw: Math.abs(w) }; });
+      if (!best) return null; const { c } = best, free = (t) => !c.feats.some((f) => t > f.t0 - 4 && t < f.t0 + f.len + 4);
+      let t = best.t; for (let k = 0; k < 400 && !free(t); k++) t = best.t + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 3;
+      t = THREE.MathUtils.clamp(t, 15, c.L - 15); const fwd = Math.cos(yaw) * c.dx - Math.sin(yaw) * c.dz >= 0;
+      return { x: c.x + c.dx * t, z: c.z + c.dz * t, yaw: Math.atan2(-c.dz, c.dx) + (fwd ? 0 : Math.PI) }; };
     const signTex = (mph) => canvasTex(128, 160, (x, w, h) => { x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#f2c200'; x.fillRect(5, 5, w - 10, h - 10); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 22px Arial, sans-serif'; x.fillText('TAKEOFF', 64, 38); x.font = 'bold 56px Arial Narrow, Arial, sans-serif'; x.fillText(String(mph), 64, 102); x.font = 'bold 22px Arial, sans-serif'; x.fillText('MPH', 64, 136); });
     return {
       // height added at distance s along the track and |lateral| a: the mound's full height across the track, its sides
       // sloping away (wider for taller jumps) like a dozer-built berm
       at: (s, a) => { const f = featAt(s); if (!f) return 0; const y = f.y(s - f.s0); if (!y) return 0; return y * (1 - smt(RW + 0.5, RW + 0.5 + 4 + 1.6 * y, a)); },
-      field: fjAt, blocked: (x, z) => fjHit(x, z, 10) || onRoad(x, z),
-      paved: onRoad,
-      build: (G, { heightBase, col0, near, bounds }) => {
+      field: (x, z) => fjAt(x, z) + crossAt(x, z), blocked: (x, z) => fjHit(x, z, 10) || onRoad(x, z) || crossHit(x, z),
+      paved: onRoad, crossSafe,
+      // (the terrain under a cross track's corridor drops out of sight: the track's own ribbons are the ground there)
+      // (only under the dirt & the whoop trenches' walls: the terrain's 4 m cells are back up to the ground well inside the side
+      // ribbons' edge — sunk out to it, a cell running across the edge left a dark crack along the track)
+      sink: (x, z) => (CL.some((c) => { const [t, w] = lineTW(c, x, z); return t > 5 && t < c.L - 5 && Math.abs(w) < CRW + 11; }) ? 2.4 : 0),
+      build: (G, { heightBase, col0, near, bounds, floorMat, verge }) => {
         const sign = (mph, x, z, faceYaw) => { const y = heightBase(x, z), pole = mk(new THREE.CylinderGeometry(0.04, 0.04, 2.4, 8), new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 })); pole.position.set(x, y + 1.2, z); G.add(pole);
           const face = mk(new THREE.PlaneGeometry(0.8, 1.0), new THREE.MeshStandardMaterial({ map: signTex(mph), roughness: 0.45, side: THREE.DoubleSide })); face.position.set(x, y + 2.2, z); face.rotation.y = faceYaw; G.add(face); col0.push([x, z, 0.07]); };
         // takeoff-speed signs on the track: right-hand side, ~30 m before each run-up, facing the oncoming truck
         feats.forEach((f) => { if (!f.jump) return; const q = S[((Math.round(f.s0 - 30) % S.length) + S.length) % S.length], l = RW + 2; sign(Math.round((f.u * 2.237) / 5) * 5, q.x - q.tz * l, q.z + q.tx * l, Math.atan2(-q.tx, -q.tz)); });
+        // ---- the cross tracks: features wherever a line runs clear — not near its ends, over the loop's corridor, by another
+        // cross track or on a hill — alternating recessed whoop sections and jumps (mostly tabletops with gentle 14–22° lips
+        // and long landings, some gap booters), each jump with a ~40 m flat run-up; then the dirt and its sides
+        const cRnd = mulberry32(6060), crMat = groundMat(GROUND_SETS.dirt, 3.4, { base: '#8a6a4a', key: 'prcross', tint: 0.95, offset: -6, wetness: 0.2 });
+        CL.forEach((c) => {
+          const N = Math.floor(c.L / 2), ok = new Uint8Array(N + 1);
+          // (a feature's berms must stay off the loop's corridor — its ribbons don't carry them — and the other cross tracks' dirt
+          // must stay flat where it crosses; their side ribbons follow the same ground, so a berm may run under them)
+          for (let k = 0; k <= N; k++) { const t = k * 2, x = c.x + c.dx * t, z = c.z + c.dz * t; let f = t > 30 && t < c.L - 30 && !onRoad(x, z);
+            if (f) for (const w of [-CRW - 10, 0, CRW + 10]) { const px = x - c.dz * w, pz = z + c.dx * w, nr = near(px, pz); if ((nr && Math.abs(nr.l) < verge + 2) || heightBase(px, pz) > 0.3) { f = false; break; } }
+            if (f && CL.some((o) => { if (o === c) return false; const [to, wo] = lineTW(o, x, z); return to > -20 && to < o.L + 20 && Math.abs(wo) < CRW + 14; })) f = false;
+            ok[k] = f ? 1 : 0; }
+          const clear = (t0, len) => { if (t0 < 0) return false; for (let t = t0; t <= t0 + len; t += 2) if (!ok[Math.min(N, Math.round(t / 2))]) return false; return true; };
+          // (a feature that doesn't fit where it is gets swapped for a smaller one before moving on — short gaps between
+          // crossings still get a whoop run or a little table)
+          let t = 34, jumpNext = cRnd() < 0.5;
+          const pick = (jump, small) => { if (jump) { const h = small ? 3 + cRnd() * 1.5 : 3.5 + cRnd() * 4.5; return cRnd() < 0.72 || small ? table(h, small ? 14 + cRnd() * 8 : 22 + h * 5 + cRnd() * 10, 14 + cRnd() * 8) : booter(4 + cRnd() * 3, 22 + cRnd() * 16, 18 + cRnd() * 6); }
+            return whoops(small ? 30 + cRnd() * 20 : 55 + cRnd() * 50, 0.9 + cRnd() * 0.5); };
+          while (t < c.L - 40) {
+            let placed = false;
+            for (const [jump, small] of [[jumpNext, false], [jumpNext, true], [!jumpNext, true]]) {
+              const f = pick(jump, small), t0 = t + (f.jump ? 32 : 0); // (a jump's flat run-up comes after whatever's before it)
+              if (t0 + f.len < c.L - 30 && clear(t, t0 - t + f.len)) { c.feats.push({ ...f, t0 }); t = t0 + f.len + 8; jumpNext = cRnd() < 0.8 ? !f.jump : f.jump; placed = true; break; } // (now and then two of a kind in a row)
+            }
+            if (!placed) t += 4;
+          }
+          // the ribbons: 1 m rows over the features, 4 m between; the dirt, and the ground either side (over the berms' slopes)
+          const ts = []; for (let tt = 0; ; ) { ts.push(tt); if (tt >= c.L) break; const inF = c.feats.some((f) => tt >= f.t0 - 3 && tt < f.t0 + f.len + 3); tt = Math.min(c.L, tt + (inF ? 1 : 4)); }
+          const ribbon = (ws, mat, lift) => { const pos = [], uv = [], idx = [], NW = ws.length;
+            ts.forEach((tt) => ws.forEach((w) => { const x = c.x + c.dx * tt - c.dz * w, z = c.z + c.dz * tt + c.dx * w; pos.push(x, heightBase(x, z) + crossAt(x, z) + lift, z); uv.push(tt, w); }));
+            for (let i = 0; i < ts.length - 1; i++) for (let j = 0; j < NW - 1; j++) { const a = i * NW + j, b2 = a + NW; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } // (wound to face up)
+            const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
+            const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; G.add(m); };
+          const span = (a, b, n) => Array.from({ length: n + 1 }, (_, k) => a + ((b - a) * k) / n);
+          ribbon(span(-CRW - 1, CRW + 1, 8), crMat, 0.03 + 0.004 * c.i);
+          ribbon(span(CRW + 1, CRW + CSIDE, 9), floorMat, 0.012 + 0.002 * c.i); ribbon(span(-CRW - CSIDE, -CRW - 1, 9), floorMat, 0.012 + 0.002 * c.i);
+          // takeoff-speed signs: right-hand side, 30 m before each run-up
+          c.feats.forEach((f) => { if (!f.jump) return; const ts0 = f.t0 - 30, l = CRW + 2; sign(Math.round((f.u * 2.237) / 5) * 5, c.x + c.dx * ts0 - c.dz * l, c.z + c.dz * ts0 + c.dx * l, Math.atan2(-c.dx, -c.dz)); });
+        });
         // ---- designed lines first (the random jumps below keep clear of them)
         // kicker: a short steep ramp with nothing after it — the landing is whatever's beyond (a mesa's back slope)
         const kickerShape = (h, lip) => { const Lu = (2 * h) / tan(lip), bf = h / tan(40); return { Lu, len: Lu + bf + 2, h, lip, u: null, y: (t) => (t < Lu ? h * (t / Lu) ** 2 : t < Lu + bf ? h * (1 - (t - Lu) / bf) : 0) }; };
-        const addJ = (x, z, dx, dz, sh, W = 6) => { FJ.push({ x, z, dx, dz, W, ...sh }); };
+        const crossOn = (x, z, dx, dz, len, pad = 10) => { for (let t = -12; t <= len + 12; t += 6) if (crossHit(x + dx * t, z + dz * t, pad)) return true; return false; }; // (would it sit on a cross track?)
+        const addJ = (x, z, dx, dz, sh, W = 6) => { if (!crossOn(x, z, dx, dz, sh.len)) FJ.push({ x, z, dx, dz, W, ...sh }); };
         const flatUnder = (x, z, dx, dz, len, w = 12) => { for (let t = 0; t <= len; t += 8) for (const ww of [-w, 0, w]) if (heightBase(x + dx * t - dz * ww, z + dz * t + dx * ww) > 0.5) return false; return true; };
         // cross-track lines: on the straights, a tabletop in the infield aimed straight across the track and a second one just
         // outside it on the same line — jump, cross the track, jump again (perpendicular to the loop)
@@ -4771,7 +4856,7 @@ function buildOutdoor(renderer) {
         { const dbl = booterShape(2.2, 9, 26), fr0 = mulberry32(808);
           for (let tries = 0; tries < 600; tries++) {
             const a = fr0() * Math.PI * 2, dx = Math.cos(a), dz = Math.sin(a), x = bounds.x0 + 200 + fr0() * (bounds.x1 - bounds.x0 - 400), z = bounds.z0 + 150 + fr0() * (bounds.z1 - bounds.z0 - 300), L = dbl.len * 5;
-            if (!flatUnder(x, z, dx, dz, L, 14) || fjHit(x + (dx * L) / 2, z + (dz * L) / 2, L / 2 + 20)) continue;
+            if (!flatUnder(x, z, dx, dz, L, 14) || fjHit(x + (dx * L) / 2, z + (dz * L) / 2, L / 2 + 20) || crossOn(x, z, dx, dz, L, 14)) continue;
             let ok = true; for (let t = 0; t <= L && ok; t += 8) { const nr = near(x + dx * t, z + dz * t); if (nr && Math.abs(nr.l) < RW + 26) ok = false; }
             if (!ok) continue;
             for (let i = 0; i < 5; i++) addJ(x + dx * dbl.len * i, z + dz * dbl.len * i, dx, dz, { ...dbl, u: i ? null : dbl.u }, 5);
@@ -4784,7 +4869,7 @@ function buildOutdoor(renderer) {
         for (let n = 0, tries = 0; n < kinds.length && tries < 4000; tries++) {
           const kd = kinds[n], sh = kd[0] === 't' ? tableShape(kd[1], kd[2], kd[3] || 20) : booterShape(kd[0], kd[1], kd[2]), a = fr() * Math.PI * 2, dx = Math.cos(a), dz = Math.sin(a);
           const x = x0 + 90 + fr() * (x1 - x0 - 180), z = z0 + 90 + fr() * (z1 - z0 - 180);
-          if (Math.hypot(x - p0.x, z - p0.z) < 160 || fjHit(x + dx * sh.len / 2, z + dz * sh.len / 2, 40)) continue;
+          if (Math.hypot(x - p0.x, z - p0.z) < 160 || fjHit(x + dx * sh.len / 2, z + dz * sh.len / 2, 40) || crossOn(x, z, dx, dz, sh.len, 14)) continue;
           let ok = true;
           for (let t = -40; t <= sh.len && ok; t += 8) for (const w of [-14, 0, 14]) { const px = x + dx * t - dz * w, pz = z + dz * t + dx * w;
             if (heightBase(px, pz) > 0.3 || onRoad(px, pz)) { ok = false; break; } const nr = near(px, pz); if (nr && Math.abs(nr.l) < RW + 22 && featAt(nr.p.s)) { ok = false; break; } }
@@ -4796,7 +4881,7 @@ function buildOutdoor(renderer) {
         FJ.forEach((j) => {
           const side = j.W + 4 + 1.6 * j.h, NL = Math.ceil(j.len), NW = 16, pos = [], uv = [], idx = [];
           for (let i = 0; i <= NL; i++) for (let c = 0; c <= NW; c++) { const t = (j.len * i) / NL, w = -side + (2 * side * c) / NW, x = j.x + j.dx * t - j.dz * w, z = j.z + j.dz * t + j.dx * w; pos.push(x, heightBase(x, z) + fjAt(x, z) + 0.03, z); uv.push(t, w); }
-          for (let i = 0; i < NL; i++) for (let c = 0; c < NW; c++) { const a = i * (NW + 1) + c, b2 = a + NW + 1; idx.push(a, b2, a + 1, a + 1, b2, b2 + 1); }
+          for (let i = 0; i < NL; i++) for (let c = 0; c < NW; c++) { const a = i * (NW + 1) + c, b2 = a + NW + 1; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } // (wound to face up — the other way round they were culled from above: only their far slopes' undersides showed, dark)
           const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
           const m = mk(gg, fjMat); m.castShadow = false; m.receiveShadow = true; G.add(m);
           if (j.u) sign(Math.round((j.u * 2.237) / 5) * 5, j.x - j.dx * 30 - j.dz * (j.W + 2), j.z - j.dz * 30 + j.dx * (j.W + 2), Math.atan2(-j.dx, -j.dz));
@@ -4839,10 +4924,14 @@ function buildOutdoor(renderer) {
     groundTint: [0.6, 0.76, 0.46], grass: { d: 0.95, per: 150, size: [0.3, 0.7], tint: (r) => { const v = 0.7 + r() * 0.5; return r() < 0.14 ? [0.42 * v, 0.38 * v, 0.17 * v] : [0.22 * v, 0.31 * v, 0.09 * v]; } } }));
   // two drivable mesas in the infield (map coords; dir: the climb line's heading, up the face toward the summit)
   const PR_MESAS = [{ x: -170, z: 40, H: 30, R: 125, top: 0.22, dir: [0, 1] }, { x: 390, z: -30, H: 20, R: 90, top: 0.26, dir: [-1, 0] }];
+  // cross tracks (map coords, end to end): three north–south and two east–west, over the loop (each twice) and each other —
+  // clear of the mesas; the rocky peaks keep off them
+  const PR_CROSS = [[-560, -545, -420, 545], [120, -545, 230, 545], [600, -545, 700, 545], [-920, 215, 920, 175], [-920, -250, 920, -215],
+    [-930, 540, -160, -545], [930, 540, 300, -545]]; // (+ two long diagonals through the outer desert)
   const getPR = lazyMap(() => makeLoopMap({ id: 'prerunner', box: [-940, 940, -560, 560], half: 7, nCtl: 52, sx: 1.7, sz: 0.8,
     radius: (a) => 430 + 14 * Math.sin(3 * a + 0.5),
     hill: 0, gradeW: 40, ditch: false, flatTo: 6, shoulder: 0, pavedExtra: 0, lines: 'none', curbs: false, posts: false, rails: false, loose: true, dstep: 1, vergeW: 26,
-    roadSet: GROUND_SETS.dirt, buildProfile: jumpTrack(7, PR_MESAS), mesas: PR_MESAS, treeGap: 30, treeFall: 140, trees: 2400, near3D: 15, firShare: 0.25, seed: 911, lane: 0,
+    roadSet: GROUND_SETS.dirt, buildProfile: jumpTrack(7, PR_MESAS, PR_CROSS), mesas: PR_MESAS, cross: PR_CROSS, treeGap: 30, treeFall: 140, trees: 2400, near3D: 15, firShare: 0.25, seed: 911, lane: 0,
     groundSet: GROUND_SETS.desert, groundBase: '#a88b66', peaks: 12, peakH: 1.3, rocks: 2600,
     grass: { d: 0.25, per: 50, size: [0.2, 0.45], tint: (r) => { const v = 0.75 + r() * 0.4; return [0.42 * v, 0.36 * v, 0.2 * v]; } } }));
 
@@ -13535,6 +13624,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       if (k === ' ') { e.preventDefault(); replay.paused = !replay.paused; replayInfo(); }
       else if (k === 'c') { e.preventDefault(); setReplayCam(REPLAY_CAMS[(REPLAY_CAMS.indexOf(replay.cam) + 1) % REPLAY_CAMS.length]); }
       else if (k === 'arrowleft' || k === 'arrowright') { e.preventDefault(); replay.t = THREE.MathUtils.clamp(replay.t + (k === 'arrowright' ? 2 : -2), replay.t0, replay.t1); replay.cut = true; replay.tv = null; replayInfo(); }
+      else if (k === 'arrowup' || k === 'arrowdown') { e.preventDefault(); stepReplaySpeed(k === 'arrowup' ? 1 : -1); }
       return;
     }
     if (k === 'v' && e.type === 'keydown' && !(e.target.tagName || '').match(/input|select|textarea/i)) { recenterCam(); return; }
@@ -13568,14 +13658,82 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (e.deltaY < 0 && camOrbit.zoom <= 0.451) { drive.cam = 3; recenterCam(); camSwitchT = now + 300; return; }
     camOrbit.zoom = THREE.MathUtils.clamp(camOrbit.zoom * Math.exp(e.deltaY * 0.0012), 0.45, 2.6);
   }, { passive: false });
-  renderer.domElement.addEventListener('pointerdown', (e) => { if (drive.on && e.button === 2) { camOrbit.drag = [e.clientX, e.clientY]; renderer.domElement.setPointerCapture(e.pointerId); } });
+  // (a phone: a finger dragged on the view — not on the wheel or pedals — looks round the same way)
+  renderer.domElement.addEventListener('pointerdown', (e) => { if (drive.on && (e.button === 2 || (e.pointerType === 'touch' && ctl.mode === 'drive' && !replay.on))) { camOrbit.drag = [e.clientX, e.clientY]; renderer.domElement.setPointerCapture(e.pointerId); } });
   renderer.domElement.addEventListener('pointermove', (e) => {
     if (!camOrbit.drag) return;
     camOrbit.yaw -= (e.clientX - camOrbit.drag[0]) * 0.006; camOrbit.pitch = THREE.MathUtils.clamp(camOrbit.pitch + (e.clientY - camOrbit.drag[1]) * 0.004, -0.4, 1.35);
     camOrbit.drag = [e.clientX, e.clientY];
   });
-  renderer.domElement.addEventListener('pointerup', (e) => { if (e.button === 2) camOrbit.drag = null; });
+  renderer.domElement.addEventListener('pointerup', (e) => { if (e.button === 2 || e.pointerType === 'touch') camOrbit.drag = null; });
   const recenterCam = () => { camOrbit.yaw = 0; camOrbit.pitch = 0; };
+  // ---- Game controller: an Xbox pad (or any "standard" one — wired or Bluetooth), read every frame through the Gamepad API.
+  // Analog all the way: RT is the throttle and LT the brake / reverse, each exactly as far as it's squeezed; the left stick
+  // steers exactly as far as it's pushed. LB is the clutch, B / X shift up / down, A the handbrake, Y gets in / out, RB the
+  // camera, the right stick looks round (and springs back; click it to look behind), LS click the horn, View the ignition,
+  // Menu drive / exit; d-pad ↑ headlights · ↓ automatic / manual · ← reset (hold) · → replay. On foot the left stick walks
+  // (all the way, or with RT, runs), A jumps, B crouches, RB first / third person.
+  // Touch (a phone held sideways): the on-screen wheel & pedals land in `touch` the same way — analog too.
+  const PAD_DZ = 0.08, TRIG_DZ = 0.03; // (stick drift / a trigger at rest — past them the value goes straight through, 1:1)
+  const pad = { on: false, id: '', thr: 0, brk: 0, steer: 0, clutch: 0, hand: false, crouch: false, lx: 0, ly: 0, rx: 0, ry: 0, btn: [], looked: false, revSent: 0, trigOk: false };
+  const touch = { thr: 0, brk: 0, steer: 0, hand: false, lx: 0, ly: 0, active: false }; // (lx / ly: the on-foot stick)
+  const dzone = (v, z) => (Math.abs(v) < z ? 0 : v);
+  const padSay = (k, v) => handlers.current.onPad && handlers.current.onPad(k, v);
+  function padRead() {
+    const list = navigator.getGamepads ? [...navigator.getGamepads()].filter((g) => g && g.connected) : [];
+    const gp = list.find((g) => g.mapping === 'standard') || list[0] || null;
+    if (!gp) { if (pad.on || pad.id) { Object.assign(pad, { on: false, id: '', thr: 0, brk: 0, steer: 0, clutch: 0, hand: false, crouch: false, lx: 0, ly: 0, rx: 0, ry: 0, btn: [] }); } return null; }
+    pad.id = gp.id;
+    const Bv = (i) => { const b = gp.buttons[i]; return b ? (typeof b === 'object' ? b.value || (b.pressed ? 1 : 0) : b) : 0; }, ax = gp.axes;
+    let lt = Bv(6), rt = Bv(7), rx = ax[2] || 0, ry = ax[3] || 0;
+    // (no standard mapping — Firefox on some systems: the triggers are axes 2 / 5, −1 at rest, and the right stick 3 / 4. A
+    // trigger axis reads 0 until first touched — half pressed — so it's only trusted once it has been seen at rest)
+    if (gp.mapping !== 'standard' && ax.length >= 6) { if (ax[2] < -0.9 && ax[5] < -0.9) pad.trigOk = true; lt = pad.trigOk ? (ax[2] + 1) / 2 : 0; rt = pad.trigOk ? (ax[5] + 1) / 2 : 0; rx = ax[3] || 0; ry = ax[4] || 0; }
+    Object.assign(pad, { thr: dzone(rt, TRIG_DZ), brk: dzone(lt, TRIG_DZ), lx: dzone(ax[0] || 0, PAD_DZ), ly: dzone(ax[1] || 0, PAD_DZ), rx: dzone(rx, PAD_DZ), ry: dzone(ry, PAD_DZ) });
+    const now = []; for (let i = 0; i < 17; i++) now.push(Bv(i) > 0.5);
+    const prev = pad.btn; pad.btn = now;
+    if (!pad.on && (now.some(Boolean) || pad.thr || pad.brk || pad.lx || pad.ly || pad.rx || pad.ry)) { pad.on = true; padSay('active', gp.id); }
+    return { down: (i) => now[i] && !prev[i], up: (i) => !now[i] && prev[i], held: (i) => now[i] };
+  }
+  function padStep(dt) {
+    const e = padRead(); if (!e) return;
+    // anywhere: Menu = drive / exit, View = ignition; parked, RT revs the engine (as far as it's pressed)
+    if (e.down(9)) padSay('menu'); if (e.down(8)) padSay('engine');
+    if (!drive.on) { pad.steer = 0; pad.clutch = 0; pad.hand = false; if (Math.abs(pad.thr - pad.revSent) > 0.02) { pad.revSent = pad.thr; padSay('rev', pad.thr); } return; }
+    if (pad.revSent) { pad.revSent = 0; padSay('rev', 0); }
+    if (replay.on) { // replay: B / d-pad → back to driving, RB next camera, A play / pause, d-pad ↑ / ↓ faster / slower
+      if (e.down(1) || e.down(15)) stopReplay(); else if (e.down(5)) setReplayCam(REPLAY_CAMS[(REPLAY_CAMS.indexOf(replay.cam) + 1) % REPLAY_CAMS.length]);
+      if (e.down(0)) { replay.paused = !replay.paused; replayInfo(); } if (e.down(12)) stepReplaySpeed(1); if (e.down(13)) stepReplaySpeed(-1);
+      return;
+    }
+    if (e.down(3)) interact(); // Y: get in / out
+    const look = (pad.rx || pad.ry) && !e.held(11);
+    if (ctl.mode === 'drive') {
+      pad.steer = -pad.lx; pad.clutch = e.held(4) ? 1 : 0; pad.hand = e.held(0); pad.crouch = false;
+      // B / X: up / down a gear — straight into manual (like E / Q). With the clutch in it's a clean shift: no torque gap
+      if (e.down(1) || e.down(2)) { drive.manual = true; shiftTo(drive.gear + (e.down(1) ? 1 : -1)); if (pad.clutch) drive.shiftT = 0; }
+      if (e.down(5)) { drive.cam = (drive.cam + 1) % 4; recenterCam(); }
+      if (e.down(10)) WorldAudio.horn(true); if (e.up(10)) WorldAudio.horn(false);
+      if (e.down(12)) padSay('lights'); if (e.down(13)) drive.manual = !drive.manual; if (e.down(15)) startReplay();
+      if (e.down(14)) { drive.rHeld = performance.now(); resetTruck(); } if (e.up(14)) drive.rHeld = 0;
+      // right stick: look round (first person: turn your head); let go and the view swings back. Clicked: look behind
+      if (look) { pad.looked = true; camOrbit.yaw = -pad.rx * (drive.cam === 3 ? 1.2 : 2.6); camOrbit.pitch = THREE.MathUtils.clamp(-pad.ry * (drive.cam === 3 ? 0.9 : 0.6), -0.4, 1.35); }
+      else if (e.held(11)) { pad.looked = true; camOrbit.yaw += (Math.PI - camOrbit.yaw) * Math.min(1, dt * 12); camOrbit.pitch *= 1 - Math.min(1, dt * 12); }
+      else if (pad.looked) { const k = Math.min(1, dt * 7); camOrbit.yaw -= camOrbit.yaw * k; camOrbit.pitch -= camOrbit.pitch * k; if (Math.abs(camOrbit.yaw) + Math.abs(camOrbit.pitch) < 0.002) { recenterCam(); pad.looked = false; } }
+    } else {
+      pad.steer = 0; pad.clutch = 0; pad.hand = false;
+      if (e.down(5)) { ctl.fp = !ctl.fp; if (!ctl.fp) ctl.pitch = THREE.MathUtils.clamp(ctl.pitch, -1.05, 0.65); }
+      if (ctl.mode === 'walk') { if (e.down(0)) ctl.jump = true; pad.crouch = e.held(1); }
+      if (look) { const yawD = pad.rx * dt * 2.8, pitD = pad.ry * dt * 1.9; // (right stick: look, as the mouse does)
+        if (ctl.mode === 'ride') ctl.ryaw = ctl.fp ? THREE.MathUtils.clamp(ctl.ryaw - yawD, -2.4, 2.4) : ctl.ryaw - yawD; else ctl.yaw -= yawD;
+        ctl.pitch = THREE.MathUtils.clamp(ctl.pitch - pitD, ctl.fp ? -1.35 : -1.05, ctl.fp ? 1.35 : 0.65); }
+    }
+  }
+  // a short rumble (a hard landing, a wall): both motors, strength 0…1 — only on a pad that has them
+  function padRumble(strong, ms = 160) {
+    if (!pad.on) return; const gp = (navigator.getGamepads ? [...navigator.getGamepads()] : []).find((g) => g && g.id === pad.id), act = gp && gp.vibrationActuator;
+    if (act && act.playEffect) act.playEffect('dual-rumble', { duration: ms, strongMagnitude: Math.min(1, strong), weakMagnitude: Math.min(1, strong * 0.6) }).catch(() => {});
+  }
   const qY = new THREE.Quaternion(), qP = new THREE.Quaternion(), qR = new THREE.Quaternion(), YAX = new THREE.Vector3(0, 1, 0), XAX = new THREE.Vector3(1, 0, 0);
   // close-ratio 6-speed (arcade-quick shifts) — power is boosted well past stock so the truck feels fast
   // drivelines: the trucks' 6-speed automatic; a car (the Dexus) has the real car's 8-speed ratios and 2.937 final drive, a
@@ -13845,9 +14003,17 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     list.forEach((p) => {
       seen.add(p.id); let r = remotes.get(p.id);
       if (!r) { r = { id: p.id, g: null, tag: null, name: null, pose: null, target: null, seq: null, want: null, wantBk: null, bk: null, first: now, spin: 0 }; remotes.set(p.id, r); }
-      if (p.bk && p.bk !== r.wantBk) { r.wantBk = p.bk; try { r.want = JSON.parse(p.bj); } catch (e) { r.want = null; } }
+      if (p.bk && p.bk !== r.wantBk) { r.wantBk = p.bk; r.wantT = now; try { r.want = JSON.parse(p.bj); } catch (e) { r.want = null; } }
       if (p.ck && p.ck !== r.wantCk) { r.wantCk = p.ck; try { r.wantC = JSON.parse(p.cj); } catch (e) { r.wantC = null; } }
-      if (p.seq !== r.seq) { r.seq = p.seq; r.target = { ...p, recv: now }; delete r.target.bj; delete r.target.cj; if (!r.pose) r.pose = { ...r.target }; }
+      if (p.seq !== r.seq) { r.seq = p.seq; r.target = { ...p, recv: now }; delete r.target.bj; delete r.target.cj; if (!r.pose) r.pose = { ...r.target };
+        // their path: each pose stamped by their own clock (ms), kept ~1.5 s back. The offset to ours is the smallest
+        // arrival-minus-stamp seen (their clock + the quickest trip here), creeping up if the link slows for good
+        if (Number.isFinite(p.ms)) {
+          const off = now - p.ms; r.off = r.off === undefined || off < r.off ? off : r.off + (off - r.off) * 0.004;
+          const path = r.path || (r.path = []); if (path.length && p.ms <= path[path.length - 1].ms) path.length = 0; // (their clock jumped / they rejoined)
+          path.push({ ms: p.ms, x: p.x, y: p.y, z: p.z, yaw: p.yaw || 0, pitch: p.pitch || 0, roll: p.roll || 0, steer: p.steer || 0, u: p.u || 0, vx: p.vx || 0, vz: p.vz || 0 });
+          while (path.length > 2 && path[1].ms < p.ms - 1500) path.shift();
+        } }
       r.name = p.name || 'player';
     });
     remotes.forEach((r, id) => { if (!seen.has(id)) { disposeRemoteTruck(r); disposeRemoteChar(r); remotes.delete(id); } });
@@ -13856,32 +14022,60 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     vctx.forEach((c) => { if (!used.has(c.key) && (c.ready || c.failed)) disposeVehCtx(c); });
   }
   const rqA = new THREE.Quaternion(), rqB = new THREE.Quaternion(), rqC = new THREE.Quaternion();
+  // where a remote truck was at their-clock time tm, from its path: between two poses a curve through both with their
+  // velocities (a corner stays round, not cut into chords); past the newest, carried on along its velocity (≤ 0.5 s)
+  const REMOTE_DELAY = 170; // ms behind their newest pose: room for an update arriving late or a few at once (they come ~10×/s)
+  const lerpA = (a, b, s) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * s;
+  function pathAt(path, tm) {
+    const n = path.length, last = path[n - 1];
+    if (tm >= last.ms || n < 2) { const e = Math.min(0.5, Math.max(0, (tm - last.ms) / 1000)); return { ...last, x: last.x + last.vx * e, z: last.z + last.vz * e }; }
+    let i = n - 2; while (i > 0 && path[i].ms > tm) i--;
+    const a = path[i], b = path[i + 1], T = Math.max(0.001, (b.ms - a.ms) / 1000), s = THREE.MathUtils.clamp((tm - a.ms) / (b.ms - a.ms), 0, 1);
+    if (Math.hypot(b.x - a.x, b.z - a.z) > 12) return { ...(s < 1 ? a : b) }; // (teleported / reset in between: no sweep across the map)
+    const s2 = s * s, s3 = s2 * s, h00 = 2 * s3 - 3 * s2 + 1, h10 = s3 - 2 * s2 + s, h01 = -2 * s3 + 3 * s2, h11 = s3 - s2;
+    return { x: h00 * a.x + h10 * T * a.vx + h01 * b.x + h11 * T * b.vx, z: h00 * a.z + h10 * T * a.vz + h01 * b.z + h11 * T * b.vz, y: a.y + (b.y - a.y) * s,
+      yaw: lerpA(a.yaw, b.yaw, s), pitch: a.pitch + (b.pitch - a.pitch) * s, roll: a.roll + (b.roll - a.roll) * s, steer: a.steer + (b.steer - a.steer) * s, u: a.u + (b.u - a.u) * s };
+  }
   function stepRemotes(dt) {
     const now = performance.now(), k = 1 - Math.exp(-dt * 12);
     remotes.forEach((r) => {
-      // (re)build its truck when its build changes — one at a time, at most every ~0.8 s (it takes a moment)
+      // (re)build its truck when its build changes — one at a time, at most every ~0.8 s (it takes a moment), and only once
+      // they've stopped changing it for a moment (clicking through a menu used to rebuild it — a hitch — every 0.8 s)
       const wantBk = r.wantBk || (now - r.first > 2500 ? 'default' : null);
       // (in a different vehicle from yours: built in that vehicle's own context once its model has loaded — nothing shows till
       // then; if it can't load, their build goes on your model as before)
       const veh = r.want && r.want.veh, vc = veh && veh.make && (!model || vctxKey(veh) !== vctxKey(base.vehicle)) ? vehCtx(veh, r.want) : null;
       r.vk = vc ? vc.key : null;
-      if (wantBk && (wantBk !== r.bk || (vc && vc.ready && r.vkShown !== vc.key)) && now - lastSnap > 800 && (model || (vc && vc.ready))) {
-        const snap = vc && vc.ready ? snapshotOther(vc, r.want || {}) : vc && !vc.failed ? null : snapshotTruck(r.want || {});
-        if (snap) { lastSnap = now; disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, vkShown: vc && vc.ready ? vc.key : null, tag: null, tagName: null }); scene.add(r.g); if (ctl.mode === 'ride' && ctl.host === r.id) cabinSides(r, true); }
+      // the body it's copied from: their vehicle's own, or (same vehicle as yours) your model — but never while yours is being
+      // swapped: till the new one has downloaded, the OLD body is fitted to the new vehicle's size, and a copy made then pulled
+      // up as a giant, warped stand-in that stayed. A copy of a body that's since been replaced is made again.
+      const src = vc && vc.ready ? vc.model : vc && !vc.failed ? null : veiled ? null : model;
+      if (src && wantBk && (wantBk !== r.bk || r.src !== src) && (!r.g || r.src !== src || now - (r.wantT || 0) > 700) && now - lastSnap > 800) {
+        const snap = vc && vc.ready ? snapshotOther(vc, r.want || {}) : snapshotTruck(r.want || {});
+        if (snap) { lastSnap = now; disposeRemoteTruck(r); Object.assign(r, snap, { bk: wantBk, src, tag: null, tagName: null }); scene.add(r.g); if (ctl.mode === 'ride' && ctl.host === r.id) cabinSides(r, true); }
       }
       if (!r.g || !r.target) return;
       if (r.tagName !== r.name) { if (r.tag) r.g.remove(r.tag); r.tag = tagSprite(r.name); r.tag.visible = tagsOn; r.g.add(r.tag); r.tagName = r.name; }
-      // where it should be now: its last pose carried on by its velocity & turn rate (≤ 0.4 s ahead), eased toward
-      const t = r.target, c = r.pose, age = Math.min(0.4, (now - t.recv) / 1000);
-      const px = t.x + (t.vx || 0) * age, pz = t.z + (t.vz || 0) * age, pyaw = (t.yaw || 0) + (t.r || 0) * age;
-      if (Math.hypot(px - c.x, pz - c.z) > 12) Object.assign(c, { x: px, y: t.y, z: pz, yaw: pyaw }); // (teleported / reset: jump)
-      c.x += (px - c.x) * k; c.z += (pz - c.z) * k; c.y += ((t.y || 0) - c.y) * k;
-      ['pitch', 'roll', 'steer'].forEach((key) => { c[key] = (c[key] || 0) + ((t[key] || 0) - (c[key] || 0)) * k; });
-      let dy = pyaw - (c.yaw || 0); dy = Math.atan2(Math.sin(dy), Math.cos(dy)); c.yaw = (c.yaw || 0) + dy * k;
+      const t = r.target, c = r.pose;
+      let u = t.u || 0;
+      if (r.path && r.path.length) { // played back a fixed delay behind their newest pose — even motion however the updates arrive
+        const q = pathAt(r.path, now - r.off - REMOTE_DELAY); u = q.u;
+        if (Math.hypot(q.x - c.x, q.z - c.z) > 12) Object.assign(c, { x: q.x, z: q.z, yaw: q.yaw }); // (teleported / reset: jump)
+        const kq = 1 - Math.exp(-dt * 30); // (only a touch of easing: the path is already smooth)
+        c.x += (q.x - c.x) * kq; c.z += (q.z - c.z) * kq; c.y += (q.y - c.y) * kq; c.yaw = lerpA(c.yaw || 0, q.yaw, kq);
+        ['pitch', 'roll', 'steer'].forEach((key) => { c[key] = (c[key] || 0) + (q[key] - (c[key] || 0)) * kq; });
+      } else { // (a player on an older version: no clock stamps — its last pose carried on by its velocity & turn rate (≤ 0.4 s ahead), eased toward)
+        const age = Math.min(0.4, (now - t.recv) / 1000);
+        const px = t.x + (t.vx || 0) * age, pz = t.z + (t.vz || 0) * age, pyaw = (t.yaw || 0) + (t.r || 0) * age;
+        if (Math.hypot(px - c.x, pz - c.z) > 12) Object.assign(c, { x: px, y: t.y, z: pz, yaw: pyaw }); // (teleported / reset: jump)
+        c.x += (px - c.x) * k; c.z += (pz - c.z) * k; c.y += ((t.y || 0) - c.y) * k;
+        ['pitch', 'roll', 'steer'].forEach((key) => { c[key] = (c[key] || 0) + ((t[key] || 0) - (c[key] || 0)) * k; });
+        c.yaw = lerpA(c.yaw || 0, pyaw, k);
+      }
       r.g.position.set(c.x, c.y, c.z);
       rqA.setFromAxisAngle(YAX, c.yaw); rqB.setFromAxisAngle(ZAXIS, c.pitch); rqC.setFromAxisAngle(XAX, c.roll); r.g.quaternion.copy(rqA).multiply(rqB).multiply(rqC);
       // wheels roll with its speed; the fronts steer
-      r.spin += ((t.u || 0) / Math.max(0.2, r.Rw)) * dt;
+      r.spin += (u / Math.max(0.2, r.Rw)) * dt;
       r.wheels.forEach((w) => { w.w.rotation.set(0, (w.s < 0 ? Math.PI : 0) + (w.front ? c.steer : 0), w.s > 0 ? -r.spin : r.spin); holdCaliper(w.w); });
       if (r.steer) r.steer.pivot.quaternion.setFromAxisAngle(r.steer.axis, -(c.steer || 0) * 15);
       // its own cut-outs follow its body
@@ -13894,7 +14088,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const getPose = () => {
     const d = drive, on = d.on, yaw = on ? d.yaw : 0, u = on ? d.u : 0, vz = on ? d.vz : 0;
     return { x: truck.position.x, y: truck.position.y, z: truck.position.z, yaw, pitch: on ? d.pitch : 0, roll: on ? d.roll : 0, u, steer: on ? d.steer || 0 : 0, r: on ? d.r || 0 : 0,
-      vx: Math.cos(yaw) * u + Math.sin(yaw) * vz, vz: -Math.sin(yaw) * u + Math.cos(yaw) * vz, seq: ++poseSeq, av: peoplePose() };
+      vx: Math.cos(yaw) * u + Math.sin(yaw) * vz, vz: -Math.sin(yaw) * u + Math.cos(yaw) * vz, seq: ++poseSeq, ms: Date.now(), av: peoplePose() }; // (ms: when, by this clock — the others play the path back from it)
   };
 
   // ---- People: your character — standing by the truck in the garage's Character menu, in the driver's seat (hands on the
@@ -13913,7 +14107,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (!ctl.poseShown || ctl.poseK <= 0) ctl.poseShown = ctl.pose || 0; // (switching: the old pose eases out, then the new one in)
     const want = ctl.pose && ctl.pose === ctl.poseShown ? 1 : -1;
     ctl.poseK = THREE.MathUtils.clamp(ctl.poseK + (want * dt) / (ctl.poseShown === 3 ? 0.85 : 0.35), 0, 1);
-    ctl.crouchK = THREE.MathUtils.clamp(ctl.crouchK + (ctl.mode === 'walk' && keys.x && !ctl.air ? 1 : -1) * dt / 0.18, 0, 1);
+    ctl.crouchK = THREE.MathUtils.clamp(ctl.crouchK + (ctl.mode === 'walk' && (keys.x || pad.crouch) && !ctl.air ? 1 : -1) * dt / 0.18, 0, 1);
   }
   const poseOf = () => (ctl.poseShown ? { id: ctl.poseShown, k: ctl.poseK, t: (performance.now() - ctl.poseT) / 1000 } : null);
   // is the window by this seat rolled down? (front seats: the front windows; the back: the rear doors')
@@ -14069,10 +14263,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   function walkStep(dt) {
     const A = drive.area, H = A.H, w = ctl, s = meC ? meC.scale : 1, still = ctl.pose === 3; // (balancing on your hands: you stay put)
     const Hg = (x, z) => { const h = H(x, z), tt = truckTopAt(x, z); return tt > h ? tt : h; }; // (the ground, or a truck you're on)
-    const f = still ? 0 : (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0), sd = still ? 0 : (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0);
+    const kf = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0), ks = (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0);
+    const sx = pad.lx || pad.ly ? pad.lx : touch.lx, sy = pad.lx || pad.ly ? pad.ly : touch.ly, stick = !kf && !ks && (sx || sy); // (a controller's stick, or the on-screen one)
+    const f = still ? 0 : stick ? -sy : kf, sd = still ? 0 : stick ? sx : ks;
     // (moves are from the camera: forward is where you're looking, along the ground)
     let mx = Math.sin(w.yaw) * f - Math.cos(w.yaw) * sd, mz = Math.cos(w.yaw) * f + Math.sin(w.yaw) * sd; const ml = Math.hypot(mx, mz); if (ml > 0) { mx /= ml; mz /= ml; }
-    const vT = ml > 0 ? (keys.shift && w.crouchK < 0.5 ? 5.2 : 1.6) * (0.65 + 0.35 * s) * (1 - 0.5 * w.crouchK) : 0, kA = 1 - Math.exp(-dt * (w.air ? 1.2 : 10));
+    // (a stick: as fast as it's pushed — a nudge creeps, all the way (or RT held) runs)
+    const sm = stick ? Math.min(1, ml) : 1, run = stick ? sm > 0.97 || pad.thr > 0.5 : keys.shift;
+    const vT = ml > 0 ? (run && w.crouchK < 0.5 ? 5.2 : 1.6 * (stick ? Math.max(0.25, sm / 0.97) : 1)) * (0.65 + 0.35 * s) * (1 - 0.5 * w.crouchK) : 0, kA = 1 - Math.exp(-dt * (w.air ? 1.2 : 10));
     w.vx += (mx * vT - w.vx) * kA; w.vz += (mz * vT - w.vz) * kA;
     if (w.jump && !w.air && !still) { // (~0.6 m: a real jump, not a moon one — but right by a truck you spring up onto it)
       const ax = w.x + Math.sin(w.face) * 0.7, az = w.z + Math.cos(w.face) * 0.7, up = Math.max(truckTopAt(ax, az), truckTopAt(w.x, w.z)) - w.y;
@@ -14130,16 +14328,18 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const p = tkW(tk, V(0, 0, 0)); sunAnchor.copy(p); sun.position.copy(sunAnchor).addScaledVector(sunDir, 20); sun.target.position.copy(sunAnchor);
   }
   // the mouse on foot / riding: click the view to lock the pointer (Esc frees it), or just drag
-  let lookDrag = false;
+  let lookDrag = false; const lookAt0 = [0, 0];
   const lookOn = () => drive.on && !replay.on && ctl.mode !== 'drive';
   renderer.domElement.addEventListener('pointerdown', (e) => {
-    if (!lookOn()) return; lookDrag = true;
-    if (e.button === 0 && document.pointerLockElement !== renderer.domElement && renderer.domElement.requestPointerLock) { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) { /* not allowed here */ } }
+    if (!lookOn()) return; lookDrag = true; lookAt0[0] = e.clientX; lookAt0[1] = e.clientY;
+    if (e.button === 0 && e.pointerType === 'mouse' && document.pointerLockElement !== renderer.domElement && renderer.domElement.requestPointerLock) { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (err) { /* not allowed here */ } }
   });
   window.addEventListener('pointerup', () => { lookDrag = false; });
   window.addEventListener('pointermove', (e) => {
     const locked = document.pointerLockElement === renderer.domElement; if (!lookOn() || (!locked && !lookDrag)) return;
-    const k = locked ? 0.0022 : 0.005, mx = (e.movementX || 0) * k, my = (e.movementY || 0) * k;
+    // (locked: the mouse's own movement; a drag — a finger too, where movementX isn't given — by how far it moved since last time)
+    const dX = locked ? e.movementX || 0 : e.clientX - lookAt0[0], dY = locked ? e.movementY || 0 : e.clientY - lookAt0[1]; lookAt0[0] = e.clientX; lookAt0[1] = e.clientY;
+    const k = locked ? 0.0022 : 0.005, mx = dX * k, my = dY * k;
     if (ctl.mode === 'ride') ctl.ryaw = ctl.fp ? THREE.MathUtils.clamp(ctl.ryaw - mx, -2.4, 2.4) : ctl.ryaw - mx; else ctl.yaw -= mx;
     ctl.pitch = THREE.MathUtils.clamp(ctl.pitch - my, ctl.fp ? -1.35 : -1.05, ctl.fp ? 1.35 : 0.65);
   });
@@ -14171,7 +14371,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       } else { // driving: in the driver's seat, hands on the wheel
         const tk = myTruck(), seats = seatsOf(), fpv = replay.on ? replay.shot === 'driver' : drive.cam === 3;
         C.root.visible = !!(tk && seats); C.setHeadVisible(!fpv);
-        if (tk && seats) seatChar(C, tk, seats.list[0], 'drive', { t, grips: gripsOf(tk), lookYaw: fpv && !replay.on ? THREE.MathUtils.clamp(camOrbit.yaw, -1.2, 1.2) : 0, lookPitch: fpv && !replay.on ? camOrbit.pitch : 0, bob: fpv && !replay.on ? drive.head : null, pose: poseOf(), winSide: 1, winOut: winDownFor(0) });
+        if (tk && seats) {
+          seatChar(C, tk, seats.list[0], 'drive', { t, grips: gripsOf(tk), lookYaw: fpv && !replay.on ? THREE.MathUtils.clamp(camOrbit.yaw, -1.2, 1.2) : 0, lookPitch: fpv && !replay.on ? camOrbit.pitch : 0, bob: fpv && !replay.on ? drive.head : null, pose: poseOf(), winSide: 1, winOut: winDownFor(0) });
+          // the driver's seat view: from your character's own eyes, as posed this frame — the head turned & tipped the way you're
+          // looking and thrown about by the bumps — so the eyes swing forward over the wheel when you look down and out
+          // toward the window when you look round, as a real head does (it used to turn in place at a fixed point, which sat
+          // the view back over your chest, as if from inside your head). Just ahead of the eyes: nothing of the face in view.
+          if (fpv && model && model.steerRig) { camera.position.copy(C.eye()).add(V(0, 0, -0.015).applyQuaternion(camera.quaternion)); controls.target.copy(V(0, 0, -2).applyQuaternion(camera.quaternion).add(camera.position)); }
+        }
       }
     }
     remotes.forEach((r) => placeRemoteChar(r, dt, t));
@@ -14245,11 +14452,12 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     wheelKey = ''; applyBuild(build, { xray }, true); setView('full');
     handlers.current.onDrive && handlers.current.onDrive(null);
   }
-  // ---- Replay: the last 15 s of driving, recorded every frame (pose, suspension, wheels, revs) and played back through
+  // ---- Replay: the last 30 s of driving, recorded every frame (pose, suspension, wheels, revs) and played back through
   // cinematic cameras: chase, close, low behind, in front, driver's seat, hood, wheel, alongside, orbit, helicopter, trackside
   // TV cameras, a free cam you drag around, and an auto-director that cuts between them. The drive is frozen underneath and
-  // carries on from where it was when you leave the replay.
-  const REPLAY_SECONDS = 15;
+  // carries on from where it was when you leave the replay. Speeds: REPLAY_SPEEDS (↑ / ↓ step through them).
+  const REPLAY_SECONDS = 30;
+  const stepReplaySpeed = (dir) => { const i = REPLAY_SPEEDS.findIndex((s) => s >= replay.speed - 1e-6); replay.speed = REPLAY_SPEEDS[THREE.MathUtils.clamp((i < 0 ? REPLAY_SPEEDS.length - 1 : i) + dir, 0, REPLAY_SPEEDS.length - 1)]; replayInfo(); };
   const REPLAY_CAMS = ['auto', 'chase', 'close', 'rear', 'front', 'side', 'driver', 'hood', 'wheel', 'orbit', 'heli', 'tv', 'free'];
   const rec = { frames: [], t: 0 };
   const replay = { on: false, t: 0, t0: 0, t1: 0, speed: 1, paused: false, cam: 'auto', shot: 'chase', shotT: 0, cut: true, tv: null, orbitA: 0, tick: 0, saved: null, lastP: new THREE.Vector3() };
@@ -14363,19 +14571,27 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // ignition: no engine, no drive — and switching it off on the move stalls it in gear: the rear wheels lock and it skids to a
     // stop, then stays put until you start it again (still steers, still brakes)
     const ign = d.ign !== false;
-    const thr = live && ign && (keys.w || keys.arrowup) ? 1 : 0, rev = live && (keys.s || keys.arrowdown) ? 1 : 0, stIn = live ? (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0) : 0, hand = (live && !!keys[' ']) || (!drv && !d.flipped) || (drv && !ign);
+    // the pedals & the wheel: keys are all-or-nothing; a controller's triggers / stick and the touch pedals / wheel are analog —
+    // 0…1 of throttle, 0…1 of brake, −1…1 of steering — exactly as far as they're pressed / pushed
+    const kThr = keys.w || keys.arrowup ? 1 : 0, kRev = keys.s || keys.arrowdown ? 1 : 0, kSt = (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0);
+    const thr = live && ign ? Math.max(kThr, pad.thr, touch.thr) : 0, rev = live ? Math.max(kRev, pad.brk, touch.brk) : 0;
+    const stIn = live ? (kSt || THREE.MathUtils.clamp(pad.steer + touch.steer, -1, 1)) : 0, analogThr = !kThr && thr > 0, analogSt = !kSt && (pad.on || touch.active);
+    const hand = (live && (!!keys[' '] || pad.hand || touch.hand)) || (!drv && !d.flipped) || (drv && !ign);
+    // clutch (a controller's LB): in, the engine's free of the wheels — no drive, and it revs on the throttle; let out with the
+    // revs well up, the spinning engine kicks the driven wheels (a clutch kick: wheelspin off the line, the tail out mid-corner)
+    { const cw = live ? pad.clutch : 0; d.clutch = (d.clutch || 0) + (cw - (d.clutch || 0)) * Math.min(1, dt * (cw > (d.clutch || 0) ? 30 : 12)); }
     // burnout: gas + brake together at a crawl — the brakes hold the fronts, the throttle lights up the rears (instead of
     // reversing). Steering swings the tail round the planted front axle.
     // (only a rear-driven car or truck: front-drive can't, and AWD only once xDrive is in 2WD)
     const rearDriven = !(isCarV(veh) && (veh.drive === 'FWD' || (veh.drive === 'AWD' && (b.awdMode || 'awd') !== 'rwd')));
-    const burn = !!(thr && rev && Math.abs(d.u) < 4 && !d.air && rearDriven);
+    const burn = !!(thr > 0.5 && rev > 0.5 && Math.abs(d.u) < 4 && !d.air && rearDriven && d.clutch < 0.5);
     // reverse only on purpose: S brakes — whichever way it's rolling (a drift that spins round and slides backwards just gets
     // stopped) — and once it's stopped, holding S a moment selects reverse. Gas or a stop with S let go takes it back out.
-    d.revArm = rev && !thr && Math.abs(d.u) < 0.6 ? (d.revArm || 0) + dt : 0;
+    d.revArm = rev > 0.25 && thr < 0.05 && Math.abs(d.u) < 0.6 ? (d.revArm || 0) + dt : 0;
     if (d.revArm > 0.3) d.inRev = true;
-    if (thr || (!rev && Math.abs(d.u) < 0.3)) d.inRev = false;
+    if (thr >= 0.05 || (!rev && Math.abs(d.u) < 0.3)) d.inRev = false;
     // rear lamps: brake lights whenever the brake / reverse pedal (S) is down; white reverse lights only in reverse
-    const brakeLit = !!rev, revLit = !!d.inRev && !burn;
+    const brakeLit = rev > 0.02, revLit = !!d.inRev && !burn;
     if (brakeLit !== d.brakeLit || revLit !== d.revLit) { d.brakeLit = brakeLit; d.revLit = revLit; setRearLamps(brakeLit, revLit); }
     // a car (the sedan): its own driveline, a low center of gravity (lower still on coilovers), stiff short-travel suspension,
     // sticky street tires and quick steering — see the `car ?` branches below
@@ -14385,7 +14601,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const cgF = car ? camberGrip(b.camberF) : null, cgR = car ? camberGrip(b.camberR) : null;
     // 4L at a crawl: a tire meeting a ledge walks up its face (traction on the face, the sidewall wrapping the edge) instead of
     // stopping dead against it — the tires and the nose see a steep ramp up any step ahead (see hs / bodyC)
-    const crawlNow = !car && /4x4|4wd|awd/i.test(veh.drive || '') && !!(TRANSFER[b.xfer] || {}).crawl, cDir = d.u < -0.2 || (!(keys.w || keys.arrowup) && (keys.s || keys.arrowdown)) ? -1 : 1;
+    const crawlNow = !car && /4x4|4wd|awd/i.test(veh.drive || '') && !!(TRANSFER[b.xfer] || {}).crawl, cDir = d.u < -0.2 || (!thr && rev > 0.25) ? -1 : 1;
     const m = (veh.curb + 250 - (car ? carWeightOf(b) : 0)) * 0.4536, a_ = Math.max(0.6, P.xF), b_ = Math.max(0.6, -P.xR), L = a_ + b_, Iz = m * (a_ * a_ + b_ * b_) * 0.55, hcg = car ? 0.5 - lowerIn * INCH * 0.55 : isSuvV(veh) ? 0.86 : 0.78; // (a tall SUV: its weight sits higher — a bit more lean & sway)
     const cy = Math.cos(d.yaw), sy = Math.sin(d.yaw);
     // ground under the four tires
@@ -14434,7 +14650,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const mu = A.mu(d.x, d.z) * 1.12 * (paved && wth === 'dry' ? 1.1 : 1) * (wth === 'rain' ? (paved ? 0.72 : 0.8) : wth === 'mud' ? (paved ? 0.78 : 0.55) : 1) * muT * carK * (1 - 0.4 * (d.chop || 0));
     const lockK = car ? (STEER_LOCKS[b.steerLock] || STEER_LOCKS.stock).k : 1; // (an angle kit: more lock — for deep drifts — and less of it taken away at speed)
     const steerMax = car ? (0.6 * lockK) / (1 + (Math.abs(d.u) * 0.032) / Math.sqrt(lockK)) : 0.62 / (1 + Math.abs(d.u) * 0.045); // (a car's quick rack)
-    d.steer += (stIn * steerMax - d.steer) * Math.min(1, dt * (car ? 7.5 : 5));
+    d.steer += (stIn * steerMax - d.steer) * Math.min(1, dt * (analogSt ? (car ? 14 : 10) : car ? 7.5 : 5)); // (a stick / touch wheel: the rack follows your hand closely — you're doing the smoothing)
     // axle loads: from the tires themselves (a front tire skipping off a rock or the rear unloading over a whoop really does lose
     // grip; a hard landing presses them in) — capped at twice static so a landing spike isn't a glue patch
     const nf0 = (m * g * b_) / L - (m * d.ax * hcg) / L, nr0 = (m * g * a_) / L + (m * d.ax * hcg) / L, tnF = tireN(true), tnR = tireN(false);
@@ -14477,22 +14693,25 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const cut = d.shiftT > 0 ? 0.3 : d.rpm >= DL.redline - 10 && d.u > 0 ? (crawl ? 0 : 0.15) : 1; // torque dips through a shift / on the limiter (4L: a full fuel cut — with crawl gearing even 15 % kept it pulling past redline)
     let Fdem = 0; // (traction control may trim this below)
     const bind = fourWD && Math.abs((b.gearF || 4.1) - (b.gearR || 4.1)) > 0.01; // mismatched front / rear ratios fight each other in 4WD
-    if (thr) Fdem = Fmax * cut * (bind ? 0.75 : 1);
-    if (rev && d.inRev && ign) Fdem = -Math.min(Fmax * 0.55, m * 4) * THREE.MathUtils.clamp((9.4 + d.u) / 2.5, 0, 1); // reverse: ≤ 4 m/s², tops out ~21 mph
+    if (thr) Fdem = Fmax * cut * (bind ? 0.75 : 1) * thr; // (half the pedal, half the drive)
+    if (rev && d.inRev && ign) Fdem = -Math.min(Fmax * 0.55, m * 4) * THREE.MathUtils.clamp((9.4 + d.u) / 2.5, 0, 1) * rev; // reverse: ≤ 4 m/s², tops out ~21 mph
     if (burn) Fdem = 0; // (all the torque goes into spinning the rears — see spinX below)
+    Fdem *= 1 - d.clutch; // (clutch in: nothing reaches the wheels)
+    if (d.kick > 0 && !d.inRev && !d.air) Fdem += Fmax * d.kick * (bind ? 0.75 : 1); // (a clutch kick: the engine's stored spin dumped into the drive)
     // (4L: ~150:1 is far more torque than any grip — fed like a crawl it walks up instead of spinning: a gentle push on the flat,
     // as much as the climb needs and the tyres hold on a slope)
     if (crawl && Fdem > 0) Fdem = Math.min(Fdem, tracLim * 0.98, m * g * (Math.max(0, Math.sin(d.pitch)) + 0.3));
     const tcs = tcMode === 'tcs', slipR = Math.atan2(Math.abs(d.vz + d.r * b_), Math.max(1, Math.abs(d.u)));
     if (tcs) { const f0 = Fdem; if (Math.abs(Fdem) > tracLim * 0.97) Fdem = Math.sign(Fdem) * tracLim * 0.97; if (slipR > 0.1 && Fdem > 0) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.1) * 4, 0.25, 1); d.tcLit = thr && Math.abs(Fdem) < Math.abs(f0) * 0.9; } // traction / stability control: no wheelspin, eases power when the rear steps out
     // a keyboard throttle is all-or-nothing: in a power slide a driver would feather it, so past ~17° of rear slip the drive
-    // eases off by itself (to ~half at big angles) — the slide holds instead of the rear being shoved further round
-    else if (Fdem > 0 && slipR > 0.3) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.3) * 1.6, 0.5, 1);
+    // eases off by itself (to ~half at big angles) — the slide holds instead of the rear being shoved further round. (A trigger
+    // or touch pedal is feathered by you: left alone)
+    else if (Fdem > 0 && slipR > 0.3 && !analogThr) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.3) * 1.6, 0.5, 1);
     const spinning = (Math.abs(Fdem) > tracLim * 1.02 && !d.air) || burn; d.spinning = spinning;
     const Fx = Math.sign(Fdem) * Math.min(Math.abs(Fdem), tracLim * (spinning ? 0.85 : 1));
     // (4L off the throttle: the low gearing holds it back — it creeps down a hill instead of running away)
     const brakeK = car ? ((cgF.lon + cgR.lon) / 2) * (CAR_BRAKES[b.carBrakes] || CAR_BRAKES.stock).k * brakeBiasEff(b.brakeBias) : 1; // (a car: camber, the brake kit, the bias)
-    const brake = rev && !d.inRev && !burn && Math.abs(d.u) > 0.05 ? mu * (Nf + Nr) * 0.85 * brakeK : crawl && !thr && !rev && !d.air ? Math.min(mu * (Nf + Nr) * 0.6, m * Math.abs(d.u) * 2.2, m * g * 0.55) : 0, hb = hand ? mu * Nr * 0.75 : 0;
+    const brake = rev && !d.inRev && !burn && Math.abs(d.u) > 0.05 ? mu * (Nf + Nr) * 0.85 * brakeK * rev : crawl && !thr && !rev && !d.air ? Math.min(mu * (Nf + Nr) * 0.6, m * Math.abs(d.u) * 2.2, m * g * 0.55) : 0, hb = hand ? mu * Nr * 0.75 : 0;
     const u = d.u, vz = d.vz, r = d.r, st = d.steer;
     const latF = u * Math.sin(st) + (vz - r * a_) * Math.cos(st), lonF = u * Math.cos(st) - (vz - r * a_) * Math.sin(st);
     const af = Math.atan2(latF, Math.max(0.6, Math.abs(lonF))), ar = Math.atan2(vz + r * b_, Math.max(0.6, Math.abs(u)));
@@ -14545,7 +14764,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     }
     d.yaw += d.r * dt;
     d.x += (cy * d.u + sy * d.vz) * dt; d.z += (-sy * d.u + cy * d.vz) * dt;
-    if (A.clamp(d)) { d.u *= -0.25; d.vz *= 0.3; d.r *= 0.4; handlers.current.onLand && handlers.current.onLand(6); }
+    if (A.clamp(d)) { d.u *= -0.25; d.vz *= 0.3; d.r *= 0.4; handlers.current.onLand && handlers.current.onLand(6); padRumble(0.7, 220); }
     if (outdoor.knock) { const wvx = Math.cos(d.yaw) * d.u + Math.sin(d.yaw) * d.vz, wvz = -Math.sin(d.yaw) * d.u + Math.cos(d.yaw) * d.vz; [P.front - 0.6, (P.front + P.rear) / 2, P.rear + 0.6].forEach((lx) => outdoor.knock(d.x + lx * Math.cos(d.yaw), d.z - lx * Math.sin(d.yaw), P.halfW, wvx, wvz)); outdoor.stepCones(dt); } // cones go flying
     // solid objects (trunks, poles, posts): the body is three circles along its length; push out and kill the inbound velocity
     // (+ each tire as its own circle at the outer shoulder: wide offsets / long-travel track stick out past the body)
@@ -14673,7 +14892,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
       // kicked up and it nosed in. The tires roll off the lip, the rear shocks top out and soak most of that: it leaves with a
       // gentle nose-down drift at most, and the arc below brings the nose down slowly as it falls)
       if (!wasAir && d.pitchV < -0.26) d.pitchV = -0.26 + (d.pitchV + 0.26) * 0.2;
-      d.pitchV += ((arc - d.pitch) * 0.5 + (thr ? 0.3 : 0) - (rev ? 0.9 : 0)) * dt; d.pitchV *= Math.pow(0.7, dt); d.rollV *= Math.pow(0.35, dt); d.vy *= Math.pow(0.985, dt);
+      d.pitchV += ((arc - d.pitch) * 0.5 + thr * 0.3 - rev * 0.9) * dt; d.pitchV *= Math.pow(0.7, dt); d.rollV *= Math.pow(0.35, dt); d.vy *= Math.pow(0.985, dt);
     }
     d.pitchV = THREE.MathUtils.clamp(d.pitchV, -3, 3); d.rollV = THREE.MathUtils.clamp(d.rollV, -3.2, 3.2); // (a rollover turns over once or twice, never a blender)
     if (d.flipped) { d.pitch += d.pitchV * dt; d.roll += d.rollV * dt; }
@@ -14726,7 +14945,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // wheel spin: rears over-spin when traction is exceeded — an open diff spins the lighter (unloaded) tire
     const excess = spinning ? (Math.abs(Fdem) - tracLim) / Math.max(800, tracLim) : 0; // wheelspin grows with how far torque exceeds grip
     // (burnout: the rears spin up to ~5000 rpm in first and hold there — just under the limiter)
-    d.spinX += ((burn ? 5000 / (9.549 * gearR) : d.air && thr ? 40 : Math.min(42, excess * 16)) - d.spinX) * Math.min(1, dt * (burn ? 2.5 : 4));
+    d.spinX += ((burn ? 5000 / (9.549 * gearR) : d.air && thr ? 40 * thr * (1 - d.clutch) : Math.min(42, excess * 16)) - d.spinX) * Math.min(1, dt * (burn ? 2.5 : 4));
     // (the driven wheels spin up: the fronts on a front-driver, all four with AWD)
     const wg = d.u / Rw, heavyL = NrL >= NrR, extra = (i) => { if (fwdCar ? !fr[i] : awdCar ? false : fr[i]) return 0; const left = P.spots[i].s < 0; if (diffV === 'locker' || d.air) return d.spinX; const light = left !== heavyL; return diffV === 'lsd' ? d.spinX * (light ? 1.4 : 0.6) : light ? d.spinX * 2 : 0; };
     // camber: rear tires lean with the axle housing; IFS fronts pick up a little camber gain through their travel
@@ -14743,13 +14962,19 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // second-gear drift stays in second (bouncing off the limiter, like a real box in sport mode) instead of flaring into fourth)
     const rpmRoad = (Math.abs(wg) * 60 / (2 * Math.PI)) * gearR, sliding = (d.drift || 0) > 10 || spinning;
     if (!d.manual && d.u > 0.5 && d.shiftT <= 0) {
-      if (rpm > (thr ? DL.up : 2600) && d.gear < DL.gears.length - 1 && (!sliding || rpmRoad > DL.up - 250)) shiftTo(d.gear + 1);
-      else if (rpm < (thr ? DL.down : 1300) && d.gear > 0) shiftTo(d.gear - 1);
+      const tk = Math.min(1, thr * 1.6); // (part throttle shifts earlier: from the cruising points at a feathered pedal to the full ones at ~60 %)
+      if (rpm > 2600 + (DL.up - 2600) * tk && d.gear < DL.gears.length - 1 && (!sliding || rpmRoad > DL.up - 250)) shiftTo(d.gear + 1);
+      else if (rpm < 1300 + (DL.down - 1300) * tk && d.gear > 0) shiftTo(d.gear - 1);
     }
     if (d.u <= 0.5 && !d.manual && d.gear > 0 && !thr) shiftTo(0);
-    d.rpm += ((ign ? Math.max(720 + thr * 900, Math.min(DL.redline, rpm)) : 0) - d.rpm) * Math.min(1, dt * (d.shiftT > 0 ? 30 : ign ? 12 : 3)); d.throttle = ign ? thr || (rev && d.inRev ? 1 : 0) : 0; // (engine off: the needle falls to 0)
+    // the engine: tied to the wheels, or — clutch in — free, revving on the throttle alone (and bouncing off the limiter)
+    const rpmTied = Math.max(720 + thr * 900, Math.min(DL.redline, rpm)), rpmFree = 760 + thr * (DL.redline - 760), rpmT = rpmTied + (rpmFree - rpmTied) * d.clutch;
+    // let out with the revs well over what the wheels are turning: the kick (it fades in ~0.4 s)
+    if ((d.clutchWas || 0) > 0.5 && d.clutch <= 0.5 && ign && d.rpm > rpmTied + 1200) d.kick = Math.min(1.2, (d.rpm - rpmTied) / 2600);
+    d.clutchWas = d.clutch; d.kick = Math.max(0, (d.kick || 0) - dt * 2.5);
+    d.rpm += ((ign ? rpmT : 0) - d.rpm) * Math.min(1, dt * (d.shiftT > 0 ? 30 : d.clutch > 0.5 ? 7 : ign ? 12 : 3)); d.throttle = ign ? thr || (rev && d.inRev ? rev : 0) : 0; // (engine off: the needle falls to 0)
     updateRig();
-    recordFrame(dt); // (the replay's rolling 15 s)
+    recordFrame(dt); // (the replay's rolling 30 s)
     // dust / tire smoke: wheelspin, sideways slides and speed on loose ground
     d.drift = Math.abs(Math.atan2(d.vz, Math.max(0.5, Math.abs(d.u)))) * DEG;
     const slide = d.drift > 10 || spinning || (hand && Math.abs(d.u) > 0.5); // (parked with the brake on: no dust)
@@ -14820,8 +15045,8 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     d.tick += dt; gaugeTick(Math.hypot(d.u, d.vz) * 2.237, d.rpm, dt);
     if (d.tick > 0.1) { d.tick = 0; const nr = ctl.mode === 'walk' ? ctl.near : null;
       handlers.current.onDrive && handlers.current.onDrive({ mph: Math.hypot(d.u, d.vz) * 2.237, rpm: d.rpm, redline: DL.redline, vmax: DL.vmax * 2.237, car: isCarV(veh), gear: d.inRev ? 'R' : String(d.gear + 1), manual: !!d.manual, air: d.air, airT: d.airT, maxAir: d.maxAir, throttle: d.throttle, drift: d.drift, spinning, diff, tc: tcModeOf(b), tcLit: !!d.tcLit, flipped: !!d.flipped, canReset: canReset(d), resetHold: d.rHeld ? Math.min(1, (performance.now() - d.rHeld) / 800) : 0,
-        ctl: ctl.mode, fp: ctl.fp, run: !!keys.shift, near: nr ? (nr.mine ? 'mine' : nr.seat < 0 ? 'full' : 'ride') : null, nearName: nr && !nr.mine ? nr.name || 'player' : '', host: ctl.mode === 'ride' ? ((remotes.get(ctl.host) || {}).name || 'player') : '', hint: performance.now() < ctl.hintT ? ctl.hint : '' }); }
-    if (landed > 3) handlers.current.onLand && handlers.current.onLand(landed);
+        clutch: d.clutch > 0.5, pad: pad.on, ctl: ctl.mode, fp: ctl.fp, run: !!keys.shift, near: nr ? (nr.mine ? 'mine' : nr.seat < 0 ? 'full' : 'ride') : null, nearName: nr && !nr.mine ? nr.name || 'player' : '', host: ctl.mode === 'ride' ? ((remotes.get(ctl.host) || {}).name || 'player') : '', hint: performance.now() < ctl.hintT ? ctl.hint : '' }); }
+    if (landed > 3) { handlers.current.onLand && handlers.current.onLand(landed); padRumble(landed / 12, 120 + landed * 15); }
   }
 
   // ---- Engine: body rocks with torque on a rev, idles with a slight shake
@@ -14981,7 +15206,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   const loop = () => {
     raf = requestAnimationFrame(loop);
     const t = clock.getElapsedTime(), raw = t - lastT, dt = Math.min(0.05, Math.max(0.001, raw)); lastT = t; STAR_T.value = t; // (starlight twinkle)
-    watchFps(raw);
+    watchFps(raw); padStep(dt);
     if (drive.on) { if (replay.on) replayStep(dt); else { driveStep(dt); if (ctl.mode === 'walk') walkStep(dt); } } else controls.update();
     if (dust.visible) updateDust(dt);
     if (rain.visible) updateRain(dt);
@@ -15022,13 +15247,18 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     setPaintTolerance: (v) => { if (model) model.paintMats.forEach((m) => { if (m.userData.paintMode === 'keyed') m.userData.paintU.uTol.value = v; }); },
     setPickPaint: (on) => { pickPaint = !!on && !!model; el.style.cursor = pickPaint ? 'crosshair' : 'grab'; },
     modelInfo,
-    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: (k = 1) => { Object.keys(winTarget).forEach((id) => { winCur[id] = (winTarget[id] || 0) * k; }); applyWindowsAt(winCur); }, rearLamps: setRearLamps, ctl, meC: () => meC, seatsOf, remotes, vctx, gripsOf, myTruck, veiled: () => veiled }), // console inspection
+    _debug: () => ({ model, P: base.P, build, THREE, chassis, bumpers, lights, truck, drive, camera, scene, camOrbit, outdoor, renderer, ant, replay, rec, step: (dt) => drive.on && driveStep(dt), winAt: (k = 1) => { Object.keys(winTarget).forEach((id) => { winCur[id] = (winTarget[id] || 0) * k; }); applyWindowsAt(winCur); }, rearLamps: setRearLamps, ctl, meC: () => meC, seatsOf, remotes, vctx, gripsOf, myTruck, veiled: () => veiled, pad, touch, padStep }), // console inspection
     startDrive, stopDrive, isDriving: () => drive.on, recenterCam, renderVariants, setCutaway,
     setCutMode: (on, r) => { cutMode = !!on && !!model; if (r) cutR = r; controls.enabled = !cutMode && !drive.on; el.style.cursor = cutMode ? 'crosshair' : 'grab'; },
     setEngine: (s) => { Object.assign(engine, s); },
     driveKey: (k, down) => { keys[k] = !!down; },
+    // the on-screen wheel & pedals (a phone): { steer −1…1 (left +), thr 0…1, brk 0…1, hand } — merged like a controller's
+    setTouch: (t) => { Object.assign(touch, t, { active: true }); },
+    touchJump: () => { if (drive.on && ctl.mode === 'walk') ctl.jump = true; },
+    cycleCam: () => { if (!drive.on) return; if (ctl.mode === 'drive') { drive.cam = (drive.cam + 1) % 4; recenterCam(); } else { ctl.fp = !ctl.fp; if (!ctl.fp) ctl.pitch = THREE.MathUtils.clamp(ctl.pitch, -1.05, 0.65); } },
+    padInfo: () => ({ on: pad.on, id: pad.id }),
     setDriveCam: (i) => { drive.cam = i; recenterCam(); },
-    // replay (the last 15 s of the drive)
+    // replay (the last 30 s of the drive)
     startReplay, stopReplay, setReplayCam, isReplaying: () => replay.on,
     setReplaySpeed: (s) => { replay.speed = s; replayInfo(); }, toggleReplayPause: () => { replay.paused = !replay.paused; replayInfo(); },
     seekReplay: (f) => { if (!replay.on) return; replay.t = replay.t0 + THREE.MathUtils.clamp(f, 0, 1) * (replay.t1 - replay.t0); replay.cut = true; replay.tv = null; replayInfo(); },
@@ -15429,7 +15659,7 @@ function ListMenu({ title, items, onPreview, onApply, onBack, active, defaultDes
   const desc = (hi >= 0 && items[hi] && items[hi].desc) || defaultDesc;
   return (
     <div className="flex flex-col min-h-0 h-full shadow-2xl shadow-black/60">
-      <div className={`banner banner-${banner} h-[60px] md:h-[70px] flex items-end justify-between px-4 pb-2 shrink-0`}>
+      <div className={`banner banner-${banner} h-[60px] md:h-[70px] ph:hidden flex items-end justify-between px-4 pb-2 shrink-0`}>
         {banner === 'sd' && <SDSkyline />}
         <div className="relative hud italic font-bold text-[30px] md:text-[33px] leading-none tracking-wide text-white drop-shadow-[0_2px_6px_rgba(0,0,0,.7)]">
           DAYGO<span className="text-amber-400">CUSTOMS</span>
@@ -15478,10 +15708,10 @@ function ListMenu({ title, items, onPreview, onApply, onBack, active, defaultDes
             <button key={i} data-idx={i}
               onMouseEnter={() => { if (hiRef.current !== i) UISound.hover(); hiRef.current = i; setHi(i); onPreview(it.patch || null); }}
               onClick={() => { UISound.select(); onApply(it); }}
-              className={`w-full flex items-center gap-3 px-3 h-11 text-left transition-colors duration-75 border-t border-white/[0.04] ${on ? 'bg-amber-400/[0.16] text-white shadow-[inset_3px_0_0_rgb(var(--a400))]' : 'bg-black/60 text-white/90'}`}>
+              className={`w-full flex items-center gap-3 px-3 h-11 ph:h-10 text-left transition-colors duration-75 border-t border-white/[0.04] ${on ? 'bg-amber-400/[0.16] text-white shadow-[inset_3px_0_0_rgb(var(--a400))]' : 'bg-black/60 text-white/90'}`}>
               {it.icon && <Icon name={it.icon} size={16} className={on ? 'text-amber-200' : 'text-amber-300/90'} />}
               {it.swatch && <span className="w-4 h-4 rounded-sm border border-white/30 shrink-0" style={{ background: it.swatch }} />}
-              <span className="flex-1 truncate hud text-[17px] font-semibold tracking-wide">{it.label}</span>
+              <span className="flex-1 truncate hud text-[17px] ph:text-[15px] font-semibold tracking-wide">{it.label}</span>
               {it.right !== undefined ? it.right : it.installed ? (
                 <span className="flex items-center gap-1 hud text-[13px] font-bold tracking-wider text-emerald-300"><Icon name="CheckCircle2" size={15} /> INSTALLED</span>
               ) : (
@@ -15491,8 +15721,8 @@ function ListMenu({ title, items, onPreview, onApply, onBack, active, defaultDes
           );
         })}
       </div>
-      <div className="bg-black/85 px-3 py-2.5 text-[12.5px] leading-snug text-white/75 min-h-[52px] shrink-0 border-t border-white/10">{desc}</div>
-      <div className="hidden md:flex bg-black/70 px-3 py-1.5 gap-3 text-[11px] text-white/45 hud tracking-wider uppercase shrink-0">
+      <div className="bg-black/85 px-3 py-2.5 ph:py-1.5 text-[12.5px] ph:text-[11.5px] leading-snug text-white/75 min-h-[52px] ph:min-h-0 ph:max-h-[3.4em] ph:overflow-hidden shrink-0 border-t border-white/10">{desc}</div>
+      <div className="hidden md:flex ph:hidden bg-black/70 px-3 py-1.5 gap-3 text-[11px] text-white/45 hud tracking-wider uppercase shrink-0">
         <span>↑↓ Browse</span><span>Enter Install</span><span>Esc Back</span><span>Hover = Preview</span>
       </div>
     </div>
@@ -16058,12 +16288,68 @@ function GaugeDial({ id, max, major, minor, div = 1, red = null, big, unit, size
     </svg>
   );
 }
+// ---- On-screen driving controls for a phone held sideways. Analog, like a controller: the wheel (left) turns as far as your
+// thumb slides from where it landed (70 px = full lock), each pedal (right) gives as much as how high up it you press — low
+// for a little, slide up for more. On foot the wheel becomes a walking stick (push it all the way to run) and the pedals a
+// Jump button. A finger dragged anywhere else on the view looks around.
+function TouchDrive({ stage, mode }) {
+  const [st, setSt] = useState({ steer: 0, gas: 0, brk: 0, hand: false, sx: 0, sy: 0 });
+  const live = useRef({ steer: 0, gas: 0, brk: 0, hand: false, lx: 0, ly: 0 }), grab = useRef({});
+  const R = 70, walk = mode === 'walk';
+  const push = (p) => { Object.assign(live.current, p); const L = live.current; if (stage) stage.setTouch({ steer: L.steer, thr: L.gas, brk: L.brk, hand: L.hand, lx: L.lx, ly: L.ly }); setSt((s) => ({ ...s, ...p })); };
+  useEffect(() => () => { if (stage) stage.setTouch({ steer: 0, thr: 0, brk: 0, hand: false, lx: 0, ly: 0 }); }, [stage]);
+  useEffect(() => { push({ steer: 0, gas: 0, brk: 0, hand: false, lx: 0, ly: 0, sx: 0, sy: 0 }); }, [mode]); // (a switch to walking lets everything go)
+  const cap = (e) => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* that pointer's already gone */ } };
+  const down = (k, e, fn) => { e.preventDefault(); cap(e); grab.current[k] = { id: e.pointerId, x0: e.clientX, y0: e.clientY }; fn(e); };
+  const move = (k, e, fn) => { const g = grab.current[k]; if (g && g.id === e.pointerId) fn(e); };
+  const up = (k, e, fn) => { const g = grab.current[k]; if (g && g.id === e.pointerId) { grab.current[k] = null; fn(); } };
+  const stick = (e) => { const g = grab.current.w; const dx = Math.max(-1, Math.min(1, (e.clientX - g.x0) / R)), dy = Math.max(-1, Math.min(1, (e.clientY - g.y0) / R));
+    if (walk) { const m = Math.hypot(dx, dy), s = m > 1 ? 1 / m : 1; push({ lx: dx * s, ly: dy * s, sx: dx * s, sy: dy * s }); } else push({ steer: -dx, sx: dx, sy: 0 }); };
+  const pedal = (k) => (e) => { const r = e.currentTarget.getBoundingClientRect(), v = Math.max(0.12, Math.min(1, (r.bottom - e.clientY) / r.height)); push({ [k]: v }); };
+  const fill = (v) => ({ height: `${Math.round(v * 100)}%` });
+  return (
+    <div className="touch-ctl absolute inset-x-0 bottom-0 z-30 pointer-events-none">
+      {/* the wheel / walking stick */}
+      <div onPointerDown={(e) => down('w', e, stick)} onPointerMove={(e) => move('w', e, stick)} onPointerUp={(e) => up('w', e, () => push({ steer: 0, lx: 0, ly: 0, sx: 0, sy: 0 }))} onPointerCancel={(e) => up('w', e, () => push({ steer: 0, lx: 0, ly: 0, sx: 0, sy: 0 }))}
+        className="touch-ctl pointer-events-auto absolute left-0 bottom-0 w-[42vw] max-w-[360px] h-[52vh] safe-l flex items-end justify-start p-4">
+        <div className="relative w-[120px] h-[120px] rounded-full border-2 border-white/25 bg-black/25 flex items-center justify-center">
+          {walk ? <div className="w-12 h-12 rounded-full bg-white/70" style={{ transform: `translate(${st.sx * 34}px, ${st.sy * 34}px)` }} />
+            : <div style={{ transform: `rotate(${-st.steer * 120}deg)` }} className="text-white/85"><Icon name="LifeBuoy" size={72} strokeWidth={1.5} /></div>}
+          <span className="absolute -top-5 hud text-[10.5px] font-bold tracking-widest text-white/55">{walk ? 'WALK · PUSH TO RUN' : 'STEER · SLIDE'}</span>
+        </div>
+      </div>
+      {/* pedals (driving) / jump (on foot) */}
+      <div className="absolute right-0 bottom-0 safe-r flex items-end gap-2.5 p-3 pointer-events-none">
+        {walk ? (
+          <button onPointerDown={(e) => { e.preventDefault(); stage && stage.touchJump(); }} className="touch-ctl pointer-events-auto w-20 h-20 rounded-full glass-panel border-2 border-white/30 hud font-bold text-[14px] tracking-widest text-white active:bg-white/25">JUMP</button>
+        ) : (<>
+          <div className="flex flex-col gap-2 pointer-events-auto">
+            <button onPointerDown={(e) => { e.preventDefault(); stage && stage.cycleCam(); }} className="touch-ctl w-14 h-11 rounded-lg glass-panel border border-white/25 hud font-bold text-[12px] tracking-wider text-white/85 active:bg-white/25 flex items-center justify-center"><Icon name="Camera" size={18} /></button>
+            <button onPointerDown={(e) => { e.preventDefault(); cap(e); push({ hand: true }); }} onPointerUp={() => push({ hand: false })} onPointerCancel={() => push({ hand: false })}
+              className={`touch-ctl w-14 h-14 rounded-lg border-2 hud font-bold text-[12px] tracking-wider ${st.hand ? 'bg-red-500/50 border-red-300 text-white' : 'glass-panel border-white/25 text-white/85'}`}>HAND</button>
+          </div>
+          {[['brk', 'BRAKE', 'bg-red-500/60'], ['gas', 'GAS', 'bg-emerald-400/60']].map(([k, l, c]) => (
+            <div key={k} onPointerDown={(e) => down(k, e, pedal(k))} onPointerMove={(e) => move(k, e, pedal(k))} onPointerUp={(e) => up(k, e, () => push({ [k]: 0 }))} onPointerCancel={(e) => up(k, e, () => push({ [k]: 0 }))}
+              className={`touch-ctl pointer-events-auto relative ${k === 'gas' ? 'w-[76px] h-[150px]' : 'w-[70px] h-[124px]'} max-h-[52vh] rounded-xl border-2 border-white/30 bg-black/30 overflow-hidden`}>
+              <div className={`absolute inset-x-0 bottom-0 ${c}`} style={fill(st[k])} />
+              <span className="absolute inset-x-0 top-1.5 text-center hud font-bold text-[12px] tracking-widest text-white">{l}</span>
+              {st[k] > 0 && <span className="absolute inset-x-0 bottom-1.5 text-center hud font-bold text-[13px] text-white">{Math.round(st[k] * 100)}%</span>}
+            </div>
+          ))}
+        </>)}
+      </div>
+    </div>
+  );
+}
 function DriveGauges({ hud }) {
   const vmax = Math.max(100, Math.ceil(((hud && hud.vmax) || 139) / 20) * 20), red = (hud && hud.redline) || 6200, rmax = Math.ceil((red + 500) / 1000) * 1000;
   return (
     <div className="flex items-center justify-center gap-1">
       <GaugeDial id="gauge-mph" max={vmax} major={20} minor={10} big={hud ? Math.round(hud.mph) : 0} unit="MPH" />
-      <GaugeDial id="gauge-rpm" max={rmax} major={1000} minor={500} div={1000} red={red} big={hud ? hud.gear : '1'} unit={hud && hud.manual ? 'MANUAL · ×1000' : 'AUTO · ×1000 RPM'} />
+      <div className="relative">
+        <GaugeDial id="gauge-rpm" max={rmax} major={1000} minor={500} div={1000} red={red} big={hud ? hud.gear : '1'} unit={hud && hud.manual ? 'MANUAL · ×1000' : 'AUTO · ×1000 RPM'} />
+        {hud && hud.clutch && <span className="absolute left-1/2 -translate-x-1/2 top-[30%] rounded px-1 hud text-[9.5px] font-bold tracking-widest bg-amber-400 text-black">CLUTCH</span>}
+      </div>
     </div>
   );
 }
@@ -17261,6 +17547,21 @@ function App() {
   const onApply = useCallback((it) => { if (it.patch && it.patch.__char) { setCharSpec((c) => ({ ...c, ...it.patch.__char })); setCharPreview(null); } else if (it.patch) applyPatch(it.patch); if (it.action) it.action(); }, [applyPatch]);
   const onPreview = useCallback((p) => { if (p && p.__char) { setCharPreview(p.__char); setPreview(null); } else { setPreview(p); setCharPreview(null); } }, []);
 
+  const [padOn, setPadOn] = useState(false); // (a game controller in use — see onPad)
+  // a touch screen (a phone / tablet): on-screen driving controls, and the hint to hold it sideways
+  const isTouch = useMemo(() => !!(window.matchMedia && matchMedia('(pointer: coarse)').matches), []);
+  const [portrait, setPortrait] = useState(() => window.innerHeight > window.innerWidth);
+  useEffect(() => { const f = () => setPortrait(window.innerHeight > window.innerWidth); window.addEventListener('resize', f); return () => window.removeEventListener('resize', f); }, []);
+  // full screen (where the browser allows it — not on an iPhone) and, once in, locked sideways
+  const canFull = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen) && !document.fullscreenElement;
+  const goFull = useCallback(() => {
+    const el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
+    try { const p = rq.call(el); const lock = () => { try { const o = screen.orientation; if (o && o.lock) o.lock('landscape').catch(() => {}); } catch (e) { /* not supported */ } }; if (p && p.then) p.then(lock).catch(() => {}); else lock(); } catch (e) { /* not allowed here */ }
+  }, []);
+  useEffect(() => {
+    const off = () => { const any = navigator.getGamepads && [...navigator.getGamepads()].some((g) => g && g.connected); if (!any) { setPadOn(false); setToast({ text: 'Controller disconnected.' }); setTimeout(() => setToast(null), 2500); } };
+    window.addEventListener('gamepaddisconnected', off); return () => window.removeEventListener('gamepaddisconnected', off);
+  }, []);
   const handlers = useRef({});
   handlers.current = {
     onHoverPart: setHoverPart,
@@ -17268,6 +17569,15 @@ function App() {
     onDrive: (s) => { setDriveHud(s); EngineAudio.setExternal(s ? { rpm: s.rpm, throttle: s.throttle } : null); },
     onReplay: (s) => setReplayHud(s),
     onLand: (v) => EngineAudio.thump(v),
+    // the controller (the stage reads it): first input → a note; Menu drive / leave · View ignition · d-pad ↑ headlights ·
+    // RT parked revs the engine
+    onPad: (k, v) => {
+      if (k === 'active') { setPadOn(true); setToast({ text: `Controller connected — RT gas · LT brake · left stick steer · LB clutch · B / X shift · Menu ≡ to drive. (Menu → Controls for the rest.)` }); setTimeout(() => setToast(null), 6000); }
+      else if (k === 'menu') { const st = stageRef.current; if (driving) { if (st && st.isReplaying()) st.stopReplay(); else stopDrive(); } else if (customModel && !modalOpen) startDrive(); }
+      else if (k === 'engine') toggleEngine();
+      else if (k === 'lights') { const order = ['off', 'low', 'high'], cur = order.indexOf(applied.head || 'off'); applyPatch({ head: order[(cur + 1) % 3] }); }
+      else if (k === 'rev' && engineOn && !driving) EngineAudio.setThrottle(v);
+    },
     onDoors: (st) => setDoorSt(st), onTrunk: (open) => setTrunkOpen(open), // (a door / the trunk clicked on the car)
     onSlow: (tier, fps) => {
       setQuality(tier);
@@ -18786,13 +19096,13 @@ function App() {
       <input ref={importRef} type="file" accept=".glb,.gltf,model/gltf-binary" className="hidden" onChange={(e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) startImport(f, 'stock'); }} />
 
       {/* Top bar */}
-      <div className="absolute top-0 inset-x-0 flex items-center justify-between gap-3 px-3 md:px-6 py-3 md:py-4 pointer-events-none">
-        <button onClick={() => { setVehicleTab('garage'); setVehicleModal(true); }} title="Change vehicle — trucks, sedans & more" className="pointer-events-auto flex items-center gap-2 glass-panel border border-white/10 rounded-full pl-2 pr-4 py-1.5 min-w-0 hover:border-amber-400/50 transition">
+      <div className="absolute top-0 inset-x-0 flex items-center justify-between gap-3 px-3 md:px-6 py-3 md:py-4 ph:px-2 ph:py-1.5 pointer-events-none">
+        <button onClick={() => { setVehicleTab('garage'); setVehicleModal(true); }} title="Change vehicle — trucks, sedans & more" className={`pointer-events-auto flex items-center gap-2 glass-panel border border-white/10 rounded-full pl-2 pr-4 py-1.5 min-w-0 hover:border-amber-400/50 transition safe-l ${driving ? 'ph:invisible' : ''}`}>
           <span className="w-7 h-7 rounded-full bg-amber-400 text-black flex items-center justify-center shrink-0"><Icon name="Truck" size={15} /></span>
           <span className="hud text-[15px] font-bold truncate">{vehicle.year} {vehicle.make} {vehicle.model} <span className="text-white/55 hidden sm:inline">{vehicle.trim}</span></span>
-          <span className="md:hidden hud text-[14px] font-bold text-amber-300 ml-1">${total.toLocaleString()}</span>
+          <span className="md:hidden ph:inline hud text-[14px] font-bold text-amber-300 ml-1">${total.toLocaleString()}</span>
         </button>
-        <div className="pointer-events-auto flex items-center gap-2 shrink-0">
+        <div className="pointer-events-auto flex items-center gap-2 shrink-0 safe-r">
           <button onClick={() => { UISound.select(); toggleEngine(); }} title={engineOn ? 'Shut off the engine' : 'Start the engine'} className={`h-10 rounded-full glass-panel border flex items-center gap-1.5 px-3 transition ${engineOn ? 'border-emerald-400/60 text-emerald-300' : 'border-white/10 text-white/80 hover:text-white'}`}>
             <Icon name="Key" size={16} /><span className="hidden lg:inline hud text-[12.5px] font-bold tracking-wider uppercase">{engineOn ? `${Math.round(engineRpm)} rpm` : 'Start'}</span>
           </button>
@@ -18808,7 +19118,7 @@ function App() {
               {envStatus && envStatus.loading && <Icon name="Loader2" size={14} className="animate-spin text-amber-300" />}
             </button>
             {menuTab && (
-              <div className="absolute right-0 mt-2 w-[min(470px,calc(100vw-24px))] glass-panel border border-white/10 rounded-xl z-40 fade-up flex overflow-hidden max-h-[calc(100vh-90px)]">
+              <div className="absolute right-0 mt-2 w-[min(470px,calc(100vw-24px))] glass-panel border border-white/10 rounded-xl z-40 fade-up flex overflow-hidden max-h-[calc(100vh-90px)] ph:max-h-[calc(100vh-60px)]">
                 <div className="w-[124px] shrink-0 border-r border-white/10 p-1.5 flex flex-col gap-0.5">
                   {[['map', 'Map', 'Trees'], ['online', 'Multiplayer', 'Users'], ['account', 'Account', 'UserCircle'], ['sound', 'Sound', 'Volume2'], ['view', 'View', 'Monitor'], ['import', 'Scan / Import', 'ScanLine'], ['controls', 'Controls', 'Keyboard']].map(([id, l, ic]) => (
                     <button key={id} onClick={() => { UISound.hover(); setMenuTab(id); }} className={`w-full text-left rounded px-2 py-1.5 hud text-[12.5px] font-bold flex items-center gap-1.5 ${menuTab === id ? 'bg-white text-black' : 'text-white/75 hover:bg-white/10'}`}><Icon name={ic} size={14} />{l}</button>
@@ -18938,7 +19248,7 @@ function App() {
       )}
 
       {/* Customization menu */}
-      {!driving && <aside className="absolute z-20 left-0 right-0 bottom-0 h-[50vh] md:h-auto md:bottom-6 md:left-6 md:right-auto md:top-[76px] md:w-[360px] md:max-h-[calc(100vh-100px)] flex flex-col md:rounded-md overflow-hidden">
+      {!driving && <aside className="absolute z-20 left-0 right-0 bottom-0 h-[50vh] md:h-auto md:bottom-6 md:left-6 md:right-auto md:top-[76px] md:w-[360px] md:max-h-[calc(100vh-100px)] ph:left-2 ph:right-auto ph:top-[52px] ph:bottom-2 ph:h-auto ph:w-[min(320px,42vw)] ph:max-h-none ph:rounded-md safe-l flex flex-col md:rounded-md overflow-hidden">
         <ListMenu title={title} items={items} defaultDesc={defaultDesc} onPreview={onPreview} onApply={onApply} onBack={query ? () => setQuery('') : category ? back : null} active={!modalOpen} query={query} onQuery={setQuery} />
       </aside>}
 
@@ -18949,7 +19259,7 @@ function App() {
 
       {/* Drive mode: start button on the desert course, HUD + touch controls while driving */}
       {!driving && customModel && !modalOpen && (
-        <button onClick={() => { UISound.open(); startDrive(); }} className="absolute z-20 left-1/2 -translate-x-1/2 bottom-24 md:bottom-20 rounded-full bg-amber-400 text-black px-6 py-2.5 hud font-bold text-[16px] tracking-widest uppercase shadow-xl shadow-amber-500/30 hover:bg-amber-300 flex items-center gap-2">
+        <button onClick={() => { UISound.open(); startDrive(); }} className="absolute z-20 left-1/2 -translate-x-1/2 bottom-24 md:bottom-20 ph:left-auto ph:translate-x-0 ph:right-3 ph:bottom-3 safe-r rounded-full bg-amber-400 text-black px-6 py-2.5 hud font-bold text-[16px] tracking-widest uppercase shadow-xl shadow-amber-500/30 hover:bg-amber-300 flex items-center gap-2">
           <Icon name="Gamepad2" size={18} />{envId === 'goegap' ? 'Drive the course' : 'Drive'}
         </button>
       )}
@@ -18957,7 +19267,7 @@ function App() {
         <>
           {/* on foot / riding along: what F does here, and the keys */}
           {driveHud && (driveHud.ctl === 'walk' || driveHud.ctl === 'ride' || driveHud.hint) && !replayHud && (
-            <div className="absolute z-30 left-1/2 -translate-x-1/2 bottom-6 md:bottom-8 flex flex-col items-center gap-2 pointer-events-none w-[min(560px,calc(100vw-24px))]">
+            <div className="absolute z-30 left-1/2 -translate-x-1/2 bottom-6 md:bottom-8 ph:bottom-2 flex flex-col items-center gap-2 pointer-events-none w-[min(560px,calc(100vw-24px))] ph:w-[min(400px,38vw)]">
               {driveHud.hint && <div className="glass-panel border border-amber-400/50 rounded-full px-4 py-1.5 hud text-[14px] font-bold tracking-wider text-amber-200 fade-up">{driveHud.hint}</div>}
               {driveHud.ctl === 'walk' && driveHud.near && (
                 <div onClick={() => stageRef.current && stageRef.current.interact()} className={`pointer-events-auto cursor-pointer glass-panel border rounded-full px-4 py-2 hud text-[15px] font-bold tracking-wider flex items-center gap-2 ${driveHud.near === 'full' ? 'border-white/15 text-white/60' : 'border-amber-400/60 text-white hover:bg-amber-400/15'}`}>
@@ -18968,28 +19278,31 @@ function App() {
               {driveHud.ctl === 'ride' && <div onClick={() => stageRef.current && stageRef.current.interact()} className="pointer-events-auto cursor-pointer glass-panel border border-white/10 rounded-full px-4 py-1.5 hud text-[13.5px] font-bold tracking-wider text-white/85 flex items-center gap-2 hover:bg-white/10">Riding with {driveHud.host}<span className="rounded bg-white/15 px-1.5 leading-tight text-[12px]">F · GET OUT</span></div>}
               {driveHud.ctl !== 'drive' && (
                 <div className="glass-panel border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white/60 hud tracking-wider text-center leading-snug">
-                  {driveHud.ctl === 'walk' ? <>WASD walk · Shift run · Space jump · mouse look (click to lock) · C / scroll {driveHud.fp ? 'third person' : 'first person'} · F get in · Esc exit</> : <>Mouse look · C / scroll {driveHud.fp ? 'outside camera' : 'your seat'} · F get out · Esc exit</>}
+                  {padOn ? (driveHud.ctl === 'walk' ? <>Left stick walk (all the way runs) · A jump · B crouch · right stick look · RB {driveHud.fp ? 'third person' : 'first person'} · Y get in</> : <>Right stick look · RB {driveHud.fp ? 'outside camera' : 'your seat'} · Y get out</>)
+                    : isTouch ? (driveHud.ctl === 'walk' ? <>Left pad walk · drag the view to look · JUMP · tap the prompt to get in</> : <>Drag the view to look · tap to get out</>)
+                    : driveHud.ctl === 'walk' ? <>WASD walk · Shift run · Space jump · mouse look (click to lock) · C / scroll {driveHud.fp ? 'third person' : 'first person'} · F get in · Esc exit</> : <>Mouse look · C / scroll {driveHud.fp ? 'outside camera' : 'your seat'} · F get out · Esc exit</>}
                 </div>
               )}
             </div>
           )}
           {driveHud && driveHud.resetHold > 0 && (
-            <div className="absolute z-40 left-1/2 -translate-x-1/2 top-[76px] glass-panel border border-amber-400/50 rounded-lg px-4 py-2 w-56">
+            <div className="absolute z-40 left-1/2 -translate-x-1/2 top-[76px] ph:top-[44px] glass-panel border border-amber-400/50 rounded-lg px-4 py-2 w-56">
               <div className="hud text-[12px] font-bold tracking-wider text-amber-300 text-center">HOLD R — RESETTING</div>
               <div className="h-1.5 mt-1.5 rounded bg-white/10 overflow-hidden"><div className="h-full bg-amber-400" style={{ width: `${Math.round(driveHud.resetHold * 100)}%` }} /></div>
             </div>
           )}
           {/* rolled over and stopped: the only time a reset is offered */}
           {driveHud && driveHud.canReset && (
-            <button onClick={() => stageRef.current && stageRef.current.resetTruck()} className="absolute z-40 right-4 top-[76px] md:right-6 rounded-lg px-4 py-2.5 glass-panel border border-red-400/60 text-left hover:bg-red-500/20">
+            <button onClick={() => stageRef.current && stageRef.current.resetTruck()} className="absolute z-40 right-4 top-[76px] md:right-6 ph:top-[44px] safe-r rounded-lg px-4 py-2.5 glass-panel border border-red-400/60 text-left hover:bg-red-500/20">
               <div className="hud text-[13px] font-bold tracking-wider text-red-300">ROLLED OVER</div>
-              <div className="hud text-[11px] text-white/80 tracking-wide">Click or press R to reset</div>
+              <div className="hud text-[11px] text-white/80 tracking-wide">{isTouch ? 'Tap to reset' : padOn ? 'Tap, press R or d-pad ← to reset' : 'Click or press R to reset'}</div>
             </button>
           )}
-          <div className="absolute z-30 left-4 bottom-4 md:left-6 md:bottom-6 flex flex-col items-start">
+          {/* (a phone held sideways: up in the top-left corner, smaller — the wheel & pedals have the bottom — panels opening down) */}
+          <div className={`absolute z-30 safe-l flex flex-col items-start ${isTouch ? `left-2 bottom-auto ${portrait ? 'top-[104px]' : 'top-1.5'} flex-col-reverse origin-top-left scale-[0.62]` : 'left-4 bottom-4 md:left-6 md:bottom-6 ph:left-2 ph:bottom-auto ph:top-1.5 ph:flex-col-reverse ph:origin-top-left ph:scale-[0.62]'}`}>
           {/* pop-up panels (one at a time) that open from the tabs under the speedometer */}
           {hudPop && (
-            <div className="glass-panel border border-white/10 rounded-lg px-4 py-3 mb-2 max-h-[60vh] overflow-y-auto scroll-thin">
+            <div className={`glass-panel border border-white/10 rounded-lg px-4 py-3 overflow-y-auto scroll-thin ${isTouch ? 'mt-2 max-h-[110vh]' : 'mb-2 ph:mb-0 ph:mt-2 max-h-[60vh] ph:max-h-[110vh]'}`}>
               <div className="flex items-center justify-between gap-6 mb-2">
                 <span className="hud text-[12px] tracking-[0.22em] text-white/60 uppercase">{{ lights: 'Light switches', windows: 'Power windows', audio: 'Sound system', volume: 'Volume', drive: 'Drivetrain · camera' }[hudPop]}</span>
                 <button onClick={() => setHudPop(null)} title="Close" className="text-white/50 hover:text-white"><Icon name="ChevronDown" size={16} /></button>
@@ -19103,7 +19416,7 @@ function App() {
             {/* ignition: the engine is off until you start it (I) — off on the move it stalls and the rears lock */}
             <div className="flex items-center gap-2 mt-1">
               <button onClick={() => { UISound.select(); toggleEngine(); }} className={`rounded-md px-2.5 py-1 hud text-[12px] font-bold tracking-widest border ${engineOn ? 'border-red-400/50 text-red-200 hover:bg-red-500/20' : 'border-emerald-400/60 text-emerald-200 bg-emerald-500/15 hover:bg-emerald-500/25 animate-pulse'}`}>{engineOn ? 'ENGINE STOP' : 'ENGINE START'}</button>
-              {!engineOn && <span className="text-[11px] text-white/60 leading-tight">Engine off — press <b>I</b> to start it</span>}
+              {!engineOn && <span className="text-[11px] text-white/60 leading-tight">Engine off — {isTouch && !padOn ? 'tap it to start' : padOn ? <>press <b>View ⧉</b> to start it</> : <>press <b>I</b> to start it</>}</span>}
             </div>
             <div className="flex items-center gap-2 mt-1 min-h-[22px]">
               {driveHud && (driveHud.drift > 12 || driveHud.spinning || driveHud.tcLit) && <div className="flex flex-wrap gap-1.5">{driveHud.drift > 12 && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-amber-400 text-black hud tracking-wider">DRIFT {Math.round(driveHud.drift)}°</span>}{driveHud.spinning && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-red-500 text-white hud tracking-wider">WHEELSPIN · {driveHud.diff === 'open' ? 'OPEN DIFF' : driveHud.diff === 'lsd' ? 'LSD' : 'LOCKED'}</span>}{driveHud.tcLit && <span className="rounded px-1.5 py-0.5 text-[11px] font-bold bg-emerald-400 text-black hud tracking-wider animate-pulse">{driveHud.tc === 'atrac' ? (driveHud.car ? 'ADV TC' : 'A-TRAC') : 'TCS'}</span>}</div>}
@@ -19120,11 +19433,12 @@ function App() {
           </div>
           </div>
           {!replayHud ? (<>
-            <div className="absolute z-30 top-[72px] left-1/2 -translate-x-1/2 flex gap-2">
-              <button onClick={stopDrive} className="glass-panel border border-white/15 rounded-full px-4 py-1.5 hud font-bold text-[13px] tracking-widest uppercase text-white/85 hover:text-white flex items-center gap-2"><Icon name="LogOut" size={14} />Exit drive (Esc)</button>
-              <button onClick={() => stageRef.current && stageRef.current.startReplay()} title="Watch the last 15 seconds from any angle" className="glass-panel border border-red-400/50 rounded-full px-4 py-1.5 hud font-bold text-[13px] tracking-widest uppercase text-red-200 hover:text-white flex items-center gap-2"><Icon name="Clapperboard" size={14} />Replay (B)</button>
+            <div className="absolute z-30 top-[72px] ph:top-1.5 left-1/2 -translate-x-1/2 flex gap-2">
+              <button onClick={stopDrive} className="glass-panel border border-white/15 rounded-full px-4 py-1.5 ph:px-3 ph:py-1 hud font-bold text-[13px] ph:text-[11px] tracking-widest uppercase text-white/85 hover:text-white flex items-center gap-2 whitespace-nowrap"><Icon name="LogOut" size={14} />Exit drive{isTouch ? '' : ' (Esc)'}</button>
+              <button onClick={() => stageRef.current && stageRef.current.startReplay()} title="Watch the last 30 seconds from any angle" className="glass-panel border border-red-400/50 rounded-full px-4 py-1.5 ph:px-3 ph:py-1 hud font-bold text-[13px] ph:text-[11px] tracking-widest uppercase text-red-200 hover:text-white flex items-center gap-2 whitespace-nowrap"><Icon name="Clapperboard" size={14} />Replay{isTouch ? '' : ' (B)'}</button>
+              {isTouch && canFull && <button onClick={goFull} title="Full screen, locked sideways" className="glass-panel border border-white/15 rounded-full px-3 py-1 hud font-bold text-[11px] tracking-widest uppercase text-white/85 flex items-center gap-1.5 whitespace-nowrap"><Icon name="Maximize" size={13} />Full</button>}
             </div>
-            <button onClick={() => stageRef.current && stageRef.current.recenterCam()} title="Right-click + drag to look around" className="absolute z-30 top-[72px] right-4 md:right-6 glass-panel border border-white/15 rounded-full px-4 py-1.5 hud font-bold text-[13px] tracking-widest uppercase text-white/85 hover:text-white flex items-center gap-2"><Icon name="Crosshair" size={14} />Center camera (V)</button>
+            <button onClick={() => stageRef.current && stageRef.current.recenterCam()} title="Right-click + drag to look around" className={`${isTouch ? 'hidden' : 'flex'} absolute z-30 top-[72px] right-4 md:right-6 ph:hidden glass-panel border border-white/15 rounded-full px-4 py-1.5 hud font-bold text-[13px] tracking-widest uppercase text-white/85 hover:text-white items-center gap-2`}><Icon name="Crosshair" size={14} />Center camera (V)</button>
           </>) : (<>
             {/* replay: badge + time up top, cameras down the right, transport along the bottom */}
             <div className="absolute z-40 top-[72px] left-1/2 -translate-x-1/2 glass-panel border border-red-400/50 rounded-full px-4 py-1.5 hud font-bold text-[13px] tracking-widest flex items-center gap-2">
@@ -19139,30 +19453,37 @@ function App() {
             </div>
             <div className="absolute z-40 left-1/2 -translate-x-1/2 bottom-6 glass-panel border border-white/10 rounded-xl px-4 py-3 w-[min(640px,calc(100vw-24px))]">
               <input type="range" min={0} max={1000} value={Math.round((replayHud.t / Math.max(0.01, replayHud.dur)) * 1000)} onChange={(e) => stageRef.current && stageRef.current.seekReplay(+e.target.value / 1000)} className="w-full accent-red-500" />
-              <div className="flex items-center gap-2 mt-1.5">
+              <div className="flex flex-wrap items-center gap-2 mt-1.5">
                 <button onClick={() => stageRef.current && stageRef.current.seekReplay(0)} title="Back to the start" className="w-9 h-9 rounded-full border border-white/15 text-white/80 hover:text-white flex items-center justify-center"><Icon name="SkipBack" size={15} /></button>
                 <button onClick={() => stageRef.current && stageRef.current.toggleReplayPause()} title="Play / pause (Space)" className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center"><Icon name={replayHud.paused ? 'Play' : 'Pause'} size={15} /></button>
                 <div className="flex gap-1 ml-1">
-                  {[0.25, 0.5, 1, 2].map((s) => (
-                    <button key={s} onClick={() => stageRef.current && stageRef.current.setReplaySpeed(s)} className={`rounded px-2 py-1 hud text-[11px] font-bold border ${replayHud.speed === s ? 'bg-amber-400/20 border-amber-400/70 text-amber-200' : 'border-white/12 text-white/60 hover:text-white'}`}>{s}×</button>
+                  {REPLAY_SPEEDS.map((s) => (
+                    <button key={s} onClick={() => stageRef.current && stageRef.current.setReplaySpeed(s)} className={`rounded px-1.5 py-1 hud text-[11px] font-bold border ${replayHud.speed === s ? 'bg-amber-400/20 border-amber-400/70 text-amber-200' : 'border-white/12 text-white/60 hover:text-white'}`}>{s}×</button>
                   ))}
                 </div>
-                <span className="hidden sm:inline text-[10.5px] text-white/40 ml-2">← / → skip 2 s</span>
+                <span className="hidden lg:inline text-[10.5px] text-white/40 ml-1">← / → skip 2 s · ↑ / ↓ speed</span>
                 <button onClick={() => stageRef.current && stageRef.current.stopReplay()} className="ml-auto rounded-full border border-white/20 px-3 py-1.5 hud font-bold text-[12px] tracking-widest uppercase text-white/85 hover:text-white flex items-center gap-1.5"><Icon name="X" size={13} />Back to driving (B / Esc)</button>
               </div>
             </div>
           </>)}
-          <div className="md:hidden absolute z-30 right-3 bottom-4 flex gap-2">
-            {[['arrowleft', 'ChevronLeft'], ['arrowright', 'ChevronRight'], ['s', 'ChevronsDown'], ['w', 'ChevronsUp']].map(([k, ic]) => (
-              <button key={k} onPointerDown={() => stageRef.current.driveKey(k, true)} onPointerUp={() => stageRef.current.driveKey(k, false)} onPointerLeave={() => stageRef.current.driveKey(k, false)}
-                className="w-14 h-14 rounded-full glass-panel border border-white/20 flex items-center justify-center text-white active:bg-white/20"><Icon name={ic} size={22} /></button>
-            ))}
-          </div>
+          {/* a touch screen: the on-screen wheel & pedals (not with a controller in hand, not in a replay or riding along) */}
+          {isTouch && !padOn && !replayHud && (!driveHud || driveHud.ctl !== 'ride') && <TouchDrive stage={stageRef.current} mode={driveHud && driveHud.ctl === 'walk' ? 'walk' : 'drive'} />}
+          {/* a phone held upright: this is a sideways game */}
+          {isTouch && portrait && (
+            <div className="absolute z-50 inset-x-3 top-1/3 flex justify-center pointer-events-none">
+              <div className="pointer-events-auto glass-panel border border-amber-400/50 rounded-xl px-5 py-4 text-center max-w-sm fade-up">
+                <Icon name="Smartphone" size={30} className="mx-auto text-amber-300 rotate-90" />
+                <div className="hud text-[18px] font-bold mt-1">Turn your phone sideways</div>
+                <div className="text-[12.5px] text-white/65 mt-0.5 leading-snug">Driving's laid out for landscape: wheel on the left, pedals on the right.</div>
+                {canFull && <button onClick={goFull} className="mt-3 rounded-full bg-amber-400 text-black px-4 py-1.5 hud font-bold text-[13px] tracking-widest uppercase">Full screen & rotate</button>}
+              </div>
+            </div>
+          )}
         </>
       )}
 
       {/* Category switcher */}
-      {!driving && <div className="absolute z-10 top-[64px] left-1/2 -translate-x-1/2 md:top-auto md:bottom-6 md:left-[calc(50%+190px)] xl:left-[calc(50%+15px)] max-w-[calc(100vw-24px)] md:max-w-[calc(100vw-420px)] xl:max-w-[calc(100vw-760px)]">
+      {!driving && <div className="absolute z-10 top-[64px] left-1/2 -translate-x-1/2 md:top-auto md:bottom-6 md:left-[calc(50%+190px)] xl:left-[calc(50%+15px)] max-w-[calc(100vw-24px)] md:max-w-[calc(100vw-420px)] xl:max-w-[calc(100vw-760px)] ph:top-auto ph:bottom-3 ph:translate-x-0 ph:left-[calc(min(320px,42vw)+20px)] ph:max-w-[calc(100vw-min(320px,42vw)-190px)]">
         <div className="glass-panel border border-white/10 rounded-full p-1 flex gap-0.5 overflow-x-auto scroll-thin">
           {dock.map((c) => {
             const active = c.id === null ? category === null : category === c.id;
@@ -19177,7 +19498,7 @@ function App() {
       </div>}
 
       {/* Build total */}
-      <div className={`${driving ? 'hidden' : 'hidden md:block'} absolute z-10 right-6 bottom-6 text-right`}>
+      <div className={`${driving ? 'hidden' : 'hidden md:block ph:hidden'} absolute z-10 right-6 bottom-6 text-right`}>
         {customModel && (customModel.morphNote || customModel.reference) && (
           <div className="mb-2 ml-auto max-w-[330px] glass-panel border border-sky-400/30 rounded-md px-3 py-1.5 text-[11.5px] text-sky-100/85 text-left leading-snug">
             <Icon name="Info" size={12} className="inline mr-1 text-sky-300" />

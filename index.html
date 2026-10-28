@@ -1354,7 +1354,7 @@ function dmw1Fix(obj) {
 // stock 3D model per generation (url relative to the page). prof: see prepModel
 const STOCK_MODELS = {
   'Doyoda|Dundra|1st Gen': { url: 'car.glb', ident: { cab: 'double' } },
-  'Doyoda|D-runner|4th Gen': { url: 'models/doyoda-drunner.glb', ident: {}, prof: { engine3d: true, suv: true, paint: /^Main_Paint$/, glass: /^Glass$/, notGlass: /^(Tail_Lights|Indicators)$/,
+  'Doyoda|D-runner|4th Gen': { url: 'models/doyoda-drunner.glb', ident: {}, prof: { engine3d: true, suv: true, ownMirror: true, paint: /^Main_Paint$/, glass: /^Glass$/, notGlass: /^(Tail_Lights|Indicators)$/,
     parts: drParts, partTri: drPartTri, zoneOf: drZone, slices: DR_SLICES, signalMat: /^Indicators$/, doorGroups: [/^door_fl_/, /^door_rl_/, /^door_fr_/, /^door_rr_/], trunk: /^trunk_/,
     hide: /^Object_15\b.*\| Black$/, // (its own axles & diffs: the 3D chassis — frame, IFS, solid rear axle — replaces them)
     fix: drFix, wellTubs: true, // (its wheel wells are open to the sky: tubs over the tyres)
@@ -1994,7 +1994,7 @@ const gearForTire = (dia) => (dia >= 37 ? 5.29 : dia >= 35 ? 4.88 : dia >= 33 ? 
 // every control in the game (Menu → Controls)
 const CONTROLS = [
   ['Driving', [['I', 'Start / stop the engine (it won\'t drive until it\'s running; off on the move, it stalls and the rears lock)'], ['W / ↑', 'Gas'], ['S / ↓', 'Brake — hold it once stopped to reverse'], ['A / D · ← / →', 'Steer'], ['Space', 'Handbrake (slides & drifts)'], ['W + S (stopped)', 'Burnout — fronts held, rears lit up'],
-    ['E / Q', 'Shift up / down (switches to manual)'], ['M', 'Automatic ↔ manual'], ['H', 'Horn'], ['L', 'Headlights: off → low → high'], ['R (tap)', 'Flip back onto the wheels once rolled over & stopped'], ['R (hold)', 'Reset the truck anywhere'], ['F', 'Get out (slow down first)'], ['Esc', 'Leave drive mode']]],
+    ['E / Q', 'Shift up / down (switches to manual) — off the gas the engine brakes, harder in a lower gear: downshift to slow down (one that would over-rev is refused)'], ['M', 'Automatic ↔ manual'], ['H', 'Horn'], ['L', 'Headlights: off → low → high'], ['R (tap)', 'Flip back onto the wheels once rolled over & stopped'], ['R (hold)', 'Reset the truck anywhere'], ['F', 'Get out (slow down first)'], ['Esc', 'Leave drive mode']]],
   ['Driving camera', [['C', 'Cycle: chase · close · side · driver\'s seat'], ['Right-drag', 'Look around (in the driver\'s seat too)'], ['V', 'Re-center the camera'], ['Mouse wheel', 'Chase camera in / out — all the way in puts you in the driver\'s seat, scroll out to leave it']]],
   ['On foot', [['F', 'Get in your truck, or a free seat in someone else\'s — walk up to it'], ['W A S D / arrows', 'Walk (the way the camera faces)'], ['Shift', 'Run'], ['Space', 'Jump — right next to a truck you jump up onto it (bumper, bed, hood or roof)'], ['X (hold)', 'Crouch'], ['Mouse', 'Look around — click the view to lock the pointer (Esc frees it), or drag'], ['C', 'First person ↔ third person'], ['Mouse wheel', 'Camera in / out — all the way in is first person']]],
   ['Poses (press again to stop)', [['1', 'Middle finger'], ['2', 'Shaka'], ['3', 'Handstand (on foot)'], ['4', 'Hold up a pistol'], ['5', 'Peace sign'], ['In the truck', '1, 2, 4 and 5 go out the driver\'s window when it\'s rolled down (hands-in otherwise)']]],
@@ -2283,6 +2283,9 @@ const TRIM_COL = { value: new THREE.Color('#b3ada3') }; // shared by every paint
 const TRIM_MAT = { value: new THREE.Matrix4() }, TRIM_MIN = { value: new THREE.Vector3(1e6, 1e6, 1e6) }, TRIM_MAX = { value: new THREE.Vector3(-1e6, -1e6, -1e6) };
 // below the window sills the inside of the door skins take the interior colour (door panels), above it the trim colour
 const TRIM_SILL = { value: 1e6 }, TRIM_LOW = { value: new THREE.Color('#aaa397') };
+// an SUV's liftgate: behind this x (rest space) painted faces are the outside of the tailgate — the lip over the back glass
+// faces down, the plate pocket's sides face in — so only the shell's back faces there are trim (−1e6: no such zone)
+const TRIM_REAR = { value: -1e6 };
 // the side glass line in rest space (|z| = x + y · height; z = its lower edge): anything painted that sits inboard of it is
 // inside the cab. And the interior's surface texture (cloth weave / leather grain…) so trim reads as the same material.
 const TRIM_GLASS = { value: new THREE.Vector3(0, 0, 1e6) }, TRIM_TEX = { value: null }, TRIM_TEXF = { value: 4.5 }, TRIM_TEXK = { value: 0 };
@@ -4490,14 +4493,19 @@ function buildOutdoor(renderer) {
       let d = 1e9; coarse.forEach((q) => { d = Math.min(d, Math.hypot(x - q.x, z - q.z)); });
       if (d < rad * 2.2 + 12 || peaks.some((k) => Math.hypot(k.x - x, k.z - z) < (k.r + rad) * 0.9) || (C.mesas || []).some((m) => Math.hypot(m.x - x, m.z - z) < m.R + rad * 2.5)) continue;
       if ((C.cross || []).some(([ax, az, bx, bz]) => { const L = Math.hypot(bx - ax, bz - az), t = THREE.MathUtils.clamp(((x - ax) * (bx - ax) + (z - az) * (bz - az)) / (L * L), 0, 1); return Math.hypot(x - ax - (bx - ax) * t, z - az - (bz - az) * t) < rad * 2.4 + 40; })) continue; // (nor on a cross track)
+      if (C.perim) { const [A, B, R] = C.perim, ox = Math.max(Math.abs(x) - (A - R), 0), oz = Math.max(Math.abs(z) - (B - R), 0), dd = Math.hypot(ox, oz), dP = dd > 0 ? Math.abs(dd - R) : R + Math.min(A - R - Math.abs(x), B - R - Math.abs(z)); if (dP < rad * 2.4 + 40) continue; } // (nor on the perimeter track)
+      if (C.berm && Math.min(X1 - Math.abs(x), Z1 - Math.abs(z)) < C.berm.w + rad * 2) continue; // (nor up against the berm)
       peaks.push({ x, z, r: rad, h: (16 + pr() * 30) * (C.peakH || 1) });
     }
     const peakAt = (x, z) => { let h = 0; for (const k of peaks) { const d2 = (x - k.x) ** 2 + (z - k.z) ** 2; if (d2 < 9 * k.r * k.r) h += k.h * Math.exp(-d2 / (2 * (k.r * 0.55) ** 2)) * (1 + 0.08 * Math.sin(x * 0.21 + z * 0.17)); } return h; };
     // rolling hills, easing to flat at the map's edges so the ground meets the far ground without a step
     // (+ drivable mesas: broad flat-topped hills with ~25–30° faces you can climb, jump up and launch off — see jumpTrack)
     const mesaAt = (x, z) => { let h = 0; for (const m of C.mesas || []) { const r = Math.hypot(x - m.x, z - m.z); if (r < m.R) h = Math.max(h, m.H * (1 - smt(m.R * m.top, m.R, r))); } return h; };
+    // (+ a berm: a dirt wall rising to the map's edge — C.berm { h, w } — so its limit is something you see and climb into, not
+    // an invisible wall; the far ground beyond sits level with its top)
+    const bermAt = (x, z) => (C.berm ? C.berm.h * Math.pow(smt(C.berm.w, 0, Math.min(X1 - Math.abs(x), Z1 - Math.abs(z))), 1.3) : 0);
     const hills = (x, z) => (C.hill * (9 * Math.sin(x * 0.0061 + 0.4) * Math.sin(z * 0.0072 + 1.1) + 4.5 * Math.sin(x * 0.0137 - z * 0.0109 + 2.3) + 1.6 * Math.sin(x * 0.031 + z * 0.027)) + peakAt(x, z) + mesaAt(x, z))
-      * (1 - smt(X1 - 70, X1 - 8, Math.abs(x))) * (1 - smt(Z1 - 70, Z1 - 8, Math.abs(z)));
+      * (1 - smt(X1 - 70, X1 - 8, Math.abs(x))) * (1 - smt(Z1 - 70, Z1 - 8, Math.abs(z))) + bermAt(x, z);
     const S = []; for (let s = 0; s < LEN; s += 1) { const u = s / LEN, p = crv.getPointAt(u), t = crv.getTangentAt(u); S.push({ x: p.x, z: p.z, tx: t.x, tz: t.z, s, e: hills(p.x, p.z) }); }
     { // the road's own grade: the hills along the path averaged over ±W m so climbs and dips stay gentle
       const N = S.length, raw = S.map((p) => p.e), W = C.gradeW;
@@ -4567,7 +4575,7 @@ function buildOutdoor(renderer) {
       const farMat = groundMat(GROUND_SETS.verge, 3, { base: '#3e3427', key: C.id + 'outer', wetness: 0.3, tint: 0.7, offset: 2 }), FR = 1500;
       [[X0 - FR, X0, Z0 - FR, Z1 + FR], [X1, X1 + FR, Z0 - FR, Z1 + FR], [X0, X1, Z0 - FR, Z0], [X0, X1, Z1, Z1 + FR]].forEach(([x0, x1, z0, z1]) => {
         const pg = new THREE.PlaneGeometry(x1 - x0, z1 - z0); meterUV(pg, x1 - x0, z1 - z0);
-        const m = flat(pg, farMat, -0.05, G, C.id + 'outer'); m.position.x = (x0 + x1) / 2; m.position.z = (z0 + z1) / 2;
+        const m = flat(pg, farMat, (C.berm ? C.berm.h : 0) - 0.05, G, C.id + 'outer'); m.position.x = (x0 + x1) / 2; m.position.z = (z0 + z1) / 2;
       });
       // ribbons draped along the whole loop between two lateral offsets (closed: the last row joins the first)
       const drape = (l0, l1, cols, lift, mat, step = C.dstep || 2, filter) => {
@@ -4694,17 +4702,31 @@ function buildOutdoor(renderer) {
   // crossing the track. Every jump is a dedicated takeoff and a separate landing: a curved run-up (y = h·(t/L)²) to a lip
   // that varies jump to jump (18° mellow … 34° steep), the gap, then a long landing ramp (~18° at the knuckle, easing out)
   // so a jump hit at the posted speed lands on the slope. A sign at each run-up gives that takeoff speed.
-  const jumpTrack = (RW, mesas = [], cross = []) => (S, LEN) => {
+  const jumpTrack = (RW, mesas = [], cross = [], perim = null) => (S, LEN) => {
     const r = mulberry32(4242), DR = Math.PI / 180, feats = [], tan = (d) => Math.tan(d * DR), G9 = AIR_G;
-    // ---- cross tracks: long straight dirt tracks over the loop and each other, packed with recessed whoops and tabletop / gap
-    // jumps (their features are laid in build, once the corridors can be measured). CL: { x, z, dx, dz, L, feats }
+    // ---- cross tracks: long dirt tracks over the loop and each other, packed with recessed whoops and tabletop / gap jumps
+    // (their features are laid in build, once the corridors can be measured) — straight lines end to end, plus (perim) one
+    // closed rounded-rectangle track right round the map inside its berm that every line ends on: no dead ends, it all flows.
+    // Each: { i, L, closed, tw(x, z) → [along, signed across] | null, at(t) → { x, z, tx, tz }, feats }
     const CRW = 6, CSIDE = 22; // (the dirt's half-width; how far its side ribbons reach past it — a 9 m jump's berm fits)
-    const CL = cross.map(([x0, z0, x1, z1], i) => { const L = Math.hypot(x1 - x0, z1 - z0); return { i, x: x0, z: z0, dx: (x1 - x0) / L, dz: (z1 - z0) / L, L, feats: [] }; });
-    const lineTW = (c, x, z) => { const px = x - c.x, pz = z - c.z; return [px * c.dx + pz * c.dz, -px * c.dz + pz * c.dx]; }; // (along it, signed across)
+    const lineTrack = ([x0, z0, x1, z1], i) => { const L = Math.hypot(x1 - x0, z1 - z0), dx = (x1 - x0) / L, dz = (z1 - z0) / L;
+      return { i, L, closed: false, feats: [], tw: (x, z) => { const px = x - x0, pz = z - z0; return [px * dx + pz * dz, -px * dz + pz * dx]; }, at: (t) => ({ x: x0 + dx * t, z: z0 + dz * t, tx: dx, tz: dz }) }; };
+    // (anticlockwise seen from above, starting at the bottom side's left end heading +x; "across" is + toward the inside)
+    const rrTrack = ([A, B, R], i) => { const a = A - R, bb = B - R, Ls = 2 * a, Lr = 2 * bb, La = (Math.PI / 2) * R, seg = [Ls, La, Lr, La, Ls, La, Lr, La], st = []; let L = 0; seg.forEach((s) => { st.push(L); L += s; });
+      const at = (t) => { t = ((t % L) + L) % L; let k = 0; while (k < 7 && t >= st[k + 1]) k++; const u = t - st[k], arc = (cx, cz, th0) => { const th = th0 + u / R; return { x: cx + R * Math.cos(th), z: cz + R * Math.sin(th), tx: -Math.sin(th), tz: Math.cos(th) }; };
+        return [() => ({ x: -a + u, z: -B, tx: 1, tz: 0 }), () => arc(a, -bb, -Math.PI / 2), () => ({ x: A, z: -bb + u, tx: 0, tz: 1 }), () => arc(a, bb, 0),
+          () => ({ x: a - u, z: B, tx: -1, tz: 0 }), () => arc(-a, bb, Math.PI / 2), () => ({ x: -A, z: bb - u, tx: 0, tz: -1 }), () => arc(-a, -bb, Math.PI)][k](); };
+      const tw = (x, z) => { const cx = Math.max(-a, Math.min(a, x)), cz = Math.max(-bb, Math.min(bb, z)), dx = x - cx, dz = z - cz, dd = Math.hypot(dx, dz); if (dd < 1e-6) return null;
+        let t; if (dx === 0) t = dz < 0 ? cx + a : st[4] + (a - cx); else if (dz === 0) t = dx > 0 ? st[2] + (cz + bb) : st[6] + (bb - cz);
+        else { const th = Math.atan2(dz, dx); t = dx > 0 ? (dz < 0 ? st[1] + R * (th + Math.PI / 2) : st[3] + R * th) : dz > 0 ? st[5] + R * (th - Math.PI / 2) : st[7] + R * (th + Math.PI); }
+        return [t, R - dd]; };
+      return { i, L, closed: true, feats: [], tw, at }; };
+    const CL = [...cross.map(lineTrack), ...(perim ? [rrTrack(perim, cross.length)] : [])];
+    const tIn = (c, t, pad = 0) => (c.closed ? true : t > -pad && t < c.L + pad); // (along a track — a closed one has no ends)
     // where each crosses the loop: no loop feature over the crossing (its corridor's span along the loop + 30 m each way)
     const crossZ = [];
-    CL.forEach((c) => { for (let i = 0; i < S.length; i++) { const a = S[i], b = S[(i + 1) % S.length], [ta, wa] = lineTW(c, a.x, a.z), [, wb] = lineTW(c, b.x, b.z);
-      if (wa * wb <= 0 && ta > 0 && ta < c.L) { const half = (CRW + CSIDE) / Math.max(0.3, Math.abs(a.tx * c.dz - a.tz * c.dx)) + 30; crossZ.push([a.s - half, a.s + half]); } } });
+    CL.forEach((c) => { for (let i = 0; i < S.length; i++) { const a = S[i], b = S[(i + 1) % S.length], pa = c.tw(a.x, a.z), pb = c.tw(b.x, b.z); if (!pa || !pb) continue;
+      if (pa[1] * pb[1] <= 0 && tIn(c, pa[0])) { const q = c.at(pa[0]), half = (CRW + CSIDE) / Math.max(0.3, Math.abs(a.tx * q.tz - a.tz * q.tx)) + 30; crossZ.push([a.s - half, a.s + half]); } } });
     const inCross = (s0, len) => crossZ.some(([z0, z1]) => [-LEN, 0, LEN].some((o) => s0 < z1 + o && s0 + len > z0 + o));
     // the lip speed (m/s) that lands a jump on the sweet spot of its landing: the trajectory the drive sim flies (forward
     // speed u, upward u·sin(lip)·1.02 off the lip) through a point on the landing ramp
@@ -4744,7 +4766,11 @@ function buildOutdoor(renderer) {
     let s = 70;
     // (a jump gets a ~40 m straight run-up of its own after the whoops before it, to get set and up to speed)
     // (and none over a cross track's crossing)
-    for (const f of plan) { if (f.jump) s += 40; while (s + f.len < LEN - 60 && (!straight(s - (f.jump ? 35 : 0), f.len, f.lim) || inCross(s - (f.jump ? 40 : 0), f.len + (f.jump ? 40 : 0)))) s += 8; if (s + f.len >= LEN - 60) continue; feats.push({ ...f, s0: s }); s += f.len + 10; }
+    // (~30 m to get set before a jump, ~6 m between features: one thing after another, not long empty stretches)
+    const place = (f) => { const s1 = s + (f.jump ? 30 : 0); let ss = s1; while (ss + f.len < LEN - 60 && (!straight(ss - (f.jump ? 28 : 0), f.len, f.lim) || inCross(ss - (f.jump ? 30 : 0), f.len + (f.jump ? 30 : 0)))) ss += 6; if (ss + f.len >= LEN - 60) return false; feats.push({ ...f, s0: ss }); s = ss + f.len + 6; return true; };
+    for (const f of plan) place(f);
+    // (and on round the rest of the lap — the plan ran out with track left over — more whoops & tables till it's full)
+    for (let k = 0; s < LEN - 160 && k < 40; k++) if (!place(k % 2 ? table(4 + r() * 4, 30 + r() * 30, 16 + r() * 8) : whoops(60 + r() * 50, 1 + r() * 0.3))) break;
     const featAt = (s) => { for (const f of feats) if (s >= f.s0 && s < f.s0 + f.len) return f; return null; };
     const roadF = feats.find((f) => f.road !== null && f.road !== undefined);
     const road = roadF ? (() => { const q = S[Math.round(roadF.s0 + roadF.road) % S.length]; return { x: q.x, z: q.z, tx: q.tx, tz: q.tz, half: 3.7, len: 90 }; })() : null;
@@ -4756,17 +4782,17 @@ function buildOutdoor(renderer) {
     // a cross track's height at (x, z): the feature under it across the dirt — a jump's berm sloping off to the sides (wider for
     // taller ones), a whoop trench's walls over ~3 m
     const crossAt = (x, z) => { let y = 0;
-      for (const c of CL) { if (!c.feats.length) continue; const [t, w] = lineTW(c, x, z), aw = Math.abs(w); if (t < 0 || t > c.L || aw > CRW + CSIDE) continue;
+      for (const c of CL) { if (!c.feats.length) continue; const tw = c.tw(x, z); if (!tw) continue; const [t, w] = tw, aw = Math.abs(w); if (!tIn(c, t) || aw > CRW + CSIDE) continue;
         for (const f of c.feats) { if (t < f.t0 || t >= f.t0 + f.len) continue; const yy = f.y(t - f.t0); if (yy > 0) y += yy * (1 - smt(CRW + 0.5, CRW + 0.5 + 4 + 1.6 * yy, aw)); else if (yy < 0) y += yy * (1 - smt(CRW + 0.3, CRW + 3, aw)); break; } }
       return y; };
-    const crossHit = (x, z, pad = 4) => CL.some((c) => { const [t, w] = lineTW(c, x, z); return t > -10 && t < c.L + 10 && Math.abs(w) < CRW + CSIDE + pad; });
+    const crossHit = (x, z, pad = 4) => CL.some((c) => { const tw = c.tw(x, z); return !!tw && tIn(c, tw[0], 10) && Math.abs(tw[1]) < CRW + CSIDE + pad; });
     // resetting on a cross track: back onto it, on the nearest flat bit (not a jump face or a whoop), facing the way you were going
     const crossSafe = (x, z, yaw) => {
-      let best = null; CL.forEach((c) => { const [t, w] = lineTW(c, x, z); if (t > 10 && t < c.L - 10 && Math.abs(w) < CRW + CSIDE && (!best || Math.abs(w) < best.aw)) best = { c, t, aw: Math.abs(w) }; });
+      let best = null; CL.forEach((c) => { const tw = c.tw(x, z); if (tw && (c.closed || (tw[0] > 10 && tw[0] < c.L - 10)) && Math.abs(tw[1]) < CRW + CSIDE && (!best || Math.abs(tw[1]) < best.aw)) best = { c, t: tw[0], aw: Math.abs(tw[1]) }; });
       if (!best) return null; const { c } = best, free = (t) => !c.feats.some((f) => t > f.t0 - 4 && t < f.t0 + f.len + 4);
       let t = best.t; for (let k = 0; k < 400 && !free(t); k++) t = best.t + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 3;
-      t = THREE.MathUtils.clamp(t, 15, c.L - 15); const fwd = Math.cos(yaw) * c.dx - Math.sin(yaw) * c.dz >= 0;
-      return { x: c.x + c.dx * t, z: c.z + c.dz * t, yaw: Math.atan2(-c.dz, c.dx) + (fwd ? 0 : Math.PI) }; };
+      if (!c.closed) t = THREE.MathUtils.clamp(t, 15, c.L - 15); const q = c.at(t), fwd = Math.cos(yaw) * q.tx - Math.sin(yaw) * q.tz >= 0;
+      return { x: q.x, z: q.z, yaw: Math.atan2(-q.tz, q.tx) + (fwd ? 0 : Math.PI) }; };
     const signTex = (mph) => canvasTex(128, 160, (x, w, h) => { x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#f2c200'; x.fillRect(5, 5, w - 10, h - 10); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 22px Arial, sans-serif'; x.fillText('TAKEOFF', 64, 38); x.font = 'bold 56px Arial Narrow, Arial, sans-serif'; x.fillText(String(mph), 64, 102); x.font = 'bold 22px Arial, sans-serif'; x.fillText('MPH', 64, 136); });
     return {
       // height added at distance s along the track and |lateral| a: the mound's full height across the track, its sides
@@ -4777,42 +4803,44 @@ function buildOutdoor(renderer) {
       // (the terrain under a cross track's corridor drops out of sight: the track's own ribbons are the ground there)
       // (only under the dirt & the whoop trenches' walls: the terrain's 4 m cells are back up to the ground well inside the side
       // ribbons' edge — sunk out to it, a cell running across the edge left a dark crack along the track)
-      sink: (x, z) => (CL.some((c) => { const [t, w] = lineTW(c, x, z); return t > 5 && t < c.L - 5 && Math.abs(w) < CRW + 11; }) ? 2.4 : 0),
+      sink: (x, z) => (CL.some((c) => { const tw = c.tw(x, z); return !!tw && (c.closed || (tw[0] > 5 && tw[0] < c.L - 5)) && Math.abs(tw[1]) < CRW + 11; }) ? 2.4 : 0),
       build: (G, { heightBase, col0, near, bounds, floorMat, verge }) => {
         const sign = (mph, x, z, faceYaw) => { const y = heightBase(x, z), pole = mk(new THREE.CylinderGeometry(0.04, 0.04, 2.4, 8), new THREE.MeshStandardMaterial({ color: 0x8a8f95, metalness: 0.6, roughness: 0.5 })); pole.position.set(x, y + 1.2, z); G.add(pole);
           const face = mk(new THREE.PlaneGeometry(0.8, 1.0), new THREE.MeshStandardMaterial({ map: signTex(mph), roughness: 0.45, side: THREE.DoubleSide })); face.position.set(x, y + 2.2, z); face.rotation.y = faceYaw; G.add(face); col0.push([x, z, 0.07]); };
         // takeoff-speed signs on the track: right-hand side, ~30 m before each run-up, facing the oncoming truck
         feats.forEach((f) => { if (!f.jump) return; const q = S[((Math.round(f.s0 - 30) % S.length) + S.length) % S.length], l = RW + 2; sign(Math.round((f.u * 2.237) / 5) * 5, q.x - q.tz * l, q.z + q.tx * l, Math.atan2(-q.tx, -q.tz)); });
-        // ---- the cross tracks: features wherever a line runs clear — not near its ends, over the loop's corridor, by another
-        // cross track or on a hill — alternating recessed whoop sections and jumps (mostly tabletops with gentle 14–22° lips
-        // and long landings, some gap booters), each jump with a ~40 m flat run-up; then the dirt and its sides
+        // ---- the cross tracks: features wherever a track runs clear — not near a line's ends, over the loop's corridor, by
+        // another track or on a hill — alternating recessed whoop sections and jumps (mostly tabletops with gentle 14–22° lips
+        // and long landings, some gap booters) one after another, each jump with a ~24 m flat run-up; then the dirt and its sides
         const cRnd = mulberry32(6060), crMat = groundMat(GROUND_SETS.dirt, 3.4, { base: '#8a6a4a', key: 'prcross', tint: 0.95, offset: -6, wetness: 0.2 });
         CL.forEach((c) => {
           const N = Math.floor(c.L / 2), ok = new Uint8Array(N + 1);
-          // (a feature's berms must stay off the loop's corridor — its ribbons don't carry them — and the other cross tracks' dirt
-          // must stay flat where it crosses; their side ribbons follow the same ground, so a berm may run under them)
-          for (let k = 0; k <= N; k++) { const t = k * 2, x = c.x + c.dx * t, z = c.z + c.dz * t; let f = t > 30 && t < c.L - 30 && !onRoad(x, z);
-            if (f) for (const w of [-CRW - 10, 0, CRW + 10]) { const px = x - c.dz * w, pz = z + c.dx * w, nr = near(px, pz); if ((nr && Math.abs(nr.l) < verge + 2) || heightBase(px, pz) > 0.3) { f = false; break; } }
-            if (f && CL.some((o) => { if (o === c) return false; const [to, wo] = lineTW(o, x, z); return to > -20 && to < o.L + 20 && Math.abs(wo) < CRW + 14; })) f = false;
-            ok[k] = f ? 1 : 0; }
+          // (a feature's berms must stay off the loop's corridor — its ribbons don't carry them — and the other tracks' dirt
+          // must stay flat where it crosses or joins; their side ribbons follow the same ground, so a berm may run under them)
+          for (let k = 0; k <= N; k++) { const t = k * 2, q = c.at(t); let f = (c.closed || (t > 30 && t < c.L - 30)) && !onRoad(q.x, q.z);
+            if (f) for (const w of [-CRW - 10, 0, CRW + 10]) { const px = q.x - q.tz * w, pz = q.z + q.tx * w, nr = near(px, pz); if ((nr && Math.abs(nr.l) < verge + 2) || heightBase(px, pz) > 0.3) { f = false; break; } }
+            if (f && CL.some((o) => { if (o === c) return false; const tw = o.tw(q.x, q.z); return !!tw && tIn(o, tw[0], 20) && Math.abs(tw[1]) < CRW + 14; })) f = false;
+            ok[k] = f ? 1 : 0;
+            if (f && c.closed) { const q0 = c.at(t - 28), q2 = c.at(t + 28); if (Math.abs(q2.tx * q0.tz - q2.tz * q0.tx) > 0.06) ok[k] = 2; } } // (round a corner: whoops only — no jump on a bend)
+          const flatRun = (t0, len) => { for (let t = t0; t <= t0 + len; t += 2) if (ok[Math.min(N, Math.round(t / 2))] !== 1) return false; return true; };
           const clear = (t0, len) => { if (t0 < 0) return false; for (let t = t0; t <= t0 + len; t += 2) if (!ok[Math.min(N, Math.round(t / 2))]) return false; return true; };
           // (a feature that doesn't fit where it is gets swapped for a smaller one before moving on — short gaps between
-          // crossings still get a whoop run or a little table)
-          let t = 34, jumpNext = cRnd() < 0.5;
+          // crossings still get a whoop run or a little table — so there's always something coming)
+          let t = c.closed ? 6 : 32, jumpNext = cRnd() < 0.5;
           const pick = (jump, small) => { if (jump) { const h = small ? 3 + cRnd() * 1.5 : 3.5 + cRnd() * 4.5; return cRnd() < 0.72 || small ? table(h, small ? 14 + cRnd() * 8 : 22 + h * 5 + cRnd() * 10, 14 + cRnd() * 8) : booter(4 + cRnd() * 3, 22 + cRnd() * 16, 18 + cRnd() * 6); }
-            return whoops(small ? 30 + cRnd() * 20 : 55 + cRnd() * 50, 0.9 + cRnd() * 0.5); };
-          while (t < c.L - 40) {
+            return whoops(small ? 24 + cRnd() * 16 : 50 + cRnd() * 45, 0.9 + cRnd() * 0.5); };
+          while (t < c.L - (c.closed ? 12 : 36)) {
             let placed = false;
-            for (const [jump, small] of [[jumpNext, false], [jumpNext, true], [!jumpNext, true]]) {
-              const f = pick(jump, small), t0 = t + (f.jump ? 32 : 0); // (a jump's flat run-up comes after whatever's before it)
-              if (t0 + f.len < c.L - 30 && clear(t, t0 - t + f.len)) { c.feats.push({ ...f, t0 }); t = t0 + f.len + 8; jumpNext = cRnd() < 0.8 ? !f.jump : f.jump; placed = true; break; } // (now and then two of a kind in a row)
+            for (const [jump, small] of [[jumpNext, false], [jumpNext, true], [!jumpNext, true], [!jumpNext, false]]) {
+              const f = pick(jump, small), t0 = t + (f.jump ? 24 : 0); // (a jump's flat run-up comes after whatever's before it)
+              if (t0 + f.len < c.L - (c.closed ? 8 : 30) && clear(t, t0 - t + f.len) && (!f.jump || flatRun(t, t0 - t + f.len))) { c.feats.push({ ...f, t0 }); t = t0 + f.len + 4; jumpNext = cRnd() < 0.8 ? !f.jump : f.jump; placed = true; break; } // (now and then two of a kind in a row)
             }
-            if (!placed) t += 4;
+            if (!placed) t += 3;
           }
           // the ribbons: 1 m rows over the features, 4 m between; the dirt, and the ground either side (over the berms' slopes)
-          const ts = []; for (let tt = 0; ; ) { ts.push(tt); if (tt >= c.L) break; const inF = c.feats.some((f) => tt >= f.t0 - 3 && tt < f.t0 + f.len + 3); tt = Math.min(c.L, tt + (inF ? 1 : 4)); }
+          const ts = []; for (let tt = 0; ; ) { ts.push(tt); if (tt >= c.L) break; const inF = c.feats.some((f) => tt >= f.t0 - 3 && tt < f.t0 + f.len + 3); tt = Math.min(c.L, tt + (inF ? 1 : c.closed ? 2 : 4)); } // (round the perimeter's corners: 2 m rows)
           const ribbon = (ws, mat, lift) => { const pos = [], uv = [], idx = [], NW = ws.length;
-            ts.forEach((tt) => ws.forEach((w) => { const x = c.x + c.dx * tt - c.dz * w, z = c.z + c.dz * tt + c.dx * w; pos.push(x, heightBase(x, z) + crossAt(x, z) + lift, z); uv.push(tt, w); }));
+            ts.forEach((tt) => { const q = c.at(tt); ws.forEach((w) => { const x = q.x - q.tz * w, z = q.z + q.tx * w; pos.push(x, heightBase(x, z) + crossAt(x, z) + lift, z); uv.push(tt, w); }); });
             for (let i = 0; i < ts.length - 1; i++) for (let j = 0; j < NW - 1; j++) { const a = i * NW + j, b2 = a + NW; idx.push(a, a + 1, b2, a + 1, b2 + 1, b2); } // (wound to face up)
             const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals();
             const m = mk(gg, mat); m.castShadow = false; m.receiveShadow = true; G.add(m); };
@@ -4820,7 +4848,7 @@ function buildOutdoor(renderer) {
           ribbon(span(-CRW - 1, CRW + 1, 8), crMat, 0.03 + 0.004 * c.i);
           ribbon(span(CRW + 1, CRW + CSIDE, 9), floorMat, 0.012 + 0.002 * c.i); ribbon(span(-CRW - CSIDE, -CRW - 1, 9), floorMat, 0.012 + 0.002 * c.i);
           // takeoff-speed signs: right-hand side, 30 m before each run-up
-          c.feats.forEach((f) => { if (!f.jump) return; const ts0 = f.t0 - 30, l = CRW + 2; sign(Math.round((f.u * 2.237) / 5) * 5, c.x + c.dx * ts0 - c.dz * l, c.z + c.dz * ts0 + c.dx * l, Math.atan2(-c.dx, -c.dz)); });
+          c.feats.forEach((f) => { if (!f.jump) return; const q = c.at(f.t0 - 22), l = CRW + 2; sign(Math.round((f.u * 2.237) / 5) * 5, q.x - q.tz * l, q.z + q.tx * l, Math.atan2(-q.tx, -q.tz)); });
         });
         // ---- designed lines first (the random jumps below keep clear of them)
         // kicker: a short steep ramp with nothing after it — the landing is whatever's beyond (a mesa's back slope)
@@ -4828,21 +4856,8 @@ function buildOutdoor(renderer) {
         const crossOn = (x, z, dx, dz, len, pad = 10) => { for (let t = -12; t <= len + 12; t += 6) if (crossHit(x + dx * t, z + dz * t, pad)) return true; return false; }; // (would it sit on a cross track?)
         const addJ = (x, z, dx, dz, sh, W = 6) => { if (!crossOn(x, z, dx, dz, sh.len)) FJ.push({ x, z, dx, dz, W, ...sh }); };
         const flatUnder = (x, z, dx, dz, len, w = 12) => { for (let t = 0; t <= len; t += 8) for (const ww of [-w, 0, w]) if (heightBase(x + dx * t - dz * ww, z + dz * t + dx * ww) > 0.5) return false; return true; };
-        // cross-track lines: on the straights, a tabletop in the infield aimed straight across the track and a second one just
-        // outside it on the same line — jump, cross the track, jump again (perpendicular to the loop)
-        const lineS = [];
-        for (let s = 160; s < LEN - 160 && lineS.length < 6; s += 23) {
-          const q = S[Math.round(s) % S.length];
-          if (Math.abs(q.k) > 1 / 900 || feats.some((f) => s > f.s0 - 110 && s < f.s0 + f.len + 50) || lineS.some((l) => Math.abs(l - s) < 360)) continue;
-          lineS.push(s);
-        }
-        lineS.forEach((s, i) => {
-          const q = S[Math.round(s) % S.length], out = q.x * -q.tz + q.z * q.tx > 0 ? 1 : -1, dx = -q.tz * out, dz = q.tx * out;
-          const a = tableShape(4.5 + (i % 3), 30 + 8 * (i % 3), 20), b = tableShape(4 + ((i + 1) % 3) * 0.8, 26 + 6 * ((i + 1) % 3), 18);
-          const li = RW + 16 + a.len, lo = RW + 14, ax = q.x - dx * li, az = q.z - dz * li, bx = q.x + dx * lo, bz = q.z + dz * lo;
-          if (flatUnder(ax, az, dx, dz, a.len)) addJ(ax, az, dx, dz, a);
-          if (flatUnder(bx, bz, dx, dz, b.len)) addJ(bx, bz, dx, dz, b);
-        });
+        // (no more lone jumps scattered at random angles across the open desert, or stood beside the loop — coming off a bend
+        // or cutting across, you kept driving into the side of one like a wall. Every jump is on a track now)
         // the mesas: a tabletop out on the flat aimed at each, step-up kickers up its face and a kicker off the far edge of the
         // top — launch off the summit and land on the back slope
         mesas.forEach((m) => {
@@ -4852,30 +4867,6 @@ function buildOutdoor(renderer) {
           [0.86, 0.6].forEach((k) => { const sh = kickerShape(2.2, 24), [x, z] = at(m.R * k); addJ(x, z, dx, dz, sh, 5); });
           const top = kickerShape(2.8, 26), [tx, tz] = at(-(m.R * m.top) + top.Lu); addJ(tx, tz, dx, dz, top, 6);
         });
-        // a rhythm section: five small doubles in a row, out in the open
-        { const dbl = booterShape(2.2, 9, 26), fr0 = mulberry32(808);
-          for (let tries = 0; tries < 600; tries++) {
-            const a = fr0() * Math.PI * 2, dx = Math.cos(a), dz = Math.sin(a), x = bounds.x0 + 200 + fr0() * (bounds.x1 - bounds.x0 - 400), z = bounds.z0 + 150 + fr0() * (bounds.z1 - bounds.z0 - 300), L = dbl.len * 5;
-            if (!flatUnder(x, z, dx, dz, L, 14) || fjHit(x + (dx * L) / 2, z + (dz * L) / 2, L / 2 + 20) || crossOn(x, z, dx, dz, L, 14)) continue;
-            let ok = true; for (let t = 0; t <= L && ok; t += 8) { const nr = near(x + dx * t, z + dz * t); if (nr && Math.abs(nr.l) < RW + 26) ok = false; }
-            if (!ok) continue;
-            for (let i = 0; i < 5; i++) addJ(x + dx * dbl.len * i, z + dz * dbl.len * i, dx, dz, { ...dbl, u: i ? null : dbl.u }, 5);
-            break;
-          } }
-        // free-standing jumps: random spots & headings in the open desert — allowed to cross the plain track, never another jump,
-        // the road, a hill or the start
-        const fr = mulberry32(5150), kinds = [['t', 5, 40, 20], ['t', 6, 50, 18], ['t', 7, 60, 22], ['t', 8, 70, 20], ['t', 4.5, 32, 16], ['t', 6.5, 52, 24], ['t', 9, 72, 20], ['t', 5.5, 44, 18], ['t', 4.5, 26, 20], ['t', 6, 40, 22], [7.5, 62, 20], ['t', 6, 44, 18], ['t', 8.5, 66, 22], ['t', 5, 30, 16]];
-        const { x0, x1, z0, z1 } = bounds, p0 = S[0];
-        for (let n = 0, tries = 0; n < kinds.length && tries < 4000; tries++) {
-          const kd = kinds[n], sh = kd[0] === 't' ? tableShape(kd[1], kd[2], kd[3] || 20) : booterShape(kd[0], kd[1], kd[2]), a = fr() * Math.PI * 2, dx = Math.cos(a), dz = Math.sin(a);
-          const x = x0 + 90 + fr() * (x1 - x0 - 180), z = z0 + 90 + fr() * (z1 - z0 - 180);
-          if (Math.hypot(x - p0.x, z - p0.z) < 160 || fjHit(x + dx * sh.len / 2, z + dz * sh.len / 2, 40) || crossOn(x, z, dx, dz, sh.len, 14)) continue;
-          let ok = true;
-          for (let t = -40; t <= sh.len && ok; t += 8) for (const w of [-14, 0, 14]) { const px = x + dx * t - dz * w, pz = z + dz * t + dx * w;
-            if (heightBase(px, pz) > 0.3 || onRoad(px, pz)) { ok = false; break; } const nr = near(px, pz); if (nr && Math.abs(nr.l) < RW + 22 && featAt(nr.p.s)) { ok = false; break; } }
-          if (!ok) continue;
-          FJ.push({ x, z, dx, dz, W: 6, ...sh }); n++;
-        }
         // their surfaces (dirt, drawn over the ground) and their takeoff signs
         const fjMat = groundMat(GROUND_SETS.dirt, 3.4, { base: '#8a6a4a', key: 'prfield', tint: 0.95, offset: -7, wetness: 0.2 });
         FJ.forEach((j) => {
@@ -4924,14 +4915,17 @@ function buildOutdoor(renderer) {
     groundTint: [0.6, 0.76, 0.46], grass: { d: 0.95, per: 150, size: [0.3, 0.7], tint: (r) => { const v = 0.7 + r() * 0.5; return r() < 0.14 ? [0.42 * v, 0.38 * v, 0.17 * v] : [0.22 * v, 0.31 * v, 0.09 * v]; } } }));
   // two drivable mesas in the infield (map coords; dir: the climb line's heading, up the face toward the summit)
   const PR_MESAS = [{ x: -170, z: 40, H: 30, R: 125, top: 0.22, dir: [0, 1] }, { x: 390, z: -30, H: 20, R: 90, top: 0.26, dir: [-1, 0] }];
-  // cross tracks (map coords, end to end): three north–south and two east–west, over the loop (each twice) and each other —
-  // clear of the mesas; the rocky peaks keep off them
-  const PR_CROSS = [[-560, -545, -420, 545], [120, -545, 230, 545], [600, -545, 700, 545], [-920, 215, 920, 175], [-920, -250, 920, -215],
-    [-930, 540, -160, -545], [930, 540, 300, -545]]; // (+ two long diagonals through the outer desert)
+  // cross tracks (map coords, end to end): three north–south and two east–west, over the loop (each twice) and each other, and
+  // two long diagonals — clear of the mesas; the rocky peaks keep off them. Every one ends on the perimeter track (PR_PERIM:
+  // a rounded rectangle, half-sizes & corner radius) that runs right round the map inside the big berm at its edge (PR_BERM)
+  const PR_PERIM = [880, 500, 160];
+  const PR_CROSS = [[-554, -500, -426, 500], [125, -500, 225, 500], [604, -500, 696, 500], [-880, 214, 880, 176], [-880, -248, 880, -217],
+    [-700, 500, -160, -500], [760, 500, 380, -500]];
+  const PR_BERM = { h: 11, w: 38 }; // (a dirt wall rising to the map's limit: no invisible wall to drive into)
   const getPR = lazyMap(() => makeLoopMap({ id: 'prerunner', box: [-940, 940, -560, 560], half: 7, nCtl: 52, sx: 1.7, sz: 0.8,
     radius: (a) => 430 + 14 * Math.sin(3 * a + 0.5),
     hill: 0, gradeW: 40, ditch: false, flatTo: 6, shoulder: 0, pavedExtra: 0, lines: 'none', curbs: false, posts: false, rails: false, loose: true, dstep: 1, vergeW: 26,
-    roadSet: GROUND_SETS.dirt, buildProfile: jumpTrack(7, PR_MESAS, PR_CROSS), mesas: PR_MESAS, cross: PR_CROSS, treeGap: 30, treeFall: 140, trees: 2400, near3D: 15, firShare: 0.25, seed: 911, lane: 0,
+    roadSet: GROUND_SETS.dirt, buildProfile: jumpTrack(7, PR_MESAS, PR_CROSS, PR_PERIM), mesas: PR_MESAS, cross: PR_CROSS, perim: PR_PERIM, berm: PR_BERM, treeGap: 30, treeFall: 140, trees: 2400, near3D: 15, firShare: 0.25, seed: 911, lane: 0,
     groundSet: GROUND_SETS.desert, groundBase: '#a88b66', peaks: 12, peakH: 1.3, rocks: 2600,
     grass: { d: 0.25, per: 50, size: [0.2, 0.45], tint: (r) => { const v = 0.75 + r() * 0.4; return [0.42 * v, 0.36 * v, 0.2 * v]; } } }));
 
@@ -6672,7 +6666,7 @@ function installPaintShader(m) {
     uTarget: { value: new THREE.Color(1, 0, 0) }, uWrap: { value: null }, uWrap2: { value: null }, uWrapOn: { value: 0 }, uLiv: { value: new THREE.Vector4(0, 0.2, 0, 1) },
     uRough: { value: 0.3 }, uMetal: { value: 0 }, uCoat: { value: 1 }, uCoatRough: { value: 0.05 },
     uOrigCoat: { value: m.clearcoat || 0 }, uOrigCoatRough: { value: m.clearcoatRoughness || 0 },
-    uTrim: TRIM_COL, uTrimMat: TRIM_MAT, uTrimMin: TRIM_MIN, uTrimMax: TRIM_MAX, uTrimSill: TRIM_SILL, uTrimLow: TRIM_LOW,
+    uTrim: TRIM_COL, uTrimMat: TRIM_MAT, uTrimMin: TRIM_MIN, uTrimMax: TRIM_MAX, uTrimSill: TRIM_SILL, uTrimLow: TRIM_LOW, uTrimRear: TRIM_REAR,
     uTrimGlass: TRIM_GLASS, uTrimTex: TRIM_TEX, uTrimTexF: TRIM_TEXF, uTrimTexK: TRIM_TEXK,
   };
   m.clearcoat = Math.max(m.clearcoat || 0, 1e-3); // keep USE_CLEARCOAT compiled; the shader mixes the real value per pixel
@@ -6684,7 +6678,7 @@ function installPaintShader(m) {
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
         uniform float uPaintOn, uKeyLum, uTol, uWrapOn, uRough, uMetal, uCoat, uCoatRough, uOrigCoat, uOrigCoatRough;
-        uniform vec3 uKey, uTarget, uTrim, uTrimMin, uTrimMax, uTrimLow, uTrimGlass; uniform float uTrimSill, uTrimTexF, uTrimTexK; uniform mat4 uTrimMat; uniform sampler2D uWrap, uWrap2, uTrimTex; uniform vec4 uLiv; varying vec3 vPW; varying vec3 vPN;
+        uniform vec3 uKey, uTarget, uTrim, uTrimMin, uTrimMax, uTrimLow, uTrimGlass; uniform float uTrimSill, uTrimRear, uTrimTexF, uTrimTexK; uniform mat4 uTrimMat; uniform sampler2D uWrap, uWrap2, uTrimTex; uniform vec4 uLiv; varying vec3 vPW; varying vec3 vPN;
         vec2 apexChroma(vec3 c, float l) { return vec2(c.r - c.g, (c.r + c.g) * 0.5 - c.b) / max(l, 0.03); }
         // a livery: laid along the body's sides in its rest space (it rides with the truck), passenger side on uWrap, driver
         // side on uWrap2; premultiplied, so its edges stay clean over the paint. uLiv: centre x, 1 / length, band bottom, 1 / band
@@ -6728,7 +6722,7 @@ function installPaintShader(m) {
         // (the roof's own skin, ribbed on some trucks: its ribs' side faces point in toward the middle — they were taken for cab trim)
         // (uTrimMax.y is 20 cm over the roof's top; and any face well above the sills that looks up at all is the roof's outside)
         bool roofSkin = gl_FrontFacing && ((tr.y > uTrimMax.y - 0.29 && tn.y > -0.3) || (tr.y > uTrimSill + 0.22 && tn.y > 0.12));
-        float trimMask = (inCab && !seam && !roofSkin && (!gl_FrontFacing || facesIn || inboard || backWall)) ? 1.0 : 0.0;
+        float trimMask = (inCab && !seam && !roofSkin && (!gl_FrontFacing || ((facesIn || inboard || backWall) && tr.x > uTrimRear))) ? 1.0 : 0.0;
         diffuseColor.rgb = mix(diffuseColor.rgb, tr.y > uTrimSill ? uTrim : uTrimLow, trimMask);
         if (trimMask > 0.5 && uTrimTexK > 0.0) { // the interior's own surface texture, projected along the face's axis
           vec3 tw = pow(abs(tn), vec3(4.0)); tw /= (tw.x + tw.y + tw.z + 1e-5); vec3 tq = tr * uTrimTexF;
@@ -7224,7 +7218,9 @@ function buildBumpers(M, P, b) {
   let barFront = null;
   if (ring) {
     const n = ring.length, nr = ring.map((p, i) => { const a = ring[Math.max(0, i - 1)], c = ring[Math.min(n - 1, i + 1)], tx = c[0] - a[0], tz = c[1] - a[1], l = Math.hypot(tx, tz) || 1; return [tz / l, -tx / l]; });
-    const yBar = cutY - 0.03, pts = ring.filter((_, i) => i % 2 === 0 || i === n - 1).map(([x, z], k) => { const i = Math.min(n - 1, k * 2), [nx, nz] = nr[i]; return [x - 0.035 * nx, yBar, z - 0.035 * nz]; });
+    // (over the cut: its top 1.2 cm up across the bumper's cut edge, its face just proud of the bumper's — 3.5 cm in and 3 cm
+    // down it read as a separate bar hung under a gap, and from low down you saw into the hollow bumper over it)
+    const yBar = cutY - 0.012, pts = ring.filter((_, i) => i % 2 === 0 || i === n - 1).map(([x, z], k) => { const i = Math.min(n - 1, k * 2), [nx, nz] = nr[i]; return [x - 0.01 * nx, yBar, z - 0.01 * nz]; });
     put(tubeMesh(pts, 0.024, M.steel, Math.max(40, pts.length * 3)));
     barFront = pts.reduce((m, p) => (Math.abs(p[2]) < 0.3 ? Math.max(m, p[0]) : m), -9);
     [1, -1].forEach((s) => put(rbox(P.front - 0.5, barFront - 0.05, yBar - 0.025, yBar + 0.025, s * 0.42 - 0.03, s * 0.42 + 0.03, M.steel, 0.006))); // mounts back to the horns
@@ -7236,15 +7232,18 @@ function buildBumpers(M, P, b) {
   if ((!FB.factory || b.skid || FB.lowCut) && ft !== 'desert' && !FB.ownSkid) { // skid plate: sloped nose plate + flat plate under the front diff / engine
     // (low-profile: it hangs from right under the bar and sweeps down to the frame — with the stock bumper it tucks under it)
     const fx0 = sRing ? sRing.reduce((m, [x, z]) => (Math.abs(z) < 0.25 ? Math.max(m, x) : m), -9) : null;
-    const yb = barFront !== null ? cutY - 0.075 : sRing ? P.fbBottom - 0.035 : FB.lowCut ? cutY - 0.06 : FB.factory ? P.bumperY : P.bumperY + 0.07;
-    const x0 = barFront !== null ? barFront - 0.03 : sRing ? fx0 - 0.084 : FB.lowCut ? P.front - 0.21 : (FB.factory ? P.front - 0.18 : P.front - 0.08);
+    // (under the low-pro bar: its top edge runs up inside the bar's underside — no light gap between them from any angle)
+    const yb = barFront !== null ? cutY - 0.03 : sRing ? P.fbBottom - 0.035 : FB.lowCut ? cutY - 0.06 : FB.factory ? P.bumperY : P.bumperY + 0.07;
+    const x0 = barFront !== null ? barFront - 0.012 : sRing ? fx0 - 0.084 : FB.lowCut ? P.front - 0.21 : (FB.factory ? P.front - 0.18 : P.front - 0.08);
     const x1 = P.xF + 0.18, yl = P.wheelY0 - 0.13, x2 = P.xF - 0.45, sm = skc || sRing || barFront !== null ? skM : M.skid;
     if (barFront !== null) { // (a wide plate under the bar, narrowing to the frame rails, then flat back under the engine)
       const quad = (pts) => { const gq = new THREE.BufferGeometry(); gq.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3)); gq.setIndex([0, 1, 2, 0, 2, 3]); gq.computeVertexNormals(); return put(mk(gq, sm)); };
-      const wF = Math.min(0.62, P.halfW - 0.3);
-      quad([[x0, yb, -wF], [x0, yb, wF], [x1, yl, 0.42], [x1, yl, -0.42]]);
-      quad([[x1, yl, -0.42], [x1, yl, 0.42], [x2, yl + 0.02, 0.4], [x2, yl + 0.02, -0.4]]);
-      [1, -1].forEach((s) => put(rbox(x0 - 0.04, x0 + 0.005, yb, cutY - 0.045, s * 0.3 - 0.02, s * 0.3 + 0.02, sm, 0.004))); // its tabs up to the bar
+      // (a steeper nose first, down under the frame horns — they end ~34 cm back from the front at bumper height, and a single
+      // slope from the bar to the rails ran through them: their dark ends showed through the chrome — then the long slope back)
+      const wF = Math.min(0.62, P.halfW - 0.3), xk = P.front - 0.3, yk = Math.min(yb - 0.05, Math.max(P.rockerY + 0.08, P.bumperY) - 0.16), wK = Math.max(0.46, wF * 0.88);
+      if (xk < x0 - 0.05 && xk > x1 + 0.1 && yk > yl + 0.02) { quad([[x0, yb, -wF], [x0, yb, wF], [xk, yk, wK], [xk, yk, -wK]]); quad([[xk, yk, -wK], [xk, yk, wK], [x1, yl, 0.42], [x1, yl, -0.42]]); }
+      else quad([[x0, yb, -wF], [x0, yb, wF], [x1, yl, 0.42], [x1, yl, -0.42]]);
+      quad([[x1, yl, -0.42], [x1, yl, 0.42], [x2, yl + 0.02, 0.4], [x2, yl + 0.02, -0.4]]); // (it hangs off the bar itself: no tabs showing between them)
     } else {
       put(beam([x0, yb + 0.01, 0], [x1, yl, 0], 0.82, 0.007, sm));
       put(beam([x1, yl, 0], [x2, yl + 0.02, 0], 0.78, 0.007, sm));
@@ -7564,10 +7563,13 @@ function recessBox(P, b) {
 }
 // Roof-rack placement shared by the rack itself and anything mounted on it (feet sit on the measured roof, platform just
 // clears the crown). on: a rack is fitted (or implied by a rooftop tent that isn't on the bed rack).
+// the roof rack's deck height: ~4.5 cm of clearance over the roof skin's crown (low, like a real platform on short feet) —
+// over the measured skin, not roofTop (on an SUV that's the top of its factory rails)
+const rackDeckY = (info, feet) => (info.roofCrown != null ? Math.max(info.roofCrown + 0.045, Math.max(...feet) + 0.04) : Math.max(info.roofTop + 0.035, Math.max(...feet) + 0.07));
 function roofRackGeom(info, P, b) {
   const rr = b.roofRack || 'none', rt = b.roofTent || 'none', rack = b.bedRack || 'none';
-  const rx1 = info.cabRear + 0.14, rx0 = info.roofFront - 0.12, rw = info.roofRw || P.halfW - 0.16, feet = info.roofFeet || [info.roofTop, info.roofTop, info.roofTop, info.roofTop];
-  const ry = Math.max(info.roofTop + 0.035, Math.max(...feet) + 0.07), type = rr !== 'none' ? rr : 'crossbars';
+  const rx1 = info.rackX1 ?? info.cabRear + 0.14, rx0 = info.roofFront - 0.12, rw = info.roofRw || P.halfW - 0.16, feet = info.roofFeet || [info.roofTop, info.roofTop, info.roofTop, info.roofTop];
+  const ry = rackDeckY(info, feet), type = rr !== 'none' ? rr : 'crossbars';
   return { on: rr !== 'none' || (rt !== 'none' && rack !== 'overland' && rack !== 'cage'), type, rx0, rx1, rw, ry, feet, fairing: type === 'uptop' || type === 'frontrunner' };
 }
 function buildLights(M, P, b, anchors = {}, ex = {}) {
@@ -7996,9 +7998,13 @@ function buildExtras(M, P, b, info, gBox) {
   // --- rear-view mirror: hangs from the windshield header on a short stem (housing + a glass face toward the driver)
   // (a car with its own cabin has its own mirror — ours hung in mid-air behind it)
   const ownCabin = !!(info.own && info.own.detailed && info.own.car);
-  if (info.roofFront && info.roofTop && !ownCabin) {
-    const mx = info.roofFront - 0.11, my = info.roofTop - 0.2;
-    put(tubeMesh([[info.roofFront - 0.03, info.roofTop - 0.075, 0], [mx + 0.01, my + 0.03, 0]], 0.007, M.boot, 4), 'body');
+  if (info.roofFront && info.roofTop && !ownCabin && !(info.own && info.own.ownMirror)) { // (ownMirror: the model hangs its own — ours made two)
+    // (its stem starts at the headliner over the windshield header — the measured roof underside there, under the liner's
+    // 45 mm — not a fixed drop from roofTop: on an SUV roofTop is the top of the roof rails, and the stem stood up out of the roof)
+    const LNm = info.dash && info.dash.liner; let topY = info.roofTop - 0.075;
+    if (LNm) { const NZ = LNm.nz + 1, i = THREE.MathUtils.clamp(Math.round(((info.roofFront - 0.03 - LNm.x0) / (LNm.x1 - LNm.x0)) * LNm.nx), 0, LNm.nx), yl = LNm.y[i * NZ + Math.round(LNm.nz / 2)]; if (Number.isFinite(yl)) topY = Math.min(topY, yl - 0.055); }
+    const mx = info.roofFront - 0.11, my = topY - 0.125;
+    put(tubeMesh([[info.roofFront - 0.03, topY, 0], [mx + 0.01, my + 0.03, 0]], 0.007, M.boot, 4), 'body');
     put(rbox(mx - 0.015, mx + 0.02, my - 0.035, my + 0.035, -0.13, 0.13, M.boot, 0.02), 'body');
     put(rbox(mx - 0.019, mx - 0.014, my - 0.03, my + 0.03, -0.122, 0.122, M.mirror, 0.016), 'body');
   }
@@ -8468,8 +8474,8 @@ function buildExtras(M, P, b, info, gBox) {
   }
   // roof rack (over the cab) + rooftop tent (on the roof rack or the cab-height bed rack)
   const rr = b.roofRack || 'none', rt = b.roofTent || 'none';
-  const rx1 = info.cabRear + 0.14, rx0 = info.roofFront - 0.12, rw = info.roofRw || P.halfW - 0.16, feet = info.roofFeet || [info.roofTop, info.roofTop, info.roofTop, info.roofTop];
-  const ry = Math.max(info.roofTop + 0.035, Math.max(...feet) + 0.07); // platform just clears the roof crown
+  const rx1 = info.rackX1 ?? info.cabRear + 0.14, rx0 = info.roofFront - 0.12, rw = info.roofRw || P.halfW - 0.16, feet = info.roofFeet || [info.roofTop, info.roofTop, info.roofTop, info.roofTop];
+  const ry = rackDeckY(info, feet); // platform just clears the roof crown
   const rackMat = new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.5, metalness: 0.45 });
   const roofRackOn = rr !== 'none' || (rt !== 'none' && rack !== 'overland' && rack !== 'cage');
   const rrType = rr !== 'none' ? rr : 'crossbars';
@@ -10283,7 +10289,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const sill = bi && bi.dash && bi.dash.glass ? bi.dash.glass.ys[0] - 0.06 : P ? P.rockerY + 0.15 : 0;
     // (its back: the cab's measured back wall — cabRear is the roof's rear edge, ~13 cm ahead of the wall at seat height)
     const wallX = bi && bi.cabBack && bi.cabBack.length ? bi.cabBack.filter(([y]) => y < bi.railY + 0.25).reduce((m, [, x]) => Math.min(m, x), 1e9) - 0.006 : 1e9;
-    if (bi && P) { TRIM_MIN.value.set(Math.min(bi.cabRear - 0.06, wallX, bi.wallIn != null ? bi.wallIn - 0.025 : 1e9), P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; }
+    if (bi && P) { TRIM_MIN.value.set(Math.min(bi.cabRear - 0.06, wallX, bi.wallIn != null ? bi.wallIn - 0.025 : 1e9), P.rockerY + 0.12, -P.halfW - 0.2); TRIM_MAX.value.set(P.cowlX + 0.05, bi.roofTop + 0.2, P.halfW + 0.2); TRIM_SILL.value = sill; TRIM_REAR.value = model.prof && model.prof.suv ? bi.cabRear + 0.12 : -1e6; }
     if (model.prof && model.prof.detailed) { TRIM_MIN.value.set(1e6, 1e6, 1e6); TRIM_MAX.value.set(-1e6, -1e6, -1e6); } // (a model with a real interior: its body shell's inside is already trimmed)
     if (model.glassFit) TRIM_GLASS.value.set(model.glassFit.gm, model.glassFit.gk, model.glassFit.bot);
   }
@@ -11270,8 +11276,16 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // roof surface under the rack feet (the roof crowns, so the gutters sit lower than the peak)
     // the cab narrows above the windows: find where the roof skin ends
     let roofHalf = 0.4; for (let z = 0.4; z < P.halfW; z += 0.02) { const h = probe(V((cabRear + prof.roofFront) / 2, prof.roofTop + 1, z), V(0, -1, 0)); if (h && h.point.y > prof.roofTop - 0.1) roofHalf = z; else break; }
-    const rx1 = cabRear + 0.14, rx0 = prof.roofFront - 0.12, rw = Math.min(P.halfW - 0.16, roofHalf - 0.05);
+    let rx1 = cabRear + 0.14; const rx0 = prof.roofFront - 0.12, rw = Math.min(P.halfW - 0.16, roofHalf - 0.05);
+    // the roof skin (its factory rails left out — they come off with a rack)
+    const skinY = (x, z) => { const h = probeAll(V(x, prof.roofTop + 1, z), V(0, -1, 0), 4).find((q) => q.object.userData.zone !== 'roofRack'); return h ? h.point.y : -Infinity; };
+    // (an SUV's liftgate spoiler stands up off the back of the roof: the rack ends just ahead of it, not over it)
+    { const mid = skinY((rx1 + rx0) / 2, 0); if (Number.isFinite(mid)) while (rx1 < rx0 - 1 && [0, rw * 0.6, -rw * 0.6].some((z) => skinY(rx1 + 0.03, z) > mid + 0.012)) rx1 += 0.05; }
     const roofFeet = [[rx0 - 0.05, 1], [rx0 - 0.05, -1], [rx1 + 0.05, 1], [rx1 + 0.05, -1]].map(([x, s]) => { const h = probe(V(x, prof.roofTop + 1, s * rw), V(0, -1, 0)); return h ? h.point.y : prof.roofTop - 0.05; });
+    // the skin's highest point under the rack: the platform clears this, not roofTop, which on an SUV is the top of those
+    // rails (the rack stood ~9 cm off the roof)
+    let roofCrown = -Infinity;
+    for (let x = rx1; x <= rx0 + 1e-6; x += 0.15) for (const z of [0, rw * 0.5, -rw * 0.5, rw, -rw]) roofCrown = Math.max(roofCrown, skinY(x, z));
     // factory fog pockets (per side: front face x, centre, pocket size) → Baja pods drop into them
     const fsb = { 1: new THREE.Box3(), [-1]: new THREE.Box3() }, fv = V(0, 0, 0);
     ((model.zones && model.zones.fogs) || []).forEach((m) => { const gg = m.geometry, p = gg.attributes.position, ix = gg.index, n = ix ? ix.count : p.count; m.updateMatrixWorld(true); for (let i = 0; i < n; i += 3) { fv.fromBufferAttribute(p, ix ? ix.getX(i) : i).applyMatrix4(m.matrixWorld); fsb[fv.z > 0 ? 1 : -1].expandByPoint(fv); } });
@@ -11401,7 +11415,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // The liners of a trimmed opening run out to it
     const archZ = {}; [['F', P.xF], ['R', P.xR]].forEach(([k, xc]) => { archZ[k] = []; for (let a = -20; a <= 200; a += 5) { const t = (a * Math.PI) / 180;
       archZ[k].push(ARCH_DR.map((dr) => { const r = P.R0 + 0.075 + dr; let z = 0; [1, -1].forEach((s) => { const h = probe(V(xc + r * Math.cos(t), P.wheelY0 + r * Math.sin(t), s * (P.halfW + 2)), V(0, 0, -s)); if (h && Math.abs(h.point.z) > P.halfW - 0.22 && !['steps', 'mirrors', 'guard'].includes(h.object.userData.zone)) z = Math.max(z, Math.abs(h.point.z)); }); return z || NaN; })); } });
-    model.bedInfo = { badgeAt, heads, archZ, cabFloor, b3: (model.prof || {}).car ? null : b3 /* (a car's third brake light is its own) */, cabBack, cabSurf, wallIn: Number.isFinite(wallIn) ? wallIn : null, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw, cargo: (model.prof || {}).cargo || null,
+    model.bedInfo = { badgeAt, heads, archZ, cabFloor, b3: (model.prof || {}).car ? null : b3 /* (a car's third brake light is its own) */, cabBack, cabSurf, wallIn: Number.isFinite(wallIn) ? wallIn : null, exX, exY, exitZ, qX, qY, qZ, hoodX, hoodEdgeY, railHalf, x0: cabRear + 0.04, x1: P.rear + 0.07, railY, floorY: hasFloor ? fh.point.y : P.rockerY + 0.3, hasFloor, halfW: P.halfW - 0.06, cabRear, roofFront: prof.roofFront, roofTop: prof.roofTop, roofFeet, roofRw: rw, roofCrown: Number.isFinite(roofCrown) ? roofCrown : null, rackX1: rx1, cargo: (model.prof || {}).cargo || null,
       // model-year styling for the 1st-gen Tundra: 2000–02 front (bar grille, amber corner lamps, rub-strip bumper with
       // rectangular fogs); Regular / Access Cab beds keep the original 3-section taillights through 2006
       era: tundraEra(base.vehicle), lensBox: model.lensBox || null, own: model.prof || {}, // (own: the stock model's profile — what it already has of its own)
@@ -13639,7 +13653,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (k === 'e' || k === 'q' || k === 'm') { // E / Q: shift up / down (switches to manual) · M: back to automatic
       if (e.type !== 'keydown' || e.repeat) return;
       if (k === 'm') { drive.manual = !drive.manual; return; }
-      drive.manual = true; shiftTo(drive.gear + (k === 'e' ? 1 : -1)); return;
+      manualShift(k === 'e' ? 1 : -1); return;
     }
     keys[k] = e.type === 'keydown';
   };
@@ -13711,7 +13725,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (ctl.mode === 'drive') {
       pad.steer = -pad.lx; pad.clutch = e.held(4) ? 1 : 0; pad.hand = e.held(0); pad.crouch = false;
       // B / X: up / down a gear — straight into manual (like E / Q). With the clutch in it's a clean shift: no torque gap
-      if (e.down(1) || e.down(2)) { drive.manual = true; shiftTo(drive.gear + (e.down(1) ? 1 : -1)); if (pad.clutch) drive.shiftT = 0; }
+      if ((e.down(1) || e.down(2)) && manualShift(e.down(1) ? 1 : -1) && pad.clutch) drive.shiftT = 0;
       if (e.down(5)) { drive.cam = (drive.cam + 1) % 4; recenterCam(); }
       if (e.down(10)) WorldAudio.horn(true); if (e.up(10)) WorldAudio.horn(false);
       if (e.down(12)) padSay('lights'); if (e.down(13)) drive.manual = !drive.manual; if (e.down(15)) startReplay();
@@ -13747,6 +13761,14 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
   };
   let DL = DRIVELINES.truck;
   const shiftTo = (g) => { const n = THREE.MathUtils.clamp(g, 0, DL.gears.length - 1); if (n !== drive.gear) { drive.gear = n; drive.shiftT = DL.shiftT; } };
+  // a shift you call (E / Q, a controller's B / X): into manual; a downshift that would throw the revs past the limiter is
+  // refused (the engine braking of the gear below is what slows you — see driveStep)
+  const manualShift = (dir) => {
+    drive.manual = true; const g = drive.gear + dir;
+    if (dir < 0 && g >= 0 && !drive.inRev && DL.gears[drive.gear]) { const rpmN = ((drive.rpm || 0) * DL.gears[g]) / DL.gears[drive.gear];
+      if (rpmN > DL.redline + 350) { say(`Too fast for ${g + 1}${['st', 'nd', 'rd'][g] || 'th'} gear`); return false; } }
+    shiftTo(g); return true;
+  };
   // dust: soft puffs kicked up behind the tires
   const dustN = 160, dustPos = new Float32Array(dustN * 3), dustCol = new Float32Array(dustN * 4), dustVel = new Float32Array(dustN * 3), dustLife = new Float32Array(dustN);
   const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3)); dustGeo.setAttribute('color', new THREE.BufferAttribute(dustCol, 4));
@@ -14698,15 +14720,28 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     if (burn) Fdem = 0; // (all the torque goes into spinning the rears — see spinX below)
     Fdem *= 1 - d.clutch; // (clutch in: nothing reaches the wheels)
     if (d.kick > 0 && !d.inRev && !d.air) Fdem += Fmax * d.kick * (bind ? 0.75 : 1); // (a clutch kick: the engine's stored spin dumped into the drive)
+    // engine braking: off the throttle in gear the engine holds it back — harder in a lower gear and at higher revs, so a
+    // downshift slows it down. A manual box more than the automatic's torque converter; nothing with the clutch in, a little
+    // through a shift. (4L has its own crawl hold, below)
+    if (!d.inRev && ign && !burn && !crawl && d.u > 0.5 && thr < 0.9 && !d.air) {
+      const rr = THREE.MathUtils.clamp((d.rpm || 0) / DL.redline, 0, 1.15);
+      const Feb = ((tqE * 1.356 * 0.28 * Math.sqrt(DL.power) * gearR) / Rw) * (0.25 + 0.75 * rr) * (1 - thr / 0.9) * (d.manual ? 1 : 0.55) * (1 - d.clutch) * (d.shiftT > 0 ? 0.3 : 1);
+      Fdem -= Math.min(Feb, tracLim * 0.8); // (never more than the tyres hold: no lock-up off a downshift)
+    }
     // (4L: ~150:1 is far more torque than any grip — fed like a crawl it walks up instead of spinning: a gentle push on the flat,
     // as much as the climb needs and the tyres hold on a slope)
     if (crawl && Fdem > 0) Fdem = Math.min(Fdem, tracLim * 0.98, m * g * (Math.max(0, Math.sin(d.pitch)) + 0.3));
     const tcs = tcMode === 'tcs', slipR = Math.atan2(Math.abs(d.vz + d.r * b_), Math.max(1, Math.abs(d.u)));
+    // a truck / SUV on loose ground: its lugged tyres dig in sideways even while they drive (less of the rear's side grip is
+    // spent pulling), it feathers sooner and it straightens itself once the wheel's centred — on dirt, power used to keep the
+    // rear stepped out round a whole bend and on past it. (Pavement — the drifting — is left exactly as it was)
+    const looseT = !car && !paved;
     if (tcs) { const f0 = Fdem; if (Math.abs(Fdem) > tracLim * 0.97) Fdem = Math.sign(Fdem) * tracLim * 0.97; if (slipR > 0.1 && Fdem > 0) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.1) * 4, 0.25, 1); d.tcLit = thr && Math.abs(Fdem) < Math.abs(f0) * 0.9; } // traction / stability control: no wheelspin, eases power when the rear steps out
     // a keyboard throttle is all-or-nothing: in a power slide a driver would feather it, so past ~17° of rear slip the drive
     // eases off by itself (to ~half at big angles) — the slide holds instead of the rear being shoved further round. (A trigger
     // or touch pedal is feathered by you: left alone)
-    else if (Fdem > 0 && slipR > 0.3 && !analogThr) Fdem *= THREE.MathUtils.clamp(1 - (slipR - 0.3) * 1.6, 0.5, 1);
+    // (a truck on dirt: from ~8° — held flat out on the keyboard it kept the rear hung out round a whole bend)
+    else if (Fdem > 0 && slipR > (looseT ? 0.14 : 0.3) && !analogThr) Fdem *= looseT ? THREE.MathUtils.clamp(1 - (slipR - 0.14) * 2.2, 0.4, 1) : THREE.MathUtils.clamp(1 - (slipR - 0.3) * 1.6, 0.5, 1);
     const spinning = (Math.abs(Fdem) > tracLim * 1.02 && !d.air) || burn; d.spinning = spinning;
     const Fx = Math.sign(Fdem) * Math.min(Math.abs(Fdem), tracLim * (spinning ? 0.85 : 1));
     // (4L off the throttle: the low gearing holds it back — it creeps down a hill instead of running away)
@@ -14733,7 +14768,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     const diffV = atrac && diff !== 'locker' ? 'locker' : diff; // (A-TRAC brakes the light tire: the axle spins up together, like a locker)
     const spinLoss = burn ? 0.12 : !spinning ? 1 : diffV === 'open' ? 1 - 0.5 * (nLight / Math.max(1, Nr)) : diffV === 'lsd' ? 0.6 : 0.5; // (burnout: rears spinning flat out hold almost nothing sideways)
     const biasLoose = car && brake ? 1 - THREE.MathUtils.clamp((0.6 - (b.brakeBias ?? 0.64)) * 5, 0, 0.3) : 1; // (rear-biased brakes: the tail steps out under braking)
-    const capR = Math.sqrt(Math.max(0, (mu * Nr * kR * wkR * (car ? cgR.lat : 1)) ** 2 - (Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide * stick * biasLoose;
+    const capR = Math.sqrt(Math.max(0, (mu * Nr * kR * wkR * (car ? cgR.lat : 1)) ** 2 - ((looseT ? 0.62 : 1) * Fx * rearShare + hb) ** 2)) * (groundedR ? 1 : 0) * (hand ? 0.35 : 1) * spinLoss * lowSlide * stick * biasLoose;
     const CF = car ? 10.5 : 8.6, CR = car ? 15.5 : paved && wth === 'dry' ? 13.5 : 12.5; // softer front cornering stiffness → a gentle push at the limit until the rear is overloaded (a car: crisper both ends)
     const Fyf = THREE.MathUtils.clamp(-CF * Nf * mu * af, -capF, capF), Fyr = THREE.MathUtils.clamp(-CR * Nr * mu * ar, -capR, capR);
     const roll = (A.roll + (A.sink ? A.sink(d.x, d.z) * 0.32 : 0)) * m * g * (Math.abs(u) > 0.1 ? Math.sign(u) : 0), drag = (car ? 0.26 : 0.24) * u * Math.abs(u);
@@ -14741,7 +14776,7 @@ if (abs(vCutP.z) > uSlant.w && vCutP.x < uSlant.x && vCutP.x > uSlantX && vCutP.
     // countersteering (wheel pointed against the rotation) in a slide: the fronts bite and settle the yaw — catches the
     // slide instead of whipping the rear out further
     const counter = st * d.r < 0 && slipR > 0.12 ? Math.min(1, Math.abs(st) / 0.25) : 0;
-    const sumX = Fx + Fyf * Math.sin(st) - drag - roll - Fb - m * g * Math.sin(d.pitch), sumZ = Fyf * Math.cos(st) + Fyr, torque = -a_ * Fyf * Math.cos(st) + b_ * Fyr - (hand ? 0 : Iz * d.r * (0.45 * Math.min(1, Math.abs(d.u) / 8) + 0.6 * counter)); // tire yaw damping: slides settle so they can be caught
+    const sumX = Fx + Fyf * Math.sin(st) - drag - roll - Fb - m * g * Math.sin(d.pitch), sumZ = Fyf * Math.cos(st) + Fyr, torque = -a_ * Fyf * Math.cos(st) + b_ * Fyr - (hand ? 0 : Iz * d.r * (0.45 * Math.min(1, Math.abs(d.u) / 8) + 0.6 * counter + (looseT && Math.abs(st) < 0.05 ? 0.45 : 0))); // tire yaw damping: slides settle so they can be caught
     if (!d.air) {
       d.u += (sumX / m - d.r * d.vz) * dt; d.vz += (sumZ / m + d.r * d.u) * dt; d.r += (torque / Iz) * dt;
       // low speed: kinematic steering, no sliding. (By total speed: deep in a drift the forward speed can fall under 2.5 m/s
